@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LKA | Access Nodes</title>
+    <!-- Lightweight QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg: #222;
+            --panel-bg: #121212;
+            --cmd-bg: #333;
+            --accent: #61afef;
+            --text: #eee;
+            --dim: #888;
+            --snap: #98c379;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Consolas', monospace;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            max-width: 1000px;
+            width: 100%;
+            border-bottom: 2px solid #444;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--accent);
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        p.subtitle {
+            color: var(--dim);
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Grid Layout for QR Cards */
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .qr-card {
+            background-color: var(--panel-bg);
+            border: 1px solid #444;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: border-color 0.2s ease;
+        }
+
+        .qr-card:hover {
+            border-color: var(--snap);
+        }
+
+        .qr-title {
+            color: var(--accent);
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .qr-desc {
+            color: var(--dim);
+            font-size: 12px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+            min-height: 34px;
+        }
+
+        /* The container where the QR canvas is injected */
+        .qrcode-container {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .qr-url {
+            color: var(--snap);
+            font-size: 11px;
+            text-decoration: none;
+            word-break: break-all;
+            padding: 8px;
+            background: var(--cmd-bg);
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #444;
+        }
+        
+        .qr-url:hover {
+            background: #444;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>ACCESS NODES</h1>
+        <p class="subtitle">Scan to load active project protocols</p>
+    </div>
+
+    <div class="qr-grid" id="qr-grid">
+        <!-- QR Cards will be injected here by JavaScript -->
+    </div>
+
+    <script>
+        // ==========================================
+        // ADD OR EDIT YOUR URLs HERE
+        // ==========================================
+        const qrData = [
+            {
+                title: "WallyCAD v1.0.14",
+                desc: "Primary JavaScript Vector Engine & JSON Protocol",
+                url: "https://btlsp2000.github.io/wally/"
+            },
+            {
+                title: "Operations Manual",
+                desc: "Documentation for the spawn-and-modify cartesian workflow",
+                url: "https://btlsp2000.github.io/wally/manual.html"
+            },
+            {
+                title: "Logo Assets",
+                desc: "Official vector branding and .WALLY code blocks",
+                url: "https://btlsp2000.github.io/wally/wally-logo.html"
+            },
+            {
+                title: "QC - The Operator",
+                desc: "High-speed frequency-based shorthand data entry layout",
+                url: "https://btlsp2000.github.io/qc-operator/" 
+            }
+            // To add a new code, copy the block above, add a comma, and paste.
+        ];
+
+        // ==========================================
+        // GENERATOR LOGIC (Do not edit below)
+        // ==========================================
+        const grid = document.getElementById('qr-grid');
+
+        qrData.forEach((data, index) => {
+            // Create Card Container
+            const card = document.createElement('div');
+            card.className = 'qr-card';
+
+            // Title
+            const title = document.createElement('div');
+            title.className = 'qr-title';
+            title.innerText = data.title;
+
+            // Description
+            const desc = document.createElement('div');
+            desc.className = 'qr-desc';
+            desc.innerText = data.desc;
+
+            // QR Target Container
+            const qrTarget = document.createElement('div');
+            qrTarget.className = 'qrcode-container';
+            qrTarget.id = `qr-${index}`;
+
+            // URL Link
+            const link = document.createElement('a');
+            link.className = 'qr-url';
+            link.href = data.url;
+            link.target = "_blank";
+            link.innerText = data.url;
+
+            // Append to Card
+            card.appendChild(title);
+            card.appendChild(desc);
+            card.appendChild(qrTarget);
+            card.appendChild(link);
+            grid.appendChild(card);
+
+            // Generate QR Code Graphic
+            new QRCode(document.getElementById(`qr-${index}`), {
+                text: data.url,
+                width: 150,
+                height: 150,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+        });
+    </script>
+</body>
+</html>
