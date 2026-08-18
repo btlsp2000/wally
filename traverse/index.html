@@ -14,6 +14,8 @@
         #cli:focus { border-color: #00ff00; }
         .stat { color: #fff; font-size: 14px; margin-bottom: 5px; }
         #qc-hud { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border: 1px solid #00ff00; pointer-events: none; }
+        .btn { margin-top:10px; background:#00ff00; color:#000; font-weight:bold; border:none; padding:10px; cursor:pointer; }
+        .btn:hover { background:#00cc00; }
     </style>
 </head>
 <body>
@@ -23,18 +25,16 @@
         <div class="stat">P-Points: <span id="p-count">1</span></div>
         <div class="stat">Heading: <span id="heading-display">0°</span></div>
         
-        <!-- Read-Only Log -->
         <textarea id="command-log" readonly placeholder="Traverse Log..."></textarea>
-        
-        <!-- Active Command Line -->
         <input type="text" id="cli" placeholder="Command (e.g. L 10)" autofocus autocomplete="off">
         
-        <button onclick="exportToGist()" style="margin-top:10px; background:#00ff00; color:#000; font-weight:bold; border:none; padding:10px; cursor:pointer;">SYNC TO GIST</button>
+        <button class="btn" onclick="copyWallyPath()">COPY WALLY PATH</button>
+        <button class="btn" onclick="exportToGist()">SYNC TO GIST</button>
     </div>
 
     <div id="canvas-pane">
         <canvas id="traverseCanvas"></canvas>
-        <div id="qc-hud">CLI: [ L {dist} | R {dist} | T {dist},{angle} | E (Zoom Extents) ]<br>NAV: [ Scroll: Zoom | Click+Drag: Pan ]</div>
+        <div id="qc-hud">CLI: [ L {dist} | R {dist} | T {dist},{ang} | E (Extents) | W (Wally Path) ]<br>NAV: [ Scroll: Zoom | Click+Drag: Pan ]</div>
     </div>
 
 <script>
@@ -101,8 +101,27 @@
         const centerY = (minY + maxY) / 2;
 
         originX = canvas.width / 2 - centerX * scale;
-        originY = canvas.height / 2 + centerY * scale; // + because Y is inverted
+        originY = canvas.height / 2 + centerY * scale; 
         render();
+    }
+
+    function copyWallyPath() {
+        if (points.length === 0) return;
+        
+        // Format for Wally's script interpreter
+        let wallyScript = "**LINE**\n";
+        points.forEach(p => {
+            // Precision locked to 4 decimals for pure CAD mechanics
+            wallyScript += `**${p.x.toFixed(4)},${p.y.toFixed(4)}**\n`;
+        });
+        
+        navigator.clipboard.writeText(wallyScript).then(() => {
+            const log = document.getElementById('command-log');
+            log.value += `>> WALLY SCRIPT COPIED TO CLIPBOARD\n`;
+            log.scrollTop = log.scrollHeight;
+        }).catch(err => {
+            alert('Clipboard access denied. Check browser permissions.');
+        });
     }
 
     // Active CLI Event Listener
@@ -122,22 +141,22 @@
                 addMove(Number(parts[1]), Number(parts[2]));
             } else if (cmd === 'E') {
                 zoomExtents();
+            } else if (cmd === 'W') {
+                copyWallyPath();
             } else if (cmd === 'L' || cmd === 'R') {
-                // Fallback prompt if they only type the letter without distance
                 const def = cmd === 'L' ? 90 : -90;
                 addMove(Number(prompt(`Distance ${cmd === 'L' ? 'Left' : 'Right'} 90°:`)), def);
             }
             
-            cli.value = ''; // Clear the input field for the next command
+            cli.value = ''; 
         }
     });
 
-    // Keep focus on CLI when clicking in the control pane
     document.getElementById('control-pane').addEventListener('click', () => {
         cli.focus();
     });
 
-    // Panning & Zooming Listeners
+    // Navigation Listeners
     canvas.addEventListener('mousedown', (e) => {
         isPanning = true;
         startPanX = e.clientX - originX;
@@ -197,7 +216,7 @@
         ctx.stroke();
     }
 
-    // Initialize Canvas
+    // Initialization
     window.onresize = () => { 
         canvas.width = canvas.clientWidth; 
         canvas.height = canvas.clientHeight; 
