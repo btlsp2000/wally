@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD | Traverse Engine</title>
+    <style>
+        body { background: #1a1a1a; color: #00ff00; font-family: monospace; display: flex; height: 100vh; margin: 0; }
+        #control-pane { width: 300px; border-right: 1px solid #444; padding: 20px; display: flex; flex-direction: column; }
+        #canvas-pane { flex-grow: 1; background: #000; position: relative; }
+        canvas { width: 100%; height: 100%; }
+        textarea { flex-grow: 1; background: #080808; color: #00ff00; border: 1px solid #333; padding: 10px; font-size: 12px; margin-top: 10px; }
+        .stat { color: #fff; font-size: 14px; margin-bottom: 5px; }
+        #qc-hud { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.8); padding: 10px; border: 1px solid #00ff00; }
+    </style>
+</head>
+<body>
+
+    <div id="control-pane">
+        <h3>TRAVERSE ENGINE</h3>
+        <div class="stat">P-Points: <span id="p-count">1</span></div>
+        <div class="stat">Heading: <span id="heading-display">0°</span></div>
+        <textarea id="command-log" readonly placeholder="Traverse Log..."></textarea>
+        <button onclick="exportToGist()" style="margin-top:10px; background:#00ff00; border:none; padding:10px; cursor:pointer;">SYNC TO GIST</button>
+    </div>
+
+    <div id="canvas-pane">
+        <canvas id="traverseCanvas"></canvas>
+        <div id="qc-hud">QC: [L/R: 90° Turn | T: Custom Angle | S: Save SDJ]</div>
+    </div>
+
+<script>
+    let points = [{x: 0, y: 0}];
+    let currentHeading = 0; // 0 = East
+    const canvas = document.getElementById('traverseCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function addMove(dist, deflection) {
+        currentHeading += deflection;
+        const rad = currentHeading * (Math.PI / 180);
+        const last = points[points.length - 1];
+        
+        const next = {
+            x: last.x + dist * Math.cos(rad),
+            y: last.y + dist * Math.sin(rad)
+        };
+        
+        points.push(next);
+        updateLog(dist, deflection);
+        render();
+    }
+
+    function updateLog(dist, def) {
+        const log = document.getElementById('command-log');
+        const dir = def > 0 ? "LEFT" : (def < 0 ? "RIGHT" : "STRAIGHT");
+        log.value += `P${points.length}: ${dist} units, ${dir} ${Math.abs(def)}°\n`;
+        document.getElementById('heading-display').innerText = `${currentHeading}°`;
+        document.getElementById('p-count').innerText = points.length;
+    }
+
+    window.addEventListener('keydown', (e) => {
+        const key = e.key.toUpperCase();
+        if (key === 'L') addMove(Number(prompt("Distance Left 90°:")), 90);
+        if (key === 'R') addMove(Number(prompt("Distance Right 90°:")), -90);
+        if (key === 'T') {
+            const input = prompt("Distance, Angle (e.g. 10, 45):").split(',');
+            addMove(Number(input[0]), Number(input[1]));
+        }
+    });
+
+    function render() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        ctx.strokeStyle = '#00ff00';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        const scale = 20;
+        const offset = { x: canvas.width/2, y: canvas.height/2 };
+
+        points.forEach((p, i) => {
+            const screenX = offset.x + p.x * scale;
+            const screenY = offset.y - p.y * scale;
+            if (i === 0) ctx.moveTo(screenX, screenY);
+            else ctx.lineTo(screenX, screenY);
+        });
+        ctx.stroke();
+    }
+
+    // Initialize Canvas
+    window.onresize = () => { canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; render(); };
+    window.onresize();
+</script>
+</body>
+</html>
