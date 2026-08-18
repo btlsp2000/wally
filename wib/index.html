@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WIB Gameboard - Full Integration Engine</title>
+    <title>WIB Gameboard - Geographic Integration</title>
     <style>
         body {
             background-color: #e0e0e0;
@@ -131,6 +131,41 @@
     // 4. RENDERING LOGIC
     // ==========================================
 
+    // Draws a horizontal line across the board representing a specific geographic latitude
+    function drawLatitudeLine(ctx, targetLat, jsonString, canvasWidth, canvasHeight, padding = 60) {
+        const geoData = JSON.parse(jsonString);
+        let minLat = Infinity, maxLat = -Infinity;
+
+        geoData.forEach(node => {
+            if (node.lat < minLat) minLat = node.lat;
+            if (node.lat > maxLat) maxLat = node.lat;
+        });
+
+        const mapRange = (val, inMin, inMax, outMin, outMax) => {
+            return (val - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        };
+
+        const yPos = Math.round(mapRange(targetLat, maxLat, minLat, padding, canvasHeight - padding));
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = "#888"; 
+        ctx.setLineDash([10, 5]); 
+        ctx.lineWidth = 1.5;
+        
+        ctx.moveTo(0, yPos);
+        ctx.lineTo(canvasWidth, yPos);
+        ctx.stroke();
+
+        ctx.fillStyle = "#555";
+        ctx.font = "12px monospace";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(`OR/CA BORDER (42° N)`, 15, yPos - 5);
+        
+        ctx.restore();
+    }
+
     function drawPaths(ctx, nodes, paths) {
         ctx.strokeStyle = "#000";
         ctx.lineWidth = 1.5;
@@ -176,10 +211,8 @@
             if (startNode && endNode) {
                 const vector = getSpinnerVector(startNode, endNode);
                 
-                // Log the calculated mechanics for the UI/Game rules
                 console.log(`Path [${path.start} -> ${path.end}]: Spin ${vector.degrees}°, Cost: ${vector.cost} units (Raw Dist: ${vector.distance}px)`);
 
-                // Draw rotational arrow indicators
                 const arrowLength = 25;
                 ctx.save();
                 ctx.translate(startNode.x, startNode.y);
@@ -203,64 +236,15 @@
         console.log("------------------------------------");
     }
 
-    // Draws a horizontal line across the board representing a specific geographic latitude
-function drawLatitudeLine(ctx, targetLat, jsonString, canvasWidth, canvasHeight, padding = 60) {
-    const geoData = JSON.parse(jsonString);
-    let minLat = Infinity, maxLat = -Infinity;
-
-    // Recalculate the bounds to ensure perfect alignment with the nodes
-    geoData.forEach(node => {
-        if (node.lat < minLat) minLat = node.lat;
-        if (node.lat > maxLat) maxLat = node.lat;
-    });
-
-    const mapRange = (val, inMin, inMax, outMin, outMax) => {
-        return (val - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
-    };
-
-    // Calculate the exact canvas Y coordinate for the target latitude
-    const yPos = Math.round(mapRange(targetLat, maxLat, minLat, padding, canvasHeight - padding));
-
-    // Draw the border line
-    ctx.save();
-    ctx.beginPath();
-    ctx.strokeStyle = "#888"; // Subtle drafting gray
-    ctx.setLineDash([10, 5]); // Dashed line to indicate a state border
-    ctx.lineWidth = 1.5;
-    
-    // Draw line from the far left to the far right of the canvas
-    ctx.moveTo(0, yPos);
-    ctx.lineTo(canvasWidth, yPos);
-    ctx.stroke();
-
-    // Add a drafting label for the line
-    ctx.fillStyle = "#555";
-    ctx.font = "12px monospace";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "bottom";
-    ctx.fillText(`OR/CA BORDER (42° N)`, 15, yPos - 5);
-    
-    ctx.restore();
-}
-
     // ==========================================
     // 5. INITIALIZATION
     // ==========================================
     
     function init() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        function init() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Render the Oregon/California border at exactly 42.0 latitude
-    drawLatitudeLine(ctx, 42.0, geoNodeString, canvas.width, canvas.height);
-    
-    // Render sequence
-    drawPaths(ctx, wibNodes, wibPaths);
-    drawNodes(ctx, wibNodes);
-    drawSpinners(ctx, wibNodes, wibPaths);
-}
+        
+        // Render the Oregon/California border first so it sits in the background
+        drawLatitudeLine(ctx, 42.0, geoNodeString, canvas.width, canvas.height);
         
         // Render sequence
         drawPaths(ctx, wibNodes, wibPaths);
