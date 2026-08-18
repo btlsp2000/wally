@@ -249,6 +249,18 @@ function drawLatitudeLine(ctx, targetLat, jsonString, canvasWidth, canvasHeight,
     
     function init() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        function init() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Render the Oregon/California border at exactly 42.0 latitude
+    drawLatitudeLine(ctx, 42.0, geoNodeString, canvas.width, canvas.height);
+    
+    // Render sequence
+    drawPaths(ctx, wibNodes, wibPaths);
+    drawNodes(ctx, wibNodes);
+    drawSpinners(ctx, wibNodes, wibPaths);
+}
         
         // Render sequence
         drawPaths(ctx, wibNodes, wibPaths);
