@@ -1,1 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIB Gameboard - Full Integration Engine</title>
+    <style>
+        body {
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: monospace;
+        }
+        canvas {
+            background-color: #ffffff;
+            border: 2px solid #333;
+            box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
 
+<canvas id="wibCanvas" width="900" height="850"></canvas>
+
+<script>
+    // ==========================================
+    // 1. ENGINE SETUP & GEOGRAPHIC DATA
+    // ==========================================
+    const canvas = document.getElementById('wibCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Geographic Node Profile (Latitude / Longitude)
+    const geoNodeString = `[
+        {"id":"PDX", "lat":45.5152, "lon":-122.6784},
+        {"id":"HRW", "lat":45.7054, "lon":-121.5215},
+        {"id":"EUG", "lat":44.0521, "lon":-123.0868},
+        {"id":"SFA", "lat":44.0462, "lon":-123.0220},
+        {"id":"FLO", "lat":43.9826, "lon":-124.0998},
+        {"id":"MD",  "lat":42.3265, "lon":-122.8756},
+        {"id":"KF",  "lat":42.2249, "lon":-121.7817},
+        {"id":"SAC", "lat":38.5816, "lon":-121.4944},
+        {"id":"RNO", "lat":39.5296, "lon":-119.8138},
+        {"id":"FLN", "lat":39.4735, "lon":-118.7774},
+        {"id":"CC",  "lat":39.1638, "lon":-119.7674},
+        {"id":"MM",  "lat":37.6485, "lon":-118.9721},
+        {"id":"LV",  "lat":36.1699, "lon":-115.1398},
+        {"id":"SLO", "lat":35.2828, "lon":-120.6596},
+        {"id":"BRW", "lat":34.8958, "lon":-117.0173},
+        {"id":"WW",  "lat":34.3597, "lon":-117.6276},
+        {"id":"OSI", "lat":33.1959, "lon":-117.3795},
+        {"id":"SM",  "lat":33.1434, "lon":-117.1661},
+        {"id":"SD",  "lat":32.7157, "lon":-117.1611}
+    ]`;
+
+    // Established Movement Paths
+    const wibPaths = [
+        { start: "WW", end: "BRW" },
+        { start: "WW", end: "OSI" },
+        { start: "WW", end: "SM" },
+        { start: "SD", end: "OSI" },
+        { start: "SD", end: "SM" }
+        // Additional routes can be appended here
+    ];
+
+    // ==========================================
+    // 2. CORE UTILITIES & VECTOR MATH
+    // ==========================================
+
+    // Convert Earth Lat/Lon to Canvas X/Y using linear interpolation
+    function geoProfileToCanvas(jsonString, canvasWidth, canvasHeight, padding = 60) {
+        const geoData = JSON.parse(jsonString);
+        let minLat = Infinity, maxLat = -Infinity;
+        let minLon = Infinity, maxLon = -Infinity;
+
+        geoData.forEach(node => {
+            if (node.lat < minLat) minLat = node.lat;
+            if (node.lat > maxLat) maxLat = node.lat;
+            if (node.lon < minLon) minLon = node.lon;
+            if (node.lon > maxLon) maxLon = node.lon;
+        });
+
+        const mapRange = (val, inMin, inMax, outMin, outMax) => {
+            return (val - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        };
+
+        return geoData.map(node => {
+            return {
+                id: node.id,
+                x: Math.round(mapRange(node.lon, minLon, maxLon, padding, canvasWidth - padding)),
+                y: Math.round(mapRange(node.lat, maxLat, minLat, padding, canvasHeight - padding)),
+                geo: { lat: node.lat, lon: node.lon }
+            };
+        });
+    }
+
+    // Convert pixel distance to gameplay movement units (e.g., 75 pixels = 1 tick)
+    function calculateMovementCost(pixelDistance, pixelsPerUnit = 75) {
+        return Math.ceil(pixelDistance / pixelsPerUnit);
+    }
+
+    // Calculate the bearing, magnitude, and gameplay cost between two vectors
+    function getSpinnerVector(startNode, endNode) {
+        const dx = endNode.x - startNode.x;
+        const dy = endNode.y - startNode.y;
+
+        const distance = Math.hypot(dx, dy);
+        const radians = Math.atan2(dy, dx);
+        
+        let degrees = radians * (180 / Math.PI);
+        if (degrees < 0) degrees += 360;
+
+        const cost = calculateMovementCost(distance, 75);
+
+        return { 
+            distance: distance.toFixed(2), 
+            degrees: degrees.toFixed(2),
+            radians: radians,
+            cost: cost
+        };
+    }
+
+    // ==========================================
+    // 3. GENERATE MAP DATA
+    // ==========================================
+    const wibNodes = geoProfileToCanvas(geoNodeString, canvas.width, canvas.height);
+
+    // ==========================================
+    // 4. RENDERING LOGIC
+    // ==========================================
+
+    function drawPaths(ctx, nodes, paths) {
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 1.5;
+        paths.forEach(path => {
+            const startNode = nodes.find(n => n.id === path.start);
+            const endNode = nodes.find(n => n.id === path.end);
+
+            if (startNode && endNode) {
+                ctx.beginPath();
+                ctx.moveTo(startNode.x, startNode.y);
+                ctx.lineTo(endNode.x, endNode.y);
+                ctx.stroke();
+            }
+        });
+    }
+
+    function drawNodes(ctx, nodes) {
+        const boxWidth = 36;
+        const boxHeight = 24;
+        
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = "14px monospace";
+        ctx.lineWidth = 1;
+
+        nodes.forEach(node => {
+            ctx.fillStyle = "#fff";
+            ctx.strokeStyle = "#333";
+            ctx.fillRect(node.x - boxWidth/2, node.y - boxHeight/2, boxWidth, boxHeight);
+            ctx.strokeRect(node.x - boxWidth/2, node.y - boxHeight/2, boxWidth, boxHeight);
+            
+            ctx.fillStyle = "#000";
+            ctx.fillText(node.id, node.x, node.y);
+        });
+    }
+
+    function drawSpinners(ctx, nodes, paths) {
+        console.log("--- SPINNER MECHANICS CALCULATED ---");
+        paths.forEach(path => {
+            const startNode = nodes.find(n => n.id === path.start);
+            const endNode = nodes.find(n => n.id === path.end);
+
+            if (startNode && endNode) {
+                const vector = getSpinnerVector(startNode, endNode);
+                
+                // Log the calculated mechanics for the UI/Game rules
+                console.log(`Path [${path.start} -> ${path.end}]: Spin ${vector.degrees}°, Cost: ${vector.cost} units (Raw Dist: ${vector.distance}px)`);
+
+                // Draw rotational arrow indicators
+                const arrowLength = 25;
+                ctx.save();
+                ctx.translate(startNode.x, startNode.y);
+                ctx.rotate(vector.radians);
+                
+                ctx.beginPath();
+                ctx.strokeStyle = "red";
+                ctx.lineWidth = 2;
+                
+                ctx.moveTo(20, 0); 
+                ctx.lineTo(20 + arrowLength, 0);
+                
+                ctx.lineTo(20 + arrowLength - 6, -4);
+                ctx.moveTo(20 + arrowLength, 0);
+                ctx.lineTo(20 + arrowLength - 6, 4);
+                
+                ctx.stroke();
+                ctx.restore();
+            }
+        });
+        console.log("------------------------------------");
+    }
+
+    // ==========================================
+    // 5. INITIALIZATION
+    // ==========================================
+    
+    function init() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Render sequence
+        drawPaths(ctx, wibNodes, wibPaths);
+        drawNodes(ctx, wibNodes);
+        drawSpinners(ctx, wibNodes, wibPaths);
+    }
+
+    // Boot the engine
+    init();
+
+</script>
+</body>
+</html>
