@@ -203,6 +203,46 @@
         console.log("------------------------------------");
     }
 
+    // Draws a horizontal line across the board representing a specific geographic latitude
+function drawLatitudeLine(ctx, targetLat, jsonString, canvasWidth, canvasHeight, padding = 60) {
+    const geoData = JSON.parse(jsonString);
+    let minLat = Infinity, maxLat = -Infinity;
+
+    // Recalculate the bounds to ensure perfect alignment with the nodes
+    geoData.forEach(node => {
+        if (node.lat < minLat) minLat = node.lat;
+        if (node.lat > maxLat) maxLat = node.lat;
+    });
+
+    const mapRange = (val, inMin, inMax, outMin, outMax) => {
+        return (val - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    };
+
+    // Calculate the exact canvas Y coordinate for the target latitude
+    const yPos = Math.round(mapRange(targetLat, maxLat, minLat, padding, canvasHeight - padding));
+
+    // Draw the border line
+    ctx.save();
+    ctx.beginPath();
+    ctx.strokeStyle = "#888"; // Subtle drafting gray
+    ctx.setLineDash([10, 5]); // Dashed line to indicate a state border
+    ctx.lineWidth = 1.5;
+    
+    // Draw line from the far left to the far right of the canvas
+    ctx.moveTo(0, yPos);
+    ctx.lineTo(canvasWidth, yPos);
+    ctx.stroke();
+
+    // Add a drafting label for the line
+    ctx.fillStyle = "#555";
+    ctx.font = "12px monospace";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "bottom";
+    ctx.fillText(`OR/CA BORDER (42° N)`, 15, yPos - 5);
+    
+    ctx.restore();
+}
+
     // ==========================================
     // 5. INITIALIZATION
     // ==========================================
