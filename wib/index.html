@@ -96,7 +96,7 @@
         });
     }
 
-    // Convert pixel distance to gameplay movement units (e.g., 75 pixels = 1 tick)
+    // Convert pixel distance to gameplay movement units
     function calculateMovementCost(pixelDistance, pixelsPerUnit = 75) {
         return Math.ceil(pixelDistance / pixelsPerUnit);
     }
@@ -162,6 +162,78 @@
         ctx.textAlign = "left";
         ctx.textBaseline = "bottom";
         ctx.fillText(`OR/CA BORDER (42° N)`, 15, yPos - 5);
+        
+        ctx.restore();
+    }
+
+    // Draws the California/Nevada border using n interpolated steps along the oblique divide
+    function drawCaNvBorder(ctx, jsonString, canvasWidth, canvasHeight, padding = 60, n = 10) {
+        const geoData = JSON.parse(jsonString);
+        let minLat = Infinity, maxLat = -Infinity;
+        let minLon = Infinity, maxLon = -Infinity;
+
+        geoData.forEach(node => {
+            if (node.lat < minLat) minLat = node.lat;
+            if (node.lat > maxLat) maxLat = node.lat;
+            if (node.lon < minLon) minLon = node.lon;
+            if (node.lon > maxLon) maxLon = node.lon;
+        });
+
+        const mapRange = (val, inMin, inMax, outMin, outMax) => {
+            return (val - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        };
+
+        const latStartDiag = 39.0;
+        const lonStartDiag = -120.0;
+        const latEndDiag = 35.0;
+        const lonEndDiag = -114.6333;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = "#888"; 
+        ctx.setLineDash([10, 5]); 
+        ctx.lineWidth = 1.5;
+
+        // Draw vertical drop from 42nd parallel
+        const vertStartX = Math.round(mapRange(-120.0, minLon, maxLon, padding, canvasWidth - padding));
+        const vertStartY = Math.round(mapRange(42.0, maxLat, minLat, padding, canvasHeight - padding));
+        const pivotX = Math.round(mapRange(lonStartDiag, minLon, maxLon, padding, canvasWidth - padding));
+        const pivotY = Math.round(mapRange(latStartDiag, maxLat, minLat, padding, canvasHeight - padding));
+        
+        ctx.moveTo(vertStartX, vertStartY);
+        ctx.lineTo(pivotX, pivotY);
+
+        // Draw n equa-latitudinal steps
+        for (let i = 1; i <= n; i++) {
+            const currentLat = latStartDiag + ((latEndDiag - latStartDiag) * (i / n));
+            const currentLon = lonStartDiag + ((lonEndDiag - lonStartDiag) * (i / n));
+
+            const xPos = Math.round(mapRange(currentLon, minLon, maxLon, padding, canvasWidth - padding));
+            const yPos = Math.round(mapRange(currentLat, maxLat, minLat, padding, canvasHeight - padding));
+
+            ctx.lineTo(xPos, yPos);
+        }
+        
+        ctx.stroke();
+
+        // Add label
+        const midLat = latStartDiag + (latEndDiag - latStartDiag) / 2;
+        const midLon = lonStartDiag + (lonEndDiag - lonStartDiag) / 2;
+        const textX = Math.round(mapRange(midLon, minLon, maxLon, padding, canvasWidth - padding));
+        const textY = Math.round(mapRange(midLat, maxLat, minLat, padding, canvasHeight - padding));
+        
+        const angle = Math.atan2(
+            mapRange(latEndDiag, maxLat, minLat, 0, 1) - mapRange(latStartDiag, maxLat, minLat, 0, 1), 
+            mapRange(lonEndDiag, minLon, maxLon, 0, 1) - mapRange(lonStartDiag, minLon, maxLon, 0, 1)
+        );
+
+        ctx.translate(textX, textY);
+        ctx.rotate(angle);
+        ctx.fillStyle = "#555";
+        ctx.font = "12px monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(`CA/NV BORDER`, 0, -8);
         
         ctx.restore();
     }
@@ -243,10 +315,11 @@
     function init() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Render the Oregon/California border first so it sits in the background
+        // Render the background map boundaries
         drawLatitudeLine(ctx, 42.0, geoNodeString, canvas.width, canvas.height);
+        drawCaNvBorder(ctx, geoNodeString, canvas.width, canvas.height, 60, 10);
         
-        // Render sequence
+        // Render the foreground nodes and vectors
         drawPaths(ctx, wibNodes, wibPaths);
         drawNodes(ctx, wibNodes);
         drawSpinners(ctx, wibNodes, wibPaths);
