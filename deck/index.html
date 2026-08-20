@@ -4,41 +4,49 @@
     <meta charset="UTF-8">
     <title>WallyCAD - Deck Module</title>
     <style>
-        body { font-family: monospace; padding: 20px; display: flex; gap: 20px; }
+        body { font-family: monospace; padding: 20px; display: flex; gap: 20px; user-select: none; }
         .panel { display: flex; flex-direction: column; width: 300px; }
         .input-group { margin-bottom: 10px; display: flex; justify-content: space-between; }
         input { width: 80px; text-align: right; }
-        button { padding: 10px; margin-top: 15px; cursor: pointer; font-weight: bold; }
+        button { padding: 10px; margin-top: 10px; cursor: pointer; font-weight: bold; }
         
         /* Canvas Styling */
+        .canvas-container { display: flex; flex-direction: column; }
         canvas { 
             border: 1px solid #333; 
             background-color: #f4f4f4; 
             width: 800px; 
             height: 400px; 
+            cursor: grab;
         }
+        canvas:active { cursor: grabbing; }
+        .toolbar { margin-bottom: 10px; display: flex; gap: 10px; }
     </style>
 </head>
 <body>
 
     <div class="panel">
         <h3>DECK PARAMETERS</h3>
-        <div class="input-group"><label>Deck Length (X)</label><input type="number" id="deckLen" value="144" oninput="updatePreview()"></div>
-        <div class="input-group"><label>Post Spacing</label><input type="number" id="postSpace" value="48" oninput="updatePreview()"></div>
+        <div class="input-group"><label>Deck Length (X)</label><input type="number" id="deckLen" value="144" oninput="triggerRedraw()"></div>
+        <div class="input-group"><label>Post Spacing</label><input type="number" id="postSpace" value="48" oninput="triggerRedraw()"></div>
 
         <h3>GRADE ELEVATION</h3>
-        <div class="input-group"><label>Start Drop (X=0)</label><input type="number" id="dropStart" value="12" oninput="updatePreview()"></div>
-        <div class="input-group"><label>End Drop</label><input type="number" id="dropEnd" value="36" oninput="updatePreview()"></div>
+        <div class="input-group"><label>Start Drop (X=0)</label><input type="number" id="dropStart" value="12" oninput="triggerRedraw()"></div>
+        <div class="input-group"><label>End Drop</label><input type="number" id="dropEnd" value="36" oninput="triggerRedraw()"></div>
 
         <h3>STAIRS & FOOTINGS</h3>
-        <div class="input-group"><label>Tread Run</label><input type="number" id="tread" value="11" oninput="updatePreview()"></div>
-        <div class="input-group"><label>Riser Height</label><input type="number" id="riser" value="7" oninput="updatePreview()"></div>
-        <div class="input-group"><label>Footing Depth</label><input type="number" id="footDepth" value="24" oninput="updatePreview()"></div>
+        <div class="input-group"><label>Tread Run</label><input type="number" id="tread" value="11" oninput="triggerRedraw()"></div>
+        <div class="input-group"><label>Riser Height</label><input type="number" id="riser" value="7" oninput="triggerRedraw()"></div>
+        <div class="input-group"><label>Footing Depth</label><input type="number" id="footDepth" value="24" oninput="triggerRedraw()"></div>
 
         <button onclick="generateLispPayload()">EXPORT TO LISP</button>
     </div>
 
-    <div>
+    <div class="canvas-container">
+        <div class="toolbar">
+            <button onclick="zoomExtents()">ZOOM EXTENTS</button>
+            <span style="line-height: 40px; margin-left: 10px; color: #555;">(Scroll to Zoom, Click & Drag to Pan)</span>
+        </div>
         <canvas id="deckCanvas" width="800" height="400"></canvas>
     </div>
 
@@ -46,16 +54,110 @@
         const canvas = document.getElementById('deckCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Maps CAD Cartesian coordinates to Canvas coordinates
-        function mapToCanvas(x, y, scale, originX, originY) {
+        // Global Viewport Variables
+        let viewOffsetX = 50;
+        let viewOffsetY = 150;
+        let viewScale = 4;
+        
+        // Pan Mechanics Variables
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+
+        // Maps CAD coordinates to current Canvas viewport
+        function mapToCanvas(x, y) {
             return {
-                cx: originX + (x * scale),
-                cy: originY + (y * scale) // Canvas +Y goes down
+                cx: viewOffsetX + (x * viewScale),
+                cy: viewOffsetY + (y * viewScale) 
             };
         }
 
-        function updatePreview() {
-            // 1. Harvest Current Inputs
+        // Event Listeners for Panning (Click and Drag)
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            dragStartX = e.offsetX - viewOffsetX;
+            dragStartY = e.offsetY - viewOffsetY;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            viewOffsetX = e.offsetX - dragStartX;
+            viewOffsetY = e.offsetY - dragStartY;
+            drawPreview(); // Redraw constantly while dragging
+        });
+
+        canvas.addEventListener('mouseup', () => { isDragging = false; });
+        canvas.addEventListener('mouseleave', () => { isDragging = false; });
+
+        // Event Listener for Zooming (Scroll Wheel)
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomIntensity = 0.1;
+            const direction = e.deltaY > 0 ? -1 : 1;
+            const factor = 1 + (direction * zoomIntensity);
+            
+            const pointerX = e.offsetX;
+            const pointerY = e.offsetY;
+
+            // Adjust offset to zoom centered on the mouse cursor
+            viewOffsetX = pointerX - (pointerX - viewOffsetX) * factor;
+            viewOffsetY = pointerY - (pointerY - viewOffsetY) * factor;
+            viewScale *= factor;
+            
+            drawPreview();
+        });
+
+        // Automatically frames the entire geometry
+        function zoomExtents() {
+            const len = parseFloat(document.getElementById('deckLen').value);
+            const drop1 = parseFloat(document.getElementById('dropStart').value);
+            const drop2 = parseFloat(document.getElementById('dropEnd').value);
+            const tread = parseFloat(document.getElementById('tread').value);
+            const riser = parseFloat(document.getElementById('riser').value);
+            const footDepth = parseFloat(document.getElementById('footDepth').value);
+            
+            const m = (drop2 - drop1) / len; 
+            const b = drop1;
+            
+            // Calculate Max X (Stair Runout)
+            let currentX = len;
+            let currentY = 0;
+            let hitGround = false;
+            while (!hitGround) {
+                let nextX = currentX + tread;
+                let nextY = currentY + riser;
+                if (nextY < (m * nextX) + b) {
+                    currentX = nextX;
+                    currentY = nextY;
+                } else {
+                    hitGround = true;
+                    const m_stair = riser / tread;
+                    const intersectX = (b - (currentY - (m_stair * currentX))) / (m_stair - m);
+                    currentX = intersectX; // Final X bound
+                }
+            }
+
+            const boundingWidth = currentX + 32; // Add padding for right footing overhang
+            const maxFootingDrop = Math.max((m * len) + b + footDepth + 8, drop1 + footDepth + 20);
+            const boundingHeight = maxFootingDrop + 36; // Add 36 for the railing above 0
+
+            // Fit to canvas with 10% padding
+            viewScale = Math.min(canvas.width / boundingWidth, canvas.height / boundingHeight) * 0.85;
+            
+            // Center it in the canvas
+            viewOffsetX = (canvas.width - (currentX * viewScale)) / 2;
+            viewOffsetY = (36 * viewScale) + 50; // Push down to accommodate railing
+
+            drawPreview();
+        }
+
+        // Triggers when an input changes
+        function triggerRedraw() {
+            drawPreview();
+        }
+
+        // The core drafting logic
+        function drawPreview() {
             const len = parseFloat(document.getElementById('deckLen').value);
             const spacing = parseFloat(document.getElementById('postSpace').value);
             const drop1 = parseFloat(document.getElementById('dropStart').value);
@@ -70,57 +172,53 @@
             const footHeight = 8; 
             const subFootOverride = footDepth + 12;
 
-            // 2. Clear & Setup Canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const scale = 700 / len; 
-            const originX = 50;  
-            const originY = 100; 
 
-            // 3. Grade Equation Variables
             const m = (drop2 - drop1) / len; 
             const b = drop1; 
 
-            // 4. Draw Deck Top (Black)
+            // 1. Deck Top (Black)
             ctx.beginPath();
             ctx.strokeStyle = "black";
             ctx.lineWidth = 2;
-            let startPt = mapToCanvas(0, 0, scale, originX, originY);
-            let endPt = mapToCanvas(len, 0, scale, originX, originY);
+            let startPt = mapToCanvas(0, 0);
+            let endPt = mapToCanvas(len, 0);
             ctx.moveTo(startPt.cx, startPt.cy);
             ctx.lineTo(endPt.cx, endPt.cy);
             ctx.stroke();
 
-            // 5. Draw Sloped Grade Line (Brown)
+            // 2. Grade Line (Brown)
+            // Draw ground line extended out past the stairs
             ctx.beginPath();
             ctx.strokeStyle = "brown";
             ctx.lineWidth = 1;
-            let gradeStart = mapToCanvas(0, drop1, scale, originX, originY);
-            let gradeEnd = mapToCanvas(len, drop2, scale, originX, originY);
+            let gradeStart = mapToCanvas(-20, (m * -20) + b);
+            let gradeEnd = mapToCanvas(len + 200, (m * (len + 200)) + b);
             ctx.moveTo(gradeStart.cx, gradeStart.cy);
             ctx.lineTo(gradeEnd.cx, gradeEnd.cy);
             ctx.stroke();
 
-            // 6. Draw Posts (Blue)
+            // 3. Posts (Blue)
             ctx.beginPath();
             ctx.strokeStyle = "blue"; 
             ctx.lineWidth = 1.5;
             for (let x = 0; x <= len; x += spacing) {
                 let intersectY = (m * x) + b;
-                let postTop = mapToCanvas(x, 0, scale, originX, originY);
-                let postBottom = mapToCanvas(x, intersectY, scale, originX, originY);
+                let postTop = mapToCanvas(x, 0);
+                let postBottom = mapToCanvas(x, intersectY);
                 ctx.moveTo(postTop.cx, postTop.cy);
                 ctx.lineTo(postBottom.cx, postBottom.cy);
             }
             if (len % spacing !== 0) {
                 let intersectY = (m * len) + b;
-                let postTop = mapToCanvas(len, 0, scale, originX, originY);
-                let postBottom = mapToCanvas(len, intersectY, scale, originX, originY);
+                let postTop = mapToCanvas(len, 0);
+                let postBottom = mapToCanvas(len, intersectY);
                 ctx.moveTo(postTop.cx, postTop.cy);
                 ctx.lineTo(postBottom.cx, postBottom.cy);
             }
             ctx.stroke();
 
-            // 7. Draw Footings (Purple)
+            // 4. Footings (Purple)
             ctx.beginPath();
             ctx.strokeStyle = "purple"; 
             ctx.lineWidth = 1.5;
@@ -130,17 +228,17 @@
                 let padTopY = intersectY + currentDepth;
                 let padBottomY = padTopY + footHeight;
                 
-                let postGndTop = mapToCanvas(postX, intersectY, scale, originX, originY);
-                let postGndBottom = mapToCanvas(postX, padTopY, scale, originX, originY);
+                let postGndTop = mapToCanvas(postX, intersectY);
+                let postGndBottom = mapToCanvas(postX, padTopY);
                 ctx.moveTo(postGndTop.cx, postGndTop.cy);
                 ctx.lineTo(postGndBottom.cx, postGndBottom.cy);
 
                 let leftX = postX - (footWidth / 2);
                 let rightX = postX + (footWidth / 2);
-                let tl = mapToCanvas(leftX, padTopY, scale, originX, originY);
-                let tr = mapToCanvas(rightX, padTopY, scale, originX, originY);
-                let br = mapToCanvas(rightX, padBottomY, scale, originX, originY);
-                let bl = mapToCanvas(leftX, padBottomY, scale, originX, originY);
+                let tl = mapToCanvas(leftX, padTopY);
+                let tr = mapToCanvas(rightX, padTopY);
+                let br = mapToCanvas(rightX, padBottomY);
+                let bl = mapToCanvas(leftX, padBottomY);
                 
                 ctx.moveTo(tl.cx, tl.cy); ctx.lineTo(tr.cx, tr.cy);
                 ctx.lineTo(br.cx, br.cy); ctx.lineTo(bl.cx, bl.cy);
@@ -150,39 +248,39 @@
             if (len % spacing !== 0) drawFooting(len);
             ctx.stroke();
 
-            // 8. Draw Railing (Orange)
+            // 5. Railing (Orange)
             ctx.beginPath();
             ctx.strokeStyle = "orange"; 
             ctx.lineWidth = 1.5;
             for (let x = 0; x <= len; x += spacing) {
-                let postDeck = mapToCanvas(x, 0, scale, originX, originY);
-                let postTop = mapToCanvas(x, -railHeight, scale, originX, originY);
+                let postDeck = mapToCanvas(x, 0);
+                let postTop = mapToCanvas(x, -railHeight);
                 ctx.moveTo(postDeck.cx, postDeck.cy);
                 ctx.lineTo(postTop.cx, postTop.cy);
             }
             if (len % spacing !== 0) {
-                let finalPostDeck = mapToCanvas(len, 0, scale, originX, originY);
-                let finalPostTop = mapToCanvas(len, -railHeight, scale, originX, originY);
+                let finalPostDeck = mapToCanvas(len, 0);
+                let finalPostTop = mapToCanvas(len, -railHeight);
                 ctx.moveTo(finalPostDeck.cx, finalPostDeck.cy);
                 ctx.lineTo(finalPostTop.cx, finalPostTop.cy);
             }
-            let railStartTop = mapToCanvas(0, -railHeight, scale, originX, originY);
-            let railEndTop = mapToCanvas(len, -railHeight, scale, originX, originY);
+            let railStartTop = mapToCanvas(0, -railHeight);
+            let railEndTop = mapToCanvas(len, -railHeight);
             ctx.moveTo(railStartTop.cx, railStartTop.cy);
             ctx.lineTo(railEndTop.cx, railEndTop.cy);
-            let railStartBot = mapToCanvas(0, -(railHeight - railCap), scale, originX, originY);
-            let railEndBot = mapToCanvas(len, -(railHeight - railCap), scale, originX, originY);
+            let railStartBot = mapToCanvas(0, -(railHeight - railCap));
+            let railEndBot = mapToCanvas(len, -(railHeight - railCap));
             ctx.moveTo(railStartBot.cx, railStartBot.cy);
             ctx.lineTo(railEndBot.cx, railEndBot.cy);
             ctx.stroke();
 
-            // 9. Draw Stairs (Green)
+            // 6. Stairs (Green)
             ctx.beginPath();
             ctx.strokeStyle = "green"; 
             ctx.lineWidth = 2;
             let currentX = len;
             let currentY = 0; 
-            let stairStart = mapToCanvas(currentX, currentY, scale, originX, originY);
+            let stairStart = mapToCanvas(currentX, currentY);
             ctx.moveTo(stairStart.cx, stairStart.cy);
 
             let hitGround = false;
@@ -192,9 +290,9 @@
                 let groundAtNextX = (m * nextX) + b;
 
                 if (nextY < groundAtNextX) {
-                    let treadPt = mapToCanvas(nextX, currentY, scale, originX, originY);
+                    let treadPt = mapToCanvas(nextX, currentY);
                     ctx.lineTo(treadPt.cx, treadPt.cy);
-                    let riserPt = mapToCanvas(nextX, nextY, scale, originX, originY);
+                    let riserPt = mapToCanvas(nextX, nextY);
                     ctx.lineTo(riserPt.cx, riserPt.cy);
                     currentX = nextX;
                     currentY = nextY;
@@ -205,17 +303,18 @@
                     const intersectX = (b - b_stair) / (m_stair - m);
                     const intersectY = (m * intersectX) + b;
                     
-                    let finalTreadPt = mapToCanvas(intersectX, currentY, scale, originX, originY);
+                    let finalTreadPt = mapToCanvas(intersectX, currentY);
                     ctx.lineTo(finalTreadPt.cx, finalTreadPt.cy);
-                    let finalCutPt = mapToCanvas(intersectX, intersectY, scale, originX, originY);
+                    let finalCutPt = mapToCanvas(intersectX, intersectY);
                     ctx.lineTo(finalCutPt.cx, finalCutPt.cy);
-                    ctx.lineTo(stairStart.cx, stairStart.cy); // Close stringer
+                    ctx.lineTo(stairStart.cx, stairStart.cy); 
                 }
             }
             ctx.stroke();
         }
 
         function generateLispPayload() {
+            // Unchanged LISP generation logic
             const len = parseFloat(document.getElementById('deckLen').value);
             const spacing = parseFloat(document.getElementById('postSpace').value);
             const drop1 = parseFloat(document.getElementById('dropStart').value);
@@ -223,35 +322,22 @@
             const tread = parseFloat(document.getElementById('tread').value);
             const riser = parseFloat(document.getElementById('riser').value);
             const footDepth = parseFloat(document.getElementById('footDepth').value);
-            
             const railHeight = 36;
             const subFootOverride = footDepth + 12;
             const m = (drop2 - drop1) / len; 
             const b = drop1;
             
             let payload = []; 
-
             payload.push({ entity: "polyline", layer: "WD-DECK-TOP", vertices: [[0, 0], [len, 0]] });
             payload.push({ entity: "polyline", layer: "WD-RAIL-TOP", vertices: [[0, railHeight], [len, railHeight]] });
 
             for (let x = 0; x <= len; x += spacing) {
                 let intersectY = (m * x) + b;
-                payload.push({
-                    entity: "polyline",
-                    layer: "WD-POST",
-                    vertices: [[x, railHeight], [x, -intersectY]]
-                });
-                
+                payload.push({ entity: "polyline", layer: "WD-POST", vertices: [[x, railHeight], [x, -intersectY]] });
                 let isSubFoot = (x === 0); 
                 let currentDepth = isSubFoot ? subFootOverride : footDepth;
                 let blockName = isSubFoot ? "FOOTG-SUB" : "FOOTG-STD";
-                
-                payload.push({
-                    entity: "block",
-                    layer: "WD-FOOTING",
-                    name: blockName,
-                    insert: [x, -(intersectY + currentDepth)] 
-                });
+                payload.push({ entity: "block", layer: "WD-FOOTING", name: blockName, insert: [x, -(intersectY + currentDepth)] });
             }
 
             if (len % spacing !== 0) {
@@ -264,7 +350,6 @@
             let currentX = len;
             let currentY = 0;
             stairVerts.push([currentX, currentY]);
-            
             let hitGround = false;
             const cad_m = -m; 
             const cad_b = -b; 
@@ -273,7 +358,6 @@
                 let nextX = currentX + tread;
                 let nextY = currentY - riser; 
                 let groundAtNextX = (cad_m * nextX) + cad_b; 
-                
                 if (nextY > groundAtNextX) { 
                     stairVerts.push([nextX, currentY]); 
                     stairVerts.push([nextX, nextY]);    
@@ -283,10 +367,8 @@
                     hitGround = true;
                     const m_stair = -riser / tread; 
                     const b_stair = currentY - (m_stair * currentX);
-                    
                     const intersectX = (cad_b - b_stair) / (m_stair - cad_m);
                     const intersectY = (cad_m * intersectX) + cad_b;
-                    
                     stairVerts.push([intersectX, currentY]);   
                     stairVerts.push([intersectX, intersectY]); 
                     stairVerts.push([len, intersectY]);        
@@ -314,8 +396,8 @@
             link.click();
         }
 
-        // Initialize Canvas Preview on load
-        window.onload = updatePreview;
+        // Initialize Canvas Preview on load and auto-fit to screen
+        window.onload = zoomExtents;
     </script>
 </body>
 </html>
