@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD - Deck Module</title>
+    <style>
+        body { font-family: monospace; padding: 20px; display: flex; gap: 20px; }
+        .panel { display: flex; flex-direction: column; width: 300px; }
+        .input-group { margin-bottom: 10px; display: flex; justify-content: space-between; }
+        input { width: 80px; text-align: right; }
+        button { padding: 10px; margin-top: 15px; cursor: pointer; font-weight: bold; }
+        
+        /* Canvas Styling */
+        canvas { 
+            border: 1px solid #333; 
+            background-color: #f4f4f4; 
+            width: 800px; 
+            height: 400px; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="panel">
+        <h3>DECK PARAMETERS</h3>
+        <div class="input-group"><label>Deck Length (X)</label><input type="number" id="deckLen" value="144" oninput="updatePreview()"></div>
+        <div class="input-group"><label>Post Spacing</label><input type="number" id="postSpace" value="48" oninput="updatePreview()"></div>
+
+        <h3>GRADE ELEVATION</h3>
+        <div class="input-group"><label>Start Drop (X=0)</label><input type="number" id="dropStart" value="12" oninput="updatePreview()"></div>
+        <div class="input-group"><label>End Drop</label><input type="number" id="dropEnd" value="36" oninput="updatePreview()"></div>
+
+        <h3>STAIRS & FOOTINGS</h3>
+        <div class="input-group"><label>Tread Run</label><input type="number" id="tread" value="11" oninput="updatePreview()"></div>
+        <div class="input-group"><label>Riser Height</label><input type="number" id="riser" value="7" oninput="updatePreview()"></div>
+        <div class="input-group"><label>Footing Depth</label><input type="number" id="footDepth" value="24" oninput="updatePreview()"></div>
+
+        <button onclick="generateLispPayload()">EXPORT TO LISP</button>
+    </div>
+
+    <div>
+        <canvas id="deckCanvas" width="800" height="400"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('deckCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Maps CAD Cartesian coordinates to Canvas coordinates
+        function mapToCanvas(x, y, scale, originX, originY) {
+            return {
+                cx: originX + (x * scale),
+                cy: originY + (y * scale) // Canvas +Y goes down
+            };
+        }
+
+        function updatePreview() {
+            // 1. Harvest Current Inputs
+            const len = parseFloat(document.getElementById('deckLen').value);
+            const spacing = parseFloat(document.getElementById('postSpace').value);
+            const drop1 = parseFloat(document.getElementById('dropStart').value);
+            const drop2 = parseFloat(document.getElementById('dropEnd').value);
+            const tread = parseFloat(document.getElementById('tread').value);
+            const riser = parseFloat(document.getElementById('riser').value);
+            const footDepth = parseFloat(document.getElementById('footDepth').value);
+            
+            const railHeight = 36; 
+            const railCap = 1.5;   
+            const footWidth = 16; 
+            const footHeight = 8; 
+            const subFootOverride = footDepth + 12;
+
+            // 2. Clear & Setup Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const scale = 700 / len; 
+            const originX = 50;  
+            const originY = 100; 
+
+            // 3. Grade Equation Variables
+            const m = (drop2 - drop1) / len; 
+            const b = drop1; 
+
+            // 4. Draw Deck Top (Black)
+            ctx.beginPath();
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 2;
+            let startPt = mapToCanvas(0, 0, scale, originX, originY);
+            let endPt = mapToCanvas(len, 0, scale, originX, originY);
+            ctx.moveTo(startPt.cx, startPt.cy);
+            ctx.lineTo(endPt.cx, endPt.cy);
+            ctx.stroke();
+
+            // 5. Draw Sloped Grade Line (Brown)
+            ctx.beginPath();
+            ctx.strokeStyle = "brown";
+            ctx.lineWidth = 1;
+            let gradeStart = mapToCanvas(0, drop1, scale, originX, originY);
+            let gradeEnd = mapToCanvas(len, drop2, scale, originX, originY);
+            ctx.moveTo(gradeStart.cx, gradeStart.cy);
+            ctx.lineTo(gradeEnd.cx, gradeEnd.cy);
+            ctx.stroke();
+
+            // 6. Draw Posts (Blue)
+            ctx.beginPath();
+            ctx.strokeStyle = "blue"; 
+            ctx.lineWidth = 1.5;
+            for (let x = 0; x <= len; x += spacing) {
+                let intersectY = (m * x) + b;
+                let postTop = mapToCanvas(x, 0, scale, originX, originY);
+                let postBottom = mapToCanvas(x, intersectY, scale, originX, originY);
+                ctx.moveTo(postTop.cx, postTop.cy);
+                ctx.lineTo(postBottom.cx, postBottom.cy);
+            }
+            if (len % spacing !== 0) {
+                let intersectY = (m * len) + b;
+                let postTop = mapToCanvas(len, 0, scale, originX, originY);
+                let postBottom = mapToCanvas(len, intersectY, scale, originX, originY);
+                ctx.moveTo(postTop.cx, postTop.cy);
+                ctx.lineTo(postBottom.cx, postBottom.cy);
+            }
+            ctx.stroke();
+
+            // 7. Draw Footings (Purple)
+            ctx.beginPath();
+            ctx.strokeStyle = "purple"; 
+            ctx.lineWidth = 1.5;
+            function drawFooting(postX) {
+                let intersectY = (m * postX) + b;
+                let currentDepth = (postX === 0) ? subFootOverride : footDepth;
+                let padTopY = intersectY + currentDepth;
+                let padBottomY = padTopY + footHeight;
+                
+                let postGndTop = mapToCanvas(postX, intersectY, scale, originX, originY);
+                let postGndBottom = mapToCanvas(postX, padTopY, scale, originX, originY);
+                ctx.moveTo(postGndTop.cx, postGndTop.cy);
+                ctx.lineTo(postGndBottom.cx, postGndBottom.cy);
+
+                let leftX = postX - (footWidth / 2);
+                let rightX = postX + (footWidth / 2);
+                let tl = mapToCanvas(leftX, padTopY, scale, originX, originY);
+                let tr = mapToCanvas(rightX, padTopY, scale, originX, originY);
+                let br = mapToCanvas(rightX, padBottomY, scale, originX, originY);
+                let bl = mapToCanvas(leftX, padBottomY, scale, originX, originY);
+                
+                ctx.moveTo(tl.cx, tl.cy); ctx.lineTo(tr.cx, tr.cy);
+                ctx.lineTo(br.cx, br.cy); ctx.lineTo(bl.cx, bl.cy);
+                ctx.lineTo(tl.cx, tl.cy);
+            }
+            for (let x = 0; x <= len; x += spacing) drawFooting(x);
+            if (len % spacing !== 0) drawFooting(len);
+            ctx.stroke();
+
+            // 8. Draw Railing (Orange)
+            ctx.beginPath();
+            ctx.strokeStyle = "orange"; 
+            ctx.lineWidth = 1.5;
+            for (let x = 0; x <= len; x += spacing) {
+                let postDeck = mapToCanvas(x, 0, scale, originX, originY);
+                let postTop = mapToCanvas(x, -railHeight, scale, originX, originY);
+                ctx.moveTo(postDeck.cx, postDeck.cy);
+                ctx.lineTo(postTop.cx, postTop.cy);
+            }
+            if (len % spacing !== 0) {
+                let finalPostDeck = mapToCanvas(len, 0, scale, originX, originY);
+                let finalPostTop = mapToCanvas(len, -railHeight, scale, originX, originY);
+                ctx.moveTo(finalPostDeck.cx, finalPostDeck.cy);
+                ctx.lineTo(finalPostTop.cx, finalPostTop.cy);
+            }
+            let railStartTop = mapToCanvas(0, -railHeight, scale, originX, originY);
+            let railEndTop = mapToCanvas(len, -railHeight, scale, originX, originY);
+            ctx.moveTo(railStartTop.cx, railStartTop.cy);
+            ctx.lineTo(railEndTop.cx, railEndTop.cy);
+            let railStartBot = mapToCanvas(0, -(railHeight - railCap), scale, originX, originY);
+            let railEndBot = mapToCanvas(len, -(railHeight - railCap), scale, originX, originY);
+            ctx.moveTo(railStartBot.cx, railStartBot.cy);
+            ctx.lineTo(railEndBot.cx, railEndBot.cy);
+            ctx.stroke();
+
+            // 9. Draw Stairs (Green)
+            ctx.beginPath();
+            ctx.strokeStyle = "green"; 
+            ctx.lineWidth = 2;
+            let currentX = len;
+            let currentY = 0; 
+            let stairStart = mapToCanvas(currentX, currentY, scale, originX, originY);
+            ctx.moveTo(stairStart.cx, stairStart.cy);
+
+            let hitGround = false;
+            while (!hitGround) {
+                let nextX = currentX + tread;
+                let nextY = currentY + riser;
+                let groundAtNextX = (m * nextX) + b;
+
+                if (nextY < groundAtNextX) {
+                    let treadPt = mapToCanvas(nextX, currentY, scale, originX, originY);
+                    ctx.lineTo(treadPt.cx, treadPt.cy);
+                    let riserPt = mapToCanvas(nextX, nextY, scale, originX, originY);
+                    ctx.lineTo(riserPt.cx, riserPt.cy);
+                    currentX = nextX;
+                    currentY = nextY;
+                } else {
+                    hitGround = true;
+                    const m_stair = riser / tread;
+                    const b_stair = currentY - (m_stair * currentX);
+                    const intersectX = (b - b_stair) / (m_stair - m);
+                    const intersectY = (m * intersectX) + b;
+                    
+                    let finalTreadPt = mapToCanvas(intersectX, currentY, scale, originX, originY);
+                    ctx.lineTo(finalTreadPt.cx, finalTreadPt.cy);
+                    let finalCutPt = mapToCanvas(intersectX, intersectY, scale, originX, originY);
+                    ctx.lineTo(finalCutPt.cx, finalCutPt.cy);
+                    ctx.lineTo(stairStart.cx, stairStart.cy); // Close stringer
+                }
+            }
+            ctx.stroke();
+        }
+
+        function generateLispPayload() {
+            const len = parseFloat(document.getElementById('deckLen').value);
+            const spacing = parseFloat(document.getElementById('postSpace').value);
+            const drop1 = parseFloat(document.getElementById('dropStart').value);
+            const drop2 = parseFloat(document.getElementById('dropEnd').value);
+            const tread = parseFloat(document.getElementById('tread').value);
+            const riser = parseFloat(document.getElementById('riser').value);
+            const footDepth = parseFloat(document.getElementById('footDepth').value);
+            
+            const railHeight = 36;
+            const subFootOverride = footDepth + 12;
+            const m = (drop2 - drop1) / len; 
+            const b = drop1;
+            
+            let payload = []; 
+
+            payload.push({ entity: "polyline", layer: "WD-DECK-TOP", vertices: [[0, 0], [len, 0]] });
+            payload.push({ entity: "polyline", layer: "WD-RAIL-TOP", vertices: [[0, railHeight], [len, railHeight]] });
+
+            for (let x = 0; x <= len; x += spacing) {
+                let intersectY = (m * x) + b;
+                payload.push({
+                    entity: "polyline",
+                    layer: "WD-POST",
+                    vertices: [[x, railHeight], [x, -intersectY]]
+                });
+                
+                let isSubFoot = (x === 0); 
+                let currentDepth = isSubFoot ? subFootOverride : footDepth;
+                let blockName = isSubFoot ? "FOOTG-SUB" : "FOOTG-STD";
+                
+                payload.push({
+                    entity: "block",
+                    layer: "WD-FOOTING",
+                    name: blockName,
+                    insert: [x, -(intersectY + currentDepth)] 
+                });
+            }
+
+            if (len % spacing !== 0) {
+                let intersectY = (m * len) + b;
+                payload.push({ entity: "polyline", layer: "WD-POST", vertices: [[len, railHeight], [len, -intersectY]] });
+                payload.push({ entity: "block", layer: "WD-FOOTING", name: "FOOTG-STD", insert: [len, -(intersectY + footDepth)] });
+            }
+
+            let stairVerts = [];
+            let currentX = len;
+            let currentY = 0;
+            stairVerts.push([currentX, currentY]);
+            
+            let hitGround = false;
+            const cad_m = -m; 
+            const cad_b = -b; 
+
+            while (!hitGround) {
+                let nextX = currentX + tread;
+                let nextY = currentY - riser; 
+                let groundAtNextX = (cad_m * nextX) + cad_b; 
+                
+                if (nextY > groundAtNextX) { 
+                    stairVerts.push([nextX, currentY]); 
+                    stairVerts.push([nextX, nextY]);    
+                    currentX = nextX;
+                    currentY = nextY;
+                } else {
+                    hitGround = true;
+                    const m_stair = -riser / tread; 
+                    const b_stair = currentY - (m_stair * currentX);
+                    
+                    const intersectX = (cad_b - b_stair) / (m_stair - cad_m);
+                    const intersectY = (cad_m * intersectX) + cad_b;
+                    
+                    stairVerts.push([intersectX, currentY]);   
+                    stairVerts.push([intersectX, intersectY]); 
+                    stairVerts.push([len, intersectY]);        
+                    stairVerts.push([len, 0]);                 
+                }
+            }
+            payload.push({ entity: "polyline", layer: "WD-STAIR", vertices: stairVerts });
+
+            let lispStr = "(\n";
+            payload.forEach(item => {
+                lispStr += `  (("entity" . "${item.entity}") ("layer" . "${item.layer}") `;
+                if (item.vertices) {
+                    const verts = item.vertices.map(v => `(${v[0].toFixed(4)} ${v[1].toFixed(4)})`).join(" ");
+                    lispStr += `("vertices" ${verts}))\n`;
+                } else if (item.insert) {
+                    lispStr += `("name" . "${item.name}") ("insert" (${item.insert[0].toFixed(4)} ${item.insert[1].toFixed(4)})))\n`;
+                }
+            });
+            lispStr += ")";
+
+            const blob = new Blob([lispStr], { type: "text/plain" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "WallyCAD_Deck_Payload.txt";
+            link.click();
+        }
+
+        // Initialize Canvas Preview on load
+        window.onload = updatePreview;
+    </script>
+</body>
+</html>
