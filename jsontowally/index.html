@@ -15,7 +15,7 @@
 
     <h2>WALLY DATA CONVERTER</h2>
     
-    <span class="label">INPUT: Standard JSON (e.g. [{lat: 45, lng: -122}, ...])</span>
+    <span class="label">INPUT: Standard JSON or Wally Entity (e.g. [{"type": "SQFONT", "geo": "..."}])</span>
     <textarea id="jsonInput" placeholder='[{"lat": 45.5, "lng": -122.6}, {"lat": 45.6, "lng": -122.7}]'></textarea>
     
     <button onclick="convertToWally()">CONVERT TO SDJ STRING</button>
@@ -31,19 +31,33 @@
             
             try {
                 const data = JSON.parse(input);
+                // Ensure data is treated as an array even if a single object is pasted
+                const dataArray = Array.isArray(data) ? data : [data];
                 
-                // Maps JSON objects to "Lat Long Lat Long" format
-                // Precision set to 4 decimal places for CNC accuracy
-                const sdjString = data.map(point => {
-                    // Handles various key names (lat/latitude, lng/long/longitude)
-                    const lat = point.lat || point.latitude;
-                    const lng = point.lng || point.long || point.longitude;
-                    return `${lat.toFixed(4)} ${lng.toFixed(4)}`;
-                }).join(' ');
+                const sdjString = dataArray.map(item => {
+                    // Case 1: Standard Wally CAD Entity Object (SQFONT, WALL, LINE, etc.)
+                    if (item.type || item.geo) {
+                        const type = item.type || 'ENTITY';
+                        // Clean newline characters (\n) inside 'geo' string into space-delimited tokens
+                        const cleanGeo = item.geo ? item.geo.replace(/\r?\n|\r/g, ' ') : '';
+                        const thick = item.thick !== undefined ? item.thick : 0;
+                        return `[${type}] ${cleanGeo} T:${thick}`;
+                    }
+                    
+                    // Case 2: Raw Coordinate Pairs (lat/lng or x/y)
+                    const x = item.lat ?? item.latitude ?? item.x;
+                    const y = item.lng ?? item.long ?? item.longitude ?? item.y;
+                    
+                    if (x !== undefined && y !== undefined) {
+                        return `${Number(x).toFixed(4)} ${Number(y).toFixed(4)}`;
+                    }
+                    
+                    return '';
+                }).filter(Boolean).join(' ');
 
                 output.value = sdjString;
                 
-                // Copy to clipboard automatically for Gist updates
+                // Copy to clipboard automatically for frictionless Gist updates
                 navigator.clipboard.writeText(sdjString);
                 console.log("Conversion complete and copied to clipboard.");
                 
