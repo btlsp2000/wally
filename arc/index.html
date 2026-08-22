@@ -92,8 +92,8 @@
                 // Machine format: Continuous string
                 arcNodesSDJ.push(`${formatX} ${formatY}`);
                 
-                // Human format: (X, Y) tuple per line
-                arcNodesTuples.push(`(${formatX}, ${formatY})`);
+                // Human format: Vertical column, parentheses stripped
+                arcNodesTuples.push(`${formatX}, ${formatY}`);
             }
             
             document.getElementById('wallyOutputSDJ').value = arcNodesSDJ.join(' ');
