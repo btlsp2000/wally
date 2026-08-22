@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where is Bill - Location Cards</title>
+<style>
+    body {
+        background-color: #f4f6f8;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        padding: 3rem;
+        flex-wrap: wrap;
+    }
+
+    /* Card Sizing & Perspective */
+    .card-container {
+        width: 2.25in;
+        height: 3.5in;
+        perspective: 1000px; /* Gives the 3D flip effect */
+    }
+
+    .card {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+        cursor: pointer;
+        /* Subtle shadow for depth */
+        box-shadow: 4px 4px 10px rgba(0,0,0,0.2);
+        border-radius: 8px;
+    }
+
+    .card-container:hover .card {
+        transform: rotateY(180deg);
+    }
+
+    /* Shared styles for Front and Back */
+    .card-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #2b3035;
+    }
+
+    /* FRONT: The Google Photo */
+    .card-front {
+        background-color: #333;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        /* Placeholder for your actual Google Photo URLs */
+        background-image: url('https://via.placeholder.com/300x500/555/fff?text=Photo+of+Union+Station');
+        background-size: cover;
+        background-position: center;
+    }
+
+    .card-front .label {
+        background: rgba(43, 48, 53, 0.85);
+        color: white;
+        padding: 0.5rem;
+        text-align: center;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        border-top: 2px solid #d9534f;
+    }
+
+    /* BACK: The Title Block & Mechanics */
+    .card-back {
+        background-color: white;
+        color: #333;
+        transform: rotateY(180deg);
+        display: flex;
+        flex-direction: column;
+        /* 1/16" Graph Paper Background */
+        background-image: 
+            linear-gradient(#e1e5e9 1px, transparent 1px), 
+            linear-gradient(90deg, #e1e5e9 1px, transparent 1px);
+        background-size: 10px 10px;
+    }
+
+    .title-block {
+        border-bottom: 3px double #2b3035;
+        padding: 1rem 0.5rem;
+        text-align: center;
+        background: white;
+    }
+
+    .title-block h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        color: #2b3035;
+        /* Placeholder for SquareFont */
+        font-family: monospace; 
+        letter-spacing: 1px;
+    }
+
+    .mechanics {
+        padding: 1rem;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        background: rgba(255, 255, 255, 0.8);
+        flex-grow: 1;
+    }
+
+    .mechanics strong {
+        color: #d9534f; /* Drafting Red for the Action trigger */
+    }
+
+    .card-index {
+        text-align: right;
+        padding: 0.5rem;
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: #888;
+        background: white;
+        border-top: 1px solid #ccc;
+    }
+</style>
+</head>
+<body>
+
+    <!-- Card 1: PDX -->
+    <div class="card-container">
+        <div class="card">
+            <!-- Front: Photo -->
+            <div class="card-face card-front" style="background-image: url('https://via.placeholder.com/300x500/2b3035/fff?text=PDX+Union+Station+Photo');">
+                <div class="label">PDX</div>
+            </div>
+            <!-- Back: Mechanics -->
+            <div class="card-face card-back">
+                <div class="title-block">
+                    <h2>PDX</h2>
+                </div>
+                <div class="mechanics">
+                    <em>Rainy Day Crafts.</em> The weather rolls in, so you head out to the Country Pride cafe in Troutdale to grab a table and a coffee.<br><br>
+                    <strong>Action:</strong> Refuel your resources. Discard any negative status effects and advance 2 spaces.
+                </div>
+                <div class="card-index">WIB-07</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: MOJAVE -->
+    <div class="card-container">
+        <div class="card">
+            <div class="card-face card-front" style="background-image: url('https://via.placeholder.com/300x500/d9534f/fff?text=Mojave+Bus+Photo');">
+                <div class="label">MOJAVE</div>
+            </div>
+            <div class="card-face card-back">
+                <div class="title-block">
+                    <h2>MOJAVE</h2>
+                </div>
+                <div class="mechanics">
+                    <em>The Crossroads.</em> You’ve hit the regional transit interchange.<br><br>
+                    <strong>Action:</strong> Transfer your token to the ESTA or Kern Transit line. Immediately jump to either the High Desert or Bishop space.
+                </div>
+                <div class="card-index">WIB-01</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
