@@ -61,10 +61,12 @@
         let viewOffsetY = 150;
         let viewScale = 4;
         
+        // Pan Mechanics Variables
         let isDragging = false;
         let dragStartX = 0;
         let dragStartY = 0;
 
+        // Maps CAD coordinates to current Canvas viewport
         function mapToCanvas(x, y) {
             return {
                 cx: viewOffsetX + (x * viewScale),
@@ -72,6 +74,7 @@
             };
         }
 
+        // Event Listeners for Panning (Click and Drag)
         canvas.addEventListener('mousedown', (e) => {
             isDragging = true;
             dragStartX = e.offsetX - viewOffsetX;
@@ -88,6 +91,7 @@
         canvas.addEventListener('mouseup', () => { isDragging = false; });
         canvas.addEventListener('mouseleave', () => { isDragging = false; });
 
+        // Event Listener for Zooming (Scroll Wheel)
         canvas.addEventListener('wheel', (e) => {
             e.preventDefault();
             const zoomIntensity = 0.1;
@@ -104,28 +108,22 @@
             drawPreview();
         });
 
+        // Automatically frames the entire geometry
         function zoomExtents() {
-            const len = parseFloat(document.getElementById('deckLen').value) || 144;
-            const drop1 = parseFloat(document.getElementById('dropStart').value) || 0;
-            const drop2 = parseFloat(document.getElementById('dropEnd').value) || 0;
-            const tread = parseFloat(document.getElementById('tread').value) || 11;
-            const riser = parseFloat(document.getElementById('riser').value) || 7;
-            const footDepth = parseFloat(document.getElementById('footDepth').value) || 24;
+            const len = parseFloat(document.getElementById('deckLen').value);
+            const drop1 = parseFloat(document.getElementById('dropStart').value);
+            const drop2 = parseFloat(document.getElementById('dropEnd').value);
+            const tread = parseFloat(document.getElementById('tread').value);
+            const riser = parseFloat(document.getElementById('riser').value);
+            const footDepth = parseFloat(document.getElementById('footDepth').value);
             
             const m = (drop2 - drop1) / len; 
             const b = drop1;
-            const m_stair = riser / tread;
             
             let currentX = len;
             let currentY = 0;
             let hitGround = false;
-            let stepCount = 0;
-            
-            // Failsafe: Prevent infinite loop if ground drops faster than stairs
-            if (m >= m_stair) hitGround = true; 
-
-            while (!hitGround && stepCount < 100) {
-                stepCount++;
+            while (!hitGround) {
                 let nextX = currentX + tread;
                 let nextY = currentY + riser;
                 if (nextY < (m * nextX) + b) {
@@ -133,6 +131,7 @@
                     currentY = nextY;
                 } else {
                     hitGround = true;
+                    const m_stair = riser / tread;
                     const intersectX = (b - (currentY - (m_stair * currentX))) / (m_stair - m);
                     currentX = intersectX; 
                 }
@@ -143,6 +142,7 @@
             const boundingHeight = maxFootingDrop + 36; 
 
             viewScale = Math.min(canvas.width / boundingWidth, canvas.height / boundingHeight) * 0.85;
+            
             viewOffsetX = (canvas.width - (currentX * viewScale)) / 2;
             viewOffsetY = (36 * viewScale) + 50; 
 
@@ -153,16 +153,17 @@
             drawPreview();
         }
 
+        // The core drafting logic
         function drawPreview() {
-            const len = parseFloat(document.getElementById('deckLen').value) || 144;
-            const spacing = parseFloat(document.getElementById('postSpace').value) || 48;
-            const joistSpacing = parseFloat(document.getElementById('joistSpace').value) || 16;
-            const joistDepth = parseFloat(document.getElementById('joistDepth').value) || 8;
-            const drop1 = parseFloat(document.getElementById('dropStart').value) || 0;
-            const drop2 = parseFloat(document.getElementById('dropEnd').value) || 0;
-            const tread = parseFloat(document.getElementById('tread').value) || 11;
-            const riser = parseFloat(document.getElementById('riser').value) || 7;
-            const footDepth = parseFloat(document.getElementById('footDepth').value) || 24;
+            const len = parseFloat(document.getElementById('deckLen').value);
+            const spacing = parseFloat(document.getElementById('postSpace').value);
+            const joistSpacing = parseFloat(document.getElementById('joistSpace').value);
+            const joistDepth = parseFloat(document.getElementById('joistDepth').value);
+            const drop1 = parseFloat(document.getElementById('dropStart').value);
+            const drop2 = parseFloat(document.getElementById('dropEnd').value);
+            const tread = parseFloat(document.getElementById('tread').value);
+            const riser = parseFloat(document.getElementById('riser').value);
+            const footDepth = parseFloat(document.getElementById('footDepth').value);
             
             const railHeight = 36; 
             const railCap = 1.5;   
@@ -175,7 +176,7 @@
             const m = (drop2 - drop1) / len; 
             const b = drop1; 
 
-            // 1. Deck Top
+            // 1. Deck Top (Black)
             ctx.beginPath();
             ctx.strokeStyle = "black";
             ctx.lineWidth = 2;
@@ -185,7 +186,7 @@
             ctx.lineTo(endPt.cx, endPt.cy);
             ctx.stroke();
 
-            // 1.5 Joists
+            // 1.5 Draw Joists (Dark Gray)
             ctx.beginPath();
             ctx.strokeStyle = "#555"; 
             ctx.lineWidth = 1.5;
@@ -203,7 +204,7 @@
             }
             ctx.stroke();
 
-            // 2. Grade Line
+            // 2. Grade Line (Brown)
             ctx.beginPath();
             ctx.strokeStyle = "brown";
             ctx.lineWidth = 1;
@@ -213,7 +214,7 @@
             ctx.lineTo(gradeEnd.cx, gradeEnd.cy);
             ctx.stroke();
 
-            // 3. Posts
+            // 3. Posts (Blue)
             ctx.beginPath();
             ctx.strokeStyle = "blue"; 
             ctx.lineWidth = 1.5;
@@ -233,7 +234,7 @@
             }
             ctx.stroke();
 
-            // 4. Footings
+            // 4. Footings (Purple)
             ctx.beginPath();
             ctx.strokeStyle = "purple"; 
             ctx.lineWidth = 1.5;
@@ -263,7 +264,7 @@
             if (len % spacing !== 0) drawFooting(len);
             ctx.stroke();
 
-            // 5. Railing
+            // 5. Railing (Orange)
             ctx.beginPath();
             ctx.strokeStyle = "orange"; 
             ctx.lineWidth = 1.5;
@@ -289,7 +290,7 @@
             ctx.lineTo(railEndBot.cx, railEndBot.cy);
             ctx.stroke();
 
-            // 6. Stairs 
+            // 6. Stairs (Green)
             ctx.beginPath();
             ctx.strokeStyle = "green"; 
             ctx.lineWidth = 2;
@@ -299,14 +300,7 @@
             ctx.moveTo(stairStart.cx, stairStart.cy);
 
             let hitGround = false;
-            let stepCount = 0;
-            const m_stair = riser / tread;
-            
-            // Failsafe: Prevent infinite drafting if ground drops faster than stairs
-            if (m >= m_stair) hitGround = true;
-
-            while (!hitGround && stepCount < 100) {
-                stepCount++;
+            while (!hitGround) {
                 let nextX = currentX + tread;
                 let nextY = currentY + riser;
                 let groundAtNextX = (m * nextX) + b;
@@ -320,6 +314,7 @@
                     currentY = nextY;
                 } else {
                     hitGround = true;
+                    const m_stair = riser / tread;
                     const b_stair = currentY - (m_stair * currentX);
                     const intersectX = (b - b_stair) / (m_stair - m);
                     const intersectY = (m * intersectX) + b;
@@ -328,10 +323,6 @@
                     ctx.lineTo(finalTreadPt.cx, finalTreadPt.cy);
                     let finalCutPt = mapToCanvas(intersectX, intersectY);
                     ctx.lineTo(finalCutPt.cx, finalCutPt.cy);
-                    
-                    // Unified stringer return (Matches the LISP block generator)
-                    let returnBlockPt = mapToCanvas(len, intersectY);
-                    ctx.lineTo(returnBlockPt.cx, returnBlockPt.cy);
                     ctx.lineTo(stairStart.cx, stairStart.cy); 
                 }
             }
@@ -339,15 +330,15 @@
         }
 
         function generateLispPayload() {
-            const len = parseFloat(document.getElementById('deckLen').value) || 144;
-            const spacing = parseFloat(document.getElementById('postSpace').value) || 48;
-            const joistSpacing = parseFloat(document.getElementById('joistSpace').value) || 16;
-            const joistDepth = parseFloat(document.getElementById('joistDepth').value) || 8;
-            const drop1 = parseFloat(document.getElementById('dropStart').value) || 0;
-            const drop2 = parseFloat(document.getElementById('dropEnd').value) || 0;
-            const tread = parseFloat(document.getElementById('tread').value) || 11;
-            const riser = parseFloat(document.getElementById('riser').value) || 7;
-            const footDepth = parseFloat(document.getElementById('footDepth').value) || 24;
+            const len = parseFloat(document.getElementById('deckLen').value);
+            const spacing = parseFloat(document.getElementById('postSpace').value);
+            const joistSpacing = parseFloat(document.getElementById('joistSpace').value);
+            const joistDepth = parseFloat(document.getElementById('joistDepth').value);
+            const drop1 = parseFloat(document.getElementById('dropStart').value);
+            const drop2 = parseFloat(document.getElementById('dropEnd').value);
+            const tread = parseFloat(document.getElementById('tread').value);
+            const riser = parseFloat(document.getElementById('riser').value);
+            const footDepth = parseFloat(document.getElementById('footDepth').value);
             
             const railHeight = 36;
             const subFootOverride = footDepth + 12;
@@ -384,18 +375,11 @@
             let currentX = len;
             let currentY = 0;
             stairVerts.push([currentX, currentY]);
-            
             let hitGround = false;
-            let stepCount = 0;
             const cad_m = -m; 
             const cad_b = -b; 
-            const m_stair_cad = -riser / tread; 
-            
-            // Failsafe for LISP generation 
-            if (m_stair_cad >= cad_m) hitGround = true;
 
-            while (!hitGround && stepCount < 100) {
-                stepCount++;
+            while (!hitGround) {
                 let nextX = currentX + tread;
                 let nextY = currentY - riser; 
                 let groundAtNextX = (cad_m * nextX) + cad_b; 
@@ -406,8 +390,9 @@
                     currentY = nextY;
                 } else {
                     hitGround = true;
-                    const b_stair = currentY - (m_stair_cad * currentX);
-                    const intersectX = (cad_b - b_stair) / (m_stair_cad - cad_m);
+                    const m_stair = -riser / tread; 
+                    const b_stair = currentY - (m_stair * currentX);
+                    const intersectX = (cad_b - b_stair) / (m_stair - cad_m);
                     const intersectY = (cad_m * intersectX) + cad_b;
                     stairVerts.push([intersectX, currentY]);   
                     stairVerts.push([intersectX, intersectY]); 
@@ -415,9 +400,7 @@
                     stairVerts.push([len, 0]);                 
                 }
             }
-            if (stairVerts.length > 1) {
-                payload.push({ entity: "polyline", layer: "WD-STAIR", vertices: stairVerts });
-            }
+            payload.push({ entity: "polyline", layer: "WD-STAIR", vertices: stairVerts });
 
             let lispStr = "(\n";
             payload.forEach(item => {
@@ -438,6 +421,7 @@
             link.click();
         }
 
+        // Initialize Canvas Preview on load and auto-fit to screen
         window.onload = zoomExtents;
     </script>
 </body>
