@@ -2,15 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WallyCAD | Arc Generator</title>
+    <title>WallyCAD | Arc Generator & Tuple Engine</title>
     <style>
         body { background: #1a1a1a; color: #00ff00; font-family: monospace; padding: 20px; }
         .input-group { margin-bottom: 15px; }
-        label { display: inline-block; width: 120px; color: #fff; }
+        label { display: inline-block; width: 120px; color: #fff; font-weight: bold; }
         input { background: #000; color: #00ff00; border: 1px solid #444; padding: 5px; width: 100px; font-family: monospace; }
-        textarea { width: 100%; height: 150px; background: #000; color: #00ff00; border: 1px solid #444; padding: 10px; margin-top: 15px; margin-bottom: 10px; }
-        button { background: #00ff00; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .output-container { display: flex; gap: 20px; margin-top: 15px; }
+        .output-box { flex: 1; }
+        textarea { width: 100%; height: 250px; background: #000; color: #00ff00; border: 1px solid #444; padding: 10px; margin-top: 5px; box-sizing: border-box; }
+        button { background: #00ff00; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; }
         button:hover { background: #00cc00; }
+        .label-text { color: #fff; font-weight: bold; display: block; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -40,16 +43,27 @@
 
     <div class="input-group">
         <label>Segments:</label>
-        <input type="number" id="segments" value="36" step="1">
+        <input type="number" id="segments" value="12" step="1">
     </div>
     
-    <button onclick="generateArc()">GENERATE ARC SDJ</button>
+    <button onclick="generateArc()">GENERATE ARC DATA</button>
 
-    <textarea id="wallyOutput" placeholder="Arc coordinates will appear here..." readonly></textarea>
+    <div class="output-container">
+        <div class="output-box">
+            <span class="label-text">OUTPUT 1: Raw SDJ (Machine/Gist)</span>
+            <textarea id="wallyOutputSDJ" readonly></textarea>
+            <button onclick="copyToClipboard('wallyOutputSDJ')" style="width:100%; padding: 5px; font-size: 12px;">COPY SDJ</button>
+        </div>
+        
+        <div class="output-box">
+            <span class="label-text">OUTPUT 2: Column of Tuples (Human/Verify)</span>
+            <textarea id="wallyOutputTuples" readonly></textarea>
+            <button onclick="copyToClipboard('wallyOutputTuples')" style="width:100%; padding: 5px; font-size: 12px;">COPY TUPLES</button>
+        </div>
+    </div>
 
     <script>
         function generateArc() {
-            // Pull parameters from the DOM
             const cx = parseFloat(document.getElementById('cx').value);
             const cy = parseFloat(document.getElementById('cy').value);
             const radius = parseFloat(document.getElementById('radius').value);
@@ -57,10 +71,8 @@
             const endAngleDeg = parseFloat(document.getElementById('endAngle').value);
             const segments = parseInt(document.getElementById('segments').value);
             
-            const output = document.getElementById('wallyOutput');
-            
-            // Execute the Traverse Engine logic
-            let arcNodes = [];
+            let arcNodesSDJ = [];
+            let arcNodesTuples = [];
             const toRadians = Math.PI / 180;
             let startRad = startAngleDeg * toRadians;
             let endRad = endAngleDeg * toRadians;
@@ -68,21 +80,32 @@
             let sweepRad = endRad - startRad;
             let stepRad = sweepRad / segments;
 
+            // Engine loop: calculating both formats simultaneously
             for (let i = 0; i <= segments; i++) {
                 let currentTheta = startRad + (i * stepRad);
                 let x = cx + radius * Math.cos(currentTheta);
                 let y = cy + radius * Math.sin(currentTheta);
                 
-                // Format directly for CNC/Laser precision
-                arcNodes.push(`${x.toFixed(4)} ${y.toFixed(4)}`);
+                let formatX = x.toFixed(4);
+                let formatY = y.toFixed(4);
+                
+                // Machine format: Continuous string
+                arcNodesSDJ.push(`${formatX} ${formatY}`);
+                
+                // Human format: (X, Y) tuple per line
+                arcNodesTuples.push(`(${formatX}, ${formatY})`);
             }
             
-            const sdjString = arcNodes.join(' ');
+            document.getElementById('wallyOutputSDJ').value = arcNodesSDJ.join(' ');
+            document.getElementById('wallyOutputTuples').value = arcNodesTuples.join('\n');
+        }
 
-            // Paint to the UI and auto-copy to the clipboard for frictionless Gist uploads
-            output.value = sdjString;
-            navigator.clipboard.writeText(sdjString).then(() => {
-                console.log("Arc SDJ generated and copied to clipboard.");
+        function copyToClipboard(elementId) {
+            const textToCopy = document.getElementById(elementId).value;
+            if (!textToCopy) return;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                console.log("Copied " + elementId + " to clipboard.");
             }).catch(err => {
                 console.error("Clipboard write failed: ", err);
             });
