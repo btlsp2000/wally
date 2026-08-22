@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD | Data Converter</title>
+    <style>
+        body { background: #1a1a1a; color: #00ff00; font-family: monospace; padding: 20px; }
+        textarea { width: 100%; height: 200px; background: #000; color: #00ff00; border: 1px solid #444; padding: 10px; margin-bottom: 10px; }
+        button { background: #00ff00; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #00cc00; }
+        .label { margin-bottom: 5px; display: block; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <h2>WALLY DATA CONVERTER</h2>
+    
+    <span class="label">INPUT: Standard JSON or Wally Entity (e.g. [{"type": "SQFONT", "geo": "..."}])</span>
+    <textarea id="jsonInput" placeholder='[{"lat": 45.5, "lng": -122.6}, {"lat": 45.6, "lng": -122.7}]'></textarea>
+    
+    <button onclick="convertToWally()">CONVERT TO SDJ STRING</button>
+    <br><br>
+
+    <span class="label">OUTPUT: Wally Space-Delimited String (Ready for Gist)</span>
+    <textarea id="wallyOutput" readonly></textarea>
+
+    <script>
+        function convertToWally() {
+            const input = document.getElementById('jsonInput').value;
+            const output = document.getElementById('wallyOutput');
+            
+            try {
+                const data = JSON.parse(input);
+                // Ensure data is treated as an array even if a single object is pasted
+                const dataArray = Array.isArray(data) ? data : [data];
+                
+                const sdjString = dataArray.map(item => {
+                    // Case 1: Standard Wally CAD Entity Object (SQFONT, WALL, LINE, etc.)
+                    if (item.type || item.geo) {
+                        const type = item.type || 'ENTITY';
+                        // Clean newline characters (\n) inside 'geo' string into space-delimited tokens
+                        const cleanGeo = item.geo ? item.geo.replace(/\r?\n|\r/g, ' ') : '';
+                        const thick = item.thick !== undefined ? item.thick : 0;
+                        return `[${type}] ${cleanGeo} T:${thick}`;
+                    }
+                    
+                    // Case 2: Raw Coordinate Pairs (lat/lng or x/y)
+                    const x = item.lat ?? item.latitude ?? item.x;
+                    const y = item.lng ?? item.long ?? item.longitude ?? item.y;
+                    
+                    if (x !== undefined && y !== undefined) {
+                        return `${Number(x).toFixed(4)} ${Number(y).toFixed(4)}`;
+                    }
+                    
+                    return '';
+                }).filter(Boolean).join(' ');
+
+                output.value = sdjString;
+                
+                // Copy to clipboard automatically for frictionless Gist updates
+                navigator.clipboard.writeText(sdjString);
+                console.log("Conversion complete and copied to clipboard.");
+                
+            } catch (e) {
+                alert("Error parsing JSON. Check your syntax (brackets/commas).");
+            }
+        }
+    </script>
+</body>
+</html>
