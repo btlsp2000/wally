@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD | Arc Generator</title>
+    <style>
+        body { background: #1a1a1a; color: #00ff00; font-family: monospace; padding: 20px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: inline-block; width: 120px; color: #fff; }
+        input { background: #000; color: #00ff00; border: 1px solid #444; padding: 5px; width: 100px; font-family: monospace; }
+        textarea { width: 100%; height: 150px; background: #000; color: #00ff00; border: 1px solid #444; padding: 10px; margin-top: 15px; margin-bottom: 10px; }
+        button { background: #00ff00; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { background: #00cc00; }
+    </style>
+</head>
+<body>
+
+    <h2>WALLY ARC GENERATOR</h2>
+    
+    <div class="input-group">
+        <label>Center X (Cx):</label>
+        <input type="number" id="cx" value="0" step="any">
+        
+        <label style="margin-left:20px;">Center Y (Cy):</label>
+        <input type="number" id="cy" value="0" step="any">
+    </div>
+
+    <div class="input-group">
+        <label>Radius (R):</label>
+        <input type="number" id="radius" value="5" step="any">
+    </div>
+
+    <div class="input-group">
+        <label>Start Angle (°):</label>
+        <input type="number" id="startAngle" value="0" step="any">
+        
+        <label style="margin-left:20px;">End Angle (°):</label>
+        <input type="number" id="endAngle" value="90" step="any">
+    </div>
+
+    <div class="input-group">
+        <label>Segments:</label>
+        <input type="number" id="segments" value="36" step="1">
+    </div>
+    
+    <button onclick="generateArc()">GENERATE ARC SDJ</button>
+
+    <textarea id="wallyOutput" placeholder="Arc coordinates will appear here..." readonly></textarea>
+
+    <script>
+        function generateArc() {
+            // Pull parameters from the DOM
+            const cx = parseFloat(document.getElementById('cx').value);
+            const cy = parseFloat(document.getElementById('cy').value);
+            const radius = parseFloat(document.getElementById('radius').value);
+            const startAngleDeg = parseFloat(document.getElementById('startAngle').value);
+            const endAngleDeg = parseFloat(document.getElementById('endAngle').value);
+            const segments = parseInt(document.getElementById('segments').value);
+            
+            const output = document.getElementById('wallyOutput');
+            
+            // Execute the Traverse Engine logic
+            let arcNodes = [];
+            const toRadians = Math.PI / 180;
+            let startRad = startAngleDeg * toRadians;
+            let endRad = endAngleDeg * toRadians;
+            
+            let sweepRad = endRad - startRad;
+            let stepRad = sweepRad / segments;
+
+            for (let i = 0; i <= segments; i++) {
+                let currentTheta = startRad + (i * stepRad);
+                let x = cx + radius * Math.cos(currentTheta);
+                let y = cy + radius * Math.sin(currentTheta);
+                
+                // Format directly for CNC/Laser precision
+                arcNodes.push(`${x.toFixed(4)} ${y.toFixed(4)}`);
+            }
+            
+            const sdjString = arcNodes.join(' ');
+
+            // Paint to the UI and auto-copy to the clipboard for frictionless Gist uploads
+            output.value = sdjString;
+            navigator.clipboard.writeText(sdjString).then(() => {
+                console.log("Arc SDJ generated and copied to clipboard.");
+            }).catch(err => {
+                console.error("Clipboard write failed: ", err);
+            });
+        }
+    </script>
+</body>
+</html>
