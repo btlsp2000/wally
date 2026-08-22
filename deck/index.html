@@ -29,6 +29,8 @@
         <h3>DECK PARAMETERS</h3>
         <div class="input-group"><label>Deck Length (X)</label><input type="number" id="deckLen" value="144" oninput="triggerRedraw()"></div>
         <div class="input-group"><label>Post Spacing</label><input type="number" id="postSpace" value="48" oninput="triggerRedraw()"></div>
+        <div class="input-group"><label>Joist Spacing</label><input type="number" id="joistSpace" value="16" oninput="triggerRedraw()"></div>
+        <div class="input-group"><label>Joist Depth</label><input type="number" id="joistDepth" value="8" oninput="triggerRedraw()"></div>
 
         <h3>GRADE ELEVATION</h3>
         <div class="input-group"><label>Start Drop (X=0)</label><input type="number" id="dropStart" value="12" oninput="triggerRedraw()"></div>
@@ -83,7 +85,7 @@
             if (!isDragging) return;
             viewOffsetX = e.offsetX - dragStartX;
             viewOffsetY = e.offsetY - dragStartY;
-            drawPreview(); // Redraw constantly while dragging
+            drawPreview(); 
         });
 
         canvas.addEventListener('mouseup', () => { isDragging = false; });
@@ -99,7 +101,6 @@
             const pointerX = e.offsetX;
             const pointerY = e.offsetY;
 
-            // Adjust offset to zoom centered on the mouse cursor
             viewOffsetX = pointerX - (pointerX - viewOffsetX) * factor;
             viewOffsetY = pointerY - (pointerY - viewOffsetY) * factor;
             viewScale *= factor;
@@ -119,7 +120,6 @@
             const m = (drop2 - drop1) / len; 
             const b = drop1;
             
-            // Calculate Max X (Stair Runout)
             let currentX = len;
             let currentY = 0;
             let hitGround = false;
@@ -133,25 +133,22 @@
                     hitGround = true;
                     const m_stair = riser / tread;
                     const intersectX = (b - (currentY - (m_stair * currentX))) / (m_stair - m);
-                    currentX = intersectX; // Final X bound
+                    currentX = intersectX; 
                 }
             }
 
-            const boundingWidth = currentX + 32; // Add padding for right footing overhang
+            const boundingWidth = currentX + 32; 
             const maxFootingDrop = Math.max((m * len) + b + footDepth + 8, drop1 + footDepth + 20);
-            const boundingHeight = maxFootingDrop + 36; // Add 36 for the railing above 0
+            const boundingHeight = maxFootingDrop + 36; 
 
-            // Fit to canvas with 10% padding
             viewScale = Math.min(canvas.width / boundingWidth, canvas.height / boundingHeight) * 0.85;
             
-            // Center it in the canvas
             viewOffsetX = (canvas.width - (currentX * viewScale)) / 2;
-            viewOffsetY = (36 * viewScale) + 50; // Push down to accommodate railing
+            viewOffsetY = (36 * viewScale) + 50; 
 
             drawPreview();
         }
 
-        // Triggers when an input changes
         function triggerRedraw() {
             drawPreview();
         }
@@ -160,6 +157,8 @@
         function drawPreview() {
             const len = parseFloat(document.getElementById('deckLen').value);
             const spacing = parseFloat(document.getElementById('postSpace').value);
+            const joistSpacing = parseFloat(document.getElementById('joistSpace').value);
+            const joistDepth = parseFloat(document.getElementById('joistDepth').value);
             const drop1 = parseFloat(document.getElementById('dropStart').value);
             const drop2 = parseFloat(document.getElementById('dropEnd').value);
             const tread = parseFloat(document.getElementById('tread').value);
@@ -187,8 +186,25 @@
             ctx.lineTo(endPt.cx, endPt.cy);
             ctx.stroke();
 
+            // 1.5 Draw Joists (Dark Gray)
+            ctx.beginPath();
+            ctx.strokeStyle = "#555"; 
+            ctx.lineWidth = 1.5;
+            for (let x = 0; x <= len; x += joistSpacing) {
+                let jTop = mapToCanvas(x, 0);
+                let jBot = mapToCanvas(x, joistDepth);
+                ctx.moveTo(jTop.cx, jTop.cy);
+                ctx.lineTo(jBot.cx, jBot.cy);
+            }
+            if (len % joistSpacing !== 0) {
+                let jTop = mapToCanvas(len, 0);
+                let jBot = mapToCanvas(len, joistDepth);
+                ctx.moveTo(jTop.cx, jTop.cy);
+                ctx.lineTo(jBot.cx, jBot.cy);
+            }
+            ctx.stroke();
+
             // 2. Grade Line (Brown)
-            // Draw ground line extended out past the stairs
             ctx.beginPath();
             ctx.strokeStyle = "brown";
             ctx.lineWidth = 1;
@@ -314,14 +330,16 @@
         }
 
         function generateLispPayload() {
-            // Unchanged LISP generation logic
             const len = parseFloat(document.getElementById('deckLen').value);
             const spacing = parseFloat(document.getElementById('postSpace').value);
+            const joistSpacing = parseFloat(document.getElementById('joistSpace').value);
+            const joistDepth = parseFloat(document.getElementById('joistDepth').value);
             const drop1 = parseFloat(document.getElementById('dropStart').value);
             const drop2 = parseFloat(document.getElementById('dropEnd').value);
             const tread = parseFloat(document.getElementById('tread').value);
             const riser = parseFloat(document.getElementById('riser').value);
             const footDepth = parseFloat(document.getElementById('footDepth').value);
+            
             const railHeight = 36;
             const subFootOverride = footDepth + 12;
             const m = (drop2 - drop1) / len; 
@@ -330,6 +348,13 @@
             let payload = []; 
             payload.push({ entity: "polyline", layer: "WD-DECK-TOP", vertices: [[0, 0], [len, 0]] });
             payload.push({ entity: "polyline", layer: "WD-RAIL-TOP", vertices: [[0, railHeight], [len, railHeight]] });
+
+            for (let x = 0; x <= len; x += joistSpacing) {
+                payload.push({ entity: "polyline", layer: "WD-JOIST", vertices: [[x, 0], [x, -joistDepth]] });
+            }
+            if (len % joistSpacing !== 0) {
+                payload.push({ entity: "polyline", layer: "WD-JOIST", vertices: [[len, 0], [len, -joistDepth]] });
+            }
 
             for (let x = 0; x <= len; x += spacing) {
                 let intersectY = (m * x) + b;
