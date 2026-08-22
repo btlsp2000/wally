@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where is Bill - Gameboard Map</title>
+    <style>
+        body {
+            background-color: #2b3035;
+            color: #f4f6f8;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            margin: 0;
+        }
+        h1 {
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #d9534f;
+        }
+        .canvas-container {
+            background-color: #1e2226;
+            border: 3px solid #d9534f;
+            border-radius: 4px;
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Transit Vector Map</h1>
+    <div class="canvas-container">
+        <!-- 800x800 Canvas to provide plenty of layout space -->
+        <canvas id="gameboard" width="800" height="800"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameboard');
+        const ctx = canvas.getContext('2d');
+
+        // Coordinate scaling system (Screen Offsets)
+        // Treating the canvas like a drafting grid. (0,0) is top-left.
+        // X: West to East | Y: North to South
+        const nodes = {
+            "PDX": { x: 200, y: 100 },
+            "EUGENE": { x: 180, y: 220 },
+            "KF": { x: 250, y: 350 },
+            "TRINITY": { x: 150, y: 450 },
+            "BISHOP": { x: 380, y: 520 },
+            "MOJAVE": { x: 350, y: 650 },
+            "HIGH DESERT": { x: 450, y: 680 },
+            "BIG BEAR": { x: 500, y: 730 },
+            "SAN DIEGO": { x: 380, y: 780 },
+            "VEGAS": { x: 650, y: 580 }
+        };
+
+        // Define the transit vectors (which nodes connect to which)
+        const routes = [
+            ["PDX", "EUGENE"],
+            ["EUGENE", "KF"],
+            ["KF", "TRINITY"],
+            ["KF", "BISHOP"], // Highway 395 Corridor Concept
+            ["TRINITY", "MOJAVE"],
+            ["BISHOP", "MOJAVE"],
+            ["BISHOP", "VEGAS"],
+            ["MOJAVE", "HIGH DESERT"],
+            ["HIGH DESERT", "VEGAS"],
+            ["HIGH DESERT", "BIG BEAR"],
+            ["MOJAVE", "SAN DIEGO"],
+            ["BIG BEAR", "SAN DIEGO"]
+        ];
+
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+            }
+        }
+
+        function drawRoutes() {
+            ctx.strokeStyle = '#55606b';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 10]); // Dashed lines for transit routes
+
+            routes.forEach(route => {
+                const start = nodes[route[0]];
+                const end = nodes[route[1]];
+                
+                ctx.beginPath();
+                ctx.moveTo(start.x, start.y);
+                ctx.lineTo(end.x, end.y);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]); // Reset
+        }
+
+        function drawNodes() {
+            for (const [name, coords] of Object.entries(nodes)) {
+                // Draw Node Point
+                ctx.fillStyle = '#d9534f';
+                ctx.beginPath();
+                ctx.arc(coords.x, coords.y, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Draw Label
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 14px "Segoe UI", sans-serif';
+                ctx.textAlign = 'left';
+                // Offset text slightly from the node center
+                ctx.fillText(name, coords.x + 15, coords.y + 5);
+            }
+        }
+
+        function renderMap() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+            drawRoutes();
+            drawNodes();
+        }
+
+        // Initialize Map
+        renderMap();
+
+    </script>
+</body>
+</html>
