@@ -92,7 +92,7 @@
             };
         }
 
-        // Mouse Events for Pan/Zoom
+        // Mouse Events
         canvas.addEventListener('mousedown', (e) => {
             isDragging = true;
             dragStartX = e.offsetX - viewOffsetX;
@@ -163,7 +163,7 @@
             updateReadout();
         }
 
-        // Shared Logic for Canvas and DXF Engine
+        // Unified Calculation Engine
         function calculateGeometry() {
             const len = parseFloat(document.getElementById('deckLen').value) || 144;
             const spacing = parseFloat(document.getElementById('postSpace').value) || 48;
@@ -187,25 +187,37 @@
                 railCapBot: [[0, -(railHeight - railCap)], [len, -(railHeight - railCap)]],
                 joists: [],
                 posts: [],
-                footings: [],
+                footings: [], 
                 grade: [[-20, (m * -20) + b], [len + 200, (m * (len + 200)) + b]],
                 stairs: []
             };
 
+            // Joists
             for (let x = 0; x <= len; x += joistSpacing) geo.joists.push([[x, 0], [x, joistDepth]]);
             if (len % joistSpacing !== 0) geo.joists.push([[len, 0], [len, joistDepth]]);
 
-            for (let x = 0; x <= len; x += spacing) {
+            // Posts & Footings
+            function addSupport(x, isSub) {
                 let intersectY = (m * x) + b;
-                geo.posts.push([[x, -railHeight], [x, intersectY]]);
-                geo.footings.push({ x: x, y: intersectY, depth: (x === 0) ? subFootOverride : footDepth, type: (x === 0) ? "FOOTG-SUB" : "FOOTG-STD" });
-            }
-            if (len % spacing !== 0) {
-                let intersectY = (m * len) + b;
-                geo.posts.push([[len, -railHeight], [len, intersectY]]);
-                geo.footings.push({ x: len, y: intersectY, depth: footDepth, type: "FOOTG-STD" });
+                let currentDepth = isSub ? subFootOverride : footDepth;
+                let padTopY = intersectY + currentDepth;
+                
+                // Full post down to the pad
+                geo.posts.push([[x, -railHeight], [x, padTopY]]);
+                
+                // 16x8 rectangular pad geometry
+                geo.footings.push([
+                    [x - 8, padTopY],
+                    [x + 8, padTopY],
+                    [x + 8, padTopY + 8],
+                    [x - 8, padTopY + 8]
+                ]);
             }
 
+            for (let x = 0; x <= len; x += spacing) addSupport(x, x === 0);
+            if (len % spacing !== 0) addSupport(len, false);
+
+            // Stairs
             let currentX = len, currentY = 0, hitGround = false, stepCount = 0;
             const m_stair = riser / tread;
             
@@ -239,7 +251,8 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const geo = calculateGeometry();
 
-            function drawLine(pts, color, width) {
+            function drawLine(pts, color, width, closed = false) {
+                if(pts.length === 0) return;
                 ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = width;
                 let start = mapToCanvas(pts[0][0], pts[0][1]);
                 ctx.moveTo(start.cx, start.cy);
@@ -247,6 +260,7 @@
                     let pt = mapToCanvas(pts[i][0], pts[i][1]);
                     ctx.lineTo(pt.cx, pt.cy);
                 }
+                if(closed) ctx.closePath();
                 ctx.stroke();
             }
 
@@ -254,69 +268,46 @@
             geo.joists.forEach(j => drawLine(j, "#555", 1.5));
             drawLine(geo.grade, "brown", 1);
             geo.posts.forEach(p => drawLine(p, "blue", 1.5));
+            geo.footings.forEach(f => drawLine(f, "purple", 1.5, true));
             drawLine(geo.rail, "orange", 1.5);
             drawLine(geo.railCapBot, "orange", 1.5);
             if(geo.stairs.length > 0) drawLine(geo.stairs, "green", 2);
-
-            ctx.beginPath(); ctx.strokeStyle = "purple"; ctx.lineWidth = 1.5;
-            geo.footings.forEach(f => {
-                let padTopY = f.y + f.depth;
-                let padBottomY = padTopY + 8; // 8-inch pad
-                
-                let postBot = mapToCanvas(f.x, padTopY);
-                let postTop = mapToCanvas(f.x, f.y);
-                ctx.moveTo(postTop.cx, postTop.cy); ctx.lineTo(postBot.cx, postBot.cy);
-
-                let tl = mapToCanvas(f.x - 8, padTopY), tr = mapToCanvas(f.x + 8, padTopY);
-                let br = mapToCanvas(f.x + 8, padBottomY), bl = mapToCanvas(f.x - 8, padBottomY);
-                ctx.moveTo(tl.cx, tl.cy); ctx.lineTo(tr.cx, tr.cy);
-                ctx.lineTo(br.cx, br.cy); ctx.lineTo(bl.cx, bl.cy); ctx.lineTo(tl.cx, tl.cy);
-            });
-            ctx.stroke();
         }
 
         function updateReadout() {
             const geo = calculateGeometry();
             
-            // Standard DXF Header opening the ENTITIES section
-            let dxf = "  0\nSECTION\n  2\nENTITIES\n";
+            // Standard AutoCAD Header to bypass cloud viewer crash
+            let dxf = "  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1015\n  0\nENDSEC\n";
+            dxf += "  0\nSECTION\n  2\nENTITIES\n";
 
-            // Helper: Format DXF LWPOLYLINE
-            function addPolyline(layer, vertices) {
-                dxf += "  0\nLWPOLYLINE\n  100\nAcDbEntity\n  8\n" + layer + "\n  100\nAcDbPolyline\n  90\n" + vertices.length + "\n  70\n0\n";
+            // DXF Polyline Formatter
+            function addPolyline(layer, vertices, isClosed = false) {
+                if(vertices.length === 0) return;
+                dxf += "  0\nLWPOLYLINE\n  100\nAcDbEntity\n  8\n" + layer + "\n  100\nAcDbPolyline\n  90\n" + vertices.length + "\n  70\n" + (isClosed ? "1" : "0") + "\n";
                 vertices.forEach(v => {
                     dxf += " 10\n" + v[0].toFixed(4) + "\n 20\n" + v[1].toFixed(4) + "\n";
                 });
             }
 
-            // Helper: Format DXF BLOCK INSERT
-            function addInsert(layer, name, x, y) {
-                dxf += "  0\nINSERT\n  8\n" + layer + "\n  2\n" + name + "\n 10\n" + x.toFixed(4) + "\n 20\n" + y.toFixed(4) + "\n 30\n0.0000\n";
-            }
-
-            // 1. Deck & Rail (Invert Y for CAD Cartesian space)
+            // Write Entities (Inverting Y for CAD)
             addPolyline("WD-DECK-TOP", geo.deck.map(v => [v[0], -v[1]]));
             addPolyline("WD-RAIL-TOP", geo.rail.map(v => [v[0], -v[1]]));
             
-            // 2. Joists & Posts
             geo.joists.forEach(j => addPolyline("WD-JOIST", j.map(v => [v[0], -v[1]])));
             geo.posts.forEach(p => addPolyline("WD-POST", p.map(v => [v[0], -v[1]])));
             
-            // 3. Footings (Blocks)
-            geo.footings.forEach(f => addInsert("WD-FOOTING", f.type, f.x, -(f.y + f.depth)));
+            // Footings generated as pure closed polylines (eliminates missing block errors)
+            geo.footings.forEach(f => addPolyline("WD-FOOTING", f.map(v => [v[0], -v[1]]), true));
             
-            // 4. Stairs
             if (geo.stairs.length > 0) {
                 addPolyline("WD-STAIR", geo.stairs.map(v => [v[0], -v[1]]));
             }
 
-            // Standard DXF Footer closing the file
             dxf += "  0\nENDSEC\n  0\nEOF\n";
-            
             readout.value = dxf;
         }
 
-        // Triggers the browser to download the exact DXF file
         function downloadDXF() {
             const blob = new Blob([readout.value], { type: "application/dxf" });
             const link = document.createElement("a");
