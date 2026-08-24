@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adventure Road | ARMike</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* FULL WIDTH RESPONSIVE HEADER */
+        .hero-header {
+            width: 100%;
+            height: 35vh; /* Occupies 35% of mobile screen height */
+            background: #000;
+            overflow: hidden;
+            border-bottom: 4px solid #000;
+        }
+
+        .hero-header img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Prevents stretching, crops to fit */
+            display: block;
+        }
+
+        .master-block {
+            width: 92%;
+            max-width: 800px;
+            background: #fff;
+            border: 3px solid #000;
+            padding: 20px;
+            box-shadow: 10px 10px 0px #000;
+            margin-top: -30px; /* Overlaps header for depth */
+            margin-bottom: 40px;
+            z-index: 10;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.6em;
+            text-transform: uppercase;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+
+        .video-matrix {
+            background: #f9f9f9;
+            border: 2px dashed #ccc;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #0056b3;
+            font-weight: bold;
+            display: inline-block;
+            margin: 10px;
+            font-family: sans-serif;
+        }
+
+        .channel-btn {
+            display: block;
+            background: #d32f2f;
+            color: #fff !important;
+            padding: 12px;
+            margin-bottom: 15px !important;
+            border-radius: 4px;
+        }
+
+        .status-log {
+            font-size: 0.9em;
+            background: #fff;
+            border: 1px solid #000;
+            padding: 15px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.75em;
+            margin-top: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero-header">
+    <img src="https://github.com/btlsp2000/wally-v1/blob/main/ARMike-2/20250529_191658.jpg?raw=true" alt="AR Mike Trip Archive">
+</div>
+
+<div class="master-block">
+    <header>
+        <h1>ADVENTURE ROAD // MIKE</h1>
+        <div style="font-size: 0.8em; color: #666; margin-top: 5px;">DIRECTORY: wallycad.com/ARMike</div>
+    </header>
+
+    <div class="video-matrix">
+        <div class="nav-links">
+            <a href="https://www.youtube.com/@AdventureRoad-Trips" target="_blank" class="channel-btn">▶ VISIT YOUTUBE CHANNEL</a>
+            <a href="https://youtu.be/Cqo4UHV9DB4" target="_blank">Trip 1</a> |
+            <a href="https://youtu.be/ZXkzmD3HtLg" target="_blank">Trip 2</a> |
+            <a href="https://youtu.be/ogy3dbjuh_8" target="_blank">Trip 3</a>
+        </div>
+    </div>
+
+    <div class="status-log">
+        <strong>PROJECT LOG:</strong>
+        <ul>
+            <li><strong>CLIENT:</strong> Mike</li>
+            <li><strong>ENGINEER:</strong> Bei</li>
+            <li><strong>STATUS:</strong> Staging Eugene Node / Extraction Active</li>
+            <li><strong>ARCHIVE:</strong> Number 1 Son - Wesley (2022)</li>
+        </ul>
+    </div>
+
+    <footer>
+        WALLY CAD ENGINE // ROOM 113 // MAY EXTRACTION
+    </footer>
+</div>
+
+</body>
+</html>
