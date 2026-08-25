@@ -1,4 +1,77 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD - Deck Module</title>
+    <style>
+        body { font-family: monospace; padding: 20px; display: flex; gap: 20px; user-select: none; }
+        .panel { display: flex; flex-direction: column; width: 300px; }
+        .input-group { margin-bottom: 10px; display: flex; justify-content: space-between; }
+        input { width: 80px; text-align: right; }
+        button { padding: 10px; margin-top: 10px; cursor: pointer; font-weight: bold; }
+        
+        .main-content { display: flex; flex-direction: column; gap: 15px; }
+        
+        /* Canvas Styling */
+        canvas { 
+            border: 1px solid #333; 
+            background-color: #f4f4f4; 
+            width: 800px; 
+            height: 400px; 
+            cursor: grab;
+        }
+        canvas:active { cursor: grabbing; }
+        .toolbar { display: flex; gap: 10px; align-items: center; }
+        
+        /* Readout Panel Styling */
+        textarea {
+            width: 800px;
+            height: 200px;
+            font-family: monospace;
+            font-size: 12px;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 10px;
+            border: 1px solid #333;
+            resize: vertical;
+        }
+        h4 { margin: 0; padding-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="panel">
+        <h3>DECK PARAMETERS</h3>
+        <div class="input-group"><label>Deck Length (X)</label><input type="number" id="deckLen" value="144" oninput="triggerRedraw()"></div>
+        <div class="input-group"><label>Post Spacing</label><input type="number" id="postSpace" value="48" oninput="triggerRedraw()"></div>
+        <div class="input-group"><label>Joist Spacing</label><input type="number" id="joistSpace" value="16" oninput="triggerRedraw()"></div>
+        <div class="input-group"><label>Joist Depth</label><input type="number" id="joistDepth" value="8" oninput="triggerRedraw()"></div>
+
+        <h3>GRADE ELEVATION</h3>
+        <div class="input-group"><label>Start Drop (X=0)</label><input type="number" id="dropStart" value="12" oninput="triggerRedraw()"></div>
+        <div class="input-group"><label>End Drop</label><input type="number" id="dropEnd" value="36" oninput="triggerRedraw()"></div>
+
+        <h3>STAIRS & FOOTINGS</h3>
+        <div class="input-group"><label>Tread Run</label><input type="number" id="tread" value="11" oninput="triggerRedraw()"></div>
+        <div class="input-group"><label>Riser Height</label><input type="number" id="riser" value="7" oninput="triggerRedraw()"></div>
+        <div class="input-group"><label>Footing Depth</label><input type="number" id="footDepth" value="24" oninput="triggerRedraw()"></div>
+
+        <button onclick="downloadDXF()">EXPORT TO .DXF</button>
+    </div>
+
+    <div class="main-content">
+        <div class="toolbar">
+            <button onclick="zoomExtents()">ZOOM EXTENTS</button>
+            <span style="color: #555;">(Scroll to Zoom, Click & Drag to Pan)</span>
+        </div>
+        
+        <canvas id="deckCanvas" width="800" height="400"></canvas>
+        
+        <h4>LIVE DXF COORDINATE PAYLOAD</h4>
+        <textarea id="dxfReadout" readonly></textarea>
+    </div>
+
+    <script>
         const canvas = document.getElementById('deckCanvas');
         const ctx = canvas.getContext('2d');
         const readout = document.getElementById('dxfReadout');
@@ -249,3 +322,5 @@
 
         window.onload = () => { zoomExtents(); updateReadout(); };
     </script>
+</body>
+</html>
