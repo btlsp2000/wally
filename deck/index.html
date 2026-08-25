@@ -226,7 +226,8 @@
                     let nextX = currentX + tread;
                     let nextY = currentY + riser;
                     if (nextY < (m * nextX) + b) {
-                        geo.stairs.push([nextX, currentY]);
+                        // Drop riser first, then run tread
+                        geo.stairs.push([currentX, nextY]);
                         geo.stairs.push([nextX, nextY]);
                         currentX = nextX;
                         currentY = nextY;
@@ -234,7 +235,9 @@
                         hitGround = true;
                         const intersectX = (b - (currentY - (m_stair * currentX))) / (m_stair - m);
                         const intersectY = (m * intersectX) + b;
-                        geo.stairs.push([intersectX, currentY]);
+                        
+                        // Final fractional step: drop to ground level, run out, return to post
+                        geo.stairs.push([currentX, intersectY]);
                         geo.stairs.push([intersectX, intersectY]);
                         geo.stairs.push([len, intersectY]);
                         geo.stairs.push([len, 0]);
@@ -278,7 +281,7 @@
             // Minimal DXF Header
             let dxf = "  0\nSECTION\n  2\nENTITIES\n";
 
-            // DXF Primitive LINE Formatter (Bulletproof for all viewers)
+            // DXF Primitive LINE Formatter
             function addLines(layer, vertices, isClosed = false) {
                 if (vertices.length < 2) return;
                 for (let i = 0; i < vertices.length - 1; i++) {
@@ -300,8 +303,6 @@
             
             geo.joists.forEach(j => addLines("WD-JOIST", j.map(v => [v[0], -v[1]])));
             geo.posts.forEach(p => addLines("WD-POST", p.map(v => [v[0], -v[1]])));
-            
-            // Footings generated as closed loops of simple lines
             geo.footings.forEach(f => addLines("WD-FOOTING", f.map(v => [v[0], -v[1]]), true));
             
             if (geo.stairs.length > 0) {
