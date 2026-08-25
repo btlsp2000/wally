@@ -1,77 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>WallyCAD - Deck Module</title>
-    <style>
-        body { font-family: monospace; padding: 20px; display: flex; gap: 20px; user-select: none; }
-        .panel { display: flex; flex-direction: column; width: 300px; }
-        .input-group { margin-bottom: 10px; display: flex; justify-content: space-between; }
-        input { width: 80px; text-align: right; }
-        button { padding: 10px; margin-top: 10px; cursor: pointer; font-weight: bold; }
-        
-        .main-content { display: flex; flex-direction: column; gap: 15px; }
-        
-        /* Canvas Styling */
-        canvas { 
-            border: 1px solid #333; 
-            background-color: #f4f4f4; 
-            width: 800px; 
-            height: 400px; 
-            cursor: grab;
-        }
-        canvas:active { cursor: grabbing; }
-        .toolbar { display: flex; gap: 10px; align-items: center; }
-        
-        /* Readout Panel Styling */
-        textarea {
-            width: 800px;
-            height: 200px;
-            font-family: monospace;
-            font-size: 12px;
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-            padding: 10px;
-            border: 1px solid #333;
-            resize: vertical;
-        }
-        h4 { margin: 0; padding-top: 10px; }
-    </style>
-</head>
-<body>
-
-    <div class="panel">
-        <h3>DECK PARAMETERS</h3>
-        <div class="input-group"><label>Deck Length (X)</label><input type="number" id="deckLen" value="144" oninput="triggerRedraw()"></div>
-        <div class="input-group"><label>Post Spacing</label><input type="number" id="postSpace" value="48" oninput="triggerRedraw()"></div>
-        <div class="input-group"><label>Joist Spacing</label><input type="number" id="joistSpace" value="16" oninput="triggerRedraw()"></div>
-        <div class="input-group"><label>Joist Depth</label><input type="number" id="joistDepth" value="8" oninput="triggerRedraw()"></div>
-
-        <h3>GRADE ELEVATION</h3>
-        <div class="input-group"><label>Start Drop (X=0)</label><input type="number" id="dropStart" value="12" oninput="triggerRedraw()"></div>
-        <div class="input-group"><label>End Drop</label><input type="number" id="dropEnd" value="36" oninput="triggerRedraw()"></div>
-
-        <h3>STAIRS & FOOTINGS</h3>
-        <div class="input-group"><label>Tread Run</label><input type="number" id="tread" value="11" oninput="triggerRedraw()"></div>
-        <div class="input-group"><label>Riser Height</label><input type="number" id="riser" value="7" oninput="triggerRedraw()"></div>
-        <div class="input-group"><label>Footing Depth</label><input type="number" id="footDepth" value="24" oninput="triggerRedraw()"></div>
-
-        <button onclick="downloadDXF()">EXPORT TO .DXF</button>
-    </div>
-
-    <div class="main-content">
-        <div class="toolbar">
-            <button onclick="zoomExtents()">ZOOM EXTENTS</button>
-            <span style="color: #555;">(Scroll to Zoom, Click & Drag to Pan)</span>
-        </div>
-        
-        <canvas id="deckCanvas" width="800" height="400"></canvas>
-        
-        <h4>LIVE DXF COORDINATE PAYLOAD</h4>
-        <textarea id="dxfReadout" readonly></textarea>
-    </div>
-
-    <script>
+<script>
         const canvas = document.getElementById('deckCanvas');
         const ctx = canvas.getContext('2d');
         const readout = document.getElementById('dxfReadout');
@@ -202,10 +129,8 @@
                 let currentDepth = isSub ? subFootOverride : footDepth;
                 let padTopY = intersectY + currentDepth;
                 
-                // Full post down to the pad
                 geo.posts.push([[x, -railHeight], [x, padTopY]]);
                 
-                // 16x8 rectangular pad geometry
                 geo.footings.push([
                     [x - 8, padTopY],
                     [x + 8, padTopY],
@@ -277,31 +202,37 @@
         function updateReadout() {
             const geo = calculateGeometry();
             
-            // Standard AutoCAD Header to bypass cloud viewer crash
-            let dxf = "  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1015\n  0\nENDSEC\n";
-            dxf += "  0\nSECTION\n  2\nENTITIES\n";
+            // Minimal DXF Header
+            let dxf = "  0\nSECTION\n  2\nENTITIES\n";
 
-            // DXF Polyline Formatter
-            function addPolyline(layer, vertices, isClosed = false) {
-                if(vertices.length === 0) return;
-                dxf += "  0\nLWPOLYLINE\n  100\nAcDbEntity\n  8\n" + layer + "\n  100\nAcDbPolyline\n  90\n" + vertices.length + "\n  70\n" + (isClosed ? "1" : "0") + "\n";
-                vertices.forEach(v => {
-                    dxf += " 10\n" + v[0].toFixed(4) + "\n 20\n" + v[1].toFixed(4) + "\n";
-                });
+            // DXF Primitive LINE Formatter (Bulletproof for all viewers)
+            function addLines(layer, vertices, isClosed = false) {
+                if (vertices.length < 2) return;
+                for (let i = 0; i < vertices.length - 1; i++) {
+                    dxf += "  0\nLINE\n  8\n" + layer + "\n";
+                    dxf += " 10\n" + vertices[i][0].toFixed(4) + "\n 20\n" + vertices[i][1].toFixed(4) + "\n";
+                    dxf += " 11\n" + vertices[i+1][0].toFixed(4) + "\n 21\n" + vertices[i+1][1].toFixed(4) + "\n";
+                }
+                if (isClosed) {
+                    let last = vertices.length - 1;
+                    dxf += "  0\nLINE\n  8\n" + layer + "\n";
+                    dxf += " 10\n" + vertices[last][0].toFixed(4) + "\n 20\n" + vertices[last][1].toFixed(4) + "\n";
+                    dxf += " 11\n" + vertices[0][0].toFixed(4) + "\n 21\n" + vertices[0][1].toFixed(4) + "\n";
+                }
             }
 
             // Write Entities (Inverting Y for CAD)
-            addPolyline("WD-DECK-TOP", geo.deck.map(v => [v[0], -v[1]]));
-            addPolyline("WD-RAIL-TOP", geo.rail.map(v => [v[0], -v[1]]));
+            addLines("WD-DECK-TOP", geo.deck.map(v => [v[0], -v[1]]));
+            addLines("WD-RAIL-TOP", geo.rail.map(v => [v[0], -v[1]]));
             
-            geo.joists.forEach(j => addPolyline("WD-JOIST", j.map(v => [v[0], -v[1]])));
-            geo.posts.forEach(p => addPolyline("WD-POST", p.map(v => [v[0], -v[1]])));
+            geo.joists.forEach(j => addLines("WD-JOIST", j.map(v => [v[0], -v[1]])));
+            geo.posts.forEach(p => addLines("WD-POST", p.map(v => [v[0], -v[1]])));
             
-            // Footings generated as pure closed polylines (eliminates missing block errors)
-            geo.footings.forEach(f => addPolyline("WD-FOOTING", f.map(v => [v[0], -v[1]]), true));
+            // Footings generated as closed loops of simple lines
+            geo.footings.forEach(f => addLines("WD-FOOTING", f.map(v => [v[0], -v[1]]), true));
             
             if (geo.stairs.length > 0) {
-                addPolyline("WD-STAIR", geo.stairs.map(v => [v[0], -v[1]]));
+                addLines("WD-STAIR", geo.stairs.map(v => [v[0], -v[1]]));
             }
 
             dxf += "  0\nENDSEC\n  0\nEOF\n";
@@ -318,5 +249,3 @@
 
         window.onload = () => { zoomExtents(); updateReadout(); };
     </script>
-</body>
-</html>
