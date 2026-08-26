@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD Finger Joint :: Coordinate Generator</title>
+    <style>
+        body { background: #121212; color: #00ff00; font-family: 'Courier New', monospace; padding: 20px; line-height: 1.4; }
+        .container { display: flex; gap: 25px; align-items: flex-start; }
+        canvas { border: 1px solid #333; background: #000; box-shadow: 0 0 15px rgba(0,255,0,0.1); }
+        .ui { display: flex; flex-direction: column; gap: 12px; min-width: 280px; }
+        .output-group { display: flex; flex-direction: column; gap: 5px; flex-grow: 1; }
+        
+        input, button { background: #1a1a1a; color: #0ff; border: 1px solid #444; padding: 8px; font-family: inherit; }
+        button:hover { background: #00ff00; color: #000; cursor: pointer; }
+        
+        textarea { height: 350px; background: #050505; color: #0f0; border: 1px solid #333; font-size: 13px; padding: 10px; resize: none; }
+        label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        h3 { margin-top: 0; color: #fff; border-bottom: 1px solid #333; padding-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h3>WallyCAD :: Finger Joint Engine</h3>
+    
+    <div class="container">
+        <div class="ui">
+            <label>Board Width (W)</label>
+            <input type="number" id="width" value="100">
+            
+            <label>Board Thickness (T)</label>
+            <input type="number" id="thick" value="12">
+            
+            <label>Finger Count (N)</label>
+            <input type="number" id="count" value="10">
+
+            <label>Visual Separation</label>
+            <input type="range" id="shift" min="0" max="100" value="20">
+            
+            <button onclick="generate()">Generate Coordinates</button>
+            <button onclick="copyWally()">Copy Wally Output</button>
+        </div>
+
+        <div class="output-group">
+            <label>WallyCAD Space-Delimited Input</label>
+            <textarea id="wallyOutput" readonly></textarea>
+        </div>
+
+        <canvas id="vp" width="500" height="500"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('vp').getContext('2d');
+
+        function generate() {
+            const W = parseFloat(document.getElementById('width').value);
+            const T = parseFloat(document.getElementById('thick').value);
+            const N = parseInt(document.getElementById('count').value);
+            const shift = parseFloat(document.getElementById('shift').value);
+
+            // Generate Coordinate Sets
+            const boardA = getPath(W, T, N, false);
+            const boardB = getPath(W, T, N, true);
+
+            render(boardA, boardB, shift, T);
+            updateTextArea(boardA, boardB);
+        }
+
+        function getPath(W, T, N, inverted) {
+            const sw = W / N;
+            let pts = [[0, 0]];
+            let curX = inverted ? T : 0;
+
+            for (let i = 0; i < N; i++) {
+                pts.push([curX, i * sw]);
+                curX = (curX === 0) ? T : 0; 
+                pts.push([curX, (i * sw)]); 
+                pts.push([curX, (i + 1) * sw]);
+            }
+            pts.push([inverted ? T : 0, W]);
+            pts.push([0, W]); // Close back to base origin
+            return pts;
+        }
+
+        function render(a, b, shift, T) {
+            ctx.clearRect(0, 0, 500, 500);
+            const scale = 4;
+            const offX = 50;
+            const offY = 50;
+
+            // Render Path A (Primary)
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            a.forEach((p, i) => {
+                const x = offX + p[0] * scale;
+                const y = offY + p[1] * scale;
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Render Path B (Mating)
+            ctx.strokeStyle = '#00ffff';
+            ctx.beginPath();
+            b.forEach((p, i) => {
+                const x = offX + (p[0] + T + shift) * scale;
+                const y = offY + p[1] * scale;
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+        }
+
+        function updateTextArea(a, b) {
+            let output = "--- BOARD A ---\n";
+            a.forEach(p => output += `${p[0].toFixed(3)} ${p[1].toFixed(3)}\n`);
+            output += "\n--- BOARD B ---\n";
+            b.forEach(p => output += `${p[0].toFixed(3)} ${p[1].toFixed(3)}\n`);
+            document.getElementById('wallyOutput').value = output;
+        }
+
+        function copyWally() {
+            const copyText = document.getElementById("wallyOutput");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Coordinates copied to clipboard");
+        }
+
+        document.getElementById('shift').addEventListener('input', generate);
+        generate();
+    </script>
+</body>
+</html>
