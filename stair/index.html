@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD - Counter Pattern Verified</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #121212; color: #00ff00; padding: 20px; }
+        .controls { max-width: 500px; margin: auto; border: 1px solid #333; padding: 15px; background: #1a1a1a; }
+        input { background: #000; color: #0f0; border: 1px solid #0f0; width: 55px; padding: 3px; }
+        textarea { width: 100%; height: 400px; background: #000; color: #fff; border: 1px solid #444; margin-top: 15px; font-size: 13px; }
+        button { width: 100%; background: #00ff00; color: #000; border: none; padding: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .label-group { margin-bottom: 8px; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+
+<div class="controls">
+    <h2 style="margin-top:0; color:#0f0;">WallyCAD Stair Logic</h2>
+    <div class="label-group"><span>Treads (H):</span> <input type="number" id="H" value="6"></div>
+    <div class="label-group"><span>Rise (a):</span>   <input type="number" id="a" value="7"></div>
+    <div class="label-group"><span>Depth (b):</span>  <input type="number" id="b" value="11"></div>
+    <div class="label-group"><span>Thick (t):</span>  <input type="number" id="t" value="2"></div>
+    
+    <button onclick="runLogic()">Generate Corrected Tuples</button>
+    <textarea id="output" readonly></textarea>
+</div>
+
+<script>
+    function runLogic() {
+        const H = parseInt(document.getElementById('H').value);
+        const a = parseFloat(document.getElementById('a').value);
+        const b = parseFloat(document.getElementById('b').value);
+        const t = parseFloat(document.getElementById('t').value);
+        
+        let x = 0, y = 0;
+        let pts = [[0, 0]]; // Start (Pt 1)
+
+        // --- FORWARD PASS (Treads & Risers) ---
+        for (let n = 1; n <= H; n++) {
+            x += b;
+            pts.push([x, y]); // Move Horizontal
+            
+            let isUp = (n % 2 !== 0);
+            y += (isUp ? a : -a); 
+            pts.push([x, y]); // Move Vertical
+        }
+
+        // --- THE TURNAROUND (Structural Offset) ---
+        // We drop 't' units from the current Y to start the inner profile
+        y -= t; 
+        pts.push([x, y]);
+
+        // --- REVERSE PASS (The Counter Pattern) ---
+        // We step back from H down to 1
+        for (let n = H; n >= 1; n--) {
+            x -= b;
+            pts.push([x, y]); // Move Horizontal Back
+            
+            // ERROR FIX: The vertical toggle must match the 
+            // state of 'n' to keep the thickness 't' parallel.
+            let isUp = (n % 2 !== 0);
+            y += (isUp ? -a : a);
+            
+            // Only add point if we aren't already at the origin
+            if (x > 0 || y !== 0) {
+                pts.push([x, y]);
+            }
+        }
+
+        // Final closure to ensure the polyline hits (0,0) exactly
+        if (pts[pts.length-1][0] !== 0 || pts[pts.length-1][1] !== 0) {
+            pts.push([0, 0]);
+        }
+
+        // Format: Space delimited tuples
+        document.getElementById('output').value = pts
+            .map(p => `${p[0].toFixed(2)} ${p[1].toFixed(2)}`)
+            .join('\n');
+    }
+</script>
+
+</body>
+</html>
