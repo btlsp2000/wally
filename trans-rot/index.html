@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD - Trans-Rot Matrix</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #121212; color: #0f0; padding: 15px; }
+        .ui-box { max-width: 550px; margin: auto; border: 1px solid #333; padding: 20px; background: #1a1a1a; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 10px; gap: 10px; }
+        input { background: #000; color: #0f0; border: 1px solid #0f0; width: 60px; padding: 4px; text-align: center; }
+        textarea { width: 100%; height: 180px; background: #000; color: #fff; border: 1px solid #444; font-size: 11px; margin-top: 5px; }
+        button { width: 100%; background: #0f0; color: #000; border: none; padding: 12px; cursor: pointer; font-weight: bold; margin: 15px 0; }
+        h2 { border-bottom: 1px solid #0f0; font-size: 14px; margin-top: 0; color: #fff; }
+        label { font-size: 12px; color: #888; }
+    </style>
+</head>
+<body>
+
+<div class="ui-box">
+    <h2>TRANS-ROT MATRIX ENGINE</h2>
+    
+    <div class="row">
+        <div><label>dX:</label> <input type="number" id="dx" value="50"></div>
+        <div><label>dY:</label> <input type="number" id="dy" value="50"></div>
+        <div><label>Deg(&theta;):</label> <input type="number" id="deg" value="45"></div>
+    </div>
+
+    <label>INPUT TUPLES (from Stair/Orion):</label>
+    <textarea id="input" placeholder="0 0&#10;10 0..."></textarea>
+    
+    <button onclick="applyMatrix()">EXECUTE TRANSFORM</button>
+    
+    <label>TRANSFORMED OUTPUT:</label>
+    <textarea id="output" readonly></textarea>
+</div>
+
+<script>
+function applyMatrix() {
+    const dx = parseFloat(document.getElementById('dx').value) || 0;
+    const dy = parseFloat(document.getElementById('dy').value) || 0;
+    const deg = parseFloat(document.getElementById('deg').value) || 0;
+    const rad = deg * (Math.PI / 180);
+    const cos = Math.cos(rad);
+    const sin = Math.sin(rad);
+
+    const data = document.getElementById('input').value;
+    
+    // NEW PARSING LOGIC: Split by ANY whitespace (space or newline)
+    const rawNumbers = data.trim().split(/\s+/).map(Number);
+    let result = [];
+
+    // Loop through numbers in pairs (x, y)
+    for (let i = 0; i < rawNumbers.length; i += 2) {
+        let x = rawNumbers[i];
+        let y = rawNumbers[i + 1];
+
+        if (isNaN(x) || isNaN(y)) continue;
+
+        // Apply Rotation
+        let rx = x * cos - y * sin;
+        let ry = x * sin + y * cos;
+
+        // Apply Translation
+        let nx = (rx + dx).toFixed(4);
+        let ny = (ry + dy).toFixed(4);
+
+        result.push(`${nx} ${ny}`);
+    }
+
+    // Output with newlines for readability, or join with spaces if preferred
+    document.getElementById('output').value = result.join('\n');
+}
+
+
+</script>
+
+</body>
+</html>
