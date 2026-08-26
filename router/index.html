@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QC | LNK Router</title>
+    <style>
+        body {
+            background-color: #1e1e1e; /* Matches the QC drafting pad */
+            color: #d4d4d4;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        /* --- HEADER & NAVIGATION --- */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #4CAF50; /* CAD Green */
+            margin: 0;
+        }
+
+        .back-btn {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            text-decoration: none;
+            padding: 5px 10px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .back-btn:active {
+            background-color: #555;
+        }
+
+        /* --- THE DIRECTORY GROUPS --- */
+        .link-group {
+            margin-bottom: 25px;
+        }
+
+        .group-label {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* --- IPAD TOUCH TARGETS --- */
+        .vector-link {
+            display: block;
+            background-color: #121212;
+            color: #4CAF50;
+            text-decoration: none;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border: 1px solid #333;
+            border-left: 4px solid #4CAF50; /* Strong visual anchor on the left */
+            font-size: 16px;
+        }
+
+        .vector-link:active {
+            background-color: #2d2d2d;
+            border-left-color: #fff;
+            color: #fff;
+        }
+
+        /* Differentiator for external links */
+        .vector-link.external {
+            border-left: 4px solid #d4af37; /* Gold indicator for off-grid links */
+            color: #d4af37;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h2>LNK // ROUTER</h2>
+        <a href="/qc" class="back-btn"><< BACK TO QC</a>
+    </div>
+
+    <div class="link-group">
+        <span class="group-label">System Architecture (Internal)</span>
+        <a href="/test" class="vector-link">WAL [Engine Root]</a>
+        <a href="/wib" class="vector-link">WIB [Archive Root]</a>
+        <a href="/trans-rot" class="vector-link">TRANS-ROT [Engine Root]</a>
+        <a href="/stair" class="vector-link">STAIR [Engine Root]</a>
+        <a href="/traverse" class="vector-link">TRAVERSE [Engine Root]</a>
+        <a href="/budget" class="vector-link">BGT [Fuel Tracking]</a>
+    </div>
+
+    <div class="link-group">
+        <span class="group-label">External Anchors (Web)</span>
+        <a href="https://github.com" target="_blank" class="vector-link external">GitHub Repository</a>
+        <a href="https://chat.google.com" target="_blank" class="vector-link external">Comms / AI</a>
+        </div>
+
+</body>
+</html>
