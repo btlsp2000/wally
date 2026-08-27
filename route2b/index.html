@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family_Times_Route_2.dwg</title>
+    <style>
+        :root {
+            --cad-bg: #1e1e1e;
+            --cad-grid: rgba(255, 255, 255, 0.07);
+            --cad-text: #d4d4d4;
+            --cad-green: #39ff14;
+            --cad-cyan: #00ffff;
+            --cad-magenta: #ff00ff;
+            --cad-yellow: #ffff00;
+            --font-mono: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--cad-bg);
+            background-image: 
+                linear-gradient(var(--cad-grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--cad-grid) 1px, transparent 1px);
+            background-size: 25px 25px;
+            color: var(--cad-text);
+            font-family: var(--font-mono);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .viewport {
+            max-width: 850px;
+            margin: 0 auto;
+            border: 1px solid var(--cad-cyan);
+            background-color: rgba(30, 30, 30, 0.9);
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+        }
+
+        .header {
+            border-bottom: 2px dashed var(--cad-green);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            color: var(--cad-cyan);
+            font-size: 1.8em;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .meta-data {
+            color: var(--cad-yellow);
+            font-size: 0.9em;
+        }
+
+        h2 {
+            color: var(--cad-green);
+            font-size: 1.2em;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--cad-green);
+            padding-left: 10px;
+            text-transform: uppercase;
+        }
+
+        .command-line {
+            color: var(--cad-magenta);
+            font-weight: bold;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 15px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        li::before {
+            content: ">";
+            color: var(--cad-cyan);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .highlight {
+            color: var(--cad-cyan);
+        }
+
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--cad-cyan);
+            text-align: center;
+            color: var(--cad-yellow);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            font-size: 0.8em;
+            color: #888;
+            border-top: 1px solid #444;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="viewport">
+        <div class="header">
+            <h1>[Family_Times] : Route_02</h1>
+            <div class="meta-data">
+                DATE: AUG_2026 | COORD: BARSTOW_CA | STATUS: ACTIVE_DRAFT
+            </div>
+        </div>
+
+        <p><span class="command-line">Command:</span> INIT_UPDATE</p>
+        <p>The wheels keep turning. This chapter brings us down to Barstow with plenty of fresh air, open roads, and new projects on the drafting table. The Bristol move is complete, and the mobile setup is fully operational.</p>
+
+        <h2>Layer 01: Structural & Transit</h2>
+        <ul>
+            <li><strong>The Space Trailer:</strong> The <span class="highlight">Trailer-Mini</span> custom cabin build is rendering nicely in the real world. Ironing out the chassis specifications, Warren truss details, and stair winder geometry has been an excellent blend of structural detailing and life on the move.</li>
+            <li><strong>Route 66 & Outposts:</strong> Tracking the Route 66 Centennial Caravan has been a great historical ride. Local libraries—from Gresham down to Hesperia, Wrightwood, and now Barstow—are serving as the perfect quiet nodes for study, code, and plotting the next coordinates.</li>
+        </ul>
+
+        <h2>Layer 02: Engine & Geometry</h2>
+        <ul>
+            <li><strong>WallyCAD:</strong> The AutoLISP and JavaScript routines are running clean. Pushing the architectural offset and miter tools out to Gumroad and GitHub has been a massive milestone.</li>
+            <li><strong>QuickClick (QC):</strong> The matrix-based shorthand keyboard interface is compiling perfectly, streamlining the drafting workflow.</li>
+            <li><strong>The Calculus of Pool:</strong> <span class="highlight">Tangent Lab</span> operations continue. Benchmarking collision dynamics, cut angles, and multi-rail kick systems is an ongoing vector puzzle.</li>
+            <li><strong>Where is Bill?:</strong> The board game mechanics and location spinners are locking into place, translating the regional transit lifestyle into playable tabletop geometry.</li>
+        </ul>
+
+        <h2>Layer 03: The Family Matrix</h2>
+        <p><span class="command-line">Command:</span> SEND_GREETINGS</p>
+        <p>Transmitting the very best out to Malcolm and Angela, Justin, and David. Whether it's mapping out the old San Diego North County timeline, catching a classic film, or setting up the next billiards break, our shared history is the baseline that keeps this whole drawing grounded.</p>
+
+        <div class="footer">
+            <p>> INPUT REQUIRED: What projects or travels is everyone else compiling as we head toward the fall?</p>
+        </div>
+
+        <div class="status-bar">
+            <span>SNAP: ON</span>
+            <span>GRID: ON</span>
+            <span>ORTHO: OFF</span>
+            <span>MODEL_SPACE</span>
+        </div>
+    </div>
+
+</body>
+</html>
