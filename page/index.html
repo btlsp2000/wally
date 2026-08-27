@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | The Cartesian Drafting Engine</title>
+    <style>
+        body { 
+            background: #1a1a1a; 
+            color: #00ff00; 
+            font-family: monospace; 
+            padding: 40px; 
+            max-width: 900px; 
+            margin: 0 auto; 
+            line-height: 1.6;
+        }
+        h1, h2, h3 { color: #fff; text-transform: uppercase; border-bottom: 1px solid #444; padding-bottom: 5px; }
+        .manifesto { background: #000; border: 1px solid #00ff00; padding: 20px; margin-bottom: 30px; font-weight: bold; }
+        .grid { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px; }
+        .card { background: #000; border: 1px solid #444; padding: 15px; flex: 1 1 250px; }
+        .card h3 { border: none; margin-top: 0; color: #00ff00; }
+        ul { list-style-type: square; padding-left: 20px; }
+        a { color: #00ff00; text-decoration: none; border-bottom: 1px dotted #00ff00; }
+        a:hover { background: #00ff00; color: #000; }
+        .cli-block { background: #000; color: #00ff00; padding: 15px; border-left: 3px solid #00ff00; font-family: monospace; margin: 20px 0; }
+        .highlight-link { font-size: 1.1em; font-weight: bold; padding: 5px 0; display: inline-block; }
+        footer { margin-top: 50px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #444; padding-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>WALLY V1.0.10</h1>
+    <div class="manifesto">
+        **WELCOME TO WALLY.**<br><br>
+        You have bypassed the bloated, subscription-trapped CAD industry. This is a pure, frictionless 2D drafting engine driven by Cartesian math. Buy it once. Own it forever. Run it completely offline.
+    </div>
+
+    <h2>THE ARCHITECTURE</h2>
+    <p>WallyCAD does not use "click-and-drag" drawing. It uses a precision spawn-and-modify sequence driven by a Command Line Interface (CLI). Every entity on the canvas is a pure, space-delimited Cartesian matrix formatted to four decimal places for absolute CNC/Laser precision.</p>
+
+    <div class="grid">
+        <div class="card">
+            <h3>⚙️ THE ENGINE</h3>
+            <ul>
+                <li>CLI-Driven Parametric Modules</li>
+                <li>Zero-Dependency JavaScript</li>
+                <li>Native SquareFont Typography</li>
+                <li>Batch `.dat` Macro Interpreter</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h3>🗄️ THE DATA</h3>
+            <ul>
+                <li>Hyper-Compressed SDJ Format</li>
+                <li>Frictionless Gist Cloud Sync</li>
+                <li>Tuple Engine Visualizer</li>
+                <li>Legacy AutoCAD `.dxf` Compiler</li>
+            </ul>
+        </div>
+    </div>
+
+    <h2>COMMAND SYNTAX EXAMPLES</h2>
+    <div class="cli-block">
+        [CLI]> **LINE**   | Spawns a standard 0-thickness geometric path.<br>
+        [CLI]> **WALL**   | Spawns a thickened polyline structure.<br>
+        [CLI]> **STAIR**  | Spawns a parametric stair tread array.<br>
+        [CLI]> **DXF**    | Compiles visible layers into a 2D AutoCAD file.
+    </div>
+
+    <h2>UTILITY TOOLKIT & GATEWAY</h2>
+    <p>Launch the standalone Cartesian processing tools or route directly to the main application.</p>
+    <ul>
+        <li><a href="https://wallycad.com/router" class="highlight-link">WALLY UNIVERSAL ROUTER</a> - The primary gateway to the engine network.</li>
+        <li><a href="jsontowally/index.html">SDJ Data Converter</a> - Strip JSON bloat into raw space-delimited string matrices.</li>
+        <li><a href="arc-generator/index.html">Traverse Arc & Tuple Engine</a> - Calculate radial sweeps and verify structural tuples.</li>
+    </ul>
+
+    <footer>
+        **ENTERPRISE:** LKA / Last Known Address<br>
+        **SYSTEM:** JavaScript Vector Engine & jsPDF Plotter<br>
+        &copy; 2026. Cartesian Autonomy.
+    </footer>
+
+</body>
+</html>
