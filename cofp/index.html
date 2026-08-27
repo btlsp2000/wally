@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Ghost Ball</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: #eee; text-align: center; margin: 0; padding: 20px; }
+        canvas { background: #0e5a32; border: 15px solid #3e2723; border-radius: 10px; cursor: grab; max-width: 100%; height: auto; }
+        canvas:active { cursor: grabbing; }
+        .ui { margin-bottom: 15px; }
+        b { color: #f1c40f; }
+    </style>
+</head>
+<body>
+
+    <div class="ui">
+        <h2>Interactive Aim Trainer</h2>
+        <p>Drag the <b>White Cue Ball</b> or <b>Yellow Object Ball</b> to see the Ghost Ball adjust.</p>
+    </div>
+    
+    <canvas id="poolTable" width="800" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById('poolTable');
+const ctx = canvas.getContext('2d');
+
+const ballRadius = 15;
+const pocket = { x: 800, y: 0 }; // Top Right Pocket
+
+let balls = [
+    { x: 150, y: 300, color: "#ffffff", label: "Cue", isDragging: false },
+    { x: 500, y: 200, color: "#f1c40f", label: "Object", isDragging: false }
+];
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const cue = balls[0];
+    const obj = balls[1];
+
+    // 1. Calculate Ghost Ball Position
+    // Distance from Pocket to Object Ball
+    const dx = obj.x - pocket.x;
+    const dy = obj.y - pocket.y;
+    const angle = Math.atan2(dy, dx);
+    
+    // The Ghost Ball is exactly 2 radii away from Object Ball center along that angle
+    const ghost = {
+        x: obj.x + Math.cos(angle) * (ballRadius * 2),
+        y: obj.y + Math.sin(angle) * (ballRadius * 2)
+    };
+
+    // 2. Draw Aiming Lines
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = "rgba(255,255,255,0.3)";
+    
+    // Line: Cue to Ghost
+    ctx.beginPath();
+    ctx.moveTo(cue.x, cue.y);
+    ctx.lineTo(ghost.x, ghost.y);
+    ctx.stroke();
+
+    // Line: Object to Pocket
+    ctx.beginPath();
+    ctx.moveTo(obj.x, obj.y);
+    ctx.lineTo(pocket.x, pocket.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 3. Draw Ghost Ball
+    ctx.globalAlpha = 0.3;
+    drawBall(ghost.x, ghost.y, "#fff");
+    ctx.globalAlpha = 1.0;
+
+    // 4. Draw Real Balls
+    balls.forEach(b => drawBall(b.x, b.y, b.color, b.label));
+}
+
+function drawBall(x, y, color, label="") {
+    ctx.beginPath();
+    ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    if(label) {
+        ctx.fillStyle = "#fff";
+        ctx.font = "12px Arial";
+        ctx.fillText(label, x - 15, y - 20);
+    }
+}
+
+// Interaction Logic
+canvas.addEventListener('mousedown', e => {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    balls.forEach(b => {
+        const dist = Math.hypot(b.x - mouseX, b.y - mouseY);
+        if (dist < ballRadius * 2) b.isDragging = true;
+    });
+});
+
+window.addEventListener('mousemove', e => {
+    const draggingBall = balls.find(b => b.isDragging);
+    if (draggingBall) {
+        const rect = canvas.getBoundingClientRect();
+        draggingBall.x = e.clientX - rect.left;
+        draggingBall.y = e.clientY - rect.top;
+        draw();
+    }
+});
+
+window.addEventListener('mouseup', () => {
+    balls.forEach(b => b.isDragging = false);
+});
+
+draw(); // Initial Render
+</script>
+</body>
+</html>
