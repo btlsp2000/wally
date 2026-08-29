@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Calculus of Pool — Vector Mechanics & Tangent Dynamics</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-green: #10b981;
+      --accent-blue: #38bdf8;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto 30px auto;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      color: var(--accent-blue);
+      letter-spacing: -0.025em;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-top: 8px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    @media (min-width: 900px) {
+      .container {
+        grid-template-columns: 400px 1fr;
+      }
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+
+    .card h2 {
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+      color: var(--accent-green);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    .control-group input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    .metrics {
+      background: #0b1120;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-top: 20px;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+
+    .metrics div {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .metrics div:last-child {
+      margin-bottom: 0;
+    }
+
+    .metric-val {
+      color: var(--accent-blue);
+      font-weight: bold;
+    }
+
+    canvas {
+      width: 100%;
+      height: 480px;
+      background-color: #064e3b; /* Billiard cloth green */
+      border: 12px solid #331800; /* Cushion frame */
+      border-radius: 8px;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .math-section {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .math-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .math-card h3 {
+      color: var(--accent-blue);
+      margin-bottom: 10px;
+    }
+
+    .math-card code {
+      background: #0b1120;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--accent-green);
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>The Calculus of Pool</h1>
+    <p>Vector Mechanics, Cut Angle Dynamics & Tangent Line Geometry</p>
+  </header>
+
+  <div class="container">
+    
+    <div class="card">
+      <h2>Shot Parameters</h2>
+      
+      <div class="control-group">
+        <label for="cutAngle">Cut Angle (&theta;): <span id="cutAngleVal">30°</span></label>
+        <input type="range" id="cutAngle" min="0" max="75" step="1" value="30">
+      </div>
+
+      <div class="control-group">
+        <label for="cueSpeed">Cue Ball Speed: <span id="cueSpeedVal">5.0</span></label>
+        <input type="range" id="cueSpeed" min="1" max="10" step="0.5" value="5">
+      </div>
+
+      <button id="fireBtn" style="width: 100%; padding: 12px; background: var(--accent-blue); color: #000; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">
+        Execute Shot
+      </button>
+
+      <div class="metrics">
+        <div><span>Aim Offset (d):</span> <span class="metric-val" id="offsetVal">0.50 R</span></div>
+        <div><span>Object Vector (&phi;):</span> <span class="metric-val" id="objectAngleVal">30.0°</span></div>
+        <div><span>Cue Deflection:</span> <span class="metric-val" id="cueAngleVal">60.0°</span></div>
+        <div><span>Collision Ratio:</span> <span class="metric-val" id="transferVal">86.6%</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="padding: 10px;">
+      <canvas id="poolCanvas" width="650" height="480"></canvas>
+    </div>
+
+    <div class="math-section">
+      <div class="math-card">
+        <h3>1. Ghost Ball Center Distance</h3>
+        <p>The cut angle &theta; determines the lateral offset <code>d</code> between the aiming line and the object ball center:</p>
+        <p style="margin-top: 8px;"><code>d = 2R &middot; sin(&theta;)</code></p>
+        <p style="margin-top: 8px; font-size: 0.9rem; color: var(--text-muted);">
+          At a 30° cut angle, the center offset is exactly half the ball diameter (<code>1.0 R</code>).
+        </p>
+      </div>
+
+      <div class="math-card">
+        <h3>2. The 90-Degree Tangent Law</h3>
+        <p>For frictionless, non-rotating elastic collisions (stun shot), momentum conservation dictates that the post-collision trajectories form a right angle:</p>
+        <p style="margin-top: 8px;"><code>&theta;<sub>cue</sub> + &theta;<sub>obj</sub> = 90&deg;</code></p>
+        <p style="margin-top: 8px; font-size: 0.9rem; color: var(--text-muted);">
+          The object ball travels along the line of centers (Normal Vector), while the cue ball drifts along the Tangent Line.
+        </p>
+      </div>
+
+      <div class="math-card">
+        <h3>3. Velocity Transfer Decomposition</h3>
+        <p>Kinetic energy transfer along the line of impact varies as a function of the cut angle cosine:</p>
+        <p style="margin-top: 8px;"><code>V<sub>object</sub> = V<sub>cue</sub> &middot; cos(&theta;)</code></p>
+        <p style="margin-top: 8px; font-size: 0.9rem; color: var(--text-muted);">
+          Thinner cuts transfer significantly less momentum to the object ball, retaining velocity in the cue ball tangent path.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const canvas = document.getElementById('poolCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const cutAngleInput = document.getElementById('cutAngle');
+    const cueSpeedInput = document.getElementById('cueSpeed');
+    const cutAngleVal = document.getElementById('cutAngleVal');
+    const cueSpeedVal = document.getElementById('cueSpeedVal');
+    const fireBtn = document.getElementById('fireBtn');
+
+    const offsetVal = document.getElementById('offsetVal');
+    const objectAngleVal = document.getElementById('objectAngleVal');
+    const cueAngleVal = document.getElementById('cueAngleVal');
+    const transferVal = document.getElementById('transferVal');
+
+    const R = 18; // Ball Radius in pixels
+    const objPos = { x: 380, y: 240 };
+    let animId = null;
+
+    // Simulation State
+    let isAnimating = false;
+    let cuePos = { x: 120, y: 240 };
+    let cueVel = { x: 0, y: 0 };
+    let objVel = { x: 0, y: 0 };
+
+    function resetPositions() {
+      const thetaDeg = parseFloat(cutAngleInput.value);
+      const thetaRad = (thetaDeg * Math.PI) / 180;
+      
+      // Calculate ghost ball position
+      const ghostX = objPos.x - 2 * R * Math.cos(thetaRad);
+      const ghostY = objPos.y + 2 * R * Math.sin(thetaRad);
+
+      cuePos = { x: 80, y: ghostY };
+      cueVel = { x: 0, y: 0 };
+      objVel = { x: 0, y: 0 };
+    }
+
+    function drawBall(x, y, color, label = "") {
+      ctx.beginPath();
+      ctx.arc(x, y, R, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+
+      if (label) {
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, x, y);
+      }
+    }
+
+    function drawGhostBall(x, y) {
+      ctx.beginPath();
+      ctx.arc(x, y, R, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function drawDashedLine(x1, y1, x2, y2, color = 'rgba(255,255,255,0.3)') {
+      ctx.beginPath();
+      ctx.setLineDash([5, 5]);
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function renderScene() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const thetaDeg = parseFloat(cutAngleInput.value);
+      const thetaRad = (thetaDeg * Math.PI) / 180;
+
+      // Object Ball Location
+      const ghostX = objPos.x - 2 * R * Math.cos(thetaRad);
+      const ghostY = objPos.y + 2 * R * Math.sin(thetaRad);
+
+      if (!isAnimating) {
+        // Draw Aiming Guide Lines
+        drawDashedLine(40, ghostY, ghostX, ghostY, '#38bdf8'); // Cue Line
+        drawDashedLine(objPos.x, objPos.y, objPos.x + 180 * Math.cos(thetaRad), objPos.y - 180 * Math.sin(thetaRad), '#10b981'); // Object Line
+        
+        // Tangent Line (90 degrees to Object Line)
+        const tangentRad = thetaRad - Math.PI / 2;
+        drawDashedLine(ghostX, ghostY, ghostX + 140 * Math.cos(tangentRad), ghostY - 140 * Math.sin(tangentRad), '#ef4444');
+
+        // Draw Ghost Ball
+        drawGhostBall(ghostX, ghostY);
+      } else {
+        // Dynamic Trajectory Lines during animation
+        drawDashedLine(objPos.x, objPos.y, objPos.x + 180 * Math.cos(thetaRad), objPos.y - 180 * Math.sin(thetaRad), 'rgba(16, 185, 129, 0.3)');
+      }
+
+      // Draw Balls
+      drawBall(cuePos.x, cuePos.y, '#f8fafc', 'C');
+      drawBall(objPos.x, objPos.y, '#f59e0b', '1');
+
+      // Update Dashboard Metrics
+      const offset = (2 * Math.sin(thetaRad)).toFixed(2);
+      const transfer = (Math.cos(thetaRad) * 100).toFixed(1);
+      
+      cutAngleVal.textContent = `${thetaDeg}°`;
+      cueSpeedVal.textContent = cueSpeedInput.value;
+      offsetVal.textContent = `${offset} R`;
+      objectAngleVal.textContent = `${thetaDeg.toFixed(1)}°`;
+      cueAngleVal.textContent = `${(90 - thetaDeg).toFixed(1)}°`;
+      transferVal.textContent = `${transfer}%`;
+    }
+
+    function updatePhysics() {
+      if (!isAnimating) return;
+
+      cuePos.x += cueVel.x;
+      cuePos.y += cueVel.y;
+      objPos.x += objVel.x;
+      objPos.y += objVel.y;
+
+      const thetaDeg = parseFloat(cutAngleInput.value);
+      const thetaRad = (thetaDeg * Math.PI) / 180;
+      const ghostX = 380 - 2 * R * Math.cos(thetaRad);
+      const ghostY = 240 + 2 * R * Math.sin(thetaRad);
+
+      // Check Collision with Ghost Ball point
+      const dx = objPos.x - cuePos.x;
+      const dy = objPos.y - cuePos.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist <= 2 * R && objVel.x === 0 && objVel.y === 0) {
+        const speed = parseFloat(cueSpeedInput.value);
+        
+        // Object ball vector (Normal direction along line of centers)
+        objVel.x = speed * Math.cos(thetaRad);
+        objVel.y = -speed * Math.sin(thetaRad);
+
+        // Cue ball vector (Tangent line, 90 degrees offset)
+        const tangentRad = thetaRad - Math.PI / 2;
+        const cueSpeedPost = speed * Math.sin(thetaRad);
+        cueVel.x = cueSpeedPost * Math.cos(tangentRad);
+        cueVel.y = -cueSpeedPost * Math.sin(tangentRad);
+      }
+
+      // Boundary reset check
+      if (cuePos.x > canvas.width + 50 || cuePos.y < -50 || objPos.x > canvas.width + 50) {
+        isAnimating = false;
+        cancelAnimationFrame(animId);
+        objPos.x = 380;
+        objPos.y = 240;
+        resetPositions();
+        renderScene();
+        return;
+      }
+
+      renderScene();
+      animId = requestAnimationFrame(updatePhysics);
+    }
+
+    fireBtn.addEventListener('click', () => {
+      if (isAnimating) return;
+      resetPositions();
+      isAnimating = true;
+      const speed = parseFloat(cueSpeedInput.value);
+      cueVel = { x: speed, y: 0 };
+      updatePhysics();
+    });
+
+    cutAngleInput.addEventListener('input', () => {
+      if (!isAnimating) {
+        resetPositions();
+        renderScene();
+      }
+    });
+
+    cueSpeedInput.addEventListener('input', () => {
+      cueSpeedVal.textContent = cueSpeedInput.value;
+    });
+
+    // Initial Setup
+    resetPositions();
+    renderScene();
+  </script>
+
+</body>
+</html>
