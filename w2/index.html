@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WALLY V1.0.14 | BOX COMMAND ADDED</title>
+    <title>WALLY V1.0.15 | ANNOTATION ENGINE ADDED</title>
     <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
     <style>
         :root { --bg: #222; --cad-bg: #121212; --cmd-bg: #333; --accent: #61afef; --text: #eee; --dim: #888; --sel: #98c379; --print: #e5c07b; }
@@ -29,7 +29,7 @@
 <body>
     <div id="toolbar">
         <div class="menu-btn" onclick="log('MENU')">☰</div>
-        <span style="font-weight:bold; color:var(--accent); margin-right:10px;">WALLY v1.0.14</span>
+        <span style="font-weight:bold; color:var(--accent); margin-right:10px;">WALLY v1.0.15</span>
         <button onclick="fileNew()">NEW</button>
         <button onclick="fileSave()">SAVE</button>
         <button onclick="fileLoad()">LOAD</button>
@@ -101,7 +101,7 @@ function calculateAABB(ptsArray) {
     return { minX, maxX, minY, maxY, w: maxX - minX, h: maxY - minY };
 }
 
-window.onload=()=>{ resize(); window.addEventListener('resize',resize); const cvs=document.getElementById('canvas'); cvs.addEventListener('mousedown',onDown); window.addEventListener('mousemove',onMove); window.addEventListener('mouseup',onUp); cvs.addEventListener('wheel',onWheel); document.getElementById('cmd-input').addEventListener('keydown',e=>{if(e.key==='Enter'){exec(e.target.value);e.target.value='';}}); log("PROTOCOL V1.0.14 READY."); };
+window.onload=()=>{ resize(); window.addEventListener('resize',resize); const cvs=document.getElementById('canvas'); cvs.addEventListener('mousedown',onDown); window.addEventListener('mousemove',onMove); window.addEventListener('mouseup',onUp); cvs.addEventListener('wheel',onWheel); document.getElementById('cmd-input').addEventListener('keydown',e=>{if(e.key==='Enter'){exec(e.target.value);e.target.value='';}}); log("PROTOCOL V1.0.15 READY."); };
 function log(txt){document.getElementById('cmd-history').innerText=txt;}
 
 function exec(c){ 
@@ -109,7 +109,49 @@ function exec(c){
     if(cmd==='WALL')createEnt('WALL',"0,0\n20,0",5); 
     else if(cmd==='LINE')createEnt('LINE',"0,0\n20,0",0); 
     else if(cmd==='CIRCLE')createEnt('CIRCLE',"0,0",5); 
-    else if(cmd==='TEXT')createEnt('TEXT',"0,0",10,"SAMPLE TEXT"); 
+    
+    // --- ANNOTATION COMMAND PARSER ---
+    else if(cmd.startsWith('TEXT')) {
+        const rawParts = c.trim().split(' ');
+        if(rawParts.length === 1) {
+            createEnt('TEXT', "0,0", 10, "SAMPLE TEXT");
+            log("TEXT CREATED AT ORIGIN");
+        } else {
+            const mode = rawParts[1].toUpperCase();
+            const textStr = rawParts.slice(2).join(' ') || "ANNOTATION";
+            let x = 0, y = 0;
+
+            if (mode === 'R' || mode === 'RANDOM') {
+                const ext = getExtents();
+                const minX = ext ? ext.mX : 0; const maxX = ext ? ext.MX : 100;
+                const minY = ext ? ext.mY : 0; const maxY = ext ? ext.MY : 100;
+                x = minX + Math.random() * (maxX - minX);
+                y = minY + Math.random() * (maxY - minY);
+                createEnt('TEXT', `${x.toFixed(4)},${y.toFixed(4)}`, 10, textStr);
+                log(`ANNOTATED AT RANDOM: ${x.toFixed(1)},${y.toFixed(1)}`);
+            } 
+            else if (mode === 'S' || mode === 'SNAP') {
+                x = state.osnap ? state.osnap.x : state.mouse.worldX;
+                y = state.osnap ? state.osnap.y : state.mouse.worldY;
+                createEnt('TEXT', `${x.toFixed(4)},${y.toFixed(4)}`, 10, textStr);
+                log(`ANNOTATED AT SNAP: ${x.toFixed(1)},${y.toFixed(1)}`);
+            } 
+            else if (mode.includes(',')) {
+                const coords = mode.split(',');
+                x = parseFloat(coords[0]);
+                y = parseFloat(coords[1]);
+                if(!isNaN(x) && !isNaN(y)) {
+                    createEnt('TEXT', `${x},${y}`, 10, textStr);
+                    log(`ANNOTATED AT: ${x},${y}`);
+                } else {
+                    log("ERROR: INVALID TEXT COORDS");
+                }
+            } else {
+                log("SYNTAX: TEXT [R | S | X,Y] [STRING]");
+            }
+        }
+    }
+    
     else if(cmd==='DIM')createEnt('DIM',"0,0\n20,0",0);
     else if(cmd==='HAL')document.body.classList.toggle('hal-mode'); 
     else if(cmd==='WATERMARK') {
@@ -292,7 +334,7 @@ function exportJSON() {
     const blob = new Blob([data], {type: 'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'project_v14.wally';
+    a.download = 'project_v15.wally';
     a.click();
     log("EXPORTED .WALLY FILE");
 }
