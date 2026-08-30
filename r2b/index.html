@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route 2: The New Family Times</title>
+    <link rel="stylesheet" href="style.css">
+  <style>
+  /* --- 1. THE ARCHITECTURAL VARIABLES --- */
+:root {
+    --route-red: #9C2A20;       /* Oxidized brick-red for structural accents */
+    --grid-black: #1A1A1A;      /* Deep off-black for text */
+    --paper-white: #F9F9F9;     /* Soft broadsheet background */
+    --border-weight: 2px;
+}
+
+/* --- 2. THE BASELINE MATRIX --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--paper-white);
+    color: var(--grid-black);
+    font-family: "Georgia", serif; /* Classic editorial font */
+    line-height: 1.6;
+    padding: 2rem;
+}
+
+/* --- 3. THE MASTER CONTAINER --- */
+.master-container {
+    max-width: 1200px; /* Locks the widescreen stretch */
+    margin: 0 auto;
+}
+
+/* --- 4. THE MASTHEAD --- */
+.masthead {
+    text-align: center;
+    border-bottom: var(--border-weight) solid var(--route-red);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.masthead h1 {
+    font-family: monospace; /* Echoes the geometric drafting logic */
+    font-size: 4rem;
+    letter-spacing: 0.1em;
+    color: var(--grid-black);
+}
+
+.subhead {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--route-red);
+}
+
+/* --- 5. THE FLEXBOX GEOMETRY --- */
+.content-grid {
+    display: flex;
+    flex-wrap: wrap; /* Triggers the survival mechanism on small screens */
+    gap: 3rem; /* Clean breathing room between columns */
+    align-items: flex-start;
+}
+
+.feature-story {
+    flex: 2 1 60%; /* Commands the main visual area */
+}
+
+.editorial-column {
+    flex: 1 1 30%; /* Anchors the sidebar */
+    border-left: 1px solid #ccc;
+    padding-left: 2rem;
+}
+
+/* --- 6. TYPOGRAPHY & ACCENTS --- */
+.headline {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.pull-quote {
+    font-size: 1.5rem;
+    font-style: italic;
+    color: var(--route-red);
+    border-left: 4px solid var(--route-red);
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+}
+
+.drop-cap {
+    float: left;
+    font-size: 4rem;
+    line-height: 0.8;
+    padding-right: 0.5rem;
+    color: var(--route-red);
+    font-family: monospace;
+}
+
+/* --- 7. MOBILE BREAKPOINT --- */
+@media (max-width: 800px) {
+    .editorial-column {
+        border-left: none;
+        padding-left: 0;
+        border-top: var(--border-weight) solid var(--grid-black);
+        padding-top: 2rem;
+    }
+}
+    </style>
+</head>
+<body>
+
+    <div class="master-container">
+        <header class="masthead">
+            <h1>ROUTE 2</h1>
+            <p class="subhead">THE NEW FAMILY TIMES</p>
+        </header>
+
+        <main class="content-grid">
+            
+            <article class="feature-story">
+                <h2 class="headline">"That Was Nice."</h2>
+                <p>Sheri meets Bill. She's seen him walking on the street...</p>
+                <blockquote class="pull-quote">
+                    "Are you alright, are you sure? Can I give you some money?"
+                </blockquote>
+                <p>She hands Bill 3 bills folded. "Do you need a blanket, I know the fire dept well across the street, I'll ask for a blanket."</p>
+            </article>
+
+            <aside class="editorial-column">
+                <h2 class="headline">Mike: A Lesson in Brother</h2>
+                <p><span class="drop-cap">W</span>hen the traditional structures break down...</p>
+                </aside>
+
+        </main>
+    </div>
+
+</body>
+</html>
