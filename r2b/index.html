@@ -110,6 +110,24 @@ body {
         padding-top: 2rem;
     }
 }
+      /* --- DIRECTORY ANCHOR --- */
+.directory-anchor {
+    margin-top: 1rem;
+    font-family: monospace; /* Matches the geometric logic of the title */
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+}
+
+.armike-link {
+    color: var(--route-red);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-bottom 0.3s ease;
+}
+
+.armike-link:hover {
+    border-bottom: 1px solid var(--grid-black);
+}
     </style>
 </head>
 <body>
@@ -118,6 +136,9 @@ body {
         <header class="masthead">
             <h1>ROUTE 2</h1>
             <p class="subhead">THE NEW FAMILY TIMES</p>
+            <div class="directory-anchor">
+            <a href="https://wallycad.com/armike" class="armike-link">wallycad.com/armike</a>
+        </div>
         </header>
 
         <main class="content-grid">
