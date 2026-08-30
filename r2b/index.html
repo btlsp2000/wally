@@ -171,6 +171,31 @@ body {
 .armike-link:hover {
     border-bottom: 1px solid var(--grid-black);
 }
+      /* --- 9. THE FEATURE IMAGE --- */
+.feature-image-container {
+    margin: 1.5rem 0 2rem 0; /* Breathing room above and below */
+    width: 100%;
+}
+
+.feature-image {
+    width: 100%; /* Forces the image to span the full column width */
+    height: auto; /* Maintains mathematical proportions */
+    display: block;
+    border: var(--border-weight) solid var(--grid-black); /* A sharp, defining frame */
+    filter: grayscale(100%); /* Optional: Turns the image black & white to let the red accents pop */
+}
+
+.image-caption {
+    margin-top: 0.5rem;
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: #666;
+    text-align: right;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.25rem;
+}
     </style>
 </head>
 <body>
@@ -188,6 +213,18 @@ body {
             
             <article class="feature-story">
                 <h2 class="headline">"That Was Nice."</h2>
+                <!-- The Front Page Feature -->
+            <article class="feature-story">
+                <h2 class="headline">"The Bystander"</h2>
+                
+                <!-- THE FEATURE IMAGE -->
+                <figure class="feature-image-container">
+                    <img src="your-image-file.jpg" alt="Description of the image" class="feature-image">
+                    <figcaption class="image-caption">Photo / wallycad.com/armike registry</figcaption>
+                </figure>
+
+                <p>UNDERSTOOD.</p>
+                <!-- Rest of the story... -->
                 <p>Sheri meets Bill. She's seen him walking on the street...</p>
                 <blockquote class="pull-quote">
                     "Are you alright, are you sure? Can I give you some money?"
