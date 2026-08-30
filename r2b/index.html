@@ -117,7 +117,33 @@ body {
     color: var(--route-red);
     font-family: monospace;
 }
+/* --- 8. THE COLOPHON / CREDITS --- */
+.broadsheet-credits {
+    width: 100%;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: var(--border-weight) solid var(--grid-black);
+    text-align: center;
+    font-family: monospace; /* Keeps the technical, drafted feel */
+    font-size: 0.85rem;
+    color: var(--grid-black);
+    letter-spacing: 0.05em;
+}
 
+.broadsheet-credits p {
+    margin-bottom: 0.5rem;
+}
+
+.credit-title {
+    color: var(--route-red);
+    font-weight: bold;
+}
+
+.copyright {
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+    color: #666; /* Fades the copyright slightly into the paper background */
+}
 /* --- 7. MOBILE BREAKPOINT --- */
 @media (max-width: 800px) {
     .editorial-column {
@@ -178,6 +204,13 @@ body {
                 </aside>
 
         </main>
+        <!-- The Publishing Credits -->
+        <footer class="broadsheet-credits">
+            <p><span class="credit-title">ARCHITECT & PUBLISHER:</span> Bill Tonnesen</p>
+            <p><span class="credit-title">SYSTEMS & TYPESETTING:</span> WallyCAD Engine / SquareFont</p>
+            <p><span class="credit-title">ARCHIVE & REGISTRY:</span> Rainy Day Crafts</p>
+            <p class="copyright">&copy; 2026. All routes reserved.</p>
+        </footer>
     </div>
 
 </body>
