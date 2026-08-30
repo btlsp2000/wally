@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route 2: The New Family Times</title>
+    <style>
+        /* --- THE ARCHITECTURAL VARIABLES --- */
+        :root {
+            --route-red: #9C2A20;       
+            --grid-black: #1A1A1A;      
+            --paper-white: #F9F9F9;     
+            --border-weight: 2px;
+        }
+
+        /* --- THE BASELINE MATRIX --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--paper-white);
+            color: var(--grid-black);
+            font-family: "Georgia", serif; 
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        /* --- THE MASTER CONTAINER --- */
+        .master-container {
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+
+        /* --- THE MASTHEAD --- */
+        .masthead {
+            text-align: center;
+            border-bottom: var(--border-weight) solid var(--route-red);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .masthead h1 {
+            font-family: monospace; 
+            font-size: 4rem;
+            letter-spacing: 0.1em;
+            color: var(--grid-black);
+        }
+
+        .subhead {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--route-red);
+        }
+
+        /* --- DIRECTORY ANCHOR --- */
+        .directory-anchor {
+            margin-top: 1rem;
+            font-family: monospace;
+            font-size: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .armike-link {
+            color: var(--route-red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-bottom 0.3s ease;
+        }
+
+        .armike-link:hover {
+            border-bottom: 1px solid var(--grid-black);
+        }
+
+        /* --- THE FLEXBOX GEOMETRY --- */
+        .content-grid {
+            display: flex;
+            flex-wrap: wrap; 
+            gap: 3rem; 
+            align-items: flex-start;
+        }
+
+        .feature-story {
+            flex: 2 1 60%; 
+        }
+
+        .editorial-column {
+            flex: 1 1 30%; 
+            border-left: 1px solid #ccc;
+            padding-left: 2rem;
+        }
+
+        /* --- TYPOGRAPHY & ACCENTS --- */
+        .headline {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .grid-title {
+            font-family: monospace;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .opening-declaration {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pull-quote {
+            font-size: 1.5rem;
+            font-style: italic;
+            color: var(--route-red);
+            border-left: 4px solid var(--route-red);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .drop-cap {
+            float: left;
+            font-size: 4rem;
+            line-height: 0.8;
+            padding-right: 0.5rem;
+            color: var(--route-red);
+            font-family: monospace;
+        }
+
+        /* --- THE FEATURE IMAGE --- */
+        .feature-image-container {
+            margin: 1.5rem 0 2rem 0; 
+            width: 100%;
+        }
+
+        .feature-image {
+            width: 100%; 
+            height: auto; 
+            display: block;
+            border: var(--border-weight) solid var(--grid-black); 
+        }
+
+        .image-caption {
+            margin-top: 0.5rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #666;
+            text-align: right;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 0.25rem;
+        }
+
+        /* --- READ MORE LINK --- */
+        .read-more {
+            display: inline-block;
+            margin-top: 1.5rem;
+            font-family: "Georgia", serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+            font-style: italic;
+            color: var(--route-red);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--route-red);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .read-more:hover {
+            color: var(--grid-black);
+            border-bottom: 1px solid var(--grid-black);
+        }
+
+        /* --- THE COLOPHON / CREDITS --- */
+        .broadsheet-credits {
+            width: 100%;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: var(--border-weight) solid var(--grid-black);
+            text-align: center;
+            font-family: monospace; 
+            font-size: 0.85rem;
+            color: var(--grid-black);
+            letter-spacing: 0.05em;
+        }
+
+        .broadsheet-credits p {
+            margin-bottom: 0.5rem;
+        }
+
+        .credit-title {
+            color: var(--route-red);
+            font-weight: bold;
+        }
+
+        .copyright {
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: #666; 
+        }
+
+        /* --- MOBILE BREAKPOINT --- */
+        @media (max-width: 800px) {
+            .editorial-column {
+                border-left: none;
+                padding-left: 0;
+                border-top: var(--border-weight) solid var(--grid-black);
+                padding-top: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="master-container">
+        
+        <header class="masthead">
+            <h1>ROUTE 2</h1>
+            <p class="subhead">THE NEW FAMILY TIMES</p>
+            <div class="directory-anchor">
+                <a href="https://wallycad.com/armike" class="armike-link" target="_blank">wallycad.com/armike</a>
+            </div>
+        </header>
+
+        <main class="content-grid">
+            
+            <article class="feature-story">
+                <h2 class="headline grid-title">The Bystander</h2>
+                
+                <figure class="feature-image-container">
+                    <img src="placeholder.jpg" alt="Insert image here" class="feature-image">
+                    <figcaption class="image-caption">Photo / wallycad.com/armike registry</figcaption>
+                </figure>
+
+                <p class="opening-declaration">UNDERSTOOD.</p>
+                <p>Sheri meets Bill. She's seen him walking on the street...</p>
+                
+                <blockquote class="pull-quote">
+                    "Are you alright, are you sure? Can I give you some money?"
+                </blockquote>
+                
+                <div id="bystander-full-text" style="display: none;">
+                    <p>She hands Bill 3 bills folded. "Do you need a blanket? I know the fire dept well across the street, I'll ask for a blanket."</p>
+                    <p>[Insert the rest of the vignette here...]</p>
+                </div>
+                
+                <a onclick="revealText('bystander-full-text', this)" class="read-more">Read the full entry &raquo;</a>
+            </article>
+
+            <aside class="editorial-column">
+                <h2 class="headline">Mike: A Lesson in Brother</h2>
+                <p><span class="drop-cap">W</span>e were uprooted from Lennox, 1966. It was not the first time. By 1967, I didn't want to go to Colton...</p>
+                
+                <div id="mike-full-text" style="display: none;">
+                    <p>[Insert the rest of the historical architecture regarding the forced relocation and shared survival here...]</p>
+                </div>
+                
+                <a onclick="revealText('mike-full-text', this)" class="read-more">Read the full entry &raquo;</a>
+            </aside>
+
+        </main>
+
+        <footer class="broadsheet-credits">
+            <p><span class="credit-title">ARCHITECT & PUBLISHER:</span> Bill Tonnesen</p>
+            <p><span class="credit-title">SYSTEMS & TYPESETTING:</span> WallyCAD Engine / SquareFont</p>
+            <p><span class="credit-title">ARCHIVE & REGISTRY:</span> Rainy Day Crafts</p>
+            <p class="copyright">&copy; 2026. All routes reserved.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        function revealText(targetId, linkElement) {
+            var fullText = document.getElementById(targetId);
+            
+            // Unlocks the hidden text container
+            fullText.style.display = 'block';
+            
+            // Removes the anchor link entirely once activated
+            linkElement.style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
