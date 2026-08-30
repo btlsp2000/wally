@@ -13,7 +13,24 @@
     --paper-white: #F9F9F9;     /* Soft broadsheet background */
     --border-weight: 2px;
 }
+/* --- READ MORE LINK --- */
+.read-more {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-family: "Georgia", serif;
+    font-size: 0.9rem;
+    font-weight: bold;
+    font-style: italic;
+    color: var(--route-red);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--route-red);
+    transition: all 0.3s ease;
+}
 
+.read-more:hover {
+    color: var(--grid-black);
+    border-bottom: 1px solid var(--grid-black);
+}
 /* --- 2. THE BASELINE MATRIX --- */
 * {
     box-sizing: border-box;
