@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD - Main Directory</title>
+    <style>
+        /* SquareFont 5x5 Grid Integration */
+        @font-face {
+            font-family: 'SquareFont';
+            /* Replace the URL below with your actual SVG data URI or font file path */
+            src: url('data:image/svg+xml;charset=utf-8,...') format('svg'),
+                 url('fonts/SquareFont.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        :root {
+            --bg-color: #f4f4f5;
+            --text-color: #18181b;
+            --card-bg: #ffffff;
+            --hover-bg: #e4e4e7;
+            --accent: #2563eb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-family: 'SquareFont', monospace;
+            font-size: 3rem;
+            letter-spacing: 2px;
+            color: var(--text-color);
+        }
+
+        .subtitle {
+            color: #52525b;
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .nav-card {
+            background-color: var(--card-bg);
+            border: 1px solid #d4d4d8;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .nav-card:hover {
+            background-color: var(--hover-bg);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .nav-card h2 {
+            margin: 0 0 0.5rem 0;
+            font-family: 'SquareFont', monospace;
+            font-size: 1.5rem;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        .nav-card p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #52525b;
+            line-height: 1.4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .path {
+            font-family: 'SquareFont', monospace;
+            background: #e4e4e7;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            align-self: flex-start;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Wallycad.com</h1>
+        <div class="subtitle">System Directory & Project Hub</div>
+    </header>
+
+    <div class="nav-grid">
+        <!-- WallyCAD Directory -->
+        <a href="/dir" class="nav-card">
+            <h2>WallyCAD</h2>
+            <p>Main CAD utilities, Master Archive documentation, and 3D routines.</p>
+            <span class="path">/dir</span>
+        </a>
+
+        <!-- Calculus of Pool Directory -->
+        <a href="/cofp" class="nav-card">
+            <h2>Calculus of Pool</h2>
+            <p>Manuscript sections, vector calculations, and cue ball mechanics.</p>
+            <span class="path">/cofp</span>
+        </a>
+
+        <!-- Where is Bill Directory -->
+        <a href="/wib" class="nav-card">
+            <h2>Where is Bill</h2>
+            <p>Board game layouts, North Arrow graphics, and geographic mapping.</p>
+            <span class="path">/wib</span>
+        </a>
+
+        <!-- Budget Directory -->
+        <a href="/bgt" class="nav-card">
+            <h2>Budget</h2>
+            <p>Project financial layouts and budget tracking sheets.</p>
+            <span class="path">/bgt</span>
+        </a>
+
+        <!-- Roof Directory -->
+        <a href="/roof" class="nav-card">
+            <h2>Roof</h2>
+            <p>Roof framing routines, pitch calculations, and structural geometry.</p>
+            <span class="path">/roof</span>
+        </a>
+
+        <!-- Woodworking Directory -->
+        <a href="/woodworking" class="nav-card">
+            <h2>Woodworking</h2>
+            <p>Modular furniture designs, compact living structures, and scale models.</p>
+            <span class="path">/woodworking</span>
+        </a>
+
+        <!-- Scientific Directory -->
+        <a href="/scientific" class="nav-card">
+            <h2>Scientific</h2>
+            <p>Parametric equations, catenary curves, and geometric function calculators.</p>
+            <span class="path">/scientific</span>
+        </a>
+    </div>
+
+</body>
+</html>
