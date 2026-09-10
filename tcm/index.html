@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  /* Sets the exact dimensions of a standard business card */
+  .card {
+    width: 3.5in;
+    height: 2in;
+    border: 1px dashed #999; /* Dashed border as a cutting guide */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    padding: 0.2in;
+  }
+
+  /* Centers and styles the text */
+  .card-text {
+    font-size: 16pt;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 0.15in;
+    letter-spacing: 1px;
+    color: #333;
+  }
+
+  /* Sizing for the QR Code */
+  .qr-code {
+    width: 0.75in;
+    height: 0.75in;
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="card-text">TAKE CARE<br>OF MYSELF</div>
+    
+    <!-- This QR code now links directly to wallycad.com/manual -->
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wallycad.com/manual" alt="QR Code for WallyCAD Manual" class="qr-code">
+  </div>
+
+</body>
+</html>
