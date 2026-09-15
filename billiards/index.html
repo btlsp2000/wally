@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Calculus of Pool — Portal</title>
+  <style>
+    :root {
+      --card-bg: rgba(18, 18, 18, 0.88);
+      --text: #e0e0e0;
+      --accent: #4caf50;
+      --border: #333333;
+      --muted: #888888;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #0d1117;
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Rotated 90-degree blueprint backdrop */
+    .backdrop {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 100vh;
+      height: 100vw;
+      transform: translate(-50%, -50%) rotate(90deg);
+      background-image: url('1000008245.png');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: contain;
+      opacity: 0.22;
+      filter: grayscale(20%) contrast(110%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .portal-card {
+      position: relative;
+      z-index: 1;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 6px;
+      width: 100%;
+      max-width: 640px;
+      padding: 36px 32px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+      text-align: center;
+    }
+
+    .title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+    }
+
+    .rule-line {
+      border: 0;
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 24px;
+    }
+
+    .quote-box {
+      text-align: left;
+      border-left: 2px solid var(--accent);
+      padding-left: 16px;
+      margin-bottom: 30px;
+      line-height: 1.6;
+      font-size: 0.95rem;
+      color: #cccccc;
+    }
+
+    .action-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      display: block;
+      padding: 12px 24px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000000;
+      font-weight: bold;
+      border: 1px solid var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: #43a047;
+      border-color: #43a047;
+      box-shadow: 0 0 12px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-secondary {
+      background: #222222;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #2d2d2d;
+      border-color: var(--muted);
+    }
+
+    .footer-stamp {
+      margin-top: 24px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="backdrop" aria-hidden="true"></div>
+
+  <div class="portal-card">
+    <div class="title">THE CALCULUS OF POOL</div>
+    <div class="subtitle">A Manual for the Architect of the Table</div>
+    <hr class="rule-line" />
+
+    <div class="quote-box">
+      "The opponent is playing the balls; you are playing the architecture. When you approach, you are simply walking through a quiet, predetermined grid. You do not meet their kinetic energy; you absorb it."
+    </div>
+
+    <div class="action-group">
+      <a href="reader.html" class="btn btn-primary">ENTER READER / MANUSCRIPT</a>
+      <a href="https://wallycad.gumroad.com" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">PURCHASE BOOK / EDITION</a>
+    </div>
+
+    <div class="footer-stamp">
+      GRID COORD // 90° ROTATION APPLIED
+    </div>
+  </div>
+
+</body>
+</html>
