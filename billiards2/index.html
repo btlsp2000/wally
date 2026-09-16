@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text Containers</title>
+  <style>
+    /* Main block-level text card */
+    .text-card {
+      width: 320px;
+      padding: 1.5rem;
+      border: 1px solid #333;
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+    }
+
+    /* Headings */
+    h2 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-size: 1.25rem;
+      color: #111;
+    }
+
+    /* Paragraphs */
+    p {
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+      color: #444;
+    }
+
+    /* Inline highlight */
+    .highlight {
+      font-weight: bold;
+      color: #0284c7;
+    }
+
+    /* Code / Monospace container */
+    pre {
+      background: #f1f5f9;
+      padding: 0.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- DIV: Generic container grouping the block -->
+  <div class="text-card">
+    
+    <!-- H2: Heading text -->
+    <h2>WallyCAD Spec Sheet</h2>
+    
+    <!-- P: Paragraph with SPAN for inline text -->
+    <p>
+      This is a basic paragraph container. You can use an inline 
+      <span class="highlight">span container</span> to highlight specific words.
+    </p>
+
+    <!-- PRE / CODE: Text container that preserves whitespace and tabs -->
+    <pre><code>(defun c:drawbox ()
+  (command "RECTANG" "0,0" "2.75,2.75")
+)</code></pre>
+
+  </div>
+
+</body>
+</html>
