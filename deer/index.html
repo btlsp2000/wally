@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD - DEER-1 Scaled (3x)</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #d3d3d3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .canvas-container {
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3); 
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #000;
+            background-color: #fff;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="canvas-container">
+        <canvas id="cardCanvas"></canvas>
+    </div>
+
+    <button onclick="renderCardNodes('cardCanvas')">GENERATE 12 VARIATIONS (3X SCALE)</button>
+
+    <script>
+        function generateLayoutNodes() {
+            const nodes = [];
+            for (let i = 0; i < 12; i++) {
+                const x = (Math.random() * (3.4 - 0.1) + 0.1).toFixed(3);
+                const y = (Math.random() * (1.9 - 0.1) + 0.1).toFixed(3);
+                nodes.push({ x: parseFloat(x), y: parseFloat(y) });
+            }
+            return nodes.sort((a, b) => a.x - b.x); 
+        }
+
+        function getVariedDeerNodes() {
+            const jitter = (val, maxShift) => val + (Math.random() * 2 - 1) * maxShift;
+
+            return {
+                legF1:   [jitter(0, 0.05), jitter(-0.1, 0.1)],
+                shoulder:[jitter(0.25, 0.02), jitter(0.45, 0.02)], 
+                head:    [jitter(0.25, 0.04), jitter(0.75, 0.04)],
+                antlerL: [jitter(0.05, 0.1), jitter(0.97, 0.1)],
+                antlerR: [jitter(0.45, 0.1), jitter(1.0, 0.1)],
+                legF2:   [jitter(0.35, 0.05), jitter(-0.35, 0.1)],
+                hip:     [jitter(0.8, 0.02), jitter(0.6, 0.02)], 
+                legB1:   [jitter(0.65, 0.05), jitter(0, 0.1)],
+                legB2:   [jitter(1.15, 0.05), jitter(0, 0.1)]
+            };
+        }
+
+        function drawDeer(ctx, startX, startY) {
+            // INCREASED FROM 14 TO 42 (3X SCALE)
+            const renderScale = 42; 
+            const nodes = getVariedDeerNodes();
+
+            const pathSequence = [
+                nodes.legF1,
+                nodes.shoulder,
+                nodes.head,
+                nodes.antlerL,
+                nodes.head,
+                nodes.antlerR,
+                nodes.head,
+                nodes.shoulder,
+                nodes.legF2,
+                nodes.shoulder,
+                nodes.hip,
+                nodes.legB1,
+                nodes.hip,
+                nodes.legB2
+            ];
+
+            ctx.beginPath();
+            
+            pathSequence.forEach((coord, index) => {
+                const plotX = startX + (coord[0] * renderScale);
+                const plotY = startY - (coord[1] * renderScale);
+
+                if (index === 0) {
+                    ctx.moveTo(plotX, plotY);
+                } else {
+                    ctx.lineTo(plotX, plotY);
+                }
+            });
+
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            ctx.fillStyle = "#000000";
+            ctx.beginPath();
+            ctx.arc(startX + (nodes.shoulder[0] * renderScale), startY - (nodes.shoulder[1] * renderScale), 3.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function renderCardNodes(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const scale = 100; 
+
+            canvas.width = 3.5 * scale;
+            canvas.height = 2.0 * scale;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const layoutNodes = generateLayoutNodes();
+
+            ctx.beginPath();
+            ctx.moveTo(layoutNodes[0].x * scale, layoutNodes[0].y * scale);
+            for (let i = 1; i < layoutNodes.length; i++) {
+                ctx.lineTo(layoutNodes[i].x * scale, layoutNodes[i].y * scale);
+            }
+            ctx.strokeStyle = "rgba(0, 0, 0, 0.25)"; 
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            layoutNodes.forEach((node) => {
+                drawDeer(ctx, node.x * scale, node.y * scale);
+            });
+
+            const textX = canvas.width / 2;
+            const textY = canvas.height / 2;
+            
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(textX - 90, textY - 15, 180, 30);
+
+            ctx.fillStyle = "#000000";
+            ctx.font = "bold 24px 'Courier New', Courier, monospace"; 
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("I AM HERE NOW", textX, textY);
+        }
+
+        window.onload = function() {
+            renderCardNodes('cardCanvas');
+        };
+    </script>
+</body>
+</html>
