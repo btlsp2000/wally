@@ -1,213 +1,382 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>S2 | Master Viewport</title>
-    <style>
-        /* =========================================
-           S2 MASTER VIEWPORT | IPAD OPTIMIZED
-           ========================================= */
-        body {
-            background-color: #121212;
-            color: #00ff00;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            flex-direction: column;
-            font-family: 'Courier New', Courier, monospace;
-            overflow: hidden;
-        }
-
-        /* --- THE DASHBOARD (Control Deck) --- */
-        #control-deck {
-            height: 55px;
-            background-color: #1a1a1a;
-            border-bottom: 2px solid #4CAF50;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            box-sizing: border-box;
-        }
-
-        .controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .controls label {
-            font-weight: bold;
-            color: #4CAF50;
-            font-size: 14px;
-        }
-
-        /* iPad Touch Optimization (16px minimum to stop auto-zoom) */
-        button, select, input {
-            font-size: 16px; 
-            padding: 6px 10px;
-            background-color: #2d2d2d;
-            color: #e0e0e0;
-            border: 1px solid #4CAF50;
-            border-radius: 4px;
-            font-family: inherit;
-        }
-
-        input[type="text"] {
-            width: 140px;
-        }
-
-        button {
-            font-weight: bold;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: #000;
-        }
-
-        button:active {
-            background-color: #388E3C;
-        }
-
-        /* --- THE DUAL VIEWPORT --- */
-        #viewport {
-            display: flex;
-            flex-direction: row;
-            flex: 1;
-            width: 100%;
-        }
-
-        .pane {
-            flex: 1; /* 50/50 split by default */
-            height: 100%;
-            border: none;
-            background-color: #ffffff; /* Default white canvas for Wally */
-        }
-
-        /* --- THE SLIDER (Resizer) --- */
-        #resizer {
-            width: 20px; /* Wide touch target for iPad */
-            background-color: #1a1a1a;
-            cursor: col-resize;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-left: 1px solid #333;
-            border-right: 1px solid #333;
-            z-index: 10;
-            user-select: none; /* Prevents text highlighting while dragging */
-        }
-
-        #resizer::after {
-            content: "||";
-            color: #4CAF50;
-            font-size: 12px;
-            letter-spacing: -1px;
-        }
-
-        #resizer:active {
-            background-color: #4CAF50;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>WallyCAD v.14 - Bank & Mirror Reflection Solver</title>
+<style>
+  body {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    margin: 0;
+  }
+  .drawing-sheet {
+    background-color: #0d1b2a;
+    border: 3px solid #00a8e8;
+    padding: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  }
+  canvas {
+    border: 1px solid #00a8e8;
+    display: block;
+    background-color: #07111a;
+    cursor: crosshair;
+  }
+  .hud-bar {
+    background-color: #07111a;
+    border: 1px solid #00ff88;
+    color: #00ff88;
+    padding: 8px 12px;
+    margin-top: 10px;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-group {
+    display: flex;
+    gap: 8px;
+  }
+  .btn {
+    background-color: #004488;
+    color: #fff;
+    border: 1px solid #00a8e8;
+    font-family: 'Courier New', Courier, monospace;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 11px;
+  }
+  .btn:hover, .btn.active {
+    background-color: #00a8e8;
+    color: #000;
+  }
+  .title-block {
+    border-top: 2px solid #00a8e8;
+    margin-top: 10px;
+    padding-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #00a8e8;
+    letter-spacing: 1px;
+  }
+  .tb-section {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .tb-bold {
+    font-weight: bold;
+    color: #ffffff;
+  }
+</style>
 </head>
 <body>
 
-    <div id="control-deck">
-        <div class="controls" id="left-controls">
-            <label>L:</label>
-            <select id="select-left">
-                <option value="/qc" selected>QC (QuickClick)</option>
-                <option value="/">WAL (Engine)</option>
-                <option value="/wib">WIB (Archive)</option>
-                <option value="/router">LNK (Router)</option>
-            </select>
-            <input type="text" id="custom-left" placeholder="Custom URL...">
-            <button onclick="executeVector('left')">GO</button>
-        </div>
-
-        <div class="controls" id="right-controls">
-            <label>R:</label>
-            <select id="select-right">
-                <option value="/">WAL (Engine)</option>
-                <option value="/qc">QC (QuickClick)</option>
-                <option value="/wib">WIB (Archive)</option>
-                <option value="/router">LNK (Router)</option>
-            </select>
-            <input type="text" id="custom-right" placeholder="Custom URL...">
-            <button onclick="executeVector('right')">GO</button>
-        </div>
+<div class="drawing-sheet">
+  <canvas id="poolCanvas" width="960" height="580"></canvas>
+  
+  <!-- Real-Time Bank & Vector Telemetry HUD -->
+  <div class="hud-bar">
+    <div id="telemetry">CLICK ANY DIAMOND OR RAIL TO SOLVE CUSHION NOSE BANK ANGLE</div>
+    <div class="btn-group">
+      <button id="snapBtn" class="btn active" onclick="toggleSnap()">DIAMOND SNAP: ON</button>
+      <button class="btn" onclick="clearVectors()">RESET MATRIX</button>
     </div>
+  </div>
 
-    <div id="viewport">
-        <iframe id="pane-left" class="pane" src="/qc"></iframe>
-        
-        <div id="resizer"></div>
-        
-        <iframe id="pane-right" class="pane" src="/"></iframe>
+  <!-- WallyCAD v.14 Standard Title Block -->
+  <div class="title-block">
+    <div class="tb-section">
+      <span class="tb-bold">SYSTEM: WALLYCAD V.14</span>
+      <span>DIR: /STANDALONES/BANK_SOLVER</span>
     </div>
+    <div class="tb-section">
+      <span>BOUNDS: (-6, -6) TO (102, 54) | NOSE: (0, 0) TO (96, 48)</span>
+      <span>SIGHT OFFSET: 3" CENTERLINE (FONT SQUARE @ PI/4)</span>
+    </div>
+    <div class="tb-section" style="text-align: right;">
+      <span class="tb-bold">DRAFTSMAN: B. TONNESEN</span>
+      <span>SCALE: 1 IN = 8 PX | UNITS: INCHES</span>
+    </div>
+  </div>
+</div>
 
-    <script>
-        // --- 1. URL ROUTING LOGIC ---
-        function executeVector(side) {
-            const iframe = document.getElementById(`pane-${side}`);
-            const presetUrl = document.getElementById(`select-${side}`).value;
-            const customUrl = document.getElementById(`custom-${side}`).value;
-            
-            // Execute custom URL if entered, otherwise use dropdown
-            let finalUrl = customUrl ? customUrl : presetUrl;
-            
-            // Enforce https:// for external domains to prevent iframe routing errors
-            if (customUrl && !customUrl.startsWith('http') && !customUrl.startsWith('/')) {
-                finalUrl = 'https://' + customUrl;
-            }
-            
-            iframe.src = finalUrl;
-            document.getElementById(`custom-${side}`).value = ""; // Clear input
+<script>
+  const canvas = document.getElementById('poolCanvas');
+  const ctx = canvas.getContext('2d');
+  const telemetry = document.getElementById('telemetry');
+  const snapBtn = document.getElementById('snapBtn');
+
+  const SCALE = 8;
+  const SPOT = { x: 72, y: 24 };
+  let snapToDiamonds = true;
+
+  function toX(x) { return (x + 12) * SCALE; }
+  function toY(y) { return canvas.height - ((y + 12) * SCALE); }
+  function fromX(px) { return (px / SCALE) - 12; }
+  function fromY(py) { return ((canvas.height - py) / SCALE) - 12; }
+
+  const pockets = [
+    { id: 'P1', x: 0, y: 0, lx: 4, ly: 4 },
+    { id: 'P2', x: 0, y: 48, lx: 4, ly: -5 },
+    { id: 'P3', x: 48, y: 48, lx: 3, ly: -5 },
+    { id: 'P4', x: 96, y: 48, lx: -5, ly: -5 },
+    { id: 'P5', x: 96, y: 0, lx: -5, ly: 4 },
+    { id: 'P6', x: 48, y: 0, lx: 3, ly: 4 }
+  ];
+
+  // Diamond Array along 3-inch rail centerline
+  const diamonds = [];
+  [12, 24, 36, 60, 72, 84].forEach(xd => {
+    diamonds.push({ id: `D_TOP(${xd},51)`, x: xd, y: 51 });
+    diamonds.push({ id: `D_BOT(${xd},-3)`, x: xd, y: -3 });
+  });
+  [12, 24, 36].forEach(yd => {
+    diamonds.push({ id: `D_HEAD(-3,${yd})`, x: -3, y: yd });
+    diamonds.push({ id: `D_FOOT(99,${yd})`, x: 99, y: yd });
+  });
+
+  function toggleSnap() {
+    snapToDiamonds = !snapToDiamonds;
+    snapBtn.innerText = `DIAMOND SNAP: ${snapToDiamonds ? 'ON' : 'OFF'}`;
+    snapBtn.classList.toggle('active', snapToDiamonds);
+  }
+
+  function drawDiamond(x, y, highlight = false) {
+    ctx.save();
+    ctx.translate(toX(x), toY(y));
+    ctx.rotate(Math.PI / 4);
+    ctx.strokeStyle = highlight ? '#00ff88' : '#ffcc00';
+    ctx.lineWidth = highlight ? 2.5 : 1.5;
+    const s = (highlight ? 1.5 : 1.1) * SCALE;
+    ctx.strokeRect(-s / 2, -s / 2, s, s);
+    ctx.restore();
+  }
+
+  function renderBaseTable() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Reference Grid Lines (-6, 0, 48, 96, 102)
+    ctx.strokeStyle = 'rgba(0, 168, 232, 0.25)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    [-6, 0, 48, 96, 102].forEach(x => {
+      ctx.beginPath(); ctx.moveTo(toX(x), toY(-9)); ctx.lineTo(toX(x), toY(57)); ctx.stroke();
+    });
+    [-6, 0, 48, 54].forEach(y => {
+      ctx.beginPath(); ctx.moveTo(toX(-9), toY(y)); ctx.lineTo(toX(105), toY(y)); ctx.stroke();
+    });
+    ctx.setLineDash([]);
+
+    // 2. Outer Rail Envelope (-6,-6) to (102,54)
+    ctx.strokeStyle = '#00a8e8';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(toX(-6), toY(54), 108 * SCALE, 60 * SCALE);
+
+    // 3. Playing Surface (0,0) to (96,48) & Centerline (X=48)
+    ctx.strokeStyle = '#ffffff';
+    ctx.strokeRect(toX(0), toY(48), 96 * SCALE, 48 * SCALE);
+    ctx.beginPath(); ctx.moveTo(toX(48), toY(0)); ctx.lineTo(toX(48), toY(48)); ctx.stroke();
+
+    // 4. 3-Inch Offset Sight Centerline
+    ctx.strokeStyle = 'rgba(0, 168, 232, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(toX(-3), toY(51), 102 * SCALE, 54 * SCALE);
+
+    // 5. Pockets 1-6
+    ctx.font = 'bold 13px Courier New';
+    pockets.forEach((p, idx) => {
+      ctx.fillStyle = '#07111a';
+      ctx.strokeStyle = '#00ff88';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(toX(p.x), toY(p.y), 2.25 * SCALE, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#00ff88';
+      ctx.fillText(idx + 1, toX(p.x + p.lx), toY(p.y + p.ly));
+    });
+
+    // 6. Diamonds (SQUARE @ PI/4)
+    diamonds.forEach(d => drawDiamond(d.x, d.y));
+
+    // 7. Foot SPOT (72, 24)
+    ctx.strokeStyle = '#ff4444';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(toX(71), toY(24)); ctx.lineTo(toX(73), toY(24));
+    ctx.moveTo(toX(72), toY(23)); ctx.lineTo(toX(72), toY(25));
+    ctx.stroke();
+    ctx.fillStyle = '#ff4444';
+    ctx.fillText('SPOT (72,24)', toX(74), toY(23.5));
+
+    // 8. Axis Annotations
+    ctx.fillStyle = '#00a8e8';
+    ctx.font = '12px Courier New';
+    [-6, 0, 48, 96, 102].forEach(x => ctx.fillText(x, toX(x - 0.5), toY(-10)));
+    [-6, 0, 48, 54].forEach(y => ctx.fillText(y, toX(-10.5), toY(y - 0.5)));
+  }
+
+  // Parametric Ray-Cushion Intersection Solver
+  // Finds exact impact point (x, y) and normal vector (nx, ny) on bounds [0,96] x [0,48]
+  function findRailIntersection(startX, startY, dirX, dirY) {
+    let minT = Infinity;
+    let hit = null;
+
+    // Left Head Rail (X = 0)
+    if (dirX < 0) {
+      const t = (0 - startX) / dirX;
+      const y = startY + t * dirY;
+      if (t > 0.001 && y >= 0 && y <= 48 && t < minT) {
+        minT = t; hit = { x: 0, y: y, nx: 1, ny: 0, rail: 'HEAD_RAIL (X=0)' };
+      }
+    }
+    // Right Foot Rail (X = 96)
+    if (dirX > 0) {
+      const t = (96 - startX) / dirX;
+      const y = startY + t * dirY;
+      if (t > 0.001 && y >= 0 && y <= 48 && t < minT) {
+        minT = t; hit = { x: 96, y: y, nx: -1, ny: 0, rail: 'FOOT_RAIL (X=96)' };
+      }
+    }
+    // Bottom Rail (Y = 0)
+    if (dirY < 0) {
+      const t = (0 - startY) / dirY;
+      const x = startX + t * dirX;
+      if (t > 0.001 && x >= 0 && x <= 96 && t < minT) {
+        minT = t; hit = { x: x, y: 0, nx: 0, ny: 1, rail: 'BOT_RAIL (Y=0)' };
+      }
+    }
+    // Top Rail (Y = 48)
+    if (dirY > 0) {
+      const t = (48 - startY) / dirY;
+      const x = startX + t * dirX;
+      if (t > 0.001 && x >= 0 && x <= 96 && t < minT) {
+        minT = t; hit = { x: x, y: 48, nx: 0, ny: -1, rail: 'TOP_RAIL (Y=48)' };
+      }
+    }
+    return hit;
+  }
+
+  canvas.addEventListener('mousedown', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    let aimX = fromX(e.clientX - rect.left);
+    let aimY = fromY(e.clientY - rect.top);
+    let snappedDiamond = null;
+
+    // Optional Snap to nearest PI/4 Diamond within 4.5 inches
+    if (snapToDiamonds) {
+      let minDist = 4.5;
+      diamonds.forEach(d => {
+        const dist = Math.hypot(aimX - d.x, aimY - d.y);
+        if (dist < minDist) {
+          minDist = dist;
+          aimX = d.x;
+          aimY = d.y;
+          snappedDiamond = d;
         }
+      });
+    }
 
-        // --- 2. SLIDER LOGIC ---
-        const resizer = document.getElementById('resizer');
-        const leftPane = document.getElementById('pane-left');
-        const rightPane = document.getElementById('pane-right');
-        const viewport = document.getElementById('viewport');
+    renderBaseTable();
 
-        let isResizing = false;
+    if (snappedDiamond) {
+      drawDiamond(snappedDiamond.x, snappedDiamond.y, true);
+    }
 
-        function startResize(e) {
-            isResizing = true;
-            leftPane.style.pointerEvents = 'none';
-            rightPane.style.pointerEvents = 'none';
-        }
+    // Direction Vector from SPOT (72, 24) through Aim Point
+    const dx = aimX - SPOT.x;
+    const dy = aimY - SPOT.y;
+    const mag = Math.hypot(dx, dy);
+    if (mag === 0) return;
+    const ux = dx / mag;
+    const uy = dy / mag;
 
-        function resize(e) {
-            if (!isResizing) return;
-            let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-            let newLeftWidth = (clientX / viewport.getBoundingClientRect().width) * 100;
-            
-            if (newLeftWidth > 10 && newLeftWidth < 90) {
-                leftPane.style.width = `${newLeftWidth}%`;
-                leftPane.style.flex = 'none';
-                rightPane.style.flex = '1';
-            }
-        }
+    // 1. Solve First Cushion Nose Intersection
+    const hit1 = findRailIntersection(SPOT.x, SPOT.y, ux, uy);
+    if (!hit1) return;
 
-        function stopResize() {
-            if (isResizing) {
-                isResizing = false;
-                leftPane.style.pointerEvents = 'auto';
-                rightPane.style.pointerEvents = 'auto';
-            }
-        }
+    // 2. Draw Sight Line Extension (Dashed Cyan from Nose to 3" Offset Diamond)
+    ctx.strokeStyle = 'rgba(0, 255, 255, 0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(toX(hit1.x), toY(hit1.y));
+    ctx.lineTo(toX(aimX), toY(aimY));
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-        // Attach listeners
-        resizer.addEventListener('mousedown', startResize);
-        resizer.addEventListener('touchstart', startResize, { passive: true });
-        window.addEventListener('mousemove', resize);
-        window.addEventListener('touchmove', resize, { passive: true });
-        window.addEventListener('mouseup', stopResize);
-        window.addEventListener('touchend', stopResize);
-    </script>
+    // 3. Draw Primary Incoming Shot Vector: SPOT (72,24) -> Cushion Nose Hit 1
+    ctx.strokeStyle = '#00ff88';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(toX(SPOT.x), toY(SPOT.y));
+    ctx.lineTo(toX(hit1.x), toY(hit1.y));
+    ctx.stroke();
+
+    // Mark Cushion Nose Impact Point
+    ctx.fillStyle = '#00ff88';
+    ctx.beginPath();
+    ctx.arc(toX(hit1.x), toY(hit1.y), 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 4. Draw Normal Axis at Cushion Impact
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(toX(hit1.x), toY(hit1.y));
+    ctx.lineTo(toX(hit1.x + hit1.nx * 12), toY(hit1.y + hit1.ny * 12));
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 5. Mirror Reflection Vector Calculation: R = I - 2(I . N)N
+    const dot = ux * hit1.nx + uy * hit1.ny;
+    const rx = ux - 2 * dot * hit1.nx;
+    const ry = uy - 2 * dot * hit1.ny;
+
+    // 6. Solve Second Cushion Nose Destination (Where the Bank Lands)
+    const hit2 = findRailIntersection(hit1.x, hit1.y, rx, ry);
+    if (hit2) {
+      // Draw Reflected Bank Vector (Solid Gold)
+      ctx.strokeStyle = '#ffcc00';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(toX(hit1.x), toY(hit1.y));
+      ctx.lineTo(toX(hit2.x), toY(hit2.y));
+      ctx.stroke();
+
+      // Ghost Ball at 2nd Rail Terminus
+      ctx.fillStyle = 'rgba(255, 204, 0, 0.25)';
+      ctx.beginPath();
+      ctx.arc(toX(hit2.x), toY(hit2.y), 1.125 * SCALE, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // Incidence Angle Calculation (Relative to Cushion Normal)
+    const incAngle = Math.acos(Math.abs(dot)) * (180 / Math.PI);
+
+    // Update Telemetry
+    const targetLabel = snappedDiamond ? snappedDiamond.id : `(${aimX.toFixed(1)}", ${aimY.toFixed(1)}")`;
+    telemetry.innerHTML = 
+      `AIM: ${targetLabel} | ` +
+      `NOSE IMPACT: (${hit1.x.toFixed(2)}", ${hit1.y.toFixed(2)}") | ` +
+      `\u03B8_INC: ${incAngle.toFixed(1)}\u00B0 | ` +
+      `EXIT TRACK -> (${hit2 ? hit2.x.toFixed(1) : '--'}", ${hit2 ? hit2.y.toFixed(1) : '--'}")`;
+  });
+
+  function clearVectors() {
+    renderBaseTable();
+    telemetry.innerHTML = 'CLICK ANY DIAMOND OR RAIL TO SOLVE CUSHION NOSE BANK ANGLE';
+  }
+
+  renderBaseTable();
+</script>
+
 </body>
 </html>
