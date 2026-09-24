@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>S2 | Master Viewport</title>
+    <style>
+        /* =========================================
+           S2 MASTER VIEWPORT | IPAD OPTIMIZED
+           ========================================= */
+        body {
+            background-color: #121212;
+            color: #00ff00;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+        }
+
+        /* --- THE DASHBOARD (Control Deck) --- */
+        #control-deck {
+            height: 55px;
+            background-color: #1a1a1a;
+            border-bottom: 2px solid #4CAF50;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .controls label {
+            font-weight: bold;
+            color: #4CAF50;
+            font-size: 14px;
+        }
+
+        /* iPad Touch Optimization (16px minimum to stop auto-zoom) */
+        button, select, input {
+            font-size: 16px; 
+            padding: 6px 10px;
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        input[type="text"] {
+            width: 140px;
+        }
+
+        button {
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: #000;
+        }
+
+        button:active {
+            background-color: #388E3C;
+        }
+
+        /* --- THE DUAL VIEWPORT --- */
+        #viewport {
+            display: flex;
+            flex-direction: row;
+            flex: 1;
+            width: 100%;
+        }
+
+        .pane {
+            flex: 1; /* 50/50 split by default */
+            height: 100%;
+            border: none;
+            background-color: #ffffff; /* Default white canvas for Wally */
+        }
+
+        /* --- THE SLIDER (Resizer) --- */
+        #resizer {
+            width: 20px; /* Wide touch target for iPad */
+            background-color: #1a1a1a;
+            cursor: col-resize;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 1px solid #333;
+            border-right: 1px solid #333;
+            z-index: 10;
+            user-select: none; /* Prevents text highlighting while dragging */
+        }
+
+        #resizer::after {
+            content: "||";
+            color: #4CAF50;
+            font-size: 12px;
+            letter-spacing: -1px;
+        }
+
+        #resizer:active {
+            background-color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="control-deck">
+        <div class="controls" id="left-controls">
+            <label>L:</label>
+            <select id="select-left">
+                <option value="/qc" selected>QC (QuickClick)</option>
+                <option value="/">WAL (Engine)</option>
+                <option value="/wib">WIB (Archive)</option>
+                <option value="/router">LNK (Router)</option>
+            </select>
+            <input type="text" id="custom-left" placeholder="Custom URL...">
+            <button onclick="executeVector('left')">GO</button>
+        </div>
+
+        <div class="controls" id="right-controls">
+            <label>R:</label>
+            <select id="select-right">
+                <option value="/">WAL (Engine)</option>
+                <option value="/qc">QC (QuickClick)</option>
+                <option value="/wib">WIB (Archive)</option>
+                <option value="/router">LNK (Router)</option>
+            </select>
+            <input type="text" id="custom-right" placeholder="Custom URL...">
+            <button onclick="executeVector('right')">GO</button>
+        </div>
+    </div>
+
+    <div id="viewport">
+        <iframe id="pane-left" class="pane" src="/qc"></iframe>
+        
+        <div id="resizer"></div>
+        
+        <iframe id="pane-right" class="pane" src="/"></iframe>
+    </div>
+
+    <script>
+        // --- 1. URL ROUTING LOGIC ---
+        function executeVector(side) {
+            const iframe = document.getElementById(`pane-${side}`);
+            const presetUrl = document.getElementById(`select-${side}`).value;
+            const customUrl = document.getElementById(`custom-${side}`).value;
+            
+            // Execute custom URL if entered, otherwise use dropdown
+            let finalUrl = customUrl ? customUrl : presetUrl;
+            
+            // Enforce https:// for external domains to prevent iframe routing errors
+            if (customUrl && !customUrl.startsWith('http') && !customUrl.startsWith('/')) {
+                finalUrl = 'https://' + customUrl;
+            }
+            
+            iframe.src = finalUrl;
+            document.getElementById(`custom-${side}`).value = ""; // Clear input
+        }
+
+        // --- 2. SLIDER LOGIC ---
+        const resizer = document.getElementById('resizer');
+        const leftPane = document.getElementById('pane-left');
+        const rightPane = document.getElementById('pane-right');
+        const viewport = document.getElementById('viewport');
+
+        let isResizing = false;
+
+        function startResize(e) {
+            isResizing = true;
+            leftPane.style.pointerEvents = 'none';
+            rightPane.style.pointerEvents = 'none';
+        }
+
+        function resize(e) {
+            if (!isResizing) return;
+            let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            let newLeftWidth = (clientX / viewport.getBoundingClientRect().width) * 100;
+            
+            if (newLeftWidth > 10 && newLeftWidth < 90) {
+                leftPane.style.width = `${newLeftWidth}%`;
+                leftPane.style.flex = 'none';
+                rightPane.style.flex = '1';
+            }
+        }
+
+        function stopResize() {
+            if (isResizing) {
+                isResizing = false;
+                leftPane.style.pointerEvents = 'auto';
+                rightPane.style.pointerEvents = 'auto';
+            }
+        }
+
+        // Attach listeners
+        resizer.addEventListener('mousedown', startResize);
+        resizer.addEventListener('touchstart', startResize, { passive: true });
+        window.addEventListener('mousemove', resize);
+        window.addEventListener('touchmove', resize, { passive: true });
+        window.addEventListener('mouseup', stopResize);
+        window.addEventListener('touchend', stopResize);
+    </script>
+</body>
+</html>
