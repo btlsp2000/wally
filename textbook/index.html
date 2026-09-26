@@ -1,0 +1,2813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WallyCAD Master Textbook & Live DXF Studio | wallycad.com/textbook</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-alt: #1f2733;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #00d2ff;
+      --accent-alt: #3fb950;
+      --warn: #f0883e;
+      --danger: #ff5555;
+      --select: #ff00ff;
+      --border: #30363d;
+      --code-bg: #070a0e;
+      --prime9-bg: rgba(0, 210, 255, 0.14);
+      --prime9-border: #00d2ff;
+      --font-mono: 'Courier New', Courier, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* HAL High-Contrast Presentation Mode */
+    body.hal-mode {
+      --bg: #000000;
+      --panel: #050505;
+      --panel-alt: #0f0f0f;
+      --text: #ffffff;
+      --muted: #ffea00;
+      --accent: #00ff66;
+      --accent-alt: #ff0055;
+      --warn: #ffea00;
+      --danger: #ff0055;
+      --select: #00ffff;
+      --border: #00ff66;
+      --code-bg: #000000;
+      --prime9-bg: rgba(255, 234, 0, 0.22);
+      --prime9-border: #ffea00;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.65;
+      padding-bottom: 4rem;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    /* Top Header */
+    header {
+      background: var(--panel);
+      border-bottom: 2px solid var(--border);
+      padding: 0.85rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-badge {
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-mono);
+      font-weight: 900;
+      padding: 0.35rem 0.65rem;
+      border-radius: 4px;
+      letter-spacing: 1px;
+      font-size: 0.95rem;
+    }
+
+    .brand h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .brand-sub {
+      font-size: 0.76rem;
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.75rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-accent {
+      background: rgba(0, 210, 255, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-dxf {
+      background: rgba(63, 185, 80, 0.18);
+      border-color: var(--accent-alt);
+      color: var(--accent-alt);
+    }
+
+    .btn-dxf:hover {
+      background: var(--accent-alt);
+      color: #000;
+    }
+
+    .btn-danger {
+      background: rgba(255, 85, 85, 0.15);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .btn-danger:hover {
+      background: var(--danger);
+      color: #000;
+    }
+
+    .btn-hal {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    body.hal-mode .btn-hal {
+      background: var(--warn);
+      color: #000;
+    }
+
+    /* Navigation Bar */
+    .nav-tabs {
+      display: flex;
+      gap: 0.45rem;
+      padding: 0.65rem 1.5rem;
+      background: var(--panel-alt);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      position: sticky;
+      top: 62px;
+      z-index: 190;
+    }
+
+    .tab-btn {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+      padding: 0.48rem 0.9rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .tab-btn.active {
+      background: var(--panel);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1420px;
+      margin: 1.5rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .tab-section {
+      display: none;
+    }
+
+    .tab-section.active {
+      display: block;
+    }
+
+    /* Textbook Reader Layout with Sticky Left Sub-Nav */
+    .reader-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .reader-layout {
+        grid-template-columns: 1fr;
+      }
+      .chapter-sidebar {
+        position: static !important;
+      }
+    }
+
+    .chapter-sidebar {
+      position: sticky;
+      top: 125px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+    }
+
+    .chapter-sidebar h3 {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .sidebar-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      display: block;
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      transition: all 0.12s ease;
+    }
+
+    .sidebar-links a:hover {
+      background: var(--panel-alt);
+      color: var(--accent);
+    }
+
+    /* Textbook Prose & Modules */
+    .module-article {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.75rem 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .module-banner {
+      border-left: 4px solid var(--accent);
+      padding-left: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .module-banner .module-kicker {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .module-banner h2 {
+      font-size: 1.45rem;
+      color: var(--text);
+      margin-top: 0.15rem;
+    }
+
+    .module-article h3 {
+      font-family: var(--font-mono);
+      font-size: 1.08rem;
+      color: var(--accent);
+      margin: 1.5rem 0 0.65rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .module-article p {
+      margin-bottom: 0.95rem;
+      font-size: 0.96rem;
+      color: var(--text);
+    }
+
+    .module-article ul, .module-article ol {
+      margin: 0.65rem 0 1.1rem 1.4rem;
+      font-size: 0.94rem;
+    }
+
+    .module-article li {
+      margin-bottom: 0.45rem;
+    }
+
+    .module-article code {
+      font-family: var(--font-mono);
+      background: var(--code-bg);
+      color: var(--accent);
+      padding: 0.12rem 0.38rem;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      font-size: 0.86em;
+    }
+
+    .math-callout {
+      background: var(--code-bg);
+      border-left: 3px solid var(--accent-alt);
+      padding: 0.85rem 1.1rem;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: var(--accent-alt);
+      margin: 0.85rem 0 1.1rem;
+      border-radius: 0 4px 4px 0;
+      overflow-x: auto;
+    }
+
+    /* CLI Lab Exercise Cards */
+    .lab-step {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.15rem 1.25rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .lab-step-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .lab-step-title {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.96rem;
+      color: var(--warn);
+    }
+
+    .code-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.85rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      color: var(--accent);
+      overflow-x: auto;
+      white-space: pre;
+      margin: 0.6rem 0;
+    }
+
+    .verification-note {
+      font-size: 0.88rem;
+      color: var(--muted);
+      border-top: 1px dashed var(--border);
+      padding-top: 0.55rem;
+      margin-top: 0.55rem;
+    }
+
+    .verification-note strong {
+      color: var(--accent-alt);
+      font-family: var(--font-mono);
+    }
+
+    /* Grid Cards for Dictionary */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.15rem;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      white-space: nowrap;
+      font-family: var(--font-mono);
+    }
+
+    .search-bar {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .search-bar:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    /* QuickClick + Live Canvas 3-Column Studio */
+    .studio-layout {
+      display: grid;
+      grid-template-columns: 320px 350px 1fr;
+      gap: 1.05rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1140px) {
+      .studio-layout {
+        grid-template-columns: 1fr 1fr;
+      }
+      .canvas-card {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .studio-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.38rem;
+      background: var(--code-bg);
+      padding: 0.65rem;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+    }
+
+    .matrix-cell {
+      aspect-ratio: 1 / 1;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.06s ease, border-color 0.12s ease;
+      padding: 0.18rem;
+      text-align: center;
+    }
+
+    .matrix-cell:active {
+      transform: scale(0.93);
+    }
+
+    .matrix-cell:hover {
+      border-color: var(--accent);
+    }
+
+    .matrix-cell.prime9 {
+      background: var(--prime9-bg);
+      border: 1.5px solid var(--prime9-border);
+    }
+
+    .matrix-cell.home-node {
+      box-shadow: inset 0 0 0 2px var(--accent-alt);
+    }
+
+    .matrix-cell.dxf-node {
+      border: 1.5px solid var(--accent-alt);
+      background: rgba(63, 185, 80, 0.14);
+    }
+
+    .matrix-cell.erase-node {
+      border: 1.5px solid var(--danger);
+      background: rgba(255, 85, 85, 0.12);
+    }
+
+    .cell-coord {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--muted);
+    }
+
+    .cell-key {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 0.1rem;
+    }
+
+    .cli-terminal {
+      width: 100%;
+      height: 295px;
+      background: var(--code-bg);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.7rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      resize: vertical;
+    }
+
+    .cli-terminal:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      width: 100%;
+      background: var(--code-bg);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    #wallyCanvas {
+      display: block;
+      width: 100%;
+      height: 430px;
+      cursor: pointer;
+    }
+
+    .canvas-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.48rem 0.75rem;
+      background: var(--panel-alt);
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--muted);
+    }
+
+    .hud-stat {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .property-matrix {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 4px;
+      padding: 0.65rem 0.8rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .property-matrix.selected-active {
+      border-left-color: var(--warn);
+      background: rgba(240, 136, 62, 0.08);
+    }
+
+    .prop-edit-input {
+      background: var(--panel);
+      color: var(--warn);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.28rem 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      min-width: 210px;
+      flex: 1;
+    }
+
+    .toolbar-row {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hidden File Input for Opening Local .WALLY Scripts -->
+  <input type="file" id="wallyFileInput" accept=".wally,.txt" style="display:none" onchange="handleWallyFileOpen(event)" />
+
+  <header>
+    <div class="brand">
+      <span class="brand-badge">WALLYCAD</span>
+      <div>
+        <h1>The Official WallyCAD Textbook & Interactive DXF Studio</h1>
+        <div class="brand-sub">Precision Cartesian Autonomy | 36" STAIR Code Standard | QuickClick (QC) 5x5 Matrix | By Bill Tonnesen</div>
+      </div>
+    </div>
+    <div class="header-controls">
+      <button class="btn btn-accent" onclick="saveWallyFile()">SAVE .WALLY</button>
+      <button class="btn" onclick="triggerWallyFileOpen()">OPEN .WALLY</button>
+      <button class="btn btn-dxf" onclick="compileAndDownloadDXF()">EXPORT .DXF</button>
+      <button class="btn btn-hal" onclick="toggleHalMode()" id="halBtn">HAL MODE: OFF</button>
+    </div>
+  </header>
+
+  <nav class="nav-tabs">
+    <button class="tab-btn active" id="btn-tab-l1" onclick="switchTab('tab-l1', this)">Lesson 1: Structural Geometry</button>
+    <button class="tab-btn" id="btn-tab-l2" onclick="switchTab('tab-l2', this)">Lesson 2: Assemblies, 36" Stair & DIM</button>
+    <button class="tab-btn" id="btn-tab-l3" onclick="switchTab('tab-l3', this)">Lesson 3: Batch Macros, Solvers & QC</button>
+    <button class="tab-btn" id="btn-tab-appendix" onclick="switchTab('tab-appendix', this)">Appendix A: QC 5x5 Matrix & CLI Dictionary</button>
+    <button class="tab-btn" id="btn-tab-studio" onclick="switchTab('tab-studio', this)">Live QC & DXF Studio</button>
+  </nav>
+
+  <main>
+    <!-- ===================================================================== -->
+    <!-- TAB 1: LESSON 1 UNABRIDGED TEXTBOOK & LABS -->
+    <!-- ===================================================================== -->
+    <section id="tab-l1" class="tab-section active">
+      <div class="reader-layout">
+        <aside class="chapter-sidebar">
+          <h3>Lesson 1 Modules</h3>
+          <ul class="sidebar-links">
+            <li><a href="#mod-1-1">1.1 Cartesian Matrix & Origin (0,0)</a></li>
+            <li><a href="#mod-1-2">1.2 Zero-Thickness LINE vs. WALL</a></li>
+            <li><a href="#mod-1-3">1.3 Parametric Perimeter (BOX)</a></li>
+            <li><a href="#mod-1-4">1.4 Applied Layout & Assessment</a></li>
+            <li><a href="#key-1">Lesson 1 Reference & Answer Key</a></li>
+          </ul>
+        </aside>
+
+        <div class="chapter-content">
+          <!-- MODULE 1.1 -->
+          <article class="module-article" id="mod-1-1">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 1 &bull; Module 1.1</div>
+              <h2>The Cartesian Matrix &amp; Origin Calibration</h2>
+            </div>
+
+            <h3>1. The Philosophy of Precision Cartesian Autonomy</h3>
+            <p>Standard commercial CAD packages encourage a bad habit: "eyeballing" geometry with a mouse and hoping object snaps catch the error. In a structural steel fabrication shop or a field survey layout, visual approximation is a liability. If a baseplate anchor bolt is off by a fraction of an inch because a draftsman clicked a screen instead of defining a mathematical location, the steel will not fit the concrete in the field.</p>
+            <p>WallyCAD rejects manual click-and-drag drafting. Every piece of geometry in the engine is spawned through <strong>precision Cartesian autonomy</strong>—explicit numerical commands entered directly into the Command Line Interface (CLI) at <code>wallycad.com/test</code>. You do not draw shapes; you declare their exact coordinates in two-dimensional space, and the browser-native engine compiles the vector math instantaneously.</p>
+
+            <h3>2. The X,Y Coordinate Plane &amp; Datum 0,0</h3>
+            <p>Before spawning a single line or wall, you must establish control. In land surveying and structural detailing, all measurements pull from a fixed <strong>Benchmark</strong> or <strong>Datum</strong>. In WallyCAD, that primary datum is the <strong>Absolute Origin (<code>0,0</code>)</strong>.</p>
+            <ul>
+              <li><strong>The Horizontal Axis (X):</strong> Controls West-to-East displacement. Positive values move right (East) of the origin; negative values move left (West).</li>
+              <li><strong>The Vertical Axis (Y):</strong> Controls South-to-North displacement. Positive values move up (North) from the origin; negative values move down (South).</li>
+              <li><strong>Quadrant I Standard:</strong> Structural footprints and shop details are anchored in the primary positive quadrant (<code>+X, +Y</code>), keeping the lower-left datum corner locked at <code>0,0</code> so every subsequent dimension reads as a clean, positive offset from the baseline.</li>
+            </ul>
+
+            <h3>3. The 5x5 Calibration Matrix</h3>
+            <p>To train your eye to read coordinate space before scaling up to full building footprints, WallyCAD uses a baseline <strong>5x5 Reference Matrix</strong>. Think of this grid as a 5-unit by 5-unit pegboard running from <code>0,0</code> (bottom-left) to <code>4,4</code> (top-right) in zero-indexed space, or <code>0,0</code> to <code>5,5</code> in unit-span space. Every intersection on the matrix has a unique, unmistakable address:</p>
+            <ul>
+              <li><strong>Bottom-Left Corner (Origin):</strong> <code>0,0</code></li>
+              <li><strong>Bottom-Right Corner:</strong> <code>5,0</code></li>
+              <li><strong>Top-Left Corner:</strong> <code>0,5</code></li>
+              <li><strong>Top-Right Corner:</strong> <code>5,5</code></li>
+              <li><strong>Dead Center Node:</strong> <code>2.5,2.5</code> (or integer center <code>2,2</code> on a 0-to-4 index)</li>
+            </ul>
+
+            <h3>4. Terminal Syntax &amp; The Parameter Compiler</h3>
+            <p>The WallyCAD CLI parser is built for speed and zero ambiguity. It reads commands left-to-right using two simple punctuation rules:</p>
+            <ul>
+              <li><strong>Spaces</strong> separate distinct parameters (such as the Command Name, the Start Point, and the End Point).</li>
+              <li><strong>Commas</strong> bind an X and Y value together into a single coordinate pair (<code>X,Y</code>) with no spaces around the comma.</li>
+              <li><strong>Valid Syntax:</strong> <code>LINE 0,0 120,0</code> (Clean command, space, X1,Y1 pair, space, X2,Y2 pair).</li>
+              <li><strong>Invalid Syntax:</strong> <code>LINE 0, 0 120, 0</code> (Spaces after the commas break the coordinate binding, causing the compiler to misread the Y value as the next parameter).</li>
+            </ul>
+
+            <h3>Module 1.1 CLI Lab Exercises</h3>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.1A: Establish the Datum Axes (Spawning X and Y Baselines from 0,0)</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Start by locking in your horizontal and vertical control lines along a 100-unit span:</p>
+              <div class="code-box">LINE 0,0 100,0
+LINE 0,0 0,100</div>
+              <div class="verification-note"><strong>Verification:</strong> Confirm that both vectors meet cleanly at the bottom-left <code>0,0</code> datum, forming a true 90-degree L-bracket framing Quadrant I.</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.1B: Calibrate the 5x5 Reference Matrix (50x50 Braced Perimeter)</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Construct a 50x50 unit scaled representation of the 5x5 matrix (where 1 grid unit equals 10 drafting units), complete with internal X-bracing to verify center intersection math:</p>
+              <div class="code-box">LINE 0,0 50,0
+LINE 50,0 50,50
+LINE 50,50 0,50
+LINE 0,50 0,0
+LINE 0,0 50,50
+LINE 0,50 50,0</div>
+              <div class="verification-note"><strong>Verification:</strong> The two diagonal bracing vectors (<code>0,0</code> to <code>50,50</code> and <code>0,50</code> to <code>50,0</code>) must cross at the exact mathematical center point of <code>25,25</code>.</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.1C: Syntax Fault Troubleshooting (Comma Binding Correction)</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>A beginning drafter attempts to draw a 48-unit horizontal header at a height of 96 units above the origin, typing the broken string <code>LINE 0, 96 48, 96</code>. Execute the corrected command without spaces after commas:</p>
+              <div class="code-box">LINE 0,96 48,96</div>
+              <div class="verification-note"><strong>Verification:</strong> The horizontal vector spawns parallel to the X-axis, elevated(Y=96) exactly 96 units above the origin.</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.1D: Blind Coordinate Plot (Stepped L-Shaped Foundation Perimeter)</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Without touching the mouse, plot a closed, L-shaped structural foundation perimeter starting and ending at <code>0,0</code> using six sequential coordinate nodes:</p>
+              <div class="code-box">LINE 0,0 80,0
+LINE 80,0 80,40
+LINE 80,40 40,40
+LINE 40,40 40,80
+LINE 40,80 0,80
+LINE 0,80 0,0</div>
+              <div class="verification-note"><strong>Verification:</strong> Inspect the re-entrant corner at <code>40,40</code> and confirm the final vector closes flush onto the <code>0,0</code> datum with zero overhang or gap.</div>
+            </div>
+          </article>
+
+          <!-- MODULE 1.2 -->
+          <article class="module-article" id="mod-1-2">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 1 &bull; Module 1.2</div>
+              <h2>Zero-Thickness Vectors vs. Structural Mass (LINE vs. WALL)</h2>
+            </div>
+
+            <h3>1. Reference Geometry vs. Physical Material</h3>
+            <p>In architectural drafting and steel detailing, a line on a screen can mean two entirely different things: an imaginary mathematical boundary (such as a property line, grid centerline, or survey traverse) or a physical assembly that occupies real-world space (such as a 4-inch or 6-inch framed wall).</p>
+            <p>If you draft a floor plan using only single zero-thickness lines, your interior clear spans will be wrong the moment lumber or steel arrives on site. WallyCAD solves this directly at the command line by separating pure mathematical vectors (<code>LINE</code>) from thickened structural mass (<code>WALL</code>):</p>
+            <ul>
+              <li><strong><code>LINE</code> (Zero-Thickness Vector):</strong> Spawns a standard 0-thickness geometric path between two coordinate points. Use <code>LINE</code> for datum grids, centerlines, dimension references, and theoretical layout bounds.</li>
+              <li><strong><code>WALL</code> (Thickened Structural Polyline):</strong> Constructs a thickened polyline structure along a continuous coordinate traverse, using a specified thickness parameter to define the exact separation distance between parallel wall faces.</li>
+            </ul>
+
+            <h3>2. Automated Miter &amp; Offset Logic</h3>
+            <p>In traditional CAD, creating a multi-segment wall requires drawing a baseline, running an offset command for every segment, and manually trimming or filleting every corner intersection. When you execute the <code>WALL</code> command in WallyCAD, the parameter compiler automates the entire geometric construction:</p>
+            <ul>
+              <li><strong>Parallel Face Separation:</strong> The engine reads your thickness parameter and projects parallel inside and outside faces separated by that exact distance.</li>
+              <li><strong>Continuous Traverse Miter:</strong> As your path turns a corner from one coordinate node to the next, the engine calculates the intersection vector and automatically miters the junction.</li>
+              <li><strong>Corner Spike Control:</strong> At acute angles or specialized transitions, the parser calculates offset distances and replaces a single vertex point with bevel points, eliminating sharp miter spikes at corners.</li>
+            </ul>
+
+            <h3>3. Command Syntax &amp; Parameter Order</h3>
+            <div class="math-callout">Standard LINE Syntax: LINE X1,Y1 X2,Y2
+Continuous WALL Syntax: WALL T X1,Y1 X2,Y2 X3,Y3 ...</div>
+
+            <h3>Module 1.2 CLI Lab Exercises</h3>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.2A: Datum Centerline vs. Structural Wall Overlay</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Spawn a 100-unit horizontal reference line along the X-axis, and then spawn a thickened 4-unit wall parallel to it at <code>Y = 20</code>:</p>
+              <div class="code-box">LINE 0,0 100,0
+WALL 4 0,20 100,20</div>
+              <div class="verification-note"><strong>Verification:</strong> Notice how the <code>LINE</code> at <code>0,0</code> renders as a single hairline vector, whereas the <code>WALL</code> command generates parallel faces separated by the specified thickness.</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.2B: Two-Leg Mitered Corner (90-Degree Junction)</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Execute a continuous two-segment traverse that runs 80 units East along the X-axis and turns 60 units North parallel to the Y-axis:</p>
+              <div class="code-box">WALL 4 0,0 80,0 80,60</div>
+              <div class="verification-note"><strong>Verification:</strong> Inspect the corner vertex at <code>80,0</code>. Instead of overlapping rectangles or an unjoined gap, the engine automatically computes the 45-degree miter diagonal where the horizontal and vertical legs intersect.</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.2C: Continuous Three-Wall Alcove Traverse</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Chain four coordinate pairs into a single continuous traverse to frame an open 120-by-80 unit structural bay with a 4-unit wall thickness:</p>
+              <div class="code-box">WALL 4 0,80 0,0 120,0 120,80</div>
+              <div class="verification-note"><strong>Verification:</strong> Both lower corners (<code>0,0</code> and <code>120,0</code>) miter automatically in a single compiler pass, leaving the top North side (<code>Y = 80</code>) open.</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.2D: Angled Traverse &amp; Bevel Transition Check</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Test the miter solver on a non-orthogonal deflection by plotting a wall that runs 60 units East and deflects onto an angled coordinate node at <code>100,40</code>, using a fine separation thickness of <code>0.8</code>:</p>
+              <div class="code-box">WALL 0.8 0,0 60,0 100,40</div>
+              <div class="verification-note"><strong>Verification:</strong> Examine the angled inflection point at <code>60,0</code> to see how the transition logic maintains uniform parallel separation (<code>0.8</code>) across the bend without distorting wall thickness.</div>
+            </div>
+          </article>
+
+          <!-- MODULE 1.3 -->
+          <article class="module-article" id="mod-1-3">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 1 &bull; Module 1.3</div>
+              <h2>Parametric Perimeter Spawning (BOX)</h2>
+            </div>
+
+            <h3>1. From Sequential Traverse to Macro Automation</h3>
+            <p>In Module 1.2, framing a closed four-wall room with the <code>WALL</code> command required calculating and typing five sequential coordinate nodes to close the loop. While a continuous <code>WALL</code> traverse is essential for irregular or stepped footprints, most structural bays, room shells, and equipment pads are true rectangles.</p>
+            <p>To eliminate repetitive coordinate entry, WallyCAD provides the <strong><code>BOX</code> macro</strong> (accessible in the main workspace and via the dedicated parameter compiler at <code>wallycad.com/box</code>). Instead of plotting four individual corners, you declare a single datum origin, overall exterior footprint dimensions, and wall thickness in one command line pass.</p>
+
+            <h3>2. Command Anatomy &amp; Five-Parameter Syntax</h3>
+            <div class="math-callout">BOX X,Y Width Depth Thickness</div>
+            <ul>
+              <li><strong><code>X,Y</code> (Origin Datum):</strong> The bottom-left exterior anchor point of the rectangular footprint (typically <code>0,0</code> for a primary building shell).</li>
+              <li><strong><code>Width</code> (X-Span):</strong> The total exterior horizontal dimension running East along the X-axis.</li>
+              <li><strong><code>Depth</code> (Y-Span):</strong> The total exterior vertical dimension running North along the Y-axis.</li>
+              <li><strong><code>Thickness</code> (T):</strong> The structural wall thickness stepped inward from the exterior perimeter.</li>
+            </ul>
+
+            <h3>3. Exterior Footprint vs. Interior Clear-Span Math</h3>
+            <p>A critical discipline in structural detailing and shop fabrication is distinguishing between <strong>Out-to-Out (Exterior)</strong> dimensions and <strong>Inside Clear</strong> dimensions. When you execute <code>BOX 0,0 120 96 4</code>, the engine establishes the outside perimeter at <code>120</code> units wide by <code>96</code> units deep and projects the <code>4</code>-unit wall thickness inward on all four sides. Because both opposing walls (West/East and South/North) consume <code>4</code> units of space each, you must subtract <strong>twice the wall thickness (2T)</strong> from each exterior dimension:</p>
+            <div class="math-callout">Exterior Width vs. Interior Clear Width: 120 - (4 * 2) = 112 units clear
+Exterior Depth vs. Interior Clear Depth: 96 - (4 * 2) = 88 units clear
+Interior Corners: SW (4,4) | SE (116,4) | NE (116,92) | NW (4,92)</div>
+
+            <h3>Module 1.3 CLI Lab Exercises</h3>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.3A: Spawn a Standard Structural Room Shell (120x96 at 0,0)</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Anchor a rectangular room footprint at the absolute origin measuring 120 units wide by 96 units deep with a 4-unit structural wall thickness:</p>
+              <div class="code-box">BOX 0,0 120 96 4</div>
+              <div class="verification-note"><strong>Verification:</strong> Confirm that the outer perimeter spans from <code>0,0</code> to <code>120,96</code> with all four corners cleanly mitered and an interior clear span of <code>112</code> by <code>88</code> units.</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.3B: Audit Interior Clear Span with Datum Vectors</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Spawn the <code>120x96</code> box and overlay two diagonal zero-thickness <code>LINE</code> vectors across the interior clear space to verify that the inside corners match your manual math:</p>
+              <div class="code-box">BOX 0,0 120 96 4
+LINE 4,4 116,92
+LINE 4,92 116,4</div>
+              <div class="verification-note"><strong>Verification:</strong> Both diagonal hairlines snap flush to the inside mitered vertices of the 4-unit walls without crossing into the wall mass, intersecting at the exact room center (<code>60,48</code>).</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.3C: Offset Utility Core Placement (Nested Box at 4,4)</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Inside your primary <code>120x96</code> shell, spawn an interior mechanical closet anchored at the bottom-left inside corner (<code>4,4</code>) measuring 36 units wide by 36 units deep, using a 4-unit wall thickness:</p>
+              <div class="code-box">BOX 0,0 120 96 4
+BOX 4,4 36 36 4</div>
+              <div class="verification-note"><strong>Verification:</strong> Anchoring the secondary box at <code>4,4</code> nests it cleanly against the inside face of the primary West and South walls, leaving a <code>28x28</code> unit interior clear core (<code>36 - 8 = 28</code>).</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.3D: Adjacent Structural Bay Expansion (Shared Party Wall at X=116)</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Spawn a second structural bay immediately East of your primary <code>120x96</code> shell so that its West wall overlaps and shares the existing 4-unit East wall (anchoring at <code>X = 120 - 4 = 116</code>):</p>
+              <div class="code-box">BOX 0,0 120 96 4
+BOX 116,0 120 96 4</div>
+              <div class="verification-note"><strong>Verification:</strong> Because the two <code>120</code>-unit boxes share a single <code>4</code>-unit center partition between <code>X = 116</code> and <code>X = 120</code>, the total exterior width is exactly <code>236</code> units (<code>120 + 120 - 4</code>).</div>
+            </div>
+          </article>
+
+          <!-- MODULE 1.4 -->
+          <article class="module-article" id="mod-1-4">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 1 &bull; Module 1.4</div>
+              <h2>Applied Layout &amp; Onboarding Assessment</h2>
+            </div>
+
+            <h3>1. Multi-Command Synthesis: Bridging Theory and Shop Floor</h3>
+            <p>In Modules 1.1 through 1.3, you practiced <code>LINE</code>, <code>WALL</code>, and <code>BOX</code> as isolated tools. Real-world structural detailing and architectural layout require combining all three commands within a single coordinate space to produce complete, buildable shop drawings. Every structural plan relies on a three-layer hierarchy generated directly from the CLI:</p>
+            <ul>
+              <li><strong>Primary Shell (<code>BOX</code>):</strong> Locks in the out-to-out perimeter footprint and exterior wall thickness anchored at <code>0,0</code>.</li>
+              <li><strong>Interior Framing (<code>WALL</code>):</strong> Divides the interior clear span into functional bays, corridors, or utility rooms with mitered or flush junctions.</li>
+              <li><strong>Datum &amp; Layout Control (<code>LINE</code>):</strong> Overlays zero-thickness centerlines, 4x8 proportional reference grids, and clear-span verification vectors.</li>
+            </ul>
+
+            <h3>2. Browser-Native Vector Compilation (SVG &amp; Canvas Output)</h3>
+            <p>When you execute a sequence of commands at <code>wallycad.com/test</code>, the engine does not simply paint pixels onto a screen. The parameter compiler translates your Cartesian inputs directly into mathematical vector paths rendered on the HTML5 Canvas and Scalable Vector Graphics (SVG) DOM. Because every vertex is defined by an explicit X,Y coordinate pair rather than a mouse click, your output file contains <strong>zero floating-point drift</strong>.</p>
+
+            <h3>3. Lesson 1 Onboarding Checkout Synthesis Build</h3>
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 1.4 Master Checkout: Four-Quadrant 120x96 Shell, SW Utility Bay &amp; Tie Audit</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Execute the complete four-step Lesson 1 checkout script to spawn the <code>120x96</code> primary shell, overlay the <code>60,48</code> master centerline crosshairs, partition the Southwest utility bay with a mitered <code>WALL</code> traverse from <code>60,4</code> to <code>60,48</code> to <code>4,48</code>, and run a diagonal verification tie across the East bay:</p>
+              <div class="code-box">BOX 0,0 120 96 4
+LINE 60,0 60,96
+LINE 0,48 120,48
+WALL 4 60,4 60,48 4,48
+LINE 60,4 116,92</div>
+              <div class="verification-note"><strong>Verification:</strong> Exterior footprint = <code>120 x 96</code>; Interior clear span = <code>112 x 88</code>; Centerline intersection = <code>60,48</code>; East bay diagonal vector span (<code>60,4</code> to <code>116,92</code>) = <code>sqrt(56^2 + 88^2) = 104.31 units</code>.</div>
+            </div>
+          </article>
+
+          <!-- LESSON 1 REFERENCE & ANSWER KEY -->
+          <article class="module-article" id="key-1">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 1 &bull; Master Reference</div>
+              <h2>Lesson 1 CLI Command Reference &amp; Answer Key</h2>
+            </div>
+            <div class="math-callout">LINE X1,Y1 X2,Y2 -> Zero-thickness reference vector
+WALL T X1,Y1 X2,Y2 X3,Y3 ... -> Thickened mitered structural polyline
+BOX X,Y Width Depth Thickness -> Closed 4-wall mitered perimeter shell
+Clear-Span Formula: W_clear = W - 2T | D_clear = D - 2T
+Inside Corner Nodes: SW(T,T) | SE(W-T,T) | NE(W-T,D-T) | NW(T,D-T)</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: LESSON 2 UNABRIDGED TEXTBOOK & LABS -->
+    <!-- ===================================================================== -->
+    <section id="tab-l2" class="tab-section">
+      <div class="reader-layout">
+        <aside class="chapter-sidebar">
+          <h3>Lesson 2 Modules</h3>
+          <ul class="sidebar-links">
+            <li><a href="#mod-2-1">2.1 Radial &amp; Pipe Profiles (CIRCLE)</a></li>
+            <li><a href="#mod-2-2">2.2 36-Inch Stair Arrays (STAIR)</a></li>
+            <li><a href="#mod-2-3">2.3 Coordinate Dimensioning (DIM)</a></li>
+            <li><a href="#mod-2-4">2.4 Vector Annotation (TEXT) &amp; DXF</a></li>
+            <li><a href="#key-2">Lesson 2 Reference &amp; Answer Key</a></li>
+          </ul>
+        </aside>
+
+        <div class="chapter-content">
+          <!-- MODULE 2.1 -->
+          <article class="module-article" id="mod-2-1">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 2 &bull; Module 2.1</div>
+              <h2>Radial Vectors &amp; Structural Pipe Profiles (CIRCLE)</h2>
+            </div>
+
+            <h3>1. Radial Geometry in a Cartesian World</h3>
+            <p>In structural steel detailing and mechanical layout, circular geometry serves two primary roles: <strong>zero-thickness reference paths</strong> (such as door swings, rotational clearance zones, and bolt circles) and <strong>physical structural sections</strong> (such as Hollow Structural Section [HSS] round columns, schedule pipe bollards, and core-drilled utility sleeves). WallyCAD enforces strict Cartesian control over radial entities: every circle is anchored to an explicit <strong>X,Y Center Datum</strong> and compiled from exact numerical parameters for outer radius and wall thickness.</p>
+
+            <h3>2. Command Anatomy: Radius vs. Tube Wall</h3>
+            <p>The WallyCAD parameter compiler processes the <code>CIRCLE</code> command using a streamlined coordinate-and-dimension structure where the <strong>width parameter defines the radius</strong> and the <strong>depth parameter defines the tube wall</strong>:</p>
+            <div class="math-callout">CIRCLE X,Y Radius TubeWall
+Inside Radius: R_in = R - TubeWall | Outside Diameter: OD = 2R | Inside Diameter: ID = 2(R - TubeWall)</div>
+            <ul>
+              <li><strong>Zero-Thickness Reference (<code>TubeWall = 0</code>):</strong> Spawns a single-line radial vector for layout clearances, datum rings, or punched bolt holes.</li>
+              <li><strong>Structural Pipe Profile (<code>TubeWall &gt; 0</code>):</strong> Spawns a concentric hollow tube section (HSS round column or steel pipe).</li>
+            </ul>
+
+            <h3>3. Tangency &amp; Corner-Offset Math</h3>
+            <p>To tuck a pipe column of outer radius <code>R</code> tangent (flush) against two intersecting inside wall faces located at <code>X = T_wall</code> and <code>Y = T_wall</code>, you must offset the circle's center datum inward by the full radius <code>R</code> along both axes:</p>
+            <div class="math-callout">X_center = T_wall + R | Y_center = T_wall + R</div>
+
+            <h3>Module 2.1 CLI Lab Exercises</h3>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 2.1A: Spawn a Datum Center Crosshair &amp; Clearance Ring (R=24)</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Establish an orthogonal crosshair intersection at <code>60,48</code> using two zero-thickness <code>LINE</code> vectors, then spawn a 24-unit radius reference circle centered directly on that node:</p>
+              <div class="code-box">LINE 30,48 90,48
+LINE 60,18 60,78
+CIRCLE 60,48 24 0</div>
+              <div class="verification-note"><strong>Verification:</strong> The hairlines intersect at <code>60,48</code> and extend 6 units past all four quadrants of the 24-unit radius ring.</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 2.1B: Spawn a Structural Steel Pipe Column &amp; 4-Bolt Baseplate Pattern</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Centered on <code>60,48</code>, spawn an <code>R=6</code> structural pipe column with a <code>0.5</code>-unit wall, surrounded by four <code>R=0.5</code> anchor bolt holes on a +/-10-unit square bolt pattern:</p>
+              <div class="code-box">LINE 30,48 90,48
+LINE 60,18 60,78
+CIRCLE 60,48 24 0
+CIRCLE 60,48 6 0.5
+CIRCLE 50,38 0.5 0
+CIRCLE 70,38 0.5 0
+CIRCLE 70,58 0.5 0
+CIRCLE 50,58 0.5 0</div>
+              <div class="verification-note"><strong>Verification:</strong> The pipe column renders with <code>OD = 12</code> and <code>ID = 11</code>, surrounded by a symmetrical <code>20x20</code> bolt matrix.</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 2.1C: Tuck Four Tangent Pipe Columns Inside a 120x96 Structural Box</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Spawn a <code>120x96</code> room shell with <code>4</code>-unit walls, and place four <code>R=4</code> structural pipe columns (<code>0.5</code>-unit tube wall) flush against all four interior corners (<code>4+4=8</code>):</p>
+              <div class="code-box">BOX 0,0 120 96 4
+CIRCLE 8,8 4 0.5
+CIRCLE 112,8 4 0.5
+CIRCLE 112,88 4 0.5
+CIRCLE 8,88 4 0.5</div>
+              <div class="verification-note"><strong>Verification:</strong> Each column's outer wall touches the inside faces of the <code>BOX</code> perimeter at exact tangent points without penetrating the wall mass.</div>
+            </div>
+          </article>
+
+          <!-- MODULE 2.2 -->
+          <article class="module-article" id="mod-2-2">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 2 &bull; Module 2.2</div>
+              <h2>Parametric Stair Tread Arrays (STAIR — 36-Inch Standard)</h2>
+            </div>
+
+            <h3>1. Automating Riser &amp; Stringer Geometry</h3>
+            <p>In traditional CAD, drafting a staircase requires drawing a baseline, executing ten to fifteen manual offset commands for individual risers, and trimming two parallel stringers. WallyCAD replaces repetitive offsetting with the parametric <strong><code>STAIR</code> macro</strong>. By enforcing the updated <strong>36-inch tread width</strong> standard (<code>36</code> units), the engine generates uniform tread arrays designed for safe egress and straddle-frame structural configurations in a single CLI pass.</p>
+
+            <h3>2. Command Anatomy &amp; Total Run / Landing Math</h3>
+            <div class="math-callout">STAIR X,Y Width Run Count (Standardized Width = 36 units)
+Total Horizontal Run = Run * Count
+Top Riser Y-Coordinate (anchored at Y=4): Y_top = 4 + (Run * Count)
+North Landing Clearance (inside 96-deep Box): L_top = 92 - Y_top</div>
+            <p>For a 5-tread flight with a 10-unit tread run (<code>STAIR 4,4 36 10 5</code>), the final riser lands at <code>Y = 54</code>, leaving <code>92 - 54 = 38 units</code> of clear landing depth—exceeding the 36-unit minimum code requirement.</p>
+
+            <h3>Module 2.2 CLI Lab Exercises</h3>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 2.2A: Compile a Standalone 36-Inch Stair Flight (6 Treads @ 11" Run)</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Anchor a standalone stair flight at the absolute origin using the standard <strong>36-unit width</strong>, an 11-unit tread depth, and 6 total treads:</p>
+              <div class="code-box">STAIR 0,0 36 11 6</div>
+              <div class="verification-note"><strong>Verification:</strong> Outer stringers span from <code>X = 0</code> to <code>X = 36</code> and the 6-tread run extends 66 units North (<code>11 * 6 = 66</code>).</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 2.2B: Nest a 36-Inch Stair, Stringer Wall &amp; Landing Audit Inside a 120x96 Box</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Spawn a <code>120x96</code> shell, tuck a 5-tread <strong>36-inch stair</strong> (<code>10</code>-unit run) into the Southwest inside corner (<code>4,4</code>), place a 4-unit stringer support wall along <code>X = 40</code>, and cross the <code>36x38</code> upper landing with X-bracing audit vectors:</p>
+              <div class="code-box">BOX 0,0 120 96 4
+STAIR 4,4 36 10 5
+WALL 4 40,4 40,54
+LINE 4,54 40,92
+LINE 4,92 40,54</div>
+              <div class="verification-note"><strong>Verification:</strong> The West stringer sits flush at <code>X = 4</code>, the East stringer sits at <code>X = 40</code>, the top riser lands at <code>Y = 54</code>, and the landing diagonals cross cleanly at <code>22,73</code>.</div>
+            </div>
+          </article>
+
+          <!-- MODULE 2.3 -->
+          <article class="module-article" id="mod-2-3">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 2 &bull; Module 2.3</div>
+              <h2>Precision Coordinate Dimensioning (DIM)</h2>
+            </div>
+
+            <h3>1. Mathematical Callouts vs. Visual Scaling</h3>
+            <p>Traditional CAD dimensioning is prone to "snap drift"—where a drafter accidentally clicks a wall centerline instead of the true inside face. WallyCAD eliminates snap errors by driving the <strong><code>DIM</code> command</strong> directly from explicit Cartesian coordinate nodes. The engine computes the true Euclidean distance, projects extension lines along the perpendicular <strong>normal vector</strong>, and drops the calculated distance into the center of the dimension line.</p>
+
+            <div class="math-callout">DIM X1,Y1 X2,Y2 Offset
+Euclidean Distance = sqrt((X2 - X1)^2 + (Y2 - Y1)^2)</div>
+
+            <h3>Module 2.3 CLI Lab Exercises</h3>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 2.3A: Out-to-Out (120x96) vs. Inside Clear-Span (112x88) Dimension Audit</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Spawn a <code>120x96</code> shell and execute four <code>DIM</code> callouts to prove both the exterior footprint and the <code>W - 2T</code> / <code>D - 2T</code> interior clear spans:</p>
+              <div class="code-box">BOX 0,0 120 96 4
+DIM 0,96 120,96 10
+DIM 120,96 120,0 10
+DIM 4,4 116,4 8
+DIM 4,92 4,4 8</div>
+              <div class="verification-note"><strong>Verification:</strong> Exterior callouts read <code>120</code> and <code>96</code>; interior clear callouts read <code>112</code> and <code>88</code>.</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 2.3B: 36-Inch Stair Envelope &amp; Angled Diagonal Tie-Check</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Verify the <strong>36-inch stair width</strong>, 50-unit run, 38-unit landing clearance, and the angled diagonal tie from <code>40,54</code> to the Northeast inside corner (<code>116,92</code>):</p>
+              <div class="code-box">BOX 0,0 120 96 4
+STAIR 4,4 36 10 5
+DIM 4,4 40,4 -8
+DIM 40,4 40,54 8
+DIM 40,54 40,92 8
+DIM 40,54 116,92 6</div>
+              <div class="verification-note"><strong>Verification:</strong> Vertical string along <code>X=40</code> sums to <code>50 + 38 = 88</code>, and the diagonal tie reads <code>84.97</code>.</div>
+            </div>
+          </article>
+
+          <!-- MODULE 2.4 -->
+          <article class="module-article" id="mod-2-4">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 2 &bull; Module 2.4</div>
+              <h2>Coordinate Annotation &amp; Final Shop Sheet (TEXT, SquareFont &amp; DXF)</h2>
+            </div>
+
+            <h3>1. SquareFont Vector Typography &amp; Placement Operators</h3>
+            <p>WallyCAD renders annotations through <strong><code>SquareFont</code></strong>, a native geometric vector typeface engineered on the 5x5 Cartesian grid matrix. Because every character is compiled from mathematical vectors rather than system fonts, notes scale cleanly and export directly into machine-readable <code>.DXF</code> paths.</p>
+            <div class="math-callout">TEXT [X,Y | S | R] [STRING]
+X,Y = Explicit Coordinate Anchor | S = Node Snap Operator | R = Random Extents Operator
+ZOOM E = Fit Viewport Extents | DXF = Compile Visible Layers to AutoCAD .DXF</div>
+
+            <h3>2. Lesson 2 Complete Shop Sheet Checkout</h3>
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 2.4 Master Checkout: Complete Annotated Structural Bay &amp; DXF Sheet</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Combine the <code>120x96</code> structural shell, a 5-tread <strong>36-inch stair</strong> at <code>4,4</code>, a Northeast tangent pipe column at <code>110,86</code>, exterior and stair <code>DIM</code> callouts, and explicit/operator <code>TEXT</code> labels:</p>
+              <div class="code-box">BOX 0,0 120 96 4
+STAIR 4,4 36 10 5
+CIRCLE 110,86 6 0.5
+DIM 0,96 120,96 10
+DIM 120,96 120,0 10
+DIM 4,4 40,4 -8
+TEXT 8,70 LANDING 36X38
+TEXT 65,48 MAIN BAY
+TEXT 85,86 PIPE OD 12
+TEXT S NODE REF
+TEXT R QC CHECK
+ZOOM E</div>
+              <div class="verification-note"><strong>Verification:</strong> Load into the Live Studio and click <strong>EXPORT .DXF</strong> to verify the complete 2D shop sheet compilation.</div>
+            </div>
+          </article>
+
+          <!-- LESSON 2 REFERENCE & ANSWER KEY -->
+          <article class="module-article" id="key-2">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 2 &bull; Master Reference</div>
+              <h2>Lesson 2 CLI Command Reference &amp; Answer Key</h2>
+            </div>
+            <div class="math-callout">CIRCLE X,Y Radius TubeWall -> Outer Radius = Width | Inward TubeWall = Depth
+STAIR X,Y 36 Run Count -> 36-Inch Code Stair Array (Total Run = Run * Count)
+DIM X1,Y1 X2,Y2 Offset -> Euclidean Span with Perpendicular Normal Offset
+TEXT [X,Y | S | R] [STRING] -> 5x5 SquareFont Vector Annotation
+ZOOM E / DXF -> Fit Viewport Extents / Export ASCII AutoCAD .DXF</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: LESSON 3 UNABRIDGED TEXTBOOK & LABS -->
+    <!-- ===================================================================== -->
+    <section id="tab-l3" class="tab-section">
+      <div class="reader-layout">
+        <aside class="chapter-sidebar">
+          <h3>Lesson 3 Modules</h3>
+          <ul class="sidebar-links">
+            <li><a href="#mod-3-1">3.1 Entity Cleanup (ERASE) &amp; HAL</a></li>
+            <li><a href="#mod-3-2">3.2 Batch Macros (SCRIPT) &amp; Tuples</a></li>
+            <li><a href="#mod-3-3">3.3 STAIR_RAKE, Polar ARC &amp; WallyVIA</a></li>
+            <li><a href="#mod-3-4">3.4 QuickClick (QC) Master Checkout</a></li>
+            <li><a href="#key-3">Lesson 3 Reference &amp; Answer Key</a></li>
+          </ul>
+        </aside>
+
+        <div class="chapter-content">
+          <!-- MODULE 3.1 -->
+          <article class="module-article" id="mod-3-1">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 3 &bull; Module 3.1</div>
+              <h2>Entity Management &amp; High-Contrast Auditing (ERASE &amp; HAL)</h2>
+            </div>
+
+            <h3>1. The Spawn-and-Modify Workflow &amp; Property Data Matrix</h3>
+            <p>In structural detailing, you frequently spawn temporary construction geometry—such as diagonal center-finding vectors or clearance rings—to establish exact coordinate intersections before placing permanent steel. WallyCAD manages canvas cleanup and live inspection through a streamlined <strong>spawn-and-modify workflow</strong>:</p>
+            <ul>
+              <li><strong>Active Entity Selection:</strong> Left-clicking any spawned entity on the canvas selects it as the active object and opens the <strong>Property Data Matrix</strong>.</li>
+              <li><strong>Precision Entity Removal (<code>ERASE</code> / <code>DEL</code>):</strong> Once an entity is selected, executing <code>ERASE</code> (or pressing <code>DEL</code>) strips that specific vector path from the active buffer while leaving intersecting walls and columns untouched.</li>
+              <li><strong>High-Contrast Visual Auditing (<code>HAL</code>):</strong> Toggles the viewport into a stark, high-visibility contrast profile that highlights label clashes or overlapping extension lines.</li>
+            </ul>
+
+            <h3>Module 3.1 CLI Lab Exercises</h3>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 3.1A: Spawn Temporary Construction Scaffolding &amp; Center Pipe Column</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Load this script into the Live Studio, then <strong>left-click either green diagonal scaffolding line on the canvas</strong> and press <code>DEL</code> (or click <code>ERASE SELECTED</code>) to practice stripping temporary scaffolding while leaving the <code>60,48</code> column intact:</p>
+              <div class="code-box">BOX 0,0 120 96 4
+LINE 4,4 116,92
+LINE 4,92 116,4
+CIRCLE 60,48 6 0.5
+STAIR 4,4 36 10 5
+TEXT 68,48 HSS 12X0.5 COL
+WALL 4 84,4 84,92
+DIM 84,4 116,4 8</div>
+              <div class="verification-note"><strong>Verification:</strong> Click the diagonal lines in the Studio viewport to inspect their true length in the Property Data Matrix, then erase them and toggle <code>HAL MODE</code>.</div>
+            </div>
+          </article>
+
+          <!-- MODULE 3.2 -->
+          <article class="module-article" id="mod-3-2">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 3 &bull; Module 3.2</div>
+              <h2>Batch Macro Automation (SCRIPT &amp; Serializer Formats)</h2>
+            </div>
+
+            <h3>1. The Three-Stage Data Serializer Pipeline</h3>
+            <p>Executing the <strong><code>SCRIPT</code> command</strong> launches the WallyCAD Macro Interpreter, compiling multi-line blocks of space-delimited commands in a single pass across three serialization stages:</p>
+            <ul>
+              <li><strong>Stage 1: <code>.WALLY</code> (Parametric Command Tokens &amp; SDJ Strings):</strong> Human-readable plain-text scripts saved and loaded via the Studio File Manager.</li>
+              <li><strong>Stage 2: <code>TUPLES</code> (In-Memory Coordinate Arrays):</strong> Drift-free ordered numeric arrays (<code>[X1, Y1, X2, Y2, ...]</code>) resolved in browser memory.</li>
+              <li><strong>Stage 3: <code>.DXF</code> (ASCII Group Code Fabrication Output):</strong> AutoCAD-compatible vector layers exported for CNC plasma and laser tables.</li>
+            </ul>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 3.2A: Batch Compile a Standardized Utility Core via SCRIPT</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Batch-compile a <code>120x96</code> structural shell with a central partition wall (<code>60,4</code> to <code>60,92</code>) and four corner-tangent pipe columns:</p>
+              <div class="code-box">SCRIPT
+BOX 0,0 120 96 4
+WALL 4 60,4 60,92
+CIRCLE 8,8 4 0.5
+CIRCLE 112,8 4 0.5
+CIRCLE 112,88 4 0.5
+CIRCLE 8,88 4 0.5
+ZOOM E</div>
+              <div class="verification-note"><strong>Verification:</strong> All six structural entities compile simultaneously with zero floating-point drift.</div>
+            </div>
+          </article>
+
+          <!-- MODULE 3.3 -->
+          <article class="module-article" id="mod-3-3">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 3 &bull; Module 3.3</div>
+              <h2>Trigonometric &amp; Structural Solvers (STAIR_RAKE, Polar Arcs &amp; WallyVIA)</h2>
+            </div>
+
+            <h3>1. The STAIR_RAKE Solver &amp; Polar-to-Cartesian ARC Solver</h3>
+            <p>Complementing the 2D <code>STAIR</code> plan macro, <strong><code>STAIR_RAKE</code></strong> computes vertical elevation profiles, sloped stringer hypotenuses, and guardrail post intersections. For curved landing sweeps and headers, the <strong>Polar-to-Cartesian <code>ARC</code> Solver</strong> projects counter-clockwise sweeps from <code>StartAngle</code> to <code>EndAngle</code>:</p>
+            <div class="math-callout">STAIR_RAKE X,Y Rise Run Count
+Rake Angle: theta = arctan(Rise / Run) | Unit Slope = sqrt(Rise^2 + Run^2)
+Sloped Handrail Elevation at Post Offset X_post: Z_rail = Y_datum + X_post*(Rise/Run) + H_guard
+
+ARC CX,CY R StartAngle EndAngle
+Polar Node Projection: X = CX + R*cos(phi), Y = CY + R*sin(phi)</div>
+
+            <h3>Module 3.3 CLI Lab Exercises</h3>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 3.3A: 5-Tread 36" Plan Stair, R=36 Polar Landing Sweep &amp; 7:10 Rake Elevation</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Spawn the 5-tread <strong>36-inch</strong> plan stair at <code>4,4</code> with its 90-degree landing clearance arc (<code>R=36</code> centered at <code>4,54</code>), alongside the matching <code>7:10</code> elevation rake profile anchored at <code>60,4</code>:</p>
+              <div class="code-box">STAIR 4,4 36 10 5
+ARC 4,54 36 0 90
+STAIR_RAKE 60,4 7 10 5
+LINE 60,4 110,39
+LINE 60,40 110,75
+LINE 85,21.5 85,57.5
+DIM 60,4 110,39 -8</div>
+              <div class="verification-note"><strong>Verification:</strong> Total Run = <code>50</code>, Total Rise = <code>35</code>, Rake Angle = <code>34.99 deg</code>, and Sloped Stringer Hypotenuse = <code>61.03 units</code>.</div>
+            </div>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 3.3B: WallyVIA 45-Degree Skewed Wall Miter &amp; Polar Chord Tie-In</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Test WallyVIA's non-orthogonal miter solver by running a 4-unit wall 80 units East from <code>0,0</code> to <code>80,0</code>, deflecting at 45 degrees (<code>R=50</code>) to <code>115.36,35.36</code>:</p>
+              <div class="code-box">WALL 4 0,0 80,0 115.36,35.36
+DIM 80,0 115.36,35.36 8</div>
+              <div class="verification-note"><strong>Verification:</strong> WallyVIA bisects the 135-degree interior angle automatically, and <code>DIM</code> confirms the true <code>50</code>-unit polar leg length.</div>
+            </div>
+          </article>
+
+          <!-- MODULE 3.4 -->
+          <article class="module-article" id="mod-3-4">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 3 &bull; Module 3.4</div>
+              <h2>Rapid Input Deck Integration (QuickClick / QC) &amp; Master Checkout</h2>
+            </div>
+
+            <h3>1. Industrializing CLI Input via the 5x5 QuickClick (QC) Matrix</h3>
+            <p>WallyCAD industrializes command entry through <strong><code>QuickClick</code> (<code>QC</code>)</strong>—a matrix-based input deck engineered on the same <strong>5x5 grid architecture</strong> used by the Cartesian calibration matrix and <code>SquareFont</code>. By clustering high-frequency digits, comma/space delimiters, and geometric command tokens around the central <strong>Prime 9</strong> core (<code>[1,1]</code> to <code>[3,3]</code>), operators execute complex multi-view builds using rapid angular motor-memory trajectories.</p>
+
+            <div class="lab-step">
+              <div class="lab-step-header">
+                <span class="lab-step-title">Lab 3.4 Master Production Checkout: Dual-View Plan (0,0) &amp; Rake Elevation (140,4)</span>
+                <div class="toolbar-row">
+                  <button class="btn btn-accent" onclick="sendToCanvas(this)">LOAD IN STUDIO</button>
+                  <button class="btn" onclick="copyCode(this)">COPY</button>
+                </div>
+              </div>
+              <p>Execute the complete Master Production Checkout script combining the <code>120x96</code> structural plan view, <strong>36-inch stair</strong>, <code>R=36</code> polar landing arc, Northeast tangent pipe column, and East-side <code>7:10</code> rake elevation view:</p>
+              <div class="code-box">SCRIPT
+BOX 0,0 120 96 4
+STAIR 4,4 36 10 5
+WALL 4 40,4 40,54
+ARC 4,54 36 0 90
+CIRCLE 110,86 6 0.5
+STAIR_RAKE 140,4 7 10 5
+LINE 140,4 190,39
+LINE 140,40 190,75
+LINE 165,21.5 165,57.5
+DIM 0,96 120,96 10
+DIM 4,4 40,4 -8
+DIM 140,4 190,39 -8
+TEXT 8,70 LANDING ARC R36
+TEXT 65,48 MAIN BAY QC OK
+TEXT 145,80 RAKE 7-10 SLOPE
+ZOOM E</div>
+              <div class="verification-note"><strong>Verification:</strong> Click <strong>LOAD IN STUDIO</strong> to inspect every entity interactively and export your finished <code>.DXF</code> shop sheet.</div>
+            </div>
+          </article>
+
+          <!-- LESSON 3 REFERENCE & ANSWER KEY -->
+          <article class="module-article" id="key-3">
+            <div class="module-banner">
+              <div class="module-kicker">Lesson 3 &bull; Master Reference</div>
+              <h2>Lesson 3 CLI Command Reference &amp; Answer Key</h2>
+            </div>
+            <div class="math-callout">ERASE / DEL -> Strip selected canvas entity from active .WALLY script
+HAL -> Toggle High-Contrast Presentation & Clash Audit Mode
+SCRIPT -> Batch-compile multi-line .WALLY command blocks
+STAIR_RAKE X,Y Rise Run Count -> Spawn elevation rake profile & stringer hypotenuse
+ARC CX,CY R StartAngle EndAngle -> Polar-to-Cartesian CCW arc sweep (degrees)</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 4: APPENDIX A (QUICKCLICK 5X5 MATRIX) & SEARCHABLE CLI DICTIONARY -->
+    <!-- ===================================================================== -->
+    <section id="tab-appendix" class="tab-section">
+      <article class="module-article">
+        <div class="module-banner">
+          <div class="module-kicker">Appendix A &bull; Operator Manual</div>
+          <h2>QuickClick (QC) 5x5 Matrix Architecture &amp; Prime 9 Trajectory Guide</h2>
+        </div>
+        <p>The <strong><code>QuickClick</code> (<code>QC</code>) Input Deck</strong> replaces staggered QWERTY hand travel with a <strong>5x5 grid matrix</strong> (25 nodes indexed from <code>(0,0)</code> bottom-left to <code>(4,4)</code> top-right). The central 3x3 cluster (<code>[1,1]</code> through <code>[3,3]</code>) forms the <strong>Prime 9 Cluster</strong> anchored around home node <code>[2,2]</code>, keeping every peripheral key within a single 1-unit angular step.</p>
+        <div class="code-box">+-----------------------------------------------+
+| (0,4) SCRIPT (1,4) ARC (2,4) STAIR_R (3,4) ERASE (4,4) DXF | <- Top Utility & Solver Row (Y=4)
+| +---------------------------------------+ |
+| (0,3) HAL | [1,3] WALL 4 [2,3] BOX 120 [3,3] STAIR36 | (4,3) ZOOM E |
+| | | |
+| (0,2) TEXT S | [1,2] LINE [2,2] 0,0 [3,2] CIRCLE | (4,2) TEXT R | <- Central "Prime 9" Cluster (3x3)
+| | (HOME NODE) | |
+| (0,1) 4,4 | [1,1] DIM [2,1] TEXT [3,1] 60,48 | (4,1) 116,92 |
+| +---------------------------------------+ |
+| (0,0) 120,0 (1,0) 120,96 (2,0) SPACE (3,0) COMMA (4,0) ENTER | <- Datum Origin & Delimiter Row (Y=0)
++-----------------------------------------------+</div>
+      </article>
+
+      <input type="text" class="search-bar" id="cmdSearch" placeholder="Search the Master CLI Dictionary & Formulas (e.g., BOX, STAIR, 36, ARC, ERASE, .WALLY, DXF)..." onkeyup="filterDictionary()" />
+
+      <div class="grid-2" id="dictGrid">
+        <div class="card dict-item">
+          <div class="card-title">LINE <span class="tag">Lesson 1.2</span></div>
+          <p>Spawns a zero-thickness reference vector between two explicit Cartesian points.</p>
+          <div class="math-callout">Syntax: LINE X1,Y1 X2,Y2<br>DXF Layer: WALLY_LINE (ACI Color 3 - Green)</div>
+        </div>
+
+        <div class="card dict-item">
+          <div class="card-title">WALL <span class="tag">Lesson 1.2</span></div>
+          <p>Spawns a thickened polyline structure of thickness <code>T</code> along a continuous coordinate traverse with automated corner mitering.</p>
+          <div class="math-callout">Syntax: WALL T X1,Y1 X2,Y2 X3,Y3 ...<br>DXF Layer: WALLY_WALL (ACI Color 4 - Cyan)</div>
+        </div>
+
+        <div class="card dict-item">
+          <div class="card-title">BOX <span class="tag">Lesson 1.3</span></div>
+          <p>Spawns a closed, four-wall rectangular structural shell anchored at <code>X,Y</code> with inward wall thickness <code>T</code> and 45-degree corner miters.</p>
+          <div class="math-callout">Syntax: BOX X,Y Width Depth Thickness<br>Clear Span: W_clear = W - 2T | D_clear = D - 2T</div>
+        </div>
+
+        <div class="card dict-item">
+          <div class="card-title">CIRCLE <span class="tag">Lesson 2.1</span></div>
+          <p>Spawns a radial vector or structural pipe column centered at <code>X,Y</code>. Width sets outer Radius; Depth sets inward TubeWall thickness.</p>
+          <div class="math-callout">Syntax: CIRCLE X,Y Radius TubeWall<br>Tangent Offset: Xc = Twall + R, Yc = Twall + R</div>
+        </div>
+
+        <div class="card dict-item">
+          <div class="card-title">STAIR <span class="tag">Lesson 2.2 (36" Standard)</span></div>
+          <p>Spawns a parametric stair tread array anchored at bottom-left riser <code>X,Y</code> using the code-compliant <strong>36-inch tread width</strong>.</p>
+          <div class="math-callout">Syntax: STAIR X,Y 36 Run Count<br>Total Run = Run * Count | Landing = (D - Twall) - Y_top</div>
+        </div>
+
+        <div class="card dict-item">
+          <div class="card-title">DIM &amp; TEXT <span class="tag">Lesson 2.3 &amp; 2.4</span></div>
+          <p>Normal-vector Euclidean dimension callouts and 5x5 <code>SquareFont</code> vector annotations.</p>
+          <div class="math-callout">DIM X1,Y1 X2,Y2 Offset | TEXT [X,Y | S | R] [STRING]<br>DXF Layers: WALLY_DIM &amp; WALLY_TEXT (ACI Color 2)</div>
+        </div>
+
+        <div class="card dict-item">
+          <div class="card-title">STAIR_RAKE &amp; ARC <span class="tag">Lesson 3.3 Solvers</span></div>
+          <p>Trigonometric rake pitch solver and Polar-to-Cartesian arc solver (<code>R cos(phi), R sin(phi)</code>).</p>
+          <div class="math-callout">STAIR_RAKE X,Y Rise Run Count | ARC CX,CY R Start End<br>DXF Layers: WALLY_RAKE &amp; WALLY_ARC</div>
+        </div>
+
+        <div class="card dict-item">
+          <div class="card-title">ERASE / DEL &amp; Property Data Matrix <span class="tag">Lesson 3.1</span></div>
+          <p>Left-click any vector on the canvas to highlight it, inspect its computed geometry in the Property Data Matrix, edit its parameters inline, or press <code>DEL</code> / <code>ERASE</code> to strip it from the script.</p>
+          <div class="math-callout">Trigger: Left-click entity on Canvas -> Press DEL or tap (3,4) ERASE</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 5: LIVE QUICKCLICK (QC) 5X5 MATRIX & INTERACTIVE DXF STUDIO -->
+    <!-- ===================================================================== -->
+    <section id="tab-studio" class="tab-section">
+      <div class="studio-layout">
+        <!-- Column 1: QuickClick 5x5 Matrix -->
+        <div class="card">
+          <div class="card-title">
+            <span>QuickClick (QC) 5x5 Deck</span>
+            <div class="toolbar-row">
+              <button class="btn" onclick="setQcDeck('macro')">MACRO</button>
+              <button class="btn" onclick="setQcDeck('coord')">COORD</button>
+            </div>
+          </div>
+          <p style="font-size:0.78rem; color:var(--muted);">
+            Center 3x3 cells (<code>[1,1]</code>–<code>[3,3]</code>) form the <strong>Prime 9 Cluster</strong>. Tap <strong><code>(3,4) ERASE</code></strong> to delete a selected canvas entity, or <strong><code>(4,4) DXF</code></strong> to download a <code>.dxf</code> sheet.
+          </p>
+          <div class="matrix-grid" id="qcGrid"></div>
+        </div>
+
+        <!-- Column 2: Live .WALLY Script Scratchpad & File I/O -->
+        <div class="card">
+          <div class="card-title">
+            <span>.WALLY Script &amp; File I/O</span>
+            <div class="toolbar-row">
+              <button class="btn btn-accent" onclick="saveWallyFile()" title="Download .wally script file">SAVE .WALLY</button>
+              <button class="btn" onclick="triggerWallyFileOpen()" title="Open local .wally or .txt script">OPEN</button>
+              <button class="btn" onclick="copyScratchpad()">COPY</button>
+              <button class="btn" onclick="clearScratchpad()">CLEAR</button>
+            </div>
+          </div>
+          <div class="toolbar-row">
+            <button class="btn" onclick="loadPreset(1)">Lesson 1</button>
+            <button class="btn" onclick="loadPreset(2)">Lesson 2</button>
+            <button class="btn" onclick="loadPreset(4)">Lab 3.1 Scaffolding</button>
+            <button class="btn btn-accent" onclick="loadPreset(3)">Lesson 3 Master</button>
+          </div>
+          <textarea id="cliScratchpad" class="cli-terminal" spellcheck="false" oninput="onScratchpadEdit()">SCRIPT
+BOX 0,0 120 96 4
+LINE 4,4 116,92
+STAIR 4,4 36 10 5
+WALL 4 40,4 40,54
+ARC 4,54 36 0 90
+CIRCLE 110,86 6 0.5
+STAIR_RAKE 140,4 7 10 5
+LINE 140,4 190,39
+LINE 140,40 190,75
+LINE 165,21.5 165,57.5
+DIM 0,96 120,96 10
+DIM 4,4 40,4 -8
+DIM 140,4 190,39 -8
+TEXT 8,70 LANDING ARC R36
+TEXT 65,48 MAIN BAY QC OK
+TEXT 145,80 RAKE 7-10 SLOPE
+ZOOM E</textarea>
+        </div>
+
+        <!-- Column 3: Live HTML5 Canvas Viewport + Property Data Matrix -->
+        <div class="card canvas-card">
+          <div class="card-title">
+            <span>Interactive Cartesian Viewport (Left-Click Any Entity to Inspect or Erase)</span>
+            <div class="toolbar-row">
+              <button class="btn" onclick="toggleGrid()" id="gridBtn">GRID: ON</button>
+              <button class="btn btn-danger" onclick="eraseSelectedEntity()">ERASE SELECTED (DEL)</button>
+              <button class="btn btn-dxf" onclick="compileAndDownloadDXF()">DOWNLOAD .DXF</button>
+            </div>
+          </div>
+
+          <!-- Property Data Matrix Inspector Bar -->
+          <div class="property-matrix" id="propMatrixBar">
+            <div>
+              <strong>PROPERTY DATA MATRIX:</strong>
+              <span id="propSummary" style="color:var(--muted);">Click any wall, box, stair, pipe, line, or callout on the canvas to inspect or modify.</span>
+            </div>
+            <div id="propEditorControls" style="display:none; align-items:center; gap:0.4rem; flex-wrap:wrap; width:100%;">
+              <span class="tag" id="propLineTag">LINE #1</span>
+              <input type="text" id="propCommandInput" class="prop-edit-input" oninput="updateSelectedEntityCommand(this.value)" />
+              <button class="btn btn-danger" onclick="eraseSelectedEntity()">ERASE (DEL)</button>
+              <button class="btn" onclick="clearSelection()">DESELECT</button>
+            </div>
+          </div>
+
+          <div class="canvas-wrapper">
+            <canvas id="wallyCanvas" width="760" height="430"></canvas>
+            <div class="canvas-hud">
+              <span>CURSOR: <span class="hud-stat" id="cursorReadout">X: 0.0, Y: 0.0</span></span>
+              <span>TUPLES: <span class="hud-stat" id="entityCount">0</span></span>
+              <span>EXTENTS: <span class="hud-stat" id="extentsReadout">0,0 to 120,96</span></span>
+              <span>STATUS: <span class="hud-stat" id="dxfStatus">READY</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const presets = {
+      1: `BOX 0,0 120 96 4
+LINE 60,0 60,96
+LINE 0,48 120,48
+WALL 4 60,4 60,48 4,48
+LINE 60,4 116,92`,
+      2: `BOX 0,0 120 96 4
+STAIR 4,4 36 10 5
+CIRCLE 110,86 6 0.5
+DIM 0,96 120,96 10
+DIM 120,96 120,0 10
+DIM 4,4 40,4 -8
+TEXT 8,70 LANDING 36X38
+TEXT 65,48 MAIN BAY
+TEXT 85,86 PIPE OD 12
+ZOOM E`,
+      3: `SCRIPT
+BOX 0,0 120 96 4
+LINE 4,4 116,92
+STAIR 4,4 36 10 5
+WALL 4 40,4 40,54
+ARC 4,54 36 0 90
+CIRCLE 110,86 6 0.5
+STAIR_RAKE 140,4 7 10 5
+LINE 140,4 190,39
+LINE 140,40 190,75
+LINE 165,21.5 165,57.5
+DIM 0,96 120,96 10
+DIM 4,4 40,4 -8
+DIM 140,4 190,39 -8
+TEXT 8,70 LANDING ARC R36
+TEXT 65,48 MAIN BAY QC OK
+TEXT 145,80 RAKE 7-10 SLOPE
+ZOOM E`,
+      4: `BOX 0,0 120 96 4
+LINE 4,4 116,92
+LINE 4,92 116,4
+CIRCLE 60,48 6 0.5
+STAIR 4,4 36 10 5
+TEXT 68,48 HSS 12X0.5 COL
+WALL 4 80,4 80,92`
+    };
+
+    let showGrid = true;
+    let activeEntities = [];
+    let selectedLineIndex = null;
+    let viewState = { scale: 2.5, offsetX: 60, offsetY: 60, height: 430 };
+
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btnEl.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (tabId === 'tab-studio') {
+        setTimeout(() => {
+          resizeCanvas();
+          renderWallyCanvas();
+        }, 30);
+      }
+    }
+
+    function toggleHalMode() {
+      document.body.classList.toggle('hal-mode');
+      const isHal = document.body.classList.contains('hal-mode');
+      document.getElementById('halBtn').textContent = isHal ? 'HAL MODE: ON' : 'HAL MODE: OFF';
+      renderWallyCanvas();
+    }
+
+    function toggleGrid() {
+      showGrid = !showGrid;
+      document.getElementById('gridBtn').textContent = showGrid ? 'GRID: ON' : 'GRID: OFF';
+      renderWallyCanvas();
+    }
+
+    function copyCode(btn) {
+      const stepBox = btn.closest('.lab-step');
+      const codeText = stepBox.querySelector('.code-box').innerText;
+      navigator.clipboard.writeText(codeText);
+      const old = btn.textContent;
+      btn.textContent = 'COPIED!';
+      setTimeout(() => btn.textContent = old, 1000);
+    }
+
+    function sendToCanvas(btn) {
+      const stepBox = btn.closest('.lab-step');
+      const codeText = stepBox.querySelector('.code-box').innerText;
+      document.getElementById('cliScratchpad').value = codeText;
+      clearSelection();
+      switchTab('tab-studio', document.getElementById('btn-tab-studio'));
+    }
+
+    function loadPreset(num) {
+      document.getElementById('cliScratchpad').value = presets[num];
+      clearSelection();
+      renderWallyCanvas();
+    }
+
+    function onScratchpadEdit() {
+      if (selectedLineIndex !== null) {
+        const lines = document.getElementById('cliScratchpad').value.split('\n');
+        if (selectedLineIndex >= lines.length) {
+          selectedLineIndex = null;
+        }
+      }
+      renderWallyCanvas();
+      updatePropertyMatrixUI();
+    }
+
+    function filterDictionary() {
+      const q = document.getElementById('cmdSearch').value.toLowerCase();
+      document.querySelectorAll('.dict-item').forEach(card => {
+        const txt = card.innerText.toLowerCase();
+        card.style.display = txt.includes(q) ? 'flex' : 'none';
+      });
+    }
+
+    // ==========================================================
+    // .WALLY FILE SAVE & OPEN MANAGER
+    // ==========================================================
+    function saveWallyFile() {
+      const content = document.getElementById('cliScratchpad').value;
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'wallycad_layout.wally';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      const statusEl = document.getElementById('dxfStatus');
+      if (statusEl) {
+        statusEl.textContent = 'SAVED .WALLY FILE';
+        setTimeout(() => statusEl.textContent = 'READY', 3000);
+      }
+    }
+
+    function triggerWallyFileOpen() {
+      document.getElementById('wallyFileInput').click();
+    }
+
+    function handleWallyFileOpen(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('cliScratchpad').value = e.target.result;
+        clearSelection();
+        switchTab('tab-studio', document.getElementById('btn-tab-studio'));
+        renderWallyCanvas();
+        const statusEl = document.getElementById('dxfStatus');
+        statusEl.textContent = `LOADED: ${file.name.toUpperCase()}`;
+        setTimeout(() => statusEl.textContent = 'READY', 3500);
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    // ==========================================================
+    // QUICKCLICK (QC) 5X5 MATRIX DECKS
+    // ==========================================================
+    const decks = {
+      macro: [
+        {c:'0,4', k:'SCRIPT', v:'SCRIPT\n'}, {c:'1,4', k:'ARC', v:'ARC 4,54 36 0 90\n'}, {c:'2,4', k:'STAIR_R', v:'STAIR_RAKE 140,4 7 10 5\n'}, {c:'3,4', k:'ERASE', v:'ERASE'}, {c:'4,4', k:'DXF', v:'DXF'},
+        {c:'0,3', k:'HAL', v:'HAL'}, {c:'1,3', k:'WALL 4', v:'WALL 4 '}, {c:'2,3', k:'BOX 120', v:'BOX 0,0 120 96 4\n'}, {c:'3,3', k:'STAIR 36', v:'STAIR 4,4 36 10 5\n'}, {c:'4,3', k:'ZOOM E', v:'ZOOM E\n'},
+        {c:'0,2', k:'TEXT S', v:'TEXT S NODE\n'}, {c:'1,2', k:'LINE', v:'LINE '}, {c:'2,2', k:'0,0', v:'0,0 '}, {c:'3,2', k:'CIRCLE', v:'CIRCLE 60,48 6 0.5\n'}, {c:'4,2', k:'TEXT R', v:'TEXT R QC\n'},
+        {c:'0,1', k:'4,4', v:'4,4 '}, {c:'1,1', k:'DIM', v:'DIM 0,96 120,96 10\n'}, {c:'2,1', k:'TEXT', v:'TEXT 65,48 MAIN BAY\n'}, {c:'3,1', k:'60,48', v:'60,48 '}, {c:'4,1', k:'116,92', v:'116,92\n'},
+        {c:'0,0', k:'120,0', v:'120,0 '}, {c:'1,0', k:'120,96', v:'120,96 '}, {c:'2,0', k:'SPACE', v:' '}, {c:'3,0', k:'COMMA', v:','}, {c:'4,0', k:'ENTER', v:'\n'}
+      ],
+      coord: [
+        {c:'0,4', k:'BOX', v:'BOX '}, {c:'1,4', k:'WALL', v:'WALL '}, {c:'2,4', k:'LINE', v:'LINE '}, {c:'3,4', k:'ERASE', v:'ERASE'}, {c:'4,4', k:'DXF', v:'DXF'},
+        {c:'0,3', k:'7', v:'7'}, {c:'1,3', k:'1', v:'1'}, {c:'2,3', k:'2', v:'2'}, {c:'3,3', k:'3', v:'3'}, {c:'4,3', k:'8', v:'8'},
+        {c:'0,2', k:'9', v:'9'}, {c:'1,2', k:'4', v:'4'}, {c:'2,2', k:'0', v:'0'}, {c:'3,2', k:'5', v:'5'}, {c:'4,2', k:'36', v:'36 '},
+        {c:'0,1', k:'96', v:'96 '}, {c:'1,1', k:'6', v:'6'}, {c:'2,1', k:',', v:','}, {c:'3,1', k:'SPACE', v:' '}, {c:'4,1', k:'120', v:'120 '},
+        {c:'0,0', k:'0,0', v:'0,0 '}, {c:'1,0', k:'4,4', v:'4,4 '}, {c:'2,0', k:'.', v:'.'}, {c:'3,0', k:'-', v:'-'}, {c:'4,0', k:'ENTER', v:'\n'}
+      ]
+    };
+
+    function setQcDeck(deckName) {
+      const grid = document.getElementById('qcGrid');
+      grid.innerHTML = '';
+      decks[deckName].forEach(item => {
+        const [x, y] = item.c.split(',').map(Number);
+        const isPrime9 = (x >= 1 && x <= 3 && y >= 1 && y <= 3);
+        const isHome = (x === 2 && y === 2);
+        const isDxf = (item.k === 'DXF');
+        const isErase = (item.k === 'ERASE');
+        const cell = document.createElement('div');
+        cell.className = 'matrix-cell' +
+          (isPrime9 ? ' prime9' : '') +
+          (isHome ? ' home-node' : '') +
+          (isDxf ? ' dxf-node' : '') +
+          (isErase ? ' erase-node' : '');
+        cell.innerHTML = `<span class="cell-coord">(${item.c})</span><span class="cell-key">${item.k}</span>`;
+        cell.onclick = () => appendScratchpad(item.v);
+        grid.appendChild(cell);
+      });
+    }
+
+    function appendScratchpad(val) {
+      if (val.trim() === 'HAL') {
+        toggleHalMode();
+        return;
+      }
+      if (val.trim() === 'DXF') {
+        compileAndDownloadDXF();
+        return;
+      }
+      if (val.trim() === 'ERASE') {
+        eraseSelectedEntity();
+        return;
+      }
+      const pad = document.getElementById('cliScratchpad');
+      pad.value += val;
+      pad.focus();
+      renderWallyCanvas();
+    }
+
+    function copyScratchpad() {
+      navigator.clipboard.writeText(document.getElementById('cliScratchpad').value);
+    }
+
+    function clearScratchpad() {
+      document.getElementById('cliScratchpad').value = '';
+      clearSelection();
+      renderWallyCanvas();
+    }
+
+    // ==========================================================
+    // INTERACTIVE SELECTION, PROPERTY MATRIX & TARGETED ERASE
+    // ==========================================================
+    function clearSelection() {
+      selectedLineIndex = null;
+      updatePropertyMatrixUI();
+      renderWallyCanvas();
+    }
+
+    function eraseSelectedEntity() {
+      const pad = document.getElementById('cliScratchpad');
+      const lines = pad.value.split('\n');
+
+      if (selectedLineIndex !== null && selectedLineIndex >= 0 && selectedLineIndex < lines.length) {
+        const removedCmd = lines[selectedLineIndex].trim();
+        lines.splice(selectedLineIndex, 1);
+        pad.value = lines.join('\n');
+        selectedLineIndex = null;
+        updatePropertyMatrixUI();
+        renderWallyCanvas();
+
+        const statusEl = document.getElementById('dxfStatus');
+        statusEl.textContent = `ERASED: ${removedCmd}`;
+        setTimeout(() => statusEl.textContent = 'READY', 3000);
+      } else {
+        const trimmed = pad.value.trimEnd().split('\n');
+        if (trimmed.length > 0) {
+          const popped = trimmed.pop();
+          pad.value = trimmed.join('\n') + (trimmed.length ? '\n' : '');
+          renderWallyCanvas();
+          const statusEl = document.getElementById('dxfStatus');
+          statusEl.textContent = `ERASED LAST: ${popped}`;
+          setTimeout(() => statusEl.textContent = 'READY', 3000);
+        }
+      }
+    }
+
+    function updateSelectedEntityCommand(newCmdStr) {
+      if (selectedLineIndex === null) return;
+      const pad = document.getElementById('cliScratchpad');
+      const lines = pad.value.split('\n');
+      if (selectedLineIndex >= 0 && selectedLineIndex < lines.length) {
+        lines[selectedLineIndex] = newCmdStr;
+        pad.value = lines.join('\n');
+        renderWallyCanvas();
+        const ent = activeEntities.find(e => e.lineIndex === selectedLineIndex);
+        if (ent) {
+          document.getElementById('propSummary').innerHTML = formatEntityTelemetry(ent);
+        }
+      }
+    }
+
+    function formatEntityTelemetry(ent) {
+      if (!ent) return 'Click any entity on the canvas to inspect or modify.';
+      if (ent.type === 'BOX') {
+        const wc = ent.w - 2 * ent.t;
+        const dc = ent.d - 2 * ent.t;
+        return `<span style="color:var(--accent)">[BOX]</span> Ext: <strong>${ent.w}x${ent.d}</strong> | Clear Span: <strong>${wc}x${dc}</strong> | Wall T: <strong>${ent.t}</strong>`;
+      }
+      if (ent.type === 'WALL') {
+        return `<span style="color:var(--accent)">[WALL]</span> Nodes: <strong>${ent.pts.length}</strong> | Thickness T: <strong>${ent.t}</strong>`;
+      }
+      if (ent.type === 'LINE') {
+        const len = Math.hypot(ent.p2[0] - ent.p1[0], ent.p2[1] - ent.p1[1]).toFixed(2);
+        return `<span style="color:var(--accent)">[LINE]</span> Start: <strong>(${ent.p1})</strong> -> End: <strong>(${ent.p2})</strong> | True Length: <strong>${len}</strong>`;
+      }
+      if (ent.type === 'CIRCLE') {
+        const od = (ent.r * 2).toFixed(1);
+        const id = ((ent.r - ent.tw) * 2).toFixed(1);
+        return `<span style="color:var(--accent)">[CIRCLE]</span> Center: <strong>(${ent.cx},${ent.cy})</strong> | OD: <strong>${od}</strong> | ID: <strong>${id}</strong> | Wall: <strong>${ent.tw}</strong>`;
+      }
+      if (ent.type === 'STAIR') {
+        const totRun = ent.run * ent.count;
+        return `<span style="color:var(--accent)">[STAIR]</span> Origin: <strong>(${ent.x},${ent.y})</strong> | Width: <strong>${ent.w}"</strong> | Total Run: <strong>${totRun}</strong> (${ent.count} @ ${ent.run})`;
+      }
+      if (ent.type === 'ARC') {
+        return `<span style="color:var(--accent)">[ARC]</span> Center: <strong>(${ent.cx},${ent.cy})</strong> | Radius: <strong>${ent.r}</strong> | Sweep: <strong>${ent.a1}° to ${ent.a2}°</strong>`;
+      }
+      if (ent.type === 'STAIR_RAKE') {
+        const totRun = ent.run * ent.count;
+        const totRise = ent.rise * ent.count;
+        const hyp = Math.hypot(totRun, totRise).toFixed(2);
+        return `<span style="color:var(--accent)">[STAIR_RAKE]</span> Slope: <strong>${ent.rise}:${ent.run}</strong> | Stringer Hypotenuse: <strong>${hyp}</strong>`;
+      }
+      if (ent.type === 'DIM') {
+        const span = Math.hypot(ent.p2[0] - ent.p1[0], ent.p2[1] - ent.p1[1]).toFixed(2);
+        return `<span style="color:var(--accent)">[DIM]</span> Span: <strong>${span}</strong> | Normal Offset: <strong>${ent.off}</strong>`;
+      }
+      if (ent.type === 'TEXT') {
+        return `<span style="color:var(--accent)">[TEXT]</span> Anchor: <strong>(${ent.x},${ent.y})</strong> | String: <strong>"${ent.str}"</strong>`;
+      }
+      return '';
+    }
+
+    function updatePropertyMatrixUI() {
+      const bar = document.getElementById('propMatrixBar');
+      const summary = document.getElementById('propSummary');
+      const controls = document.getElementById('propEditorControls');
+      const input = document.getElementById('propCommandInput');
+      const tag = document.getElementById('propLineTag');
+
+      const ent = activeEntities.find(e => e.lineIndex === selectedLineIndex);
+      if (!ent) {
+        bar.classList.remove('selected-active');
+        summary.textContent = 'Click any wall, box, stair, pipe, line, or callout on the canvas to inspect or modify.';
+        controls.style.display = 'none';
+        return;
+      }
+
+      bar.classList.add('selected-active');
+      summary.innerHTML = formatEntityTelemetry(ent);
+      controls.style.display = 'flex';
+      tag.textContent = `LINE #${ent.lineIndex + 1}`;
+      if (document.activeElement !== input) {
+        input.value = ent.rawLine;
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      const tag = document.activeElement ? document.activeElement.tagName : '';
+      if (tag === 'TEXTAREA' || tag === 'INPUT') return;
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedLineIndex !== null) {
+        e.preventDefault();
+        eraseSelectedEntity();
+      } else if (e.key === 'Escape' && selectedLineIndex !== null) {
+        clearSelection();
+      }
+    });
+
+    // ==========================================================
+    // LIVE HTML5 CANVAS CARTESIAN ENGINE & HIT-TESTING
+    // ==========================================================
+    const canvas = document.getElementById('wallyCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      if (rect.width > 0) {
+        canvas.width = rect.width;
+        canvas.height = 430;
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      renderWallyCanvas();
+    });
+
+    function toScreen(x, y) {
+      return [
+        viewState.offsetX + x * viewState.scale,
+        viewState.height - (viewState.offsetY + y * viewState.scale)
+      ];
+    }
+
+    function toWorld(px, py) {
+      const x = (px - viewState.offsetX) / viewState.scale;
+      const y = ((viewState.height - py) - viewState.offsetY) / viewState.scale;
+      return [x, y];
+    }
+
+    function distToSegment(px, py, x1, y1, x2, y2) {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const l2 = dx * dx + dy * dy;
+      if (l2 === 0) return Math.hypot(px - x1, py - y1);
+      let t = ((px - x1) * dx + (py - y1) * dy) / l2;
+      t = Math.max(0, Math.min(1, t));
+      return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+    }
+
+    function computeEntityDistance(ent, wx, wy) {
+      if (ent.type === 'LINE') {
+        return distToSegment(wx, wy, ent.p1[0], ent.p1[1], ent.p2[0], ent.p2[1]);
+      }
+      if (ent.type === 'BOX') {
+        const { x, y, w, d, t } = ent;
+        const dOuter = Math.min(
+          distToSegment(wx, wy, x, y, x + w, y),
+          distToSegment(wx, wy, x + w, y, x + w, y + d),
+          distToSegment(wx, wy, x + w, y + d, x, y + d),
+          distToSegment(wx, wy, x, y + d, x, y)
+        );
+        const dInner = Math.min(
+          distToSegment(wx, wy, x + t, y + t, x + w - t, y + t),
+          distToSegment(wx, wy, x + w - t, y + t, x + w - t, y + d - t),
+          distToSegment(wx, wy, x + w - t, y + d - t, x + t, y + d - t),
+          distToSegment(wx, wy, x + t, y + d - t, x + t, y + t)
+        );
+        return Math.min(dOuter, dInner);
+      }
+      if (ent.type === 'WALL') {
+        let minD = Infinity;
+        for (let i = 0; i < ent.pts.length - 1; i++) {
+          const d = distToSegment(wx, wy, ent.pts[i][0], ent.pts[i][1], ent.pts[i + 1][0], ent.pts[i + 1][1]);
+          minD = Math.min(minD, Math.max(0, d - ent.t / 2));
+        }
+        return minD;
+      }
+      if (ent.type === 'CIRCLE') {
+        const distCenter = Math.hypot(wx - ent.cx, wy - ent.cy);
+        const dOut = Math.abs(distCenter - ent.r);
+        const dIn = ent.tw > 0 ? Math.abs(distCenter - (ent.r - ent.tw)) : dOut;
+        return Math.min(dOut, dIn);
+      }
+      if (ent.type === 'STAIR') {
+        const { x, y, w, run, count } = ent;
+        const totalRun = run * count;
+        let minD = Math.min(
+          distToSegment(wx, wy, x, y, x, y + totalRun),
+          distToSegment(wx, wy, x + w, y, x + w, y + totalRun)
+        );
+        for (let i = 0; i <= count; i++) {
+          minD = Math.min(minD, distToSegment(wx, wy, x, y + i * run, x + w, y + i * run));
+        }
+        return minD;
+      }
+      if (ent.type === 'ARC') {
+        const dx = wx - ent.cx;
+        const dy = wy - ent.cy;
+        let ang = (Math.atan2(dy, dx) * 180) / Math.PI;
+        if (ang < 0) ang += 360;
+        if (ang >= ent.a1 && ang <= ent.a2) {
+          return Math.abs(Math.hypot(dx, dy) - ent.r);
+        }
+        const p1 = [ent.cx + ent.r * Math.cos(ent.a1 * Math.PI / 180), ent.cy + ent.r * Math.sin(ent.a1 * Math.PI / 180)];
+        const p2 = [ent.cx + ent.r * Math.cos(ent.a2 * Math.PI / 180), ent.cy + ent.r * Math.sin(ent.a2 * Math.PI / 180)];
+        return Math.min(Math.hypot(wx - p1[0], wy - p1[1]), Math.hypot(wx - p2[0], wy - p2[1]));
+      }
+      if (ent.type === 'STAIR_RAKE') {
+        const { x, y, rise, run, count } = ent;
+        let cx = x, cy = y, minD = Infinity;
+        for (let i = 0; i < count; i++) {
+          minD = Math.min(minD, distToSegment(wx, wy, cx, cy, cx, cy + rise));
+          cy += rise;
+          minD = Math.min(minD, distToSegment(wx, wy, cx, cy, cx + run, cy));
+          cx += run;
+        }
+        return minD;
+      }
+      if (ent.type === 'DIM') {
+        const { p1, p2, off } = ent;
+        const dx = p2[0] - p1[0];
+        const dy = p2[1] - p1[1];
+        const dist = Math.hypot(dx, dy) || 1;
+        const nx = -dy / dist;
+        const ny = dx / dist;
+        const d1 = [p1[0] + nx * off, p1[1] + ny * off];
+        const d2 = [p2[0] + nx * off, p2[1] + ny * off];
+        return Math.min(
+          distToSegment(wx, wy, d1[0], d1[1], d2[0], d2[1]),
+          distToSegment(wx, wy, p1[0], p1[1], d1[0], d1[1]),
+          distToSegment(wx, wy, p2[0], p2[1], d2[0], d2[1])
+        );
+      }
+      if (ent.type === 'TEXT') {
+        const approxW = Math.max(12, ent.str.length * 3.2);
+        return distToSegment(wx, wy, ent.x, ent.y + 2, ent.x + approxW, ent.y + 2);
+      }
+      return Infinity;
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      const r = canvas.getBoundingClientRect();
+      const [wx, wy] = toWorld(e.clientX - r.left, e.clientY - r.top);
+      document.getElementById('cursorReadout').textContent = `X: ${wx.toFixed(1)}, Y: ${wy.toFixed(1)}`;
+    });
+
+    canvas.addEventListener('click', (e) => {
+      const r = canvas.getBoundingClientRect();
+      const [wx, wy] = toWorld(e.clientX - r.left, e.clientY - r.top);
+      const hitTolerance = 8 / viewState.scale;
+
+      let bestEnt = null;
+      let bestDist = hitTolerance;
+
+      for (let i = activeEntities.length - 1; i >= 0; i--) {
+        const ent = activeEntities[i];
+        const d = computeEntityDistance(ent, wx, wy);
+        if (d <= bestDist) {
+          bestDist = d;
+          bestEnt = ent;
+        }
+      }
+
+      selectedLineIndex = bestEnt ? bestEnt.lineIndex : null;
+      updatePropertyMatrixUI();
+      renderWallyCanvas();
+    });
+
+    function parseCoord(token) {
+      if (!token || !token.includes(',')) return null;
+      const parts = token.split(',').map(Number);
+      if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) return null;
+      return parts;
+    }
+
+    function computeMiteredWallRails(pts, halfT) {
+      const left = [];
+      const right = [];
+      const n = pts.length;
+      if (n < 2) return { left, right };
+
+      const normals = [];
+      for (let i = 0; i < n - 1; i++) {
+        const dx = pts[i + 1][0] - pts[i][0];
+        const dy = pts[i + 1][1] - pts[i][1];
+        const len = Math.hypot(dx, dy) || 1;
+        normals.push([-dy / len, dx / len]);
+      }
+
+      for (let i = 0; i < n; i++) {
+        let nx, ny, scale = halfT;
+        if (i === 0) {
+          [nx, ny] = normals[0];
+        } else if (i === n - 1) {
+          [nx, ny] = normals[n - 2];
+        } else {
+          const [n1x, n1y] = normals[i - 1];
+          const [n2x, n2y] = normals[i];
+          let bx = n1x + n2x;
+          let by = n1y + n2y;
+          const bLen = Math.hypot(bx, by);
+          if (bLen < 1e-4) {
+            [nx, ny] = [n1x, n1y];
+          } else {
+            bx /= bLen;
+            by /= bLen;
+            const dot = bx * n1x + by * n1y;
+            const clampedDot = Math.max(0.35, dot);
+            scale = halfT / clampedDot;
+            [nx, ny] = [bx, by];
+          }
+        }
+        left.push([pts[i][0] + nx * scale, pts[i][1] + ny * scale]);
+        right.push([pts[i][0] - nx * scale, pts[i][1] - ny * scale]);
+      }
+      return { left, right };
+    }
+
+    function parseWallyScript() {
+      const raw = document.getElementById('cliScratchpad').value;
+      const lines = raw.split('\n');
+      const entities = [];
+      let minX = 0, minY = 0, maxX = 120, maxY = 96;
+
+      function expandBounds(x, y) {
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      }
+
+      lines.forEach((line, lineIndex) => {
+        const clean = line.trim();
+        if (!clean || clean.startsWith('#')) return;
+        const tokens = clean.split(/\s+/);
+        const cmd = tokens[0].toUpperCase();
+
+        if (cmd === 'LINE' && tokens.length >= 3) {
+          const p1 = parseCoord(tokens[1]);
+          const p2 = parseCoord(tokens[2]);
+          if (p1 && p2) {
+            entities.push({ type: 'LINE', p1, p2, lineIndex, rawLine: clean });
+            expandBounds(p1[0], p1[1]);
+            expandBounds(p2[0], p2[1]);
+          }
+        } else if (cmd === 'BOX' && tokens.length >= 5) {
+          const orig = parseCoord(tokens[1]);
+          const w = parseFloat(tokens[2]);
+          const d = parseFloat(tokens[3]);
+          const t = parseFloat(tokens[4]);
+          if (orig && !isNaN(w) && !isNaN(d) && !isNaN(t)) {
+            entities.push({ type: 'BOX', x: orig[0], y: orig[1], w, d, t, lineIndex, rawLine: clean });
+            expandBounds(orig[0], orig[1]);
+            expandBounds(orig[0] + w, orig[1] + d);
+          }
+        } else if (cmd === 'WALL' && tokens.length >= 4) {
+          const t = parseFloat(tokens[1]);
+          const pts = [];
+          for (let i = 2; i < tokens.length; i++) {
+            const pt = parseCoord(tokens[i]);
+            if (pt) {
+              pts.push(pt);
+              expandBounds(pt[0] - t, pt[1] - t);
+              expandBounds(pt[0] + t, pt[1] + t);
+            }
+          }
+          if (!isNaN(t) && pts.length >= 2) {
+            entities.push({ type: 'WALL', t, pts, lineIndex, rawLine: clean });
+          }
+        } else if (cmd === 'CIRCLE' && tokens.length >= 4) {
+          const c = parseCoord(tokens[1]);
+          const r = parseFloat(tokens[2]);
+          const tw = parseFloat(tokens[3]);
+          if (c && !isNaN(r) && !isNaN(tw)) {
+            entities.push({ type: 'CIRCLE', cx: c[0], cy: c[1], r, tw, lineIndex, rawLine: clean });
+            expandBounds(c[0] - r, c[1] - r);
+            expandBounds(c[0] + r, c[1] + r);
+          }
+        } else if (cmd === 'STAIR' && tokens.length >= 5) {
+          const orig = parseCoord(tokens[1]);
+          const w = parseFloat(tokens[2]);
+          const run = parseFloat(tokens[3]);
+          const count = parseInt(tokens[4], 10);
+          if (orig && !isNaN(w) && !isNaN(run) && !isNaN(count) && count > 0) {
+            entities.push({ type: 'STAIR', x: orig[0], y: orig[1], w, run, count, lineIndex, rawLine: clean });
+            expandBounds(orig[0], orig[1]);
+            expandBounds(orig[0] + w, orig[1] + run * count);
+          }
+        } else if (cmd === 'ARC' && tokens.length >= 5) {
+          const c = parseCoord(tokens[1]);
+          const r = parseFloat(tokens[2]);
+          const a1 = parseFloat(tokens[3]);
+          const a2 = parseFloat(tokens[4]);
+          if (c && !isNaN(r) && !isNaN(a1) && !isNaN(a2)) {
+            entities.push({ type: 'ARC', cx: c[0], cy: c[1], r, a1, a2, lineIndex, rawLine: clean });
+            expandBounds(c[0] - r, c[1] - r);
+            expandBounds(c[0] + r, c[1] + r);
+          }
+        } else if (cmd === 'STAIR_RAKE' && tokens.length >= 5) {
+          const orig = parseCoord(tokens[1]);
+          const rise = parseFloat(tokens[2]);
+          const run = parseFloat(tokens[3]);
+          const count = parseInt(tokens[4], 10);
+          if (orig && !isNaN(rise) && !isNaN(run) && !isNaN(count) && count > 0) {
+            entities.push({ type: 'STAIR_RAKE', x: orig[0], y: orig[1], rise, run, count, lineIndex, rawLine: clean });
+            expandBounds(orig[0], orig[1]);
+            expandBounds(orig[0] + run * count, orig[1] + rise * count + 36);
+          }
+        } else if (cmd === 'DIM' && tokens.length >= 4) {
+          const p1 = parseCoord(tokens[1]);
+          const p2 = parseCoord(tokens[2]);
+          const off = parseFloat(tokens[3]);
+          if (p1 && p2 && !isNaN(off)) {
+            entities.push({ type: 'DIM', p1, p2, off, lineIndex, rawLine: clean });
+            expandBounds(p1[0] - Math.abs(off), p1[1] - Math.abs(off));
+            expandBounds(p2[0] + Math.abs(off), p2[1] + Math.abs(off));
+          }
+        } else if (cmd === 'TEXT' && tokens.length >= 3) {
+          const mode = tokens[1].toUpperCase();
+          let pt = parseCoord(tokens[1]);
+          const str = tokens.slice(2).join(' ');
+          if (!pt) {
+            if (mode === 'S') pt = [60, 48];
+            else if (mode === 'R') pt = [25, 25];
+          }
+          if (pt && str) {
+            entities.push({ type: 'TEXT', x: pt[0], y: pt[1], str, lineIndex, rawLine: clean });
+            expandBounds(pt[0], pt[1]);
+          }
+        }
+      });
+
+      activeEntities = entities;
+      return { entities, minX, minY, maxX, maxY };
+    }
+
+    function renderWallyCanvas() {
+      if (!canvas) return;
+      const { entities, minX, minY, maxX, maxY } = parseWallyScript();
+
+      document.getElementById('entityCount').textContent = entities.length;
+      document.getElementById('extentsReadout').textContent = `${Math.round(minX)},${Math.round(minY)} to ${Math.round(maxX)},${Math.round(maxY)}`;
+
+      const pad = 22;
+      const spanX = Math.max(40, (maxX - minX) + pad * 2);
+      const spanY = Math.max(40, (maxY - minY) + pad * 2);
+      const scaleX = canvas.width / spanX;
+      const scaleY = canvas.height / spanY;
+      const scale = Math.min(scaleX, scaleY);
+
+      const drawW = (maxX - minX) * scale;
+      const drawH = (maxY - minY) * scale;
+      const offsetX = (canvas.width - drawW) / 2 - minX * scale;
+      const offsetY = (canvas.height - drawH) / 2 - minY * scale;
+
+      viewState = { scale, offsetX, offsetY, height: canvas.height };
+
+      const isHal = document.body.classList.contains('hal-mode');
+      const colors = {
+        bg: isHal ? '#000000' : '#070a0e',
+        grid: isHal ? '#112211' : '#131b24',
+        axes: isHal ? '#005522' : '#243442',
+        wallStroke: isHal ? '#00ff66' : '#00d2ff',
+        wallFill: isHal ? 'rgba(0, 255, 102, 0.16)' : 'rgba(0, 210, 255, 0.14)',
+        line: isHal ? '#ffea00' : '#3fb950',
+        stair: isHal ? '#ffffff' : '#e6edf3',
+        circle: isHal ? '#ff0055' : '#f0883e',
+        dim: isHal ? '#ffea00' : '#a5d6ff',
+        text: isHal ? '#ffffff' : '#ffea00',
+        selected: '#ff00ff'
+      };
+
+      ctx.fillStyle = colors.bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (showGrid) {
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = colors.grid;
+        const step = 10;
+        const startGX = Math.floor((minX - 20) / step) * step;
+        const endGX = Math.ceil((maxX + 20) / step) * step;
+        const startGY = Math.floor((minY - 20) / step) * step;
+        const endGY = Math.ceil((maxY + 20) / step) * step;
+
+        ctx.beginPath();
+        for (let gx = startGX; gx <= endGX; gx += step) {
+          const [sx1, sy1] = toScreen(gx, startGY);
+          const [sx2, sy2] = toScreen(gx, endGY);
+          ctx.moveTo(sx1, sy1);
+          ctx.lineTo(sx2, sy2);
+        }
+        for (let gy = startGY; gy <= endGY; gy += step) {
+          const [sx1, sy1] = toScreen(startGX, gy);
+          const [sx2, sy2] = toScreen(endGX, gy);
+          ctx.moveTo(sx1, sy1);
+          ctx.lineTo(sx2, sy2);
+        }
+        ctx.stroke();
+
+        ctx.strokeStyle = colors.axes;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        const [ox, oy] = toScreen(0, 0);
+        ctx.moveTo(0, oy);
+        ctx.lineTo(canvas.width, oy);
+        ctx.moveTo(ox, 0);
+        ctx.lineTo(ox, canvas.height);
+        ctx.stroke();
+
+        ctx.fillStyle = colors.dim;
+        ctx.font = 'bold 10px Courier New';
+        ctx.fillText('(0,0)', ox + 4, oy - 5);
+      }
+
+      entities.forEach((ent) => {
+        const isSel = (ent.lineIndex === selectedLineIndex);
+        ctx.save();
+        if (isSel) {
+          ctx.shadowColor = colors.selected;
+          ctx.shadowBlur = 10;
+        }
+
+        if (ent.type === 'BOX') {
+          const { x, y, w, d, t } = ent;
+          const [ox1, oy1] = toScreen(x, y);
+          const [ox2, oy2] = toScreen(x + w, y + d);
+          const [ix1, iy1] = toScreen(x + t, y + t);
+          const [ix2, iy2] = toScreen(x + w - t, y + d - t);
+
+          ctx.fillStyle = isSel ? 'rgba(255, 0, 255, 0.22)' : colors.wallFill;
+          ctx.beginPath();
+          ctx.rect(ox1, oy2, ox2 - ox1, oy1 - oy2);
+          ctx.rect(ix1, iy2, ix2 - ix1, iy1 - iy2);
+          ctx.fill('evenodd');
+
+          ctx.strokeStyle = isSel ? colors.selected : colors.wallStroke;
+          ctx.lineWidth = isSel ? 2.6 : 1.6;
+          ctx.strokeRect(ox1, oy2, ox2 - ox1, oy1 - oy2);
+          ctx.strokeRect(ix1, iy2, ix2 - ix1, iy1 - iy2);
+
+          ctx.beginPath();
+          ctx.moveTo(...toScreen(x, y)); ctx.lineTo(...toScreen(x + t, y + t));
+          ctx.moveTo(...toScreen(x + w, y)); ctx.lineTo(...toScreen(x + w - t, y + t));
+          ctx.moveTo(...toScreen(x + w, y + d)); ctx.lineTo(...toScreen(x + w - t, y + d - t));
+          ctx.moveTo(...toScreen(x, y + d)); ctx.lineTo(...toScreen(x + t, y + d - t));
+          ctx.stroke();
+
+        } else if (ent.type === 'WALL') {
+          const halfT = ent.t / 2;
+          const { left, right } = computeMiteredWallRails(ent.pts, halfT);
+          if (left.length >= 2) {
+            ctx.fillStyle = isSel ? 'rgba(255, 0, 255, 0.22)' : colors.wallFill;
+            ctx.strokeStyle = isSel ? colors.selected : colors.wallStroke;
+            ctx.lineWidth = isSel ? 2.6 : 1.5;
+
+            ctx.beginPath();
+            left.forEach((pt, idx) => {
+              const [sx, sy] = toScreen(pt[0], pt[1]);
+              if (idx === 0) ctx.moveTo(sx, sy);
+              else ctx.lineTo(sx, sy);
+            });
+            for (let idx = right.length - 1; idx >= 0; idx--) {
+              const [sx, sy] = toScreen(right[idx][0], right[idx][1]);
+              ctx.lineTo(sx, sy);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.beginPath();
+            for (let i = 1; i < left.length - 1; i++) {
+              ctx.moveTo(...toScreen(left[i][0], left[i][1]));
+              ctx.lineTo(...toScreen(right[i][0], right[i][1]));
+            }
+            ctx.stroke();
+          }
+
+        } else if (ent.type === 'LINE') {
+          ctx.strokeStyle = isSel ? colors.selected : colors.line;
+          ctx.lineWidth = isSel ? 2.8 : 1.35;
+          ctx.beginPath();
+          ctx.moveTo(...toScreen(ent.p1[0], ent.p1[1]));
+          ctx.lineTo(...toScreen(ent.p2[0], ent.p2[1]));
+          ctx.stroke();
+
+        } else if (ent.type === 'CIRCLE') {
+          const [scx, scy] = toScreen(ent.cx, ent.cy);
+          const srOut = Math.max(1, ent.r * viewState.scale);
+          ctx.strokeStyle = isSel ? colors.selected : colors.circle;
+          ctx.lineWidth = isSel ? 2.6 : 1.5;
+          ctx.beginPath();
+          ctx.arc(scx, scy, srOut, 0, Math.PI * 2);
+          ctx.stroke();
+
+          if (ent.tw > 0 && ent.r > ent.tw) {
+            const srIn = (ent.r - ent.tw) * viewState.scale;
+            ctx.beginPath();
+            ctx.arc(scx, scy, srIn, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+
+        } else if (ent.type === 'STAIR') {
+          const { x, y, w, run, count } = ent;
+          const totalRun = run * count;
+          ctx.strokeStyle = isSel ? colors.selected : colors.stair;
+          ctx.lineWidth = isSel ? 2.5 : 1.4;
+
+          ctx.beginPath();
+          ctx.moveTo(...toScreen(x, y));
+          ctx.lineTo(...toScreen(x, y + totalRun));
+          ctx.moveTo(...toScreen(x + w, y));
+          ctx.lineTo(...toScreen(x + w, y + totalRun));
+
+          for (let i = 0; i <= count; i++) {
+            const ry = y + i * run;
+            ctx.moveTo(...toScreen(x, ry));
+            ctx.lineTo(...toScreen(x + w, ry));
+          }
+          const midX = x + w / 2;
+          ctx.moveTo(...toScreen(midX, y + run * 0.4));
+          ctx.lineTo(...toScreen(midX, y + totalRun - run * 0.3));
+          ctx.stroke();
+
+        } else if (ent.type === 'ARC') {
+          const { cx, cy, r, a1, a2 } = ent;
+          const [scx, scy] = toScreen(cx, cy);
+          const sr = r * viewState.scale;
+          ctx.strokeStyle = isSel ? colors.selected : colors.circle;
+          ctx.lineWidth = isSel ? 2.5 : 1.4;
+          ctx.setLineDash([5, 3]);
+          ctx.beginPath();
+          const rad1 = (-a1 * Math.PI) / 180;
+          const rad2 = (-a2 * Math.PI) / 180;
+          ctx.arc(scx, scy, sr, rad1, rad2, true);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+        } else if (ent.type === 'STAIR_RAKE') {
+          const { x, y, rise, run, count } = ent;
+          ctx.strokeStyle = isSel ? colors.selected : colors.stair;
+          ctx.lineWidth = isSel ? 2.5 : 1.4;
+          ctx.beginPath();
+          let cx = x, cy = y;
+          ctx.moveTo(...toScreen(cx, cy));
+          for (let i = 0; i < count; i++) {
+            cy += rise;
+            ctx.lineTo(...toScreen(cx, cy));
+            cx += run;
+            ctx.lineTo(...toScreen(cx, cy));
+          }
+          ctx.stroke();
+
+        } else if (ent.type === 'DIM') {
+          const { p1, p2, off } = ent;
+          const dx = p2[0] - p1[0];
+          const dy = p2[1] - p1[1];
+          const dist = Math.hypot(dx, dy);
+          if (dist > 1e-4) {
+            const nx = -dy / dist;
+            const ny = dx / dist;
+            const d1 = [p1[0] + nx * off, p1[1] + ny * off];
+            const d2 = [p2[0] + nx * off, p2[1] + ny * off];
+
+            ctx.strokeStyle = isSel ? colors.selected : colors.dim;
+            ctx.lineWidth = isSel ? 2.0 : 1.0;
+            ctx.setLineDash([2, 2]);
+            ctx.beginPath();
+            ctx.moveTo(...toScreen(p1[0], p1[1]));
+            ctx.lineTo(...toScreen(d1[0], d1[1]));
+            ctx.moveTo(...toScreen(p2[0], p2[1]));
+            ctx.lineTo(...toScreen(d2[0], d2[1]));
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.beginPath();
+            ctx.moveTo(...toScreen(d1[0], d1[1]));
+            ctx.lineTo(...toScreen(d2[0], d2[1]));
+            ctx.stroke();
+
+            const mid = [(d1[0] + d2[0]) / 2, (d1[1] + d2[1]) / 2];
+            const [smx, smy] = toScreen(mid[0], mid[1]);
+            const label = Number.isInteger(dist) ? dist.toString() : dist.toFixed(2);
+            ctx.font = 'bold 11px Courier New';
+            const tw = ctx.measureText(label).width;
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(smx - tw / 2 - 3, smy - 7, tw + 6, 14);
+            ctx.fillStyle = isSel ? colors.selected : colors.dim;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, smx, smy);
+            ctx.textAlign = 'start';
+            ctx.textBaseline = 'alphabetic';
+          }
+
+        } else if (ent.type === 'TEXT') {
+          const [sx, sy] = toScreen(ent.x, ent.y);
+          ctx.fillStyle = isSel ? colors.selected : colors.text;
+          ctx.font = 'bold 11px Courier New';
+          ctx.fillText(ent.str, sx, sy);
+        }
+        ctx.restore();
+      });
+    }
+
+    // ==========================================================
+    // STAGE 3 SERIALIZER: ASCII AUTOCAD .DXF COMPILER & DOWNLOAD
+    // ==========================================================
+    function dxfLine(x1, y1, x2, y2, layer, color) {
+      return [
+        '0', 'LINE',
+        '8', layer,
+        '62', String(color),
+        '10', Number(x1).toFixed(4),
+        '20', Number(y1).toFixed(4),
+        '30', '0.0',
+        '11', Number(x2).toFixed(4),
+        '21', Number(y2).toFixed(4),
+        '31', '0.0'
+      ].join('\n') + '\n';
+    }
+
+    function dxfCircle(cx, cy, r, layer, color) {
+      return [
+        '0', 'CIRCLE',
+        '8', layer,
+        '62', String(color),
+        '10', Number(cx).toFixed(4),
+        '20', Number(cy).toFixed(4),
+        '30', '0.0',
+        '40', Number(r).toFixed(4)
+      ].join('\n') + '\n';
+    }
+
+    function dxfArc(cx, cy, r, a1, a2, layer, color) {
+      return [
+        '0', 'ARC',
+        '8', layer,
+        '62', String(color),
+        '10', Number(cx).toFixed(4),
+        '20', Number(cy).toFixed(4),
+        '30', '0.0',
+        '40', Number(r).toFixed(4),
+        '50', Number(a1).toFixed(4),
+        '51', Number(a2).toFixed(4)
+      ].join('\n') + '\n';
+    }
+
+    function dxfText(x, y, height, str, layer, color) {
+      return [
+        '0', 'TEXT',
+        '8', layer,
+        '62', String(color),
+        '10', Number(x).toFixed(4),
+        '20', Number(y).toFixed(4),
+        '30', '0.0',
+        '40', Number(height).toFixed(4),
+        '1', str
+      ].join('\n') + '\n';
+    }
+
+    function compileAndDownloadDXF() {
+      const { entities, minX, minY, maxX, maxY } = parseWallyScript();
+
+      let dxf = [
+        '999', 'WallyCAD ASCII DXF Serializer - Precision Cartesian Autonomy',
+        '0', 'SECTION',
+        '2', 'HEADER',
+        '9', '$ACADVER',
+        '1', 'AC1009',
+        '9', '$INSUNITS',
+        '70', '1',
+        '9', '$EXTMIN',
+        '10', Number(minX).toFixed(4),
+        '20', Number(minY).toFixed(4),
+        '30', '0.0',
+        '9', '$EXTMAX',
+        '10', Number(maxX).toFixed(4),
+        '20', Number(maxY).toFixed(4),
+        '30', '0.0',
+        '0', 'ENDSEC',
+        '0', 'SECTION',
+        '2', 'ENTITIES'
+      ].join('\n') + '\n';
+
+      let primitiveCount = 0;
+
+      entities.forEach((ent) => {
+        if (ent.type === 'BOX') {
+          const { x, y, w, d, t } = ent;
+          const lyr = 'WALLY_BOX';
+          const col = 4;
+          dxf += dxfLine(x, y, x + w, y, lyr, col);
+          dxf += dxfLine(x + w, y, x + w, y + d, lyr, col);
+          dxf += dxfLine(x + w, y + d, x, y + d, lyr, col);
+          dxf += dxfLine(x, y + d, x, y, lyr, col);
+          dxf += dxfLine(x + t, y + t, x + w - t, y + t, lyr, col);
+          dxf += dxfLine(x + w - t, y + t, x + w - t, y + d - t, lyr, col);
+          dxf += dxfLine(x + w - t, y + d - t, x + t, y + d - t, lyr, col);
+          dxf += dxfLine(x + t, y + d - t, x + t, y + t, lyr, col);
+          dxf += dxfLine(x, y, x + t, y + t, lyr, col);
+          dxf += dxfLine(x + w, y, x + w - t, y + t, lyr, col);
+          dxf += dxfLine(x + w, y + d, x + w - t, y + d - t, lyr, col);
+          dxf += dxfLine(x, y + d, x + t, y + d - t, lyr, col);
+          primitiveCount += 12;
+
+        } else if (ent.type === 'WALL') {
+          const halfT = ent.t / 2;
+          const { left, right } = computeMiteredWallRails(ent.pts, halfT);
+          const lyr = 'WALLY_WALL';
+          const col = 4;
+          if (left.length >= 2) {
+            for (let i = 0; i < left.length - 1; i++) {
+              dxf += dxfLine(left[i][0], left[i][1], left[i + 1][0], left[i + 1][1], lyr, col);
+              dxf += dxfLine(right[i][0], right[i][1], right[i + 1][0], right[i + 1][1], lyr, col);
+              primitiveCount += 2;
+            }
+            for (let i = 0; i < left.length; i++) {
+              dxf += dxfLine(left[i][0], left[i][1], right[i][0], right[i][1], lyr, col);
+              primitiveCount += 1;
+            }
+          }
+
+        } else if (ent.type === 'LINE') {
+          dxf += dxfLine(ent.p1[0], ent.p1[1], ent.p2[0], ent.p2[1], 'WALLY_LINE', 3);
+          primitiveCount += 1;
+
+        } else if (ent.type === 'CIRCLE') {
+          dxf += dxfCircle(ent.cx, ent.cy, ent.r, 'WALLY_PIPE', 30);
+          primitiveCount += 1;
+          if (ent.tw > 0 && ent.r > ent.tw) {
+            dxf += dxfCircle(ent.cx, ent.cy, ent.r - ent.tw, 'WALLY_PIPE', 30);
+            primitiveCount += 1;
+          }
+
+        } else if (ent.type === 'STAIR') {
+          const { x, y, w, run, count } = ent;
+          const totalRun = run * count;
+          const lyr = 'WALLY_STAIR';
+          const col = 7;
+          dxf += dxfLine(x, y, x, y + totalRun, lyr, col);
+          dxf += dxfLine(x + w, y, x + w, y + totalRun, lyr, col);
+          primitiveCount += 2;
+          for (let i = 0; i <= count; i++) {
+            const ry = y + i * run;
+            dxf += dxfLine(x, ry, x + w, ry, lyr, col);
+            primitiveCount += 1;
+          }
+          const midX = x + w / 2;
+          dxf += dxfLine(midX, y + run * 0.4, midX, y + totalRun - run * 0.3, lyr, col);
+          primitiveCount += 1;
+
+        } else if (ent.type === 'ARC') {
+          dxf += dxfArc(ent.cx, ent.cy, ent.r, ent.a1, ent.a2, 'WALLY_ARC', 6);
+          primitiveCount += 1;
+
+        } else if (ent.type === 'STAIR_RAKE') {
+          const { x, y, rise, run, count } = ent;
+          let cx = x, cy = y;
+          for (let i = 0; i < count; i++) {
+            dxf += dxfLine(cx, cy, cx, cy + rise, 'WALLY_RAKE', 7);
+            cy += rise;
+            dxf += dxfLine(cx, cy, cx + run, cy, 'WALLY_RAKE', 7);
+            cx += run;
+            primitiveCount += 2;
+          }
+
+        } else if (ent.type === 'DIM') {
+          const { p1, p2, off } = ent;
+          const dx = p2[0] - p1[0];
+          const dy = p2[1] - p1[1];
+          const dist = Math.hypot(dx, dy);
+          if (dist > 1e-4) {
+            const nx = -dy / dist;
+            const ny = dx / dist;
+            const d1 = [p1[0] + nx * off, p1[1] + ny * off];
+            const d2 = [p2[0] + nx * off, p2[1] + ny * off];
+            const mid = [(d1[0] + d2[0]) / 2, (d1[1] + d2[1]) / 2];
+            const label = Number.isInteger(dist) ? dist.toString() : dist.toFixed(2);
+            const lyr = 'WALLY_DIM';
+            const col = 2;
+
+            dxf += dxfLine(p1[0], p1[1], d1[0], d1[1], lyr, col);
+            dxf += dxfLine(p2[0], p2[1], d2[0], d2[1], lyr, col);
+            dxf += dxfLine(d1[0], d1[1], d2[0], d2[1], lyr, col);
+            dxf += dxfText(mid[0] - 2.5, mid[1] + 1.2, 3.0, label, lyr, col);
+            primitiveCount += 4;
+          }
+
+        } else if (ent.type === 'TEXT') {
+          dxf += dxfText(ent.x, ent.y, 3.5, ent.str, 'WALLY_TEXT', 2);
+          primitiveCount += 1;
+        }
+      });
+
+      dxf += '0\nENDSEC\n0\nEOF\n';
+
+      const blob = new Blob([dxf], { type: 'application/dxf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'wallycad_shop_sheet.dxf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      const statusEl = document.getElementById('dxfStatus');
+      if (statusEl) {
+        statusEl.textContent = `EXPORTED (${primitiveCount} DXF VECTORS)`;
+        setTimeout(() => statusEl.textContent = 'READY', 4000);
+      }
+    }
+
+    // Initialize QuickClick Deck on Load
+    setQcDeck('macro');
+  </script>
+</body>
+</html>
