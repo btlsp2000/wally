@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LastKnownAddress (LKA) Master Archive | Barstow Bill Tonnesen</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-alt: #1f2733;
+      --nav-bg: #070a0e;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #00d2ff;
+      --accent-alt: #3fb950;
+      --warn: #f0883e;
+      --border: #30363d;
+      --code-bg: #070a0e;
+      --font-mono: 'Courier New', Courier, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* High-Contrast HAL Presentation Mode */
+    body.hal-mode {
+      --bg: #000000;
+      --panel: #050505;
+      --panel-alt: #111111;
+      --nav-bg: #000000;
+      --text: #ffffff;
+      --muted: #ffea00;
+      --accent: #00ff66;
+      --accent-alt: #00ff66;
+      --warn: #ffea00;
+      --border: #00ff66;
+      --code-bg: #000000;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.68;
+      padding-bottom: 4rem;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    /* Top Ecosystem Navigation Bar */
+    .ecosystem-nav {
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0.55rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+
+    .eco-links {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .eco-link {
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.3rem 0.65rem;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      transition: all 0.12s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .eco-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--panel);
+    }
+
+    .eco-link.active-hub {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(0, 210, 255, 0.14);
+    }
+
+    .eco-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+
+    .eco-status {
+      color: var(--muted);
+      font-size: 0.74rem;
+    }
+
+    .eco-status strong {
+      color: var(--accent);
+    }
+
+    /* Main Sticky Header */
+    header {
+      background: var(--panel);
+      border-bottom: 2px solid var(--border);
+      padding: 1.05rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-badge {
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-mono);
+      font-weight: 900;
+      padding: 0.35rem 0.65rem;
+      border-radius: 4px;
+      letter-spacing: 1px;
+      font-size: 0.9rem;
+    }
+
+    .brand h1 {
+      font-size: 1.18rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .brand-sub {
+      font-size: 0.77rem;
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.42rem 0.8rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.12s ease;
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-accent {
+      background: rgba(0, 210, 255, 0.14);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-save {
+      background: rgba(63, 185, 80, 0.16);
+      border-color: var(--accent-alt);
+      color: var(--accent-alt);
+    }
+
+    .btn-hal {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    body.hal-mode .btn-hal {
+      background: var(--warn);
+      color: #000;
+    }
+
+    main {
+      max-width: 920px;
+      margin: 1.5rem auto;
+      padding: 0 1.25rem;
+    }
+
+    /* Author Charter & Regional Node Matrix */
+    .charter-banner {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 1.35rem 1.6rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .charter-kicker {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .charter-banner h2 {
+      font-size: 1.2rem;
+      color: var(--text);
+    }
+
+    .charter-banner p {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .node-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding-top: 0.35rem;
+    }
+
+    .node-pill {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text);
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.55rem;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .node-pill:hover, .node-pill.active-node {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* Published Works & Manuscripts Shelf */
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 0.75rem;
+      border-left: 3px solid var(--accent);
+      padding-left: 0.65rem;
+    }
+
+    .manuscript-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .manuscript-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: border-color 0.12s ease;
+    }
+
+    .manuscript-card:hover {
+      border-color: var(--accent);
+    }
+
+    .ms-title {
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .ms-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .ms-tag {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--warn);
+    }
+
+    /* Filter & Search Bar */
+    .archive-bar {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+      padding: 0.6rem 0.9rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.86rem;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    /* Quick Composer Drawer for Library Terminals */
+    .composer-panel {
+      display: none;
+      background: var(--panel);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .composer-panel.open {
+      display: block;
+    }
+
+    .composer-panel h2 {
+      font-family: var(--font-mono);
+      font-size: 0.98rem;
+      color: var(--accent);
+      margin-bottom: 0.85rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .form-input, .form-textarea {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+    }
+
+    .form-textarea {
+      min-height: 130px;
+      resize: vertical;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Chronological LKA Entry Stack */
+    #lkaStack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .lka-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      padding: 1.65rem 1.85rem;
+      transition: border-color 0.15s ease;
+    }
+
+    .lka-card:hover {
+      border-color: var(--warn);
+      border-left-color: var(--accent);
+    }
+
+    .lka-meta {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.8rem;
+      margin-bottom: 1.15rem;
+    }
+
+    .lka-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .lka-title {
+      font-size: 1.28rem;
+      font-weight: 700;
+      color: var(--text);
+      font-family: var(--font-sans);
+    }
+
+    .lka-id {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--accent);
+      background: var(--panel-alt);
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+
+    .lka-meta strong {
+      color: var(--accent);
+    }
+
+    .lka-card p {
+      margin-bottom: 1rem;
+      font-size: 0.98rem;
+    }
+
+    .lka-card p:last-child {
+      margin-bottom: 0;
+    }
+
+    .highlight {
+      color: var(--warn);
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* Half-Letter 5.5" x 8.5" Booklet Print Stylesheet */
+    @media print {
+      @page {
+        size: 5.5in 8.5in;
+        margin: 0.5in 0.45in 0.55in 0.6in;
+      }
+      .ecosystem-nav, header, .archive-bar, .composer-panel, .node-pills, .footer-links {
+        display: none !important;
+      }
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 10.5pt;
+        line-height: 1.5;
+        padding: 0;
+      }
+      main {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      .charter-banner, .manuscript-card, .lka-card {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #000000 !important;
+        border-left: 3px solid #000000 !important;
+        page-break-inside: avoid;
+        margin-bottom: 14pt;
+        padding: 10pt 12pt;
+      }
+      .lka-title, .charter-banner h2, .ms-title {
+        color: #000000 !important;
+      }
+      .lka-meta, .charter-kicker, .ms-desc, .ms-tag, .lka-id {
+        color: #222222 !important;
+        border-color: #999999 !important;
+        background: transparent !important;
+      }
+      .highlight, .lka-meta strong {
+        color: #000000 !important;
+        font-weight: bold;
+        text-decoration: underline;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MASTER ECOSYSTEM NAVIGATION BAR -->
+  <nav class="ecosystem-nav" aria-label="Master Ecosystem Navigation">
+    <div class="eco-links">
+      <a href="https://wallycad.com" class="eco-link">WALLYCAD.COM</a>
+      <a href="https://wallycad.com/test" class="eco-link">CAD STUDIO (/TEST)</a>
+      <a href="https://wallycad.com/textbook" class="eco-link">TEXTBOOK (/TEXTBOOK)</a>
+      <a href="https://wallycad.com/r2" class="eco-link">ROUTE 2 (/R2)</a>
+      <a href="https://wallycad.com/lka" class="eco-link active-hub"><span class="eco-dot"></span>LASTKNOWNADDRESS (/LKA)</a>
+      <a href="https://wallycad.com/adventure-road" class="eco-link">ADVENTURE ROAD (ARMIKE)</a>
+      <a href="https://btlsp2000.tripod.com" class="eco-link">LEGACY ARCHIVE</a>
+    </div>
+    <div class="eco-status">
+      ACTIVE NODE: <strong>WRIGHTWOOD, CA (92397)</strong>
+    </div>
+  </nav>
+
+  <!-- MAIN HEADER -->
+  <header>
+    <div class="brand">
+      <span class="brand-badge">LKA ARCHIVE</span>
+      <div>
+        <h1>LastKnownAddress: Master Memoir &amp; Field Repository</h1>
+        <div class="brand-sub">By Bill Leendert Tonnesen (Barstow Bill Tonnesen) &bull; wallycad.com/lka</div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-accent" onclick="exportWordBooklet()">WORD BOOKLET (.DOC)</button>
+      <button class="btn" onclick="window.print()">PRINT BOOKLET</button>
+      <button class="btn btn-save" onclick="downloadUpdatedArchive()">SAVE LKA .HTML</button>
+      <button class="btn btn-hal" onclick="toggleHal()" id="halBtn">HAL MODE: OFF</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Author Charter & Regional Node Matrix -->
+    <section class="charter-banner">
+      <div class="charter-kicker">MASTER BIOGRAPHICAL &amp; GEOGRAPHIC LEDGER // LASTKNOWNADDRESS</div>
+      <h2>Chronicles Across the Western Transit Grid</h2>
+      <p>
+        <strong>LastKnownAddress (<code>/lka</code>)</strong> is the central autobiographical and literary repository of <strong>Bill Leendert Tonnesen</strong>, writing under the pen name <strong>Barstow Bill Tonnesen</strong>. Click any regional transit node or era below to filter the chronological record:
+      </p>
+      <div class="node-pills">
+        <span class="node-pill" onclick="quickFilter('')">ALL NODES</span>
+        <span class="node-pill" onclick="quickFilter('1965')">1965 / YOC</span>
+        <span class="node-pill" onclick="quickFilter('1998')">1998 / US-395</span>
+        <span class="node-pill" onclick="quickFilter('Wrightwood')">WRIGHTWOOD</span>
+        <span class="node-pill" onclick="quickFilter('Barstow')">BARSTOW</span>
+        <span class="node-pill" onclick="quickFilter('Victorville')">VICTORVILLE</span>
+        <span class="node-pill" onclick="quickFilter('Long Beach')">LONG BEACH</span>
+        <span class="node-pill" onclick="quickFilter('Colton')">COLTON / INLAND EMPIRE</span>
+        <span class="node-pill" onclick="quickFilter('San Diego')">SAN DIEGO / ESCONDIDO</span>
+        <span class="node-pill" onclick="quickFilter('Inyo')">KERN / INYO / MONO</span>
+        <span class="node-pill" onclick="quickFilter('Nevada')">RENO / CARSON / FALLON / VEGAS</span>
+        <span class="node-pill" onclick="quickFilter('Oregon')">PORTLAND / EUGENE / KLAMATH</span>
+      </div>
+    </section>
+
+    <!-- Published Works & Active Manuscripts Shelf -->
+    <div class="section-label">Published Works, Memoirs &amp; Technical Manuscripts</div>
+    <div class="manuscript-grid">
+      <div class="manuscript-card" onclick="quickFilter('Golden Triangle')">
+        <div>
+          <div class="ms-title">The Golden Triangle</div>
+          <div class="ms-desc">Autobiographical memoir and regional chronicle by Barstow Bill Tonnesen.</div>
+        </div>
+        <span class="ms-tag">MEMOIR SERIES</span>
+      </div>
+      <div class="manuscript-card" onclick="quickFilter('Traveler')">
+        <div>
+          <div class="ms-title">The Traveler</div>
+          <div class="ms-desc">Transit corridors, US-395 runs, rail lines, and Western highway dispatches.</div>
+        </div>
+        <span class="ms-tag">AUTOBIOGRAPHY</span>
+      </div>
+      <div class="manuscript-card" onclick="quickFilter('Portland')">
+        <div>
+          <div class="ms-title">It Happened in Portland</div>
+          <div class="ms-desc">Pacific Northwest chronicles, transit nodes, and city dispatches.</div>
+        </div>
+        <span class="ms-tag">PNW CHRONICLE</span>
+      </div>
+      <div class="manuscript-card" onclick="quickFilter('Setup')">
+        <div>
+          <div class="ms-title">The Setup &amp; Calculus of Pool</div>
+          <div class="ms-desc">Narrative chapters alongside mathematical billiards collision &amp; tangent vector models.</div>
+        </div>
+        <span class="ms-tag">NARRATIVE &amp; MATH</span>
+      </div>
+    </div>
+
+    <!-- Search & Chronological Order Bar -->
+    <div class="archive-bar">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search LastKnownAddress (e.g., 1998, 395, China Lake, CHP, 1965, YOC, Wrightwood)..." onkeyup="filterLka()" />
+      <button class="btn" id="sortBtn" onclick="reverseChronology()">ORDER: NEWEST FIRST</button>
+    </div>
+
+    <!-- Built-In Library Terminal Composer (Commented Out for Public Release) -->
+    <!--
+    <section class="composer-panel" id="composerPanel">
+      <h2>LOG NEW LASTKNOWNADDRESS CHAPTER OR FIELD DISPATCH</h2>
+      <div class="form-grid">
+        <input type="text" id="newTitle" class="form-input" placeholder="Entry or Chapter Title" />
+        <input type="text" id="newDate" class="form-input" placeholder="Date / Era (e.g., July 1998 or Sept 26, 2026)" />
+        <input type="text" id="newNode" class="form-input" value="Wrightwood, CA (92397)" placeholder="Transit Node / Location" />
+        <input type="text" id="newSeries" class="form-input" value="LKA // The Traveler" placeholder="Manuscript / Series Tag" />
+      </div>
+      <textarea id="newBody" class="form-textarea" placeholder="Write or paste your chapter draft or field observation here (separate paragraphs with a blank line)..."></textarea>
+      <div class="controls">
+        <button class="btn btn-accent" onclick="prependLkaEntry()">STACK TO TOP OF LKA ARCHIVE</button>
+        <button class="btn" onclick="toggleComposer()">CLOSE</button>
+      </div>
+    </section>
+    -->
+
+    <!-- =================================================================== -->
+    <!-- MASTER CHRONOLOGICAL LKA STACK (Add new <article> blocks here) -->
+    <!-- =================================================================== -->
+    <div id="lkaStack">
+
+      <!-- ENTRY #004: SATURDAY, SEPTEMBER 26, 2026 (WRIGHTWOOD LIBRARY) -->
+      <article class="lka-card" data-date="2026-09-26">
+        <div class="lka-meta">
+          <div class="lka-header-row">
+            <span class="lka-title">Night Prowlers &amp; Pre-Dawn Acoustics</span>
+            <span class="lka-id">LKA-WW-2026-09-26</span>
+          </div>
+          <strong>SERIES:</strong> LKA / Route 2 &bull;
+          <strong>DATE:</strong> Saturday, September 26, 2026 &bull;
+          <strong>NODE:</strong> Wrightwood Library, CA (92397) &bull;
+          <strong>AUTHOR:</strong> Barstow Bill Tonnesen
+        </div>
+        <p>
+          At the <strong>Wrightwood Library</strong> this morning. While I sat engaged on the computer five feet away, I overheard a patron in concert with <strong>Robin, the veteran librarian</strong>, sharing night photos of <span class="highlight">bear, cougar, fox, and wildcat</span> taken right at her home.
+        </p>
+        <p>
+          Guess I was right about setting that fallen tree limb ready at camp this morning—to wield in my right hand. The <span class="highlight">cougar</span> will be the most dangerous, and they climb trees. A lot of trees at camp.
+        </p>
+        <p>
+          The crickets go silent when the temp drops early morning, and the owl takes over. Lovely sounds. I can't see the crickets or the owl.
+        </p>
+      </article>
+
+      <!-- ENTRY #003: MASTER ARCHIVE CONSOLIDATION -->
+      <article class="lka-card" data-date="2026-09-26">
+        <div class="lka-meta">
+          <div class="lka-header-row">
+            <span class="lka-title">LastKnownAddress Master Architecture Online</span>
+            <span class="lka-id">LKA-SYS-2026-09-26</span>
+          </div>
+          <strong>SERIES:</strong> Master Archive Charter &bull;
+          <strong>DATE:</strong> Saturday, September 26, 2026 &bull;
+          <strong>NODE:</strong> Wrightwood / Barstow / Portland / Reno &bull;
+          <strong>AUTHOR:</strong> Bill Leendert Tonnesen (Barstow Bill Tonnesen)
+        </div>
+        <p>
+          Unified the digital repository for <strong>LastKnownAddress (<code>wallycad.com/lka</code>)</strong>, connecting autobiographical manuscripts—including <span class="highlight">The Golden Triangle</span>, <span class="highlight">The Traveler</span>, <span class="highlight">It Happened in Portland</span>, and <span class="highlight">The Setup</span>—with live field dispatches from the Highway 2 corridor and the <strong>WallyCAD</strong> engineering suite.
+        </p>
+      </article>
+
+      <!-- ENTRY #002: JULY 1998 - US-395 & THE 14 CROSSROADS -->
+      <article class="lka-card" data-date="1998-07-01">
+        <div class="lka-meta">
+          <div class="lka-header-row">
+            <span class="lka-title">The 395 Cutoff &amp; The 14 Crossroads</span>
+            <span class="lka-id">LKA-1998-395</span>
+          </div>
+          <strong>SERIES:</strong> LKA // The Traveler &bull;
+          <strong>ERA:</strong> July 1998 &bull;
+          <strong>NODE:</strong> Victorville to US-395 / China Lake Cutoff / Hwy 14 Crossroads (Kern, Inyo, Mono) &bull;
+          <strong>AUTHOR:</strong> Barstow Bill Tonnesen
+        </div>
+        <p>
+          I was working my way north in <strong>July 1998</strong>, eventually reaching <strong>Kern, Inyo, and Mono Counties</strong>. <span class="highlight">Victorville</span> wasn't working—desperately not.
+        </p>
+        <p>
+          Two on their way to work gave me a ride up <strong>US-395</strong> to the <span class="highlight">Ridgecrest / China Lake cutoff</span>. My water was hot as hell, and the roadside sign offered scant cover from the July sun.
+        </p>
+        <p>
+          A <strong>CHP</strong> pulled over after 45 minutes and drove me to the <span class="highlight">14 crossroads</span>. I bought water and continued...
+        </p>
+      </article>
+
+      <!-- ENTRY #001: 1965 - THE BEAUTY SALON (YOC SUNDAY GIG) -->
+      <article class="lka-card" data-date="1965-01-01">
+        <div class="lka-meta">
+          <div class="lka-header-row">
+            <span class="lka-title">The Beauty Salon</span>
+            <span class="lka-id">LKA-1965-YOC</span>
+          </div>
+          <strong>SERIES:</strong> LKA // Early Work Ledger &bull;
+          <strong>ERA:</strong> 1965 (Age 14) &bull;
+          <strong>NODE:</strong> Youth Opportunity Center (YOC) &bull;
+          <strong>AUTHOR:</strong> Barstow Bill Tonnesen
+        </div>
+        <p>
+          It was <strong>1965</strong>, and the writing was on the wall. Dad was drinking and delinquent, and the household margin was gone. Mom looked at me and said it plain: <span class="highlight">"Get a job."</span>
+        </p>
+        <p>
+          I went down to the <strong>YOC—the Youth Opportunity Center</strong>—and landed a Sunday gig at <span class="highlight">The Beauty Salon</span>. While the rest of the neighborhood had the weekend off, Sunday became a workday—earning my own keep at fourteen before I even had a driver's license.
+        </p>
+      </article>
+
+    </div>
+
+    <footer>
+      <div class="footer-links">
+        <a href="https://wallycad.com">wallycad.com</a>
+        <a href="https://wallycad.com/textbook">WallyCAD Textbook</a>
+        <a href="https://wallycad.com/r2">Route 2 (/r2)</a>
+        <a href="https://wallycad.com/lka">LastKnownAddress (/lka)</a>
+        <a href="https://wallycad.com/adventure-road">Adventure Road (ARMIKE)</a>
+        <a href="https://btlsp2000.tripod.com">btlsp2000.tripod.com</a>
+      </div>
+      <div>LASTKNOWNADDRESS MASTER ARCHIVE &bull; BILL LEENDERT TONNESEN (BARSTOW BILL TONNESEN)</div>
+    </footer>
+  </main>
+
+  <script>
+    let newestFirst = true;
+
+    function toggleHal() {
+      document.body.classList.toggle('hal-mode');
+      const isHal = document.body.classList.contains('hal-mode');
+      document.getElementById('halBtn').textContent = isHal ? 'HAL MODE: ON' : 'HAL MODE: OFF';
+    }
+
+    function toggleComposer() {
+      const panel = document.getElementById('composerPanel');
+      if (!panel) return;
+      panel.classList.toggle('open');
+      if (panel.classList.contains('open')) {
+        const now = new Date();
+        const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('newDate').value = now.toLocaleDateString('en-US', opts);
+        document.getElementById('newTitle').focus();
+      }
+    }
+
+    function quickFilter(term) {
+      const input = document.getElementById('searchInput');
+      input.value = term;
+      filterLka();
+    }
+
+    function filterLka() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('.lka-card').forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(q) ? 'block' : 'none';
+      });
+    }
+
+    function reverseChronology() {
+      const stack = document.getElementById('lkaStack');
+      const cards = Array.from(stack.children);
+      cards.reverse().forEach(card => stack.appendChild(card));
+      newestFirst = !newestFirst;
+      document.getElementById('sortBtn').textContent = newestFirst
+        ? 'ORDER: NEWEST FIRST'
+        : 'ORDER: OLDEST FIRST';
+    }
+
+    function downloadUpdatedArchive() {
+      const panel = document.getElementById('composerPanel');
+      if (panel) panel.classList.remove('open');
+      const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'lka_index.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // =========================================================================
+    // MICROSOFT WORD 5.5" x 8.5" HALF-LETTER BOOKLET COMPILER (.DOC)
+    // =========================================================================
+    function exportWordBooklet() {
+      const stackHtml = document.getElementById('lkaStack').innerHTML;
+      const wordDoc = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+  <meta charset="UTF-8">
+  <title>LastKnownAddress Booklet - Barstow Bill Tonnesen</title>
+  <style>
+    @page Section1 {
+      size: 5.5in 8.5in;
+      margin: 0.5in 0.45in 0.55in 0.65in;
+      mso-header-margin: 0.3in;
+      mso-footer-margin: 0.3in;
+    }
+    div.Section1 { page: Section1; }
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 10.5pt;
+      line-height: 1.48;
+      color: #000000;
+    }
+    .title-page {
+      text-align: center;
+      padding-top: 1.6in;
+      page-break-after: always;
+    }
+    .title-page h1 {
+      font-family: 'Courier New', monospace;
+      font-size: 18pt;
+      letter-spacing: 1px;
+      margin-bottom: 8pt;
+    }
+    .title-page h2 {
+      font-size: 12pt;
+      font-weight: normal;
+      font-style: italic;
+      margin-bottom: 24pt;
+    }
+    .title-page .author {
+      font-family: 'Courier New', monospace;
+      font-size: 11pt;
+      font-weight: bold;
+      margin-top: 36pt;
+    }
+    .lka-card {
+      margin-bottom: 18pt;
+      padding-bottom: 12pt;
+      border-bottom: 1pt solid #000000;
+      page-break-inside: avoid;
+    }
+    .lka-header-row {
+      margin-bottom: 4pt;
+    }
+    .lka-title {
+      font-family: 'Courier New', monospace;
+      font-size: 12.5pt;
+      font-weight: bold;
+      display: block;
+    }
+    .lka-id {
+      font-family: 'Courier New', monospace;
+      font-size: 8.5pt;
+      color: #333333;
+    }
+    .lka-meta {
+      font-family: 'Courier New', monospace;
+      font-size: 8.5pt;
+      margin-bottom: 8pt;
+      padding-bottom: 4pt;
+      border-bottom: 0.5pt dashed #666666;
+    }
+    p {
+      margin-top: 0;
+      margin-bottom: 8pt;
+      text-align: justify;
+    }
+    .highlight {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="Section1">
+    <div class="title-page">
+      <h1>LASTKNOWNADDRESS</h1>
+      <h2>Master Memoir &amp; Field Repository Across the Western Transit Grid</h2>
+      <p style="text-align:center; font-size:9.5pt;">
+        The Golden Triangle &bull; The Traveler &bull; It Happened in Portland &bull; The Setup &bull; Route 2 Dispatches
+      </p>
+      <div class="author">
+        BY BILL LEENDERT TONNESEN<br>
+        (BARSTOW BILL TONNESEN)<br><br>
+        wallycad.com/lka
+      </div>
+    </div>
+    ${stackHtml}
+  </div>
+</body>
+</html>`;
+
+      const blob = new Blob(['\ufeff', wordDoc], { type: 'application/msword;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'LastKnownAddress_Booklet.doc';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
