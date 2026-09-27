@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WALLYCAD v.14 — Master Workstation</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #0b1120;
+      color: #f8fafc;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .toolbar {
+      background: #0f172a;
+      border-bottom: 1px solid #334155;
+      padding: 8px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+    }
+    .toolbar label { display: flex; align-items: center; gap: 5px; color: #94a3b8; }
+    select, input[type="text"], input[type="number"] {
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid #475569;
+      font-family: monospace;
+      padding: 4px 6px;
+      font-size: 13px;
+    }
+    button {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #38bdf8;
+      font-family: monospace;
+      font-weight: bold;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    button:hover { background: #38bdf8; color: #0b1120; }
+    button.gold { border-color: #fbbf24; color: #fbbf24; }
+    button.gold:hover { background: #fbbf24; color: #0b1120; }
+    .workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .canvas-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #070c18;
+      padding: 10px;
+      position: relative;
+    }
+    canvas {
+      background: #090e1a;
+      border: 1px solid #334155;
+      max-width: 100%;
+      max-height: 100%;
+      cursor: crosshair;
+    }
+    .side-panel {
+      width: 320px;
+      background: #0f172a;
+      border-left: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      gap: 8px;
+    }
+    textarea {
+      flex: 1;
+      background: #070c18;
+      color: #38bdf8;
+      border: 1px solid #334155;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 8px;
+      resize: none;
+    }
+    .status-bar {
+      background: #1e293b;
+      border-top: 1px solid #334155;
+      padding: 5px 12px;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      color: #cbd5e1;
+    }
+    .toast {
+      color: #fbbf24;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP TOOLBAR -->
+<div class="toolbar">
+  <strong style="color:#38bdf8; font-size:14px;">WALLYCAD V.14</strong>
+
+  <label>FOLDER:
+    <select id="folderSelect" onchange="switchFolder(this.value)">
+      <option value="CARDS">CARDS</option>
+      <option value="WIB">WIB</option>
+      <option value="TRAILER" selected>TRAILER</option>
+      <option value="STANDALONES">STANDALONES</option>
+    </select>
+  </label>
+
+  <label>TITLE:
+    <input type="text" id="titleInput" value="RETRACTABLE TRAILER STAIR" oninput="redraw()" style="width:195px; color:#fff;">
+  </label>
+
+  <label>SNAP:
+    <input type="number" id="snapInput" value="1" step="0.25" min="0.1" style="width:58px;">
+  </label>
+
+  <label style="cursor:pointer; color:#f8fafc;">
+    <input type="checkbox" id="tbToggle" checked onchange="redraw()"> BORDER/TB
+  </label>
+
+  <button onclick="exportWallyTuples()">.WALLY TUPLES</button>
+  <button class="gold" onclick="exportDXF()">EXPORT .DXF</button>
+</div>
+
+<!-- MAIN DUAL-PANE WORKSPACE -->
+<div class="workspace">
+  <div class="canvas-wrap">
+    <canvas id="cadCanvas" width="1200" height="800"></canvas>
+  </div>
+
+  <div class="side-panel">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <strong>.WALLY TUPLES [X1,Y1,X2,Y2]</strong>
+      <button onclick="applyTuplesFromEditor()">PLOT</button>
+    </div>
+    <textarea id="tupleEditor" spellcheck="false"></textarea>
+    <div style="font-size:11px; color:#94a3b8;">
+      Click canvas to SNAP &amp; COPY X,Y to clipboard.<br>
+      Format: <code>X1,Y1,X2,Y2</code> or <code>ARC:CX,CY,R,A1,A2</code>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM STATUS BAR -->
+<div class="status-bar">
+  <span id="cursorReadout">CURSOR: X = 0.00, Y = 0.00</span>
+  <span id="clipboardToast" class="toast">READY — CLICK CANVAS TO SNAP COORDS TO CLIPBOARD</span>
+  <span>AUTHOR: BILL TONNESEN // SQFONT 5x5 ENGINE</span>
+</div>
+
+<script>
+// ============================================================================
+// 1. 5x5 SQFONT VECTOR DICTIONARY (A-Z, 0-9, SYMBOLS)
+// ============================================================================
+const SQFONT = {
+  'A': [[0,0,0,3],[0,3,1,4],[1,4,3,4],[3,4,4,3],[4,3,4,0],[0,2,4,2]],
+  'B': [[0,0,0,4],[0,4,3,4],[3,4,4,3],[4,3,3,2],[3,2,0,2],[3,2,4,1],[4,1,3,0],[3,0,0,0]],
+  'C': [[4,1,3,0],[3,0,1,0],[1,0,0,1],[0,1,0,3],[0,3,1,4],[1,4,3,4],[3,4,4,3]],
+  'D': [[0,0,0,4],[0,4,2,4],[2,4,4,2],[4,2,2,0],[2,0,0,0]],
+  'E': [[4,0,0,0],[0,0,0,4],[0,4,4,4],[0,2,3,2]],
+  'F': [[0,0,0,4],[0,4,4,4],[0,2,3,2]],
+  'G': [[4,3,3,4],[3,4,1,4],[1,4,0,3],[0,3,0,1],[0,1,1,0],[1,0,4,0],[4,0,4,2],[4,2,2,2]],
+  'H': [[0,0,0,4],[4,0,4,4],[0,2,4,2]],
+  'I': [[1,0,3,0],[2,0,2,4],[1,4,3,4]],
+  'J': [[0,1,1,0],[1,0,3,0],[3,0,4,1],[4,1,4,4]],
+  'K': [[0,0,0,4],[4,4,0,2],[0,2,4,0]],
+  'L': [[0,4,0,0],[0,0,4,0]],
+  'M': [[0,0,0,4],[0,4,2,2],[2,2,4,4],[4,4,4,0]],
+  'N': [[0,0,0,4],[0,4,4,0],[4,0,4,4]],
+  'O': [[1,0,3,0],[3,0,4,1],[4,1,4,3],[4,3,3,4],[3,4,1,4],[1,4,0,3],[0,3,0,1],[0,1,1,0]],
+  'P': [[0,0,0,4],[0,4,3,4],[3,4,4,3],[4,3,3,2],[3,2,0,2]],
+  'Q': [[1,0,3,0],[3,0,4,1],[4,1,4,3],[4,3,3,4],[3,4,1,4],[1,4,0,3],[0,3,0,1],[0,1,1,0],[2,1,4,0]],
+  'R': [[0,0,0,4],[0,4,3,4],[3,4,4,3],[4,3,3,2],[3,2,0,2],[2,2,4,0]],
+  'S': [[0,1,1,0],[1,0,3,0],[3,0,4,1],[4,1,0,3],[0,3,1,4],[1,4,3,4],[3,4,4,3]],
+  'T': [[0,4,4,4],[2,0,2,4]],
+  'U': [[0,4,0,1],[0,1,1,0],[1,0,3,0],[3,0,4,1],[4,1,4,4]],
+  'V': [[0,4,2,0],[2,0,4,4]],
+  'W': [[0,4,0,0],[0,0,2,2],[2,2,4,0],[4,0,4,4]],
+  'X': [[0,0,4,4],[0,4,4,0]],
+  'Y': [[0,4,2,2],[4,4,2,2],[2,2,2,0]],
+  'Z': [[0,4,4,4],[4,4,0,0],[0,0,4,0]],
+  '0': [[1,0,3,0],[3,0,4,1],[4,1,4,3],[4,3,3,4],[3,4,1,4],[1,4,0,3],[0,3,0,1],[0,1,1,0],[0,1,4,3]],
+  '1': [[1,3,2,4],[2,4,2,0],[1,0,3,0]],
+  '2': [[0,3,1,4],[1,4,3,4],[3,4,4,3],[4,3,0,0],[0,0,4,0]],
+  '3': [[0,4,4,4],[4,4,2,2],[2,2,4,1],[4,1,3,0],[3,0,0,0]],
+  '4': [[0,4,0,2],[0,2,4,2],[3,4,3,0]],
+  '5': [[4,4,0,4],[0,4,0,2],[0,2,3,2],[3,2,4,1],[4,1,3,0],[3,0,0,0]],
+  '6': [[4,4,1,4],[1,4,0,3],[0,3,0,1],[0,1,1,0],[1,0,3,0],[3,0,4,1],[4,1,3,2],[3,2,0,2]],
+  '7': [[0,4,4,4],[4,4,1,0]],
+  '8': [[1,0,3,0],[3,0,4,1],[4,1,0,3],[0,3,1,4],[1,4,3,4],[3,4,4,3],[4,3,0,1],[0,1,1,0]],
+  '9': [[0,0,3,0],[3,0,4,1],[4,1,4,3],[4,3,3,4],[3,4,1,4],[1,4,0,3],[0,3,1,2],[1,2,4,2]],
+  '-': [[1,2,3,2]],
+  ':': [[2,1,2,1.5],[2,2.5,2,3]],
+  '.': [[2,0,2,0.6]],
+  '/': [[0,0,4,4]],
+  '=': [[1,1.3,3,1.3],[1,2.7,3,2.7]],
+  ' ': []
+};
+
+// ============================================================================
+// 2. WORLD / SCREEN TRANSFORM & DEDICATED FOLDER PRESETS
+// ============================================================================
+const canvas = document.getElementById('cadCanvas');
+const ctx = canvas.getContext('2d');
+
+// World Coordinate System centered at (0, 15) with 6.5 px per inch
+const VIEW = {
+  originX: 600,
+  originY: 500,
+  scale: 6.5
+};
+
+function worldToScreen(wx, wy) {
+  return {
+    x: VIEW.originX + wx * VIEW.scale,
+    y: VIEW.originY - wy * VIEW.scale
+  };
+}
+
+function screenToWorld(px, py) {
+  return {
+    x: (px - VIEW.originX) / VIEW.scale,
+    y: (VIEW.originY - py) / VIEW.scale
+  };
+}
+
+const FOLDER_PRESETS = {
+  "TRAILER": {
+    title: "RETRACTABLE TRAILER STAIR",
+    tuples: [
+      "# MAIN 108x54 BOX & CENTERLINES (ORIGIN 0,0)",
+      "-54,-18,54,-18",
+      "54,-18,54,36",
+      "54,36,-54,36",
+      "-54,36,-54,-18",
+      "-60,0,60,0",
+      "0,-24,0,64",
+      "# PLATFORM (22 WIDE, PIN AT -32,36) & UNFOLDED STAIR (7-11-7-11-7 = 43)",
+      "-54,36,-54,60",
+      "-54,60,11,60",
+      "-32,36,-32,60",
+      "-25,36,-25,60",
+      "-14,36,-14,60",
+      "-7,36,-7,60",
+      "4,36,4,60",
+      "11,36,11,60",
+      "# DIAGONALS & R=60 TRAILER SIDE ARCH",
+      "-54,-18,54,36",
+      "-54,36,54,-18",
+      "ARC:0,0,60,0,180"
+    ].join("\n")
+  },
+  "CARDS": {
+    title: "ARCHITECTURAL CARD SERIES",
+    tuples: [
+      "# CARD FRAME OUTER & INNER BORDER",
+      "-25,-10,25,-10",
+      "25,-10,25,50",
+      "25,50,-25,50",
+      "-25,50,-25,-10",
+      "-22,-7,22,-7",
+      "22,-7,22,47",
+      "22,47,-22,47",
+      "-22,47,-22,-7"
+    ].join("\n")
+  },
+  "WIB": {
+    title: "WHERE IS BILL TRANSIT GRID",
+    tuples: [
+      "# REGIONAL TRANSIT HEX / NODE MATRIX",
+      "-40,0,40,0",
+      "0,-15,0,55",
+      "-40,20,40,20",
+      "-20,-15,-20,55",
+      "20,-15,20,55",
+      "ARC:0,20,28,0,360"
+    ].join("\n")
+  },
+  "STANDALONES": {
+    title: "STANDALONE GEOMETRY MODULE",
+    tuples: [
+      "-45,0,45,0",
+      "0,-15,0,55",
+      "ARC:0,20,30,0,360"
+    ].join("\n")
+  }
+};
+
+// ============================================================================
+// 3. SQFONT WORLD-SPACE RENDERER & BORDER / TITLE BLOCK GENERATOR
+// ============================================================================
+function drawSqWorld(text, wx, wy, heightWorld, color = "#ffffff", step = 5.5) {
+  const str = String(text).toUpperCase();
+  const unit = heightWorld / 4.0;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.6;
+  ctx.lineCap = "round";
+
+  for (let i = 0; i < str.length; i++) {
+    const strokes = SQFONT[str[i]] || [];
+    const charX = wx + i * step * unit;
+    for (const [x1, y1, x2, y2] of strokes) {
+      const p1 = worldToScreen(charX + x1 * unit, wy + y1 * unit);
+      const p2 = worldToScreen(charX + x2 * unit, wy + y2 * unit);
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+function getBorderTuples() {
+  // Sheet envelope in World Units: X from -88 to +88, Y from -34 to +72
+  const xL = -88, xR = 88, yB = -34, yT = 72;
+  const tbL = 28, tbT = -10; // Lower-right Title Block
+  return [
+    [xL, yB, xR, yB], [xR, yB, xR, yT], [xR, yT, xL, yT], [xL, yT, xL, yB],
+    [xL+1.5, yB+1.5, xR-1.5, yB+1.5], [xR-1.5, yB+1.5, xR-1.5, yT-1.5],
+    [xR-1.5, yT-1.5, xL+1.5, yT-1.5], [xL+1.5, yT-1.5, xL+1.5, yB+1.5],
+    // Title block dividers
+    [tbL, yB+1.5, tbL, tbT],
+    [tbL, tbT, xR-1.5, tbT],
+    [tbL, -16, xR-1.5, -16],
+    [tbL, -22, xR-1.5, -22],
+    [tbL, -28, xR-1.5, -28],
+    [58, yB+1.5, 58, -22]
+  ];
+}
+
+// ============================================================================
+// 4. MAIN RENDER PIPELINE
+// ============================================================================
+let activeSegments = [];
+let activeArcs = [];
+
+function parseEditorTuples() {
+  activeSegments = [];
+  activeArcs = [];
+  const lines = document.getElementById('tupleEditor').value.split('\n');
+  for (let raw of lines) {
+    const line = raw.trim();
+    if (!line || line.startsWith('#')) continue;
+    if (line.toUpperCase().startsWith('ARC:')) {
+      const p = line.slice(4).split(',').map(Number);
+      if (p.length >= 5 && !p.some(isNaN)) {
+        activeArcs.push({ cx: p[0], cy: p[1], r: p[2], a1: p[3], a2: p[4] });
+      }
+    } else {
+      const p = line.split(',').map(Number);
+      if (p.length >= 4 && !p.some(isNaN)) {
+        activeSegments.push([p[0], p[1], p[2], p[3]]);
+      }
+    }
+  }
+}
+
+function redraw() {
+  parseEditorTuples();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // 1. Subtle 10-unit World Grid
+  ctx.strokeStyle = "rgba(56, 189, 248, 0.08)";
+  ctx.lineWidth = 1;
+  for (let gx = -80; gx <= 80; gx += 10) {
+    const p1 = worldToScreen(gx, -30), p2 = worldToScreen(gx, 70);
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  }
+  for (let gy = -30; gy <= 70; gy += 10) {
+    const p1 = worldToScreen(-80, gy), p2 = worldToScreen(80, gy);
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  }
+
+  // 2. Plot Active Geometry Segments
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 2;
+  for (const [x1, y1, x2, y2] of activeSegments) {
+    const p1 = worldToScreen(x1, y1), p2 = worldToScreen(x2, y2);
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  }
+
+  // 3. Plot Active Arcs
+  ctx.strokeStyle = "#fbbf24";
+  ctx.lineWidth = 2;
+  for (const a of activeArcs) {
+    const c = worldToScreen(a.cx, a.cy);
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, a.r * VIEW.scale, -a.a2 * Math.PI / 180, -a.a1 * Math.PI / 180);
+    ctx.stroke();
+  }
+
+  // 4. Key Callout Nodes on Trailer Drawing
+  if (document.getElementById('folderSelect').value === "TRAILER") {
+    drawSqWorld("-32,36 PLATFORM", -53, 40, 2.5, "#38bdf8");
+    drawSqWorld("R=60", 32, 52, 2.8, "#fbbf24");
+  }
+
+  // 5. Render Border & Title Block (if enabled)
+  if (document.getElementById('tbToggle').checked) {
+    const tbLines = getBorderTuples();
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 1.8;
+    for (const [x1, y1, x2, y2] of tbLines) {
+      const p1 = worldToScreen(x1, y1), p2 = worldToScreen(x2, y2);
+      ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+    }
+
+    const folder = document.getElementById('folderSelect').value;
+    const title = document.getElementById('titleInput').value || "UNTITLED";
+    const dateStr = new Date().toISOString().slice(0, 10);
+
+    drawSqWorld(`WALLYCAD V.14 // ${folder}`, 30, -14.2, 2.4, "#38bdf8");
+    drawSqWorld(title.slice(0, 24), 30, -20.2, 2.4, "#ffffff");
+    drawSqWorld("BY: BILL TONNESEN", 30, -26.2, 2.2, "#fbbf24");
+    drawSqWorld(`DATE: ${dateStr}`, 60, -26.2, 2.0, "#94a3b8");
+    drawSqWorld("UNITS: INCHES", 30, -31.5, 2.0, "#94a3b8");
+    drawSqWorld("SHT 1 OF 1", 60, -31.5, 2.2, "#ffffff");
+  }
+}
+
+// ============================================================================
+// 5. SNAP COORD'S TO CLIPBOARD ON CLICK
+// ============================================================================
+function getSnappedWorldCoords(e) {
+  const rect = canvas.getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const w = screenToWorld(px, py);
+  const snap = parseFloat(document.getElementById('snapInput').value) || 1;
+  return {
+    x: +(Math.round(w.x / snap) * snap).toFixed(4),
+    y: +(Math.round(w.y / snap) * snap).toFixed(4)
+  };
+}
+
+canvas.addEventListener('mousemove', (e) => {
+  const pt = getSnappedWorldCoords(e);
+  document.getElementById('cursorReadout').textContent = `CURSOR (SNAPPED): X = ${pt.x}, Y = ${pt.y}`;
+});
+
+canvas.addEventListener('click', async (e) => {
+  const pt = getSnappedWorldCoords(e);
+  const coordStr = `${pt.x},${pt.y}`;
+  try {
+    await navigator.clipboard.writeText(coordStr);
+  } catch (err) {
+    const tmp = document.createElement('textarea');
+    tmp.value = coordStr;
+    document.body.appendChild(tmp);
+    tmp.select();
+    document.execCommand('copy');
+    document.body.removeChild(tmp);
+  }
+  document.getElementById('clipboardToast').textContent = `COPIED TO CLIPBOARD: ${coordStr}`;
+});
+
+// ============================================================================
+// 6. EXPORT TO .WALLY TUPLES & AUTOCAD .DXF
+// ============================================================================
+function switchFolder(folder) {
+  const preset = FOLDER_PRESETS[folder];
+  if (preset) {
+    document.getElementById('titleInput').value = preset.title;
+    document.getElementById('tupleEditor').value = preset.tuples;
+    redraw();
+  }
+}
+
+function applyTuplesFromEditor() { redraw(); }
+
+async function exportWallyTuples() {
+  const text = document.getElementById('tupleEditor').value;
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (err) {}
+  document.getElementById('clipboardToast').textContent = `ALL .WALLY TUPLES COPIED TO CLIPBOARD`;
+}
+
+function exportDXF() {
+  parseEditorTuples();
+  const allLines = [...activeSegments];
+  if (document.getElementById('tbToggle').checked) {
+    allLines.push(...getBorderTuples());
+  }
+
+  let dxf = "0\nSECTION\n2\nENTITIES\n";
+  for (const [x1, y1, x2, y2] of allLines) {
+    dxf += `0\nLINE\n8\nWALLY_V14\n10\n${x1}\n20\n${y1}\n30\n0.0\n11\n${x2}\n21\n${y2}\n31\n0.0\n`;
+  }
+  for (const a of activeArcs) {
+    dxf += `0\nARC\n8\nWALLY_V14\n10\n${a.cx}\n20\n${a.cy}\n30\n0.0\n40\n${a.r}\n50\n${a.a1}\n51\n${a.a2}\n`;
+  }
+  dxf += "0\nENDSEC\n0\nEOF\n";
+
+  const folder = document.getElementById('folderSelect').value;
+  const blob = new Blob([dxf], { type: "application/dxf" });
+  const link = document.createElement("a");
+  link.download = `WALLYCAD_V14_${folder}.dxf`;
+  link.href = URL.createObjectURL(blob);
+  link.click();
+  document.getElementById('clipboardToast').textContent = `DOWNLOADED: WALLYCAD_V14_${folder}.dxf`;
+}
+
+// Initialize with TRAILER deck stair drawing
+switchFolder("TRAILER");
+</script>
+</body>
+</html>
