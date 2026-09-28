@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WALLYCAD v.14 — Live Click Mow Strip & Wall Engine</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: #0b1120; color: #f8fafc;
+      font-family: monospace; display: flex; flex-direction: column;
+      height: 100vh; overflow: hidden;
+    }
+    .toolbar {
+      background: #0f172a; border-bottom: 1px solid #334155;
+      padding: 8px 12px; display: flex; flex-wrap: wrap;
+      gap: 10px; align-items: center; font-size: 13px;
+    }
+    .toolbar label { display: flex; align-items: center; gap: 5px; color: #94a3b8; }
+    input[type="number"] {
+      background: #1e293b; color: #38bdf8; border: 1px solid #475569;
+      font-family: monospace; padding: 4px 6px; width: 62px;
+    }
+    button {
+      background: #1e293b; color: #f8fafc; border: 1px solid #38bdf8;
+      font-family: monospace; font-weight: bold; padding: 5px 10px;
+      cursor: pointer; font-size: 12px;
+    }
+    button:hover { background: #38bdf8; color: #0b1120; }
+    button.warn { border-color: #f87171; color: #f87171; }
+    button.warn:hover { background: #f87171; color: #0b1120; }
+    button.gold { border-color: #fbbf24; color: #fbbf24; }
+    button.gold:hover { background: #fbbf24; color: #0b1120; }
+    .workspace { display: flex; flex: 1; overflow: hidden; }
+    .canvas-wrap {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      background: #070c18; padding: 10px;
+    }
+    canvas {
+      background: #090e1a; border: 1px solid #334155;
+      max-width: 100%; max-height: 100%; cursor: crosshair;
+    }
+    .side-panel {
+      width: 330px; background: #0f172a; border-left: 1px solid #334155;
+      display: flex; flex-direction: column; padding: 10px; gap: 8px;
+    }
+    textarea {
+      flex: 1; background: #070c18; color: #38bdf8; border: 1px solid #334155;
+      font-family: monospace; font-size: 12px; padding: 8px; resize: none;
+    }
+    .status-bar {
+      background: #1e293b; border-top: 1px solid #334155;
+      padding: 5px 12px; font-size: 12px; display: flex;
+      justify-content: space-between; color: #cbd5e1;
+    }
+    .toast { color: #fbbf24; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div class="toolbar">
+  <strong style="color:#38bdf8;">WALLYCAD V.14 // MOW STRIP WALL</strong>
+
+  <label>STRIP WIDTH:
+    <input type="number" id="stripWidth" value="6" step="0.5" min="1" oninput="rebuildWall()">
+  </label>
+
+  <label>TICK OVERHANG:
+    <input type="number" id="tickExtra" value="3" step="0.5" min="0" oninput="rebuildWall()">
+  </label>
+
+  <label>SNAP:
+    <input type="number" id="snapGrid" value="1" step="0.25" min="0.1">
+  </label>
+
+  <label style="color:#f8fafc; cursor:pointer;">
+    <input type="checkbox" id="showCurbs" checked onchange="rebuildWall()"> CURB EDGES
+  </label>
+
+  <label style="color:#f8fafc; cursor:pointer;">
+    <input type="checkbox" id="showTicks" checked onchange="rebuildWall()"> CROSS-TICKS
+  </label>
+
+  <button onclick="undoNode()">UNDO NODE</button>
+  <button class="warn" onclick="clearSpine()">CLEAR</button>
+  <button onclick="copyTuples()">COPY .WALLY</button>
+  <button class="gold" onclick="exportDXF()">EXPORT .DXF</button>
+</div>
+
+<div class="workspace">
+  <div class="canvas-wrap">
+    <canvas id="c" width="1100" height="750"></canvas>
+  </div>
+
+  <div class="side-panel">
+    <strong>LIVE .WALLY TUPLES [X1,Y1,X2,Y2]</strong>
+    <textarea id="tupleOut" readonly></textarea>
+    <div style="font-size:11px; color:#94a3b8;">
+      • <b>Left-Click Canvas:</b> Add Mow Strip Center Node &amp; Copy X,Y to Clipboard<br>
+      • <b>Right-Click Canvas:</b> Undo Last Node
+    </div>
+  </div>
+</div>
+
+<div class="status-bar">
+  <span id="cursorPos">CURSOR: X = 0, Y = 0</span>
+  <span id="statusToast" class="toast">CLICK CANVAS TO PLACE FIRST MOW STRIP NODE</span>
+  <span id="nodeCount">NODES: 0</span>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+const VIEW = { originX: 550, originY: 375, scale: 6.0 };
+let spineNodes = [];
+let hoverPt = null;
+let generatedLines = []; // { x1, y1, x2, y2, layer }
+
+function worldToScreen(wx, wy) {
+  return { x: VIEW.originX + wx * VIEW.scale, y: VIEW.originY - wy * VIEW.scale };
+}
+
+function screenToWorld(px, py) {
+  return { x: (px - VIEW.originX) / VIEW.scale, y: (VIEW.originY - py) / VIEW.scale };
+}
+
+function getSnappedMouse(e) {
+  const rect = canvas.getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const w = screenToWorld(px, py);
+  const snap = parseFloat(document.getElementById('snapGrid').value) || 1;
+  return {
+    x: +(Math.round(w.x / snap) * snap).toFixed(2),
+    y: +(Math.round(w.y / snap) * snap).toFixed(2)
+  };
+}
+
+// ============================================================================
+// WALLYCAD WALL MITER & MOW STRIP SOLVER
+// ============================================================================
+function rebuildWall() {
+  generatedLines = [];
+  const width = parseFloat(document.getElementById('stripWidth').value) || 6.0;
+  const extra = parseFloat(document.getElementById('tickExtra').value) || 3.0;
+  const showCurbs = document.getElementById('showCurbs').checked;
+  const showTicks = document.getElementById('showTicks').checked;
+  const halfW = width / 2.0;
+
+  // 1. Centerline Spine Segments
+  for (let i = 0; i < spineNodes.length - 1; i++) {
+    generatedLines.push({
+      x1: spineNodes[i].x, y1: spineNodes[i].y,
+      x2: spineNodes[i+1].x, y2: spineNodes[i+1].y,
+      layer: "SPINE"
+    });
+  }
+
+  if (spineNodes.length >= 2) {
+    // 2. Unit Normals for Each Segment
+    const normals = [];
+    for (let i = 0; i < spineNodes.length - 1; i++) {
+      const dx = spineNodes[i+1].x - spineNodes[i].x;
+      const dy = spineNodes[i+1].y - spineNodes[i].y;
+      const len = Math.hypot(dx, dy) || 1;
+      normals.push({ nx: -dy / len, ny: dx / len });
+    }
+
+    // 3. Vertex Miter Vectors (Bisector Normals)
+    const leftPts = [];
+    const rightPts = [];
+
+    for (let i = 0; i < spineNodes.length; i++) {
+      let bx, by, k = 1.0;
+      if (i === 0) {
+        bx = normals[0].nx;
+        by = normals[0].ny;
+      } else if (i === spineNodes.length - 1) {
+        bx = normals[normals.length - 1].nx;
+        by = normals[normals.length - 1].ny;
+      } else {
+        const n1 = normals[i - 1], n2 = normals[i];
+        const sx = n1.nx + n2.nx, sy = n1.ny + n2.ny;
+        const sLen = Math.hypot(sx, sy) || 1;
+        bx = sx / sLen;
+        by = sy / sLen;
+        const dot = bx * n2.nx + by * n2.ny;
+        k = Math.min(Math.max(1 / (dot || 1), 0.5), 3.0);
+      }
+
+      const dCurb = halfW * k;
+      const dTick = (halfW + extra) * k;
+
+      leftPts.push({
+        x: +(spineNodes[i].x + bx * dCurb).toFixed(2),
+        y: +(spineNodes[i].y + by * dCurb).toFixed(2)
+      });
+      rightPts.push({
+        x: +(spineNodes[i].x - bx * dCurb).toFixed(2),
+        y: +(spineNodes[i].y - by * dCurb).toFixed(2)
+      });
+
+      if (showTicks) {
+        generatedLines.push({
+          x1: +(spineNodes[i].x - bx * dTick).toFixed(2),
+          y1: +(spineNodes[i].y - by * dTick).toFixed(2),
+          x2: +(spineNodes[i].x + bx * dTick).toFixed(2),
+          y2: +(spineNodes[i].y + by * dTick).toFixed(2),
+          layer: "TICK"
+        });
+      }
+    }
+
+    if (showCurbs) {
+      for (let i = 0; i < spineNodes.length - 1; i++) {
+        generatedLines.push({
+          x1: leftPts[i].x, y1: leftPts[i].y,
+          x2: leftPts[i+1].x, y2: leftPts[i+1].y,
+          layer: "CURB"
+        });
+        generatedLines.push({
+          x1: rightPts[i].x, y1: rightPts[i].y,
+          x2: rightPts[i+1].x, y2: rightPts[i+1].y,
+          layer: "CURB"
+        });
+      }
+    }
+  }
+
+  updateTupleBox();
+  drawCanvas();
+}
+
+function updateTupleBox() {
+  const out = ["# WALLYCAD V.14 — MOW STRIP / WALL TUPLES"];
+  for (const l of generatedLines) {
+    out.push(`${l.x1},${l.y1},${l.x2},${l.y2}`);
+  }
+  document.getElementById('tupleOut').value = out.join("\n");
+  document.getElementById('nodeCount').textContent = `NODES: ${spineNodes.length}`;
+}
+
+function drawCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Grid & Axes
+  ctx.strokeStyle = "rgba(56, 189, 248, 0.08)";
+  ctx.lineWidth = 1;
+  for (let gx = -90; gx <= 90; gx += 10) {
+    const p1 = worldToScreen(gx, -60), p2 = worldToScreen(gx, 60);
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  }
+  for (let gy = -60; gy <= 60; gy += 10) {
+    const p1 = worldToScreen(-90, gy), p2 = worldToScreen(90, gy);
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  }
+
+  // Origin Crosshair
+  ctx.strokeStyle = "rgba(251, 191, 36, 0.25)";
+  const ox1 = worldToScreen(-90, 0), ox2 = worldToScreen(90, 0);
+  const oy1 = worldToScreen(0, -60), oy2 = worldToScreen(0, 60);
+  ctx.beginPath();
+  ctx.moveTo(ox1.x, ox1.y); ctx.lineTo(ox2.x, ox2.y);
+  ctx.moveTo(oy1.x, oy1.y); ctx.lineTo(oy2.x, oy2.y);
+  ctx.stroke();
+
+  // Generated Wall, Spine & Cross-Tick Segments
+  for (const l of generatedLines) {
+    const p1 = worldToScreen(l.x1, l.y1);
+    const p2 = worldToScreen(l.x2, l.y2);
+    if (l.layer === "SPINE") {
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 2.5;
+    } else if (l.layer === "CURB") {
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.8;
+    } else {
+      ctx.strokeStyle = "#fbbf24";
+      ctx.lineWidth = 1.6;
+    }
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  }
+
+  // Station Node Circles
+  ctx.fillStyle = "#38bdf8";
+  for (const pt of spineNodes) {
+    const s = worldToScreen(pt.x, pt.y);
+    ctx.beginPath(); ctx.arc(s.x, s.y, 4, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Rubber-band Preview Line to Hover Cursor
+  if (hoverPt && spineNodes.length > 0) {
+    const last = worldToScreen(spineNodes[spineNodes.length - 1].x, spineNodes[spineNodes.length - 1].y);
+    const cur = worldToScreen(hoverPt.x, hoverPt.y);
+    ctx.save();
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = "rgba(56, 189, 248, 0.65)";
+    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(cur.x, cur.y); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// ============================================================================
+// INTERACTIVE MOUSE & CLIPBOARD HANDLERS
+// ============================================================================
+canvas.addEventListener('mousemove', (e) => {
+  hoverPt = getSnappedMouse(e);
+  document.getElementById('cursorPos').textContent = `CURSOR: X = ${hoverPt.x}, Y = ${hoverPt.y}`;
+  drawCanvas();
+});
+
+canvas.addEventListener('click', async (e) => {
+  const pt = getSnappedMouse(e);
+  spineNodes.push(pt);
+  rebuildWall();
+
+  // Snap Coord's to Clipboard
+  const coordStr = `${pt.x},${pt.y}`;
+  try {
+    await navigator.clipboard.writeText(coordStr);
+  } catch (err) {
+    const t = document.createElement('textarea');
+    t.value = coordStr; document.body.appendChild(t);
+    t.select(); document.execCommand('copy'); document.body.removeChild(t);
+  }
+  document.getElementById('statusToast').textContent = `NODE ADDED & COPIED TO CLIPBOARD: ${coordStr}`;
+});
+
+canvas.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  undoNode();
+});
+
+function undoNode() {
+  spineNodes.pop();
+  rebuildWall();
+  document.getElementById('statusToast').textContent = `LAST NODE REMOVED`;
+}
+
+function clearSpine() {
+  spineNodes = [];
+  rebuildWall();
+  document.getElementById('statusToast').textContent = `SPINE CLEARED — CLICK CANVAS TO START`;
+}
+
+async function copyTuples() {
+  const txt = document.getElementById('tupleOut').value;
+  try { await navigator.clipboard.writeText(txt); } catch (e) {}
+  document.getElementById('statusToast').textContent = `ALL MOW STRIP TUPLES COPIED TO CLIPBOARD`;
+}
+
+function exportDXF() {
+  let dxf = "0\nSECTION\n2\nENTITIES\n";
+  for (const l of generatedLines) {
+    dxf += `0\nLINE\n8\nMOW_${l.layer}\n10\n${l.x1}\n20\n${l.y1}\n30\n0.0\n11\n${l.x2}\n21\n${l.y2}\n31\n0.0\n`;
+  }
+  dxf += "0\nENDSEC\n0\nEOF\n";
+  const blob = new Blob([dxf], { type: "application/dxf" });
+  const a = document.createElement("a");
+  a.download = "WALLYCAD_MOW_STRIP.dxf";
+  a.href = URL.createObjectURL(blob);
+  a.click();
+}
+
+rebuildWall();
+</script>
+</body>
+</html>
