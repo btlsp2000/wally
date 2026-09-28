@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WallyCAD Studio: Native PARABOLA Macro, QC 5x5 Deck & DXF Compiler</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-alt: #1f2733;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #00d2ff;
+      --accent-alt: #3fb950;
+      --parabola: #ff7b72;
+      --warn: #f0883e;
+      --danger: #ff5555;
+      --select: #ff00ff;
+      --border: #30363d;
+      --code-bg: #070a0e;
+      --prime9-bg: rgba(0, 210, 255, 0.14);
+      --prime9-border: #00d2ff;
+      --font-mono: 'Courier New', Courier, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body.hal-mode {
+      --bg: #000000;
+      --panel: #050505;
+      --panel-alt: #0f0f0f;
+      --text: #ffffff;
+      --muted: #ffea00;
+      --accent: #00ff66;
+      --accent-alt: #ff0055;
+      --parabola: #00ffff;
+      --warn: #ffea00;
+      --danger: #ff0055;
+      --select: #ffffff;
+      --border: #00ff66;
+      --code-bg: #000000;
+      --prime9-bg: rgba(255, 234, 0, 0.22);
+      --prime9-border: #ffea00;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      padding-bottom: 3rem;
+    }
+
+    header {
+      background: var(--panel);
+      border-bottom: 2px solid var(--border);
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-badge {
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-mono);
+      font-weight: 900;
+      padding: 0.35rem 0.6rem;
+      border-radius: 4px;
+      letter-spacing: 1px;
+      font-size: 0.92rem;
+    }
+
+    .brand h1 {
+      font-size: 1.08rem;
+      font-weight: 700;
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+
+    .header-controls, .toolbar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.38rem 0.7rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-accent {
+      background: rgba(0, 210, 255, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-dxf {
+      background: rgba(63, 185, 80, 0.18);
+      border-color: var(--accent-alt);
+      color: var(--accent-alt);
+    }
+
+    .btn-danger {
+      background: rgba(255, 85, 85, 0.15);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .btn-hal {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    main {
+      max-width: 1420px;
+      margin: 1.15rem auto;
+      padding: 0 1.25rem;
+    }
+
+    .studio-layout {
+      display: grid;
+      grid-template-columns: 320px 360px 1fr;
+      gap: 1.05rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1140px) {
+      .studio-layout {
+        grid-template-columns: 1fr 1fr;
+      }
+      .canvas-card {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .studio-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.95rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
+
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.38rem;
+      background: var(--code-bg);
+      padding: 0.65rem;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+    }
+
+    .matrix-cell {
+      aspect-ratio: 1 / 1;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      padding: 0.15rem;
+      text-align: center;
+    }
+
+    .matrix-cell:hover {
+      border-color: var(--accent);
+    }
+
+    .matrix-cell.prime9 {
+      background: var(--prime9-bg);
+      border: 1.5px solid var(--prime9-border);
+    }
+
+    .matrix-cell.home-node {
+      box-shadow: inset 0 0 0 2px var(--accent-alt);
+    }
+
+    .matrix-cell.parabola-node {
+      border: 1.5px solid var(--parabola);
+      background: rgba(255, 123, 114, 0.15);
+    }
+
+    .cell-coord {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      color: var(--muted);
+    }
+
+    .cell-key {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 0.1rem;
+    }
+
+    .cli-terminal {
+      width: 100%;
+      height: 310px;
+      background: var(--code-bg);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.7rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      resize: vertical;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      width: 100%;
+      background: var(--code-bg);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    #wallyCanvas {
+      display: block;
+      width: 100%;
+      height: 440px;
+      cursor: pointer;
+    }
+
+    .canvas-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.48rem 0.75rem;
+      background: var(--panel-alt);
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--muted);
+    }
+
+    .hud-stat {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .property-matrix {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 4px;
+      padding: 0.65rem 0.8rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .property-matrix.selected-active {
+      border-left-color: var(--warn);
+      background: rgba(240, 136, 62, 0.08);
+    }
+
+    .prop-edit-input {
+      background: var(--panel);
+      color: var(--warn);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.28rem 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      min-width: 210px;
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <input type="file" id="wallyFileInput" accept=".wally,.txt" style="display:none" onchange="handleWallyFileOpen(event)" />
+
+  <header>
+    <div class="brand">
+      <span class="brand-badge">WALLYCAD</span>
+      <div>
+        <h1>WallyCAD Studio: Native PARABOLA Solver ($y = x^2$)</h1>
+        <div class="brand-sub">Syntax: PARABOLA VX,VY Xmin Xmax [Scale] [Steps] &bull; Fractional Node &amp; Uniform Modes</div>
+      </div>
+    </div>
+    <div class="header-controls">
+      <button class="btn btn-accent" onclick="saveWallyFile()">SAVE .WALLY</button>
+      <button class="btn" onclick="triggerWallyFileOpen()">OPEN .WALLY</button>
+      <button class="btn btn-dxf" onclick="compileAndDownloadDXF()">EXPORT .DXF</button>
+      <button class="btn btn-hal" onclick="toggleHalMode()" id="halBtn">HAL MODE: OFF</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="studio-layout">
+      <!-- Column 1: QuickClick 5x5 Matrix -->
+      <div class="card">
+        <div class="card-title">
+          <span>QuickClick (QC) 5x5 Deck</span>
+          <div class="toolbar-row">
+            <button class="btn" onclick="setQcDeck('macro')">MACRO</button>
+            <button class="btn" onclick="setQcDeck('coord')">COORD</button>
+          </div>
+        </div>
+        <p style="font-size:0.76rem; color:var(--muted);">
+          Tap <strong><code>(1,4) PARABOLA</code></strong> to spawn a $y=x^2$ curve, or click any curve on the canvas to inspect its nodes in the Property Data Matrix.
+        </p>
+        <div class="matrix-grid" id="qcGrid"></div>
+      </div>
+
+      <!-- Column 2: Live .WALLY Script Scratchpad -->
+      <div class="card">
+        <div class="card-title">
+          <span>.WALLY Script Scratchpad</span>
+          <div class="toolbar-row">
+            <button class="btn btn-accent" onclick="loadPreset('notebook16')">16x Clipboard</button>
+            <button class="btn" onclick="loadPreset('true1')">1:1 True Scale</button>
+            <button class="btn" onclick="loadPreset('room')">Room + Arch</button>
+            <button class="btn" onclick="clearScratchpad()">CLEAR</button>
+          </div>
+        </div>
+        <textarea id="cliScratchpad" class="cli-terminal" spellcheck="false" oninput="onScratchpadEdit()">SCRIPT
+# CLIPBOARD PARABOLA y = x^2 (16x GRID SCALE)
+# X-AXIS & Y-AXIS DATUMS
+LINE -24,0 40,0
+LINE 0,-8 0,70
+
+# NATIVE PARABOLA MACRO (VX,VY Xmin Xmax Scale)
+PARABOLA 0,0 -1 2 16
+
+# 1/4-UNIT VERTICAL TICKS AT X = 3/2 (X=24, Y=4..36)
+LINE 23,4 25,4
+LINE 23,8 25,8
+LINE 23,12 25,12
+LINE 23,16 25,16
+LINE 23,20 25,20
+LINE 23,24 25,24
+LINE 23,28 25,28
+LINE 23,32 25,32
+LINE 23,36 25,36
+
+# NODE LABELS FROM TABLE
+TEXT 5,1 N1 (1/4, 1/16)
+TEXT 9,4 N2 (1/2, 1/4)
+TEXT 17,16 N3 (1, 1)
+TEXT 26,36 N5 (3/2, 9/4)
+TEXT 33,64 N6 (2, 4)
+ZOOM E</textarea>
+      </div>
+
+      <!-- Column 3: Live HTML5 Canvas Viewport -->
+      <div class="card canvas-card">
+        <div class="card-title">
+          <span>Interactive Cartesian Viewport (Click Parabola or Any Vector to Inspect)</span>
+          <div class="toolbar-row">
+            <button class="btn" onclick="toggleGrid()" id="gridBtn">GRID: ON</button>
+            <button class="btn btn-danger" onclick="eraseSelectedEntity()">ERASE SELECTED (DEL)</button>
+            <button class="btn btn-dxf" onclick="compileAndDownloadDXF()">DOWNLOAD .DXF</button>
+          </div>
+        </div>
+
+        <div class="property-matrix" id="propMatrixBar">
+          <div>
+            <strong>PROPERTY DATA MATRIX:</strong>
+            <span id="propSummary" style="color:var(--muted);">Click the parabola or any vector on the canvas to inspect coordinates and chord length.</span>
+          </div>
+          <div id="propEditorControls" style="display:none; align-items:center; gap:0.4rem; flex-wrap:wrap; width:100%;">
+            <span class="tag" id="propLineTag">LINE #1</span>
+            <input type="text" id="propCommandInput" class="prop-edit-input" oninput="updateSelectedEntityCommand(this.value)" />
+            <button class="btn btn-danger" onclick="eraseSelectedEntity()">ERASE (DEL)</button>
+            <button class="btn" onclick="clearSelection()">DESELECT</button>
+          </div>
+        </div>
+
+        <div class="canvas-wrapper">
+          <canvas id="wallyCanvas" width="760" height="440"></canvas>
+          <div class="canvas-hud">
+            <span>CURSOR: <span class="hud-stat" id="cursorReadout">X: 0.0, Y: 0.0</span></span>
+            <span>TUPLES: <span class="hud-stat" id="entityCount">0</span></span>
+            <span>EXTENTS: <span class="hud-stat" id="extentsReadout">0,0 to 32,64</span></span>
+            <span>STATUS: <span class="hud-stat" id="dxfStatus">READY</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const presets = {
+      notebook16: `SCRIPT
+# CLIPBOARD PARABOLA y = x^2 (16x GRID SCALE)
+LINE -24,0 40,0
+LINE 0,-8 0,70
+PARABOLA 0,0 -1 2 16
+LINE 23,4 25,4
+LINE 23,8 25,8
+LINE 23,12 25,12
+LINE 23,16 25,16
+LINE 23,20 25,20
+LINE 23,24 25,24
+LINE 23,28 25,28
+LINE 23,32 25,32
+LINE 23,36 25,36
+TEXT 5,1 N1 (1/4, 1/16)
+TEXT 9,4 N2 (1/2, 1/4)
+TEXT 17,16 N3 (1, 1)
+TEXT 26,36 N5 (3/2, 9/4)
+TEXT 33,64 N6 (2, 4)
+ZOOM E`,
+      true1: `SCRIPT
+# TRUE 1:1 FRACTIONAL SCALE (y = x^2)
+LINE -1.5,0 2.5,0
+LINE 0,-0.5 0,4.5
+PARABOLA 0,0 -1 2 1
+TEXT 1.55,2.25 N5 (3/2, 9/4)
+TEXT 2.05,4 N6 (2, 4)
+ZOOM E`,
+      room: `SCRIPT
+BOX 0,0 120 96 4
+STAIR 4,4 36 10 5
+WALL 4 40,4 40,54
+PARABOLA 78,20 -1.5 1.5 16
+DIM 0,96 120,96 10
+TEXT 62,12 PARABOLIC ARCH
+ZOOM E`
+    };
+
+    let showGrid = true;
+    let activeEntities = [];
+    let selectedLineIndex = null;
+    let viewState = { scale: 4, offsetX: 200, offsetY: 80, height: 440 };
+
+    const decks = {
+      macro: [
+        {c:'0,4', k:'SCRIPT', v:'SCRIPT\n'}, {c:'1,4', k:'PARABOLA', v:'PARABOLA 0,0 -1 2 16\n'}, {c:'2,4', k:'STAIR_R', v:'STAIR_RAKE 140,4 7 10 5\n'}, {c:'3,4', k:'ERASE', v:'ERASE'}, {c:'4,4', k:'DXF', v:'DXF'},
+        {c:'0,3', k:'HAL', v:'HAL'}, {c:'1,3', k:'WALL 4', v:'WALL 4 '}, {c:'2,3', k:'BOX 120', v:'BOX 0,0 120 96 4\n'}, {c:'3,3', k:'STAIR 36', v:'STAIR 4,4 36 10 5\n'}, {c:'4,3', k:'ZOOM E', v:'ZOOM E\n'},
+        {c:'0,2', k:'ARC', v:'ARC 4,54 36 0 90\n'}, {c:'1,2', k:'LINE', v:'LINE '}, {c:'2,2', k:'0,0', v:'0,0 '}, {c:'3,2', k:'CIRCLE', v:'CIRCLE 60,48 6 0.5\n'}, {c:'4,2', k:'TEXT R', v:'TEXT R QC\n'},
+        {c:'0,1', k:'4,4', v:'4,4 '}, {c:'1,1', k:'DIM', v:'DIM 0,96 120,96 10\n'}, {c:'2,1', k:'TEXT', v:'TEXT 26,36 N5 (3/2, 9/4)\n'}, {c:'3,1', k:'60,48', v:'60,48 '}, {c:'4,1', k:'116,92', v:'116,92\n'},
+        {c:'0,0', k:'-1 2 16', v:'-1 2 16\n'}, {c:'1,0', k:'120,96', v:'120,96 '}, {c:'2,0', k:'SPACE', v:' '}, {c:'3,0', k:'COMMA', v:','}, {c:'4,0', k:'ENTER', v:'\n'}
+      ],
+      coord: [
+        {c:'0,4', k:'PARABOLA', v:'PARABOLA '}, {c:'1,4', k:'BOX', v:'BOX '}, {c:'2,4', k:'LINE', v:'LINE '}, {c:'3,4', k:'ERASE', v:'ERASE'}, {c:'4,4', k:'DXF', v:'DXF'},
+        {c:'0,3', k:'7', v:'7'}, {c:'1,3', k:'1', v:'1'}, {c:'2,3', k:'2', v:'2'}, {c:'3,3', k:'3', v:'3'}, {c:'4,3', k:'8', v:'8'},
+        {c:'0,2', k:'9', v:'9'}, {c:'1,2', k:'4', v:'4'}, {c:'2,2', k:'0', v:'0'}, {c:'3,2', k:'5', v:'5'}, {c:'4,2', k:'16', v:'16 '},
+        {c:'0,1', k:'36', v:'36 '}, {c:'1,1', k:'6', v:'6'}, {c:'2,1', k:',', v:','}, {c:'3,1', k:'SPACE', v:' '}, {c:'4,1', k:'120', v:'120 '},
+        {c:'0,0', k:'0,0', v:'0,0 '}, {c:'1,0', k:'4,4', v:'4,4 '}, {c:'2,0', k:'.', v:'.'}, {c:'3,0', k:'-', v:'-'}, {c:'4,0', k:'ENTER', v:'\n'}
+      ]
+    };
+
+    function setQcDeck(deckName) {
+      const grid = document.getElementById('qcGrid');
+      grid.innerHTML = '';
+      decks[deckName].forEach(item => {
+        const [x, y] = item.c.split(',').map(Number);
+        const isPrime9 = (x >= 1 && x <= 3 && y >= 1 && y <= 3);
+        const isHome = (x === 2 && y === 2);
+        const isParabola = (item.k === 'PARABOLA');
+        const cell = document.createElement('div');
+        cell.className = 'matrix-cell' +
+          (isPrime9 ? ' prime9' : '') +
+          (isHome ? ' home-node' : '') +
+          (isParabola ? ' parabola-node' : '');
+        cell.innerHTML = `<span class="cell-coord">(${item.c})</span><span class="cell-key">${item.k}</span>`;
+        cell.onclick = () => appendScratchpad(item.v);
+        grid.appendChild(cell);
+      });
+    }
+
+    // ==========================================================
+    // NATIVE PARABOLA SOLVER (FRACTIONAL NOTEBOOK & UNIFORM MODES)
+    // ==========================================================
+    function generateParabolaPoints(vx, vy, xMin, xMax, scale, steps) {
+      const xVals = [];
+      if (steps && steps > 0) {
+        // Uniform subdivision mode
+        const dx = (xMax - xMin) / steps;
+        for (let i = 0; i <= steps; i++) {
+          xVals.push(xMin + i * dx);
+        }
+      } else {
+        // Bill's Notebook Fractional Progression: 0, +/-1/4, +/-1/2, +/-1, +/-3/2, +/-2...
+        const baseFractions = [0, 0.25, 0.5];
+        const maxAbs = Math.ceil(Math.max(Math.abs(xMin), Math.abs(xMax)) * 2) / 2;
+        for (let v = 1.0; v <= maxAbs + 0.5; v += 0.5) {
+          baseFractions.push(v);
+        }
+        const candidates = new Set([xMin, xMax]);
+        baseFractions.forEach(f => {
+          if (f >= xMin && f <= xMax) candidates.add(f);
+          if (-f >= xMin && -f <= xMax) candidates.add(-f);
+        });
+        Array.from(candidates)
+          .sort((a, b) => a - b)
+          .forEach(x => xVals.push(x));
+      }
+
+      return xVals.map(x => ({
+        rawX: x,
+        rawY: x * x,
+        px: vx + x * scale,
+        py: vy + (x * x) * scale
+      }));
+    }
+
+    function toggleHalMode() {
+      document.body.classList.toggle('hal-mode');
+      const isHal = document.body.classList.contains('hal-mode');
+      document.getElementById('halBtn').textContent = isHal ? 'HAL MODE: ON' : 'HAL MODE: OFF';
+      renderWallyCanvas();
+    }
+
+    function toggleGrid() {
+      showGrid = !showGrid;
+      document.getElementById('gridBtn').textContent = showGrid ? 'GRID: ON' : 'GRID: OFF';
+      renderWallyCanvas();
+    }
+
+    function loadPreset(key) {
+      document.getElementById('cliScratchpad').value = presets[key];
+      clearSelection();
+      renderWallyCanvas();
+    }
+
+    function appendScratchpad(val) {
+      if (val.trim() === 'HAL') { toggleHalMode(); return; }
+      if (val.trim() === 'DXF') { compileAndDownloadDXF(); return; }
+      if (val.trim() === 'ERASE') { eraseSelectedEntity(); return; }
+      const pad = document.getElementById('cliScratchpad');
+      pad.value += val;
+      pad.focus();
+      renderWallyCanvas();
+    }
+
+    function clearScratchpad() {
+      document.getElementById('cliScratchpad').value = '';
+      clearSelection();
+      renderWallyCanvas();
+    }
+
+    function onScratchpadEdit() {
+      renderWallyCanvas();
+      updatePropertyMatrixUI();
+    }
+
+    function saveWallyFile() {
+      const content = document.getElementById('cliScratchpad').value;
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'wallycad_parabola.wally';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function triggerWallyFileOpen() {
+      document.getElementById('wallyFileInput').click();
+    }
+
+    function handleWallyFileOpen(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('cliScratchpad').value = e.target.result;
+        clearSelection();
+        renderWallyCanvas();
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function clearSelection() {
+      selectedLineIndex = null;
+      updatePropertyMatrixUI();
+      renderWallyCanvas();
+    }
+
+    function eraseSelectedEntity() {
+      const pad = document.getElementById('cliScratchpad');
+      const lines = pad.value.split('\n');
+      if (selectedLineIndex !== null && selectedLineIndex >= 0 && selectedLineIndex < lines.length) {
+        lines.splice(selectedLineIndex, 1);
+        pad.value = lines.join('\n');
+        selectedLineIndex = null;
+        updatePropertyMatrixUI();
+        renderWallyCanvas();
+      }
+    }
+
+    function updateSelectedEntityCommand(newCmdStr) {
+      if (selectedLineIndex === null) return;
+      const pad = document.getElementById('cliScratchpad');
+      const lines = pad.value.split('\n');
+      if (selectedLineIndex >= 0 && selectedLineIndex < lines.length) {
+        lines[selectedLineIndex] = newCmdStr;
+        pad.value = lines.join('\n');
+        renderWallyCanvas();
+        const ent = activeEntities.find(e => e.lineIndex === selectedLineIndex);
+        if (ent) document.getElementById('propSummary').innerHTML = formatEntityTelemetry(ent);
+      }
+    }
+
+    function formatEntityTelemetry(ent) {
+      if (!ent) return 'Click any entity on the canvas to inspect.';
+      if (ent.type === 'PARABOLA') {
+        let chordLen = 0;
+        for (let i = 0; i < ent.pts.length - 1; i++) {
+          chordLen += Math.hypot(ent.pts[i + 1].px - ent.pts[i].px, ent.pts[i + 1].py - ent.pts[i].py);
+        }
+        return `<span style="color:var(--parabola)">[PARABOLA y=x²]</span> Vertex: <strong>(${ent.vx},${ent.vy})</strong> | Domain: <strong>[${ent.xMin}, ${ent.xMax}]</strong> | Scale: <strong>${ent.scale}x</strong> | Nodes: <strong>${ent.pts.length}</strong> | Chord Sum: <strong>${chordLen.toFixed(2)}</strong>`;
+      }
+      if (ent.type === 'LINE') {
+        const len = Math.hypot(ent.p2[0] - ent.p1[0], ent.p2[1] - ent.p1[1]).toFixed(2);
+        return `<span style="color:var(--accent)">[LINE]</span> (${ent.p1}) -> (${ent.p2}) | Length: <strong>${len}</strong>`;
+      }
+      if (ent.type === 'BOX') {
+        return `<span style="color:var(--accent)">[BOX]</span> ${ent.w}x${ent.d} | Clear: <strong>${ent.w - 2 * ent.t}x${ent.d - 2 * ent.t}</strong>`;
+      }
+      if (ent.type === 'STAIR') {
+        return `<span style="color:var(--accent)">[STAIR]</span> Width: <strong>${ent.w}"</strong> | Run: <strong>${ent.run * ent.count}</strong>`;
+      }
+      if (ent.type === 'TEXT') {
+        return `<span style="color:var(--accent)">[TEXT]</span> (${ent.x},${ent.y}) "${ent.str}"`;
+      }
+      return `<span style="color:var(--accent)">[${ent.type}]</span> Selected`;
+    }
+
+    function updatePropertyMatrixUI() {
+      const bar = document.getElementById('propMatrixBar');
+      const summary = document.getElementById('propSummary');
+      const controls = document.getElementById('propEditorControls');
+      const input = document.getElementById('propCommandInput');
+      const tag = document.getElementById('propLineTag');
+
+      const ent = activeEntities.find(e => e.lineIndex === selectedLineIndex);
+      if (!ent) {
+        bar.classList.remove('selected-active');
+        summary.textContent = 'Click the parabola or any vector on the canvas to inspect coordinates and chord length.';
+        controls.style.display = 'none';
+        return;
+      }
+      bar.classList.add('selected-active');
+      summary.innerHTML = formatEntityTelemetry(ent);
+      controls.style.display = 'flex';
+      tag.textContent = `LINE #${ent.lineIndex + 1}`;
+      if (document.activeElement !== input) input.value = ent.rawLine;
+    }
+
+    const canvas = document.getElementById('wallyCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      if (rect.width > 0) {
+        canvas.width = rect.width;
+        canvas.height = 440;
+      }
+    }
+
+    window.addEventListener('resize', () => { resizeCanvas(); renderWallyCanvas(); });
+
+    function toScreen(x, y) {
+      return [
+        viewState.offsetX + x * viewState.scale,
+        viewState.height - (viewState.offsetY + y * viewState.scale)
+      ];
+    }
+
+    function toWorld(px, py) {
+      return [
+        (px - viewState.offsetX) / viewState.scale,
+        ((viewState.height - py) - viewState.offsetY) / viewState.scale
+      ];
+    }
+
+    function distToSegment(px, py, x1, y1, x2, y2) {
+      const dx = x2 - x1, dy = y2 - y1;
+      const l2 = dx * dx + dy * dy;
+      if (l2 === 0) return Math.hypot(px - x1, py - y1);
+      const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / l2));
+      return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+    }
+
+    function computeEntityDistance(ent, wx, wy) {
+      if (ent.type === 'PARABOLA') {
+        let minD = Infinity;
+        for (let i = 0; i < ent.pts.length - 1; i++) {
+          const d = distToSegment(wx, wy, ent.pts[i].px, ent.pts[i].py, ent.pts[i + 1].px, ent.pts[i + 1].py);
+          if (d < minD) minD = d;
+        }
+        return minD;
+      }
+      if (ent.type === 'LINE') {
+        return distToSegment(wx, wy, ent.p1[0], ent.p1[1], ent.p2[0], ent.p2[1]);
+      }
+      if (ent.type === 'BOX') {
+        const { x, y, w, d } = ent;
+        return Math.min(
+          distToSegment(wx, wy, x, y, x + w, y),
+          distToSegment(wx, wy, x + w, y, x + w, y + d),
+          distToSegment(wx, wy, x + w, y + d, x, y + d),
+          distToSegment(wx, wy, x, y + d, x, y)
+        );
+      }
+      if (ent.type === 'TEXT') {
+        return distToSegment(wx, wy, ent.x, ent.y, ent.x + ent.str.length * 2.5, ent.y);
+      }
+      return Infinity;
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      const r = canvas.getBoundingClientRect();
+      const [wx, wy] = toWorld(e.clientX - r.left, e.clientY - r.top);
+      document.getElementById('cursorReadout').textContent = `X: ${wx.toFixed(2)}, Y: ${wy.toFixed(2)}`;
+    });
+
+    canvas.addEventListener('click', (e) => {
+      const r = canvas.getBoundingClientRect();
+      const [wx, wy] = toWorld(e.clientX - r.left, e.clientY - r.top);
+      const tol = 8 / viewState.scale;
+      let bestEnt = null, bestDist = tol;
+
+      for (let i = activeEntities.length - 1; i >= 0; i--) {
+        const d = computeEntityDistance(activeEntities[i], wx, wy);
+        if (d <= bestDist) {
+          bestDist = d;
+          bestEnt = activeEntities[i];
+        }
+      }
+      selectedLineIndex = bestEnt ? bestEnt.lineIndex : null;
+      updatePropertyMatrixUI();
+      renderWallyCanvas();
+    });
+
+    function parseCoord(token) {
+      if (!token || !token.includes(',')) return null;
+      const p = token.split(',').map(Number);
+      return (p.length === 2 && !isNaN(p[0]) && !isNaN(p[1])) ? p : null;
+    }
+
+    function parseWallyScript() {
+      const lines = document.getElementById('cliScratchpad').value.split('\n');
+      const entities = [];
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+      function expand(x, y) {
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      }
+
+      lines.forEach((line, lineIndex) => {
+        const clean = line.trim();
+        if (!clean || clean.startsWith('#')) return;
+        const tokens = clean.split(/\s+/);
+        const cmd = tokens[0].toUpperCase();
+
+        if (cmd === 'PARABOLA' && tokens.length >= 4) {
+          const v = parseCoord(tokens[1]);
+          const xMin = parseFloat(tokens[2]);
+          const xMax = parseFloat(tokens[3]);
+          const scale = tokens.length >= 5 ? parseFloat(tokens[4]) : 1;
+          const steps = tokens.length >= 6 ? parseInt(tokens[5], 10) : 0;
+          if (v && !isNaN(xMin) && !isNaN(xMax) && !isNaN(scale)) {
+            const pts = generateParabolaPoints(v[0], v[1], xMin, xMax, scale, steps);
+            if (pts.length >= 2) {
+              entities.push({ type: 'PARABOLA', vx: v[0], vy: v[1], xMin, xMax, scale, steps, pts, lineIndex, rawLine: clean });
+              pts.forEach(p => expand(p.px, p.py));
+            }
+          }
+        } else if (cmd === 'LINE' && tokens.length >= 3) {
+          const p1 = parseCoord(tokens[1]), p2 = parseCoord(tokens[2]);
+          if (p1 && p2) {
+            entities.push({ type: 'LINE', p1, p2, lineIndex, rawLine: clean });
+            expand(p1[0], p1[1]); expand(p2[0], p2[1]);
+          }
+        } else if (cmd === 'BOX' && tokens.length >= 5) {
+          const o = parseCoord(tokens[1]);
+          const w = parseFloat(tokens[2]), d = parseFloat(tokens[3]), t = parseFloat(tokens[4]);
+          if (o && !isNaN(w) && !isNaN(d) && !isNaN(t)) {
+            entities.push({ type: 'BOX', x: o[0], y: o[1], w, d, t, lineIndex, rawLine: clean });
+            expand(o[0], o[1]); expand(o[0] + w, o[1] + d);
+          }
+        } else if (cmd === 'STAIR' && tokens.length >= 5) {
+          const o = parseCoord(tokens[1]);
+          const w = parseFloat(tokens[2]), run = parseFloat(tokens[3]), count = parseInt(tokens[4], 10);
+          if (o && !isNaN(w) && !isNaN(run) && !isNaN(count)) {
+            entities.push({ type: 'STAIR', x: o[0], y: o[1], w, run, count, lineIndex, rawLine: clean });
+            expand(o[0], o[1]); expand(o[0] + w, o[1] + run * count);
+          }
+        } else if (cmd === 'WALL' && tokens.length >= 4) {
+          const t = parseFloat(tokens[1]);
+          const pts = tokens.slice(2).map(parseCoord).filter(Boolean);
+          if (!isNaN(t) && pts.length >= 2) {
+            entities.push({ type: 'WALL', t, pts, lineIndex, rawLine: clean });
+            pts.forEach(p => expand(p[0], p[1]));
+          }
+        } else if (cmd === 'DIM' && tokens.length >= 4) {
+          const p1 = parseCoord(tokens[1]), p2 = parseCoord(tokens[2]), off = parseFloat(tokens[3]);
+          if (p1 && p2 && !isNaN(off)) {
+            entities.push({ type: 'DIM', p1, p2, off, lineIndex, rawLine: clean });
+            expand(p1[0], p1[1]); expand(p2[0], p2[1]);
+          }
+        } else if (cmd === 'TEXT' && tokens.length >= 3) {
+          const pt = parseCoord(tokens[1]) || [10, 10];
+          const str = tokens.slice(2).join(' ');
+          entities.push({ type: 'TEXT', x: pt[0], y: pt[1], str, lineIndex, rawLine: clean });
+          expand(pt[0], pt[1]);
+        }
+      });
+
+      if (minX === Infinity) { minX = -10; minY = -5; maxX = 40; maxY = 70; }
+      activeEntities = entities;
+      return { entities, minX, minY, maxX, maxY };
+    }
+
+    function renderWallyCanvas() {
+      const { entities, minX, minY, maxX, maxY } = parseWallyScript();
+      document.getElementById('entityCount').textContent = entities.length;
+      document.getElementById('extentsReadout').textContent = `${minX.toFixed(1)},${minY.toFixed(1)} to ${maxX.toFixed(1)},${maxY.toFixed(1)}`;
+
+      const pad = Math.max(4, (maxX - minX) * 0.15);
+      const spanX = Math.max(4, (maxX - minX) + pad * 2);
+      const spanY = Math.max(4, (maxY - minY) + pad * 2);
+      const scale = Math.min(canvas.width / spanX, canvas.height / spanY);
+      const offsetX = (canvas.width - (maxX - minX) * scale) / 2 - minX * scale;
+      const offsetY = (canvas.height - (maxY - minY) * scale) / 2 - minY * scale;
+      viewState = { scale, offsetX, offsetY, height: canvas.height };
+
+      const isHal = document.body.classList.contains('hal-mode');
+      ctx.fillStyle = isHal ? '#000000' : '#070a0e';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (showGrid) {
+        const step = (maxX - minX) <= 10 ? 1 : 16;
+        ctx.strokeStyle = isHal ? '#112211' : '#141d26';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let gx = Math.floor(minX / step) * step - step; gx <= maxX + step; gx += step) {
+          ctx.moveTo(...toScreen(gx, minY - step));
+          ctx.lineTo(...toScreen(gx, maxY + step));
+        }
+        for (let gy = Math.floor(minY / step) * step - step; gy <= maxY + step; gy += step) {
+          ctx.moveTo(...toScreen(minX - step, gy));
+          ctx.lineTo(...toScreen(maxX + step, gy));
+        }
+        ctx.stroke();
+      }
+
+      entities.forEach(ent => {
+        const isSel = (ent.lineIndex === selectedLineIndex);
+        ctx.save();
+        if (isSel) {
+          ctx.shadowColor = '#ff00ff';
+          ctx.shadowBlur = 10;
+        }
+
+        if (ent.type === 'PARABOLA') {
+          ctx.strokeStyle = isSel ? '#ff00ff' : (isHal ? '#00ffff' : '#ff7b72');
+          ctx.lineWidth = isSel ? 3.0 : 2.2;
+          ctx.beginPath();
+          ent.pts.forEach((pt, idx) => {
+            const [sx, sy] = toScreen(pt.px, pt.py);
+            if (idx === 0) ctx.moveTo(sx, sy);
+            else ctx.lineTo(sx, sy);
+          });
+          ctx.stroke();
+
+          // Render Vertex & Fractional Node Stars/Ticks (Matching Clipboard Sketch)
+          ctx.fillStyle = isSel ? '#ff00ff' : '#ffea00';
+          ent.pts.forEach(pt => {
+            const [sx, sy] = toScreen(pt.px, pt.py);
+            ctx.beginPath();
+            ctx.arc(sx, sy, 3.2, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        } else if (ent.type === 'LINE') {
+          ctx.strokeStyle = isSel ? '#ff00ff' : (isHal ? '#ffea00' : '#3fb950');
+          ctx.lineWidth = isSel ? 2.6 : 1.4;
+          ctx.beginPath();
+          ctx.moveTo(...toScreen(ent.p1[0], ent.p1[1]));
+          ctx.lineTo(...toScreen(ent.p2[0], ent.p2[1]));
+          ctx.stroke();
+        } else if (ent.type === 'BOX') {
+          const { x, y, w, d, t } = ent;
+          const [ox1, oy1] = toScreen(x, y);
+          const [ox2, oy2] = toScreen(x + w, y + d);
+          const [ix1, iy1] = toScreen(x + t, y + t);
+          const [ix2, iy2] = toScreen(x + w - t, y + d - t);
+          ctx.strokeStyle = isSel ? '#ff00ff' : '#00d2ff';
+          ctx.lineWidth = 1.6;
+          ctx.strokeRect(ox1, oy2, ox2 - ox1, oy1 - oy2);
+          ctx.strokeRect(ix1, iy2, ix2 - ix1, iy1 - iy2);
+        } else if (ent.type === 'STAIR') {
+          const { x, y, w, run, count } = ent;
+          ctx.strokeStyle = isSel ? '#ff00ff' : '#e6edf3';
+          ctx.beginPath();
+          ctx.moveTo(...toScreen(x, y)); ctx.lineTo(...toScreen(x, y + run * count));
+          ctx.moveTo(...toScreen(x + w, y)); ctx.lineTo(...toScreen(x + w, y + run * count));
+          for (let i = 0; i <= count; i++) {
+            ctx.moveTo(...toScreen(x, y + i * run));
+            ctx.lineTo(...toScreen(x + w, y + i * run));
+          }
+          ctx.stroke();
+        } else if (ent.type === 'TEXT') {
+          const [sx, sy] = toScreen(ent.x, ent.y);
+          ctx.fillStyle = isSel ? '#ff00ff' : '#ffea00';
+          ctx.font = 'bold 11px Courier New';
+          ctx.fillText(ent.str, sx, sy);
+        }
+        ctx.restore();
+      });
+    }
+
+    function dxfLine(x1, y1, x2, y2, layer, color) {
+      return ['0','LINE','8',layer,'62',String(color),'10',Number(x1).toFixed(4),'20',Number(y1).toFixed(4),'30','0.0','11',Number(x2).toFixed(4),'21',Number(y2).toFixed(4),'31','0.0'].join('\n') + '\n';
+    }
+
+    function compileAndDownloadDXF() {
+      const { entities, minX, minY, maxX, maxY } = parseWallyScript();
+      let dxf = ['999','WallyCAD DXF Serializer - Native PARABOLA Solver','0','SECTION','2','ENTITIES'].join('\n') + '\n';
+      let count = 0;
+
+      entities.forEach(ent => {
+        if (ent.type === 'PARABOLA') {
+          for (let i = 0; i < ent.pts.length - 1; i++) {
+            dxf += dxfLine(ent.pts[i].px, ent.pts[i].py, ent.pts[i + 1].px, ent.pts[i + 1].py, 'WALLY_PARABOLA', 6);
+            count++;
+          }
+        } else if (ent.type === 'LINE') {
+          dxf += dxfLine(ent.p1[0], ent.p1[1], ent.p2[0], ent.p2[1], 'WALLY_LINE', 3);
+          count++;
+        }
+      });
+
+      dxf += '0\nENDSEC\n0\nEOF\n';
+      const blob = new Blob([dxf], { type: 'application/dxf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'wallycad_parabola.dxf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      document.getElementById('dxfStatus').textContent = `EXPORTED (${count} VECTORS)`;
+    }
+
+    setQcDeck('macro');
+    setTimeout(() => { resizeCanvas(); renderWallyCanvas(); }, 40);
+  </script>
+</body>
+</html>
