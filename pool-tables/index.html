@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pool Tables</title>
+    <title>Embedded Presentation</title>
     <style>
-        /* General page styling to center the presentation nicely */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
@@ -30,8 +29,8 @@
         .slides-container {
             position: relative;
             width: 100%;
-            max-width: 960px; /* Maximum width on large screens */
-            padding-bottom: 56.25%; /* Keeps the 16:9 ratio (height = 56.25% of width) */
+            max-width: 960px;
+            padding-bottom: 56.25%; /* Keeps the 16:9 ratio */
             height: 0;
             overflow: hidden;
             background: #000;
@@ -39,7 +38,6 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
         }
 
-        /* Forces the iframe to fill the container perfectly */
         .slides-container iframe {
             position: absolute;
             top: 0;
@@ -59,17 +57,12 @@
 </head>
 <body>
 
-    <h1>Pool Tables</h1>
+    <h1>My Embedded Presentation</h1>
 
-    <!-- Responsive Presentation Wrapper -->
+    <!-- Responsive Presentation Wrapper using your specific link -->
     <div class="slides-container">
         <iframe 
-
-          <!--
-<iframe src="https://docs.google.com/document/d/e/2PACX-1vS316AbehUFzl6mYS4v8KiNMv1QW1_19miWHg4W1uZ-kPJTb5a0Sc3phCKqU8lOYrdpyVX8AROUW7BL/pub?embedded=true"></iframe>
-      -->
-
-            src="https://docs.google.com/presentation/d/e/2PACX-1vS316AbehUFzl6mYS4v8KiNMv1QW1_19miWHg4W1uZ-kPJTb5a0Sc3phCKqU8lOYrdpyVX8AROUW7BL/embed?start=false&loop=false&delayms=3000" 
+            src="https://docs.google.com/presentation/d/e/2PACX-1vS316AbehUFzl6mYS4v8KiNMv1Qw1_19miWHg4W1uZ-kPJTb5a0Sc3phCKqU81OYrdpyVX8AROUW7BL/embed?start=false&loop=false&delayms=3000" 
             allowfullscreen="true" 
             mozallowfullscreen="true" 
             webkitallowfullscreen="true">
