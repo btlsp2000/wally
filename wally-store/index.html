@@ -3,77 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WALLY | LKA Enterprise Store</title>
-    <script src="https://gumroad.com/js/gumroad.js"></script>
+    <title>WallyCAD - Stair Element Solver</title>
     <style>
-        :root { --bg: #121212; --panel: #252526; --accent: #61afef; --text: #eee; --print: #e5c07b; --sel: #98c379; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Consolas', monospace; display: flex; flex-direction: column; align-items: center; padding: 50px 20px; }
-        
-        .header { text-align: center; margin-bottom: 50px; }
-        .header h1 { color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
-        .header p { color: #888; font-size: 14px; max-width: 600px; margin: 0 auto; line-height: 1.6; }
-
-        .pricing-grid { display: flex; gap: 30px; max-width: 900px; width: 100%; flex-wrap: wrap; justify-content: center; }
-        
-        .tier { background: var(--panel); border: 1px solid #444; padding: 30px; width: 350px; display: flex; flex-direction: column; border-top: 4px solid var(--accent); }
-        .tier.pro { border-top-color: var(--print); }
-        
-        .tier h2 { margin: 0 0 10px 0; font-size: 20px; }
-        .price { font-size: 32px; font-weight: bold; margin-bottom: 20px; color: white; }
-        .price span { font-size: 14px; color: #888; font-weight: normal; }
-        
-        ul { list-style: none; padding: 0; margin: 0 0 30px 0; flex-grow: 1; }
-        ul li { margin-bottom: 12px; font-size: 13px; color: #ccc; border-bottom: 1px solid #333; padding-bottom: 8px; }
-        ul li::before { content: '>'; color: var(--sel); margin-right: 8px; font-weight: bold; }
-        
-        /* The Buy Button */
-        .buy-btn { background: #444; border: 1px solid #555; color: #ddd; padding: 12px; font-family: inherit; font-size: 14px; cursor: pointer; transition: 0.2s; text-align: center; text-decoration: none; display: block; font-weight: bold; }
-        .buy-btn:hover { background: #555; border-color: var(--accent); color: white; }
-        .tier.pro .buy-btn:hover { border-color: var(--print); }
-
-        .footer { margin-top: 50px; font-size: 11px; color: #666; text-align: center; border-top: 1px solid #333; padding-top: 20px; width: 100%; max-width: 900px; }
+        body {
+            font-family: monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        h1 {
+            font-size: 1.5rem;
+            color: #4ec9b0;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        .controls, .cli-panel {
+            background: #252526;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+        }
+        label {
+            display: inline-block;
+            width: 30px;
+            font-weight: bold;
+            color: #9cdcfe;
+        }
+        input[type="number"] {
+            background: #3c3c3c;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 5px;
+            width: 80px;
+            margin-right: 20px;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            cursor: pointer;
+            font-family: monospace;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        canvas {
+            background: #111;
+            border: 1px solid #444;
+            display: block;
+            margin-bottom: 15px;
+        }
+        .cli-input {
+            width: 100%;
+            background: #1e1e1e;
+            color: #ce9178;
+            border: 1px solid #333;
+            padding: 8px;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <span><a href="https://btlsp.gumroad.com/l/wallycad">BUY WALLYCAD</span>
-        <h1>WALLY V1.0 | COMMERCIAL STABLE</h1>
-        <p>A pure, frictionless 2D drafting engine. No subscriptions. No gigabyte installations. No cloud DRM. Just raw cartesian math and absolute precision. Buy it once, own it forever, and run it completely offline.</p>
+<div class="container">
+    <h1>WallyCAD v1.0.10 // Geometric Engine</h1>
+    
+    <div class="controls">
+        <label for="paramA">a:</label>
+        <input type="number" id="paramA" value="200" min="10">
+        <label for="paramB">b:</label>
+        <input type="number" id="paramB" value="80" min="5">
+        <button onclick="renderStair()">Generate Element</button>
     </div>
 
-    <div class="pricing-grid">
-        <div class="tier">
-            <h2 style="color: var(--accent);">THE DETAILER</h2>
-            <div class="price">$49 <span>/ one-time</span></div>
-            <ul>
-                <li>Wally V1.0 Core HTML Engine</li>
-                <li>Offline jsPDF Plotter Integration</li>
-                <li>Native Architectural Scale Printing</li>
-                <li>DXF Export for Laser & Router</li>
-                <li>Runs on PC, Mac, iPad, and Fire Tablet</li>
-            </ul>
-            <a class="buy-btn" href="https://gumroad.com/l/your-wally-link" data-gumroad-single-product="true">PURCHASE LICENSE</a>
-        </div>
+    <canvas id="cadCanvas" width="760" height="400"></canvas>
 
-        <div class="tier pro">
-            <h2 style="color: var(--print);">THE FABRICATOR</h2>
-            <div class="price">$149 <span>/ one-time</span></div>
-            <ul>
-                <li>Everything in The Detailer License</li>
-                <li><b>wally_cam.py</b> G-Code Compiler Script</li>
-                <li>Convert Vectors to CNC Toolpaths Instantly</li>
-                <li>Commercial Usage Rights</li>
-                <li>Priority LKA Email Support</li>
-            </ul>
-            <a class="buy-btn" href="https://gumroad.com/l/your-wally-pro-link" data-gumroad-single-product="true">PURCHASE SUITE</a>
-        </div>
+    <div class="cli-panel">
+        <label for="cli">CLI:</label>
+        <input type="text" id="cli" class="cli-input" value="STAIR_ELEM a=200 b=80" readonly>
     </div>
+</div>
 
-    <div class="footer">
-        ENTERPRISE: LKA / LAST KNOWN ADDRESS<br>
-        SYSTEM: JAVASCRIPT VECTOR ENGINE & jsPDF PLOTTER
-    </div>
+<script>
+function solveStairElement(a, b) {
+    return {
+        vertices: [
+            { x: 0, y: 0 },
+            { x: a, y: 0 },
+            { x: a, y: b / 2 },
+            { x: a - b, y: b },
+            { x: 0, y: b }
+        ]
+    };
+}
+
+function renderStair() {
+    const canvas = document.getElementById('cadCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const a = parseFloat(document.getElementById('paramA').value);
+    const b = parseFloat(document.getElementById('paramB').value);
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Grid lines (WallyCAD background style)
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < canvas.width; x += 20) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += 20) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+
+    const geom = solveStairElement(a, b);
+    
+    // Scaling and centering translation
+    const scale = 1.5;
+    const offsetX = 150;
+    const offsetY = 250;
+
+    // Draw Shape
+    ctx.beginPath();
+    geom.vertices.forEach((v, index) => {
+        const cx = offsetX + (v.x * scale);
+        const cy = offsetY - (v.y * scale); // Invert Y for screen coords
+        if (index === 0) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+    });
+    ctx.closePath();
+    
+    ctx.fillStyle = 'rgba(78, 201, 176, 0.15)';
+    ctx.fill();
+    ctx.strokeStyle = '#4ec9b0';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Draw Vertex Points & Coordinates
+    ctx.fillStyle = '#dcdcaa';
+    geom.vertices.forEach(v => {
+        const cx = offsetX + (v.x * scale);
+        const cy = offsetY - (v.y * scale);
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    // Update CLI text view
+    document.getElementById('cli').value = `STAIR_ELEM a=${a} b=${b} [VERTS:${geom.vertices.length}]`;
+}
+
+// Initial render execution
+renderStair();
+</script>
 
 </body>
 </html>
