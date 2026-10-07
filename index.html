@@ -6,6 +6,12 @@
     <title>WALLY V1.0.14 | TEXT FEATURE ADDED</title>
     <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
     <style>
+        #catalogue-modal { display: none; position: absolute; top: 40px; left: 10px; background: #000; border: 1px solid var(--accent); padding: 15px; z-index: 2000; box-shadow: 2px 2px 10px rgba(0,0,0,0.8); width: 300px; }
+.catalogue-title { color: #fff; font-weight: bold; border-bottom: 1px solid #444; padding-bottom: 5px; margin-bottom: 10px; font-size: 14px; text-transform: uppercase; }
+.catalogue-item { margin-bottom: 15px; }
+.catalogue-item h4 { margin: 0 0 3px 0; color: var(--accent); font-size: 12px; }
+.catalogue-item p { margin: 0 0 5px 0; font-size: 10px; color: #aaa; }
+.catalogue-item button { width: 100%; text-align: left; padding: 5px; border-left: 2px solid var(--accent); }
         :root { --bg: #222; --cad-bg: #121212; --cmd-bg: #333; --accent: #61afef; --text: #eee; --dim: #888; --sel: #98c379; --print: #e5c07b; }
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Consolas', monospace; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; }
         #toolbar { height: 40px; background: #2c2c2c; border-bottom: 1px solid #444; display: flex; align-items: center; padding: 0 10px; gap: 5px; flex-shrink: 0; z-index: 1000; position: relative; }
@@ -28,7 +34,36 @@
 </head>
 <body>
     <div id="toolbar">
-        <div class="menu-btn" onclick="log('MENU')">☰</div>
+        <div id="catalogue-modal">
+    <div class="catalogue-title">STANDALONE CATALOGUE</div>
+    
+    <div class="catalogue-item">
+        <h4>ARC GENERATOR</h4>
+        <p>Radial sweeps & Tuple verification.</p>
+        <button onclick="window.open('arc-generator.html', '_blank')">LAUNCH MODULE</button>
+    </div>
+    
+    <div class="catalogue-item">
+        <h4>WALLY-DECK</h4>
+        <p>2D joist framing & DXF generation.</p>
+        <button onclick="window.open('wally-deck.html', '_blank')">LAUNCH MODULE</button>
+    </div>
+    
+    <div class="catalogue-item">
+        <h4>PERIMETER TRAVERSE</h4>
+        <p>Fencing bounds & takeoff calculation.</p>
+        <button onclick="window.open('traverse.html', '_blank')">LAUNCH MODULE</button>
+    </div>
+
+    <div class="catalogue-item">
+        <h4>SDJ CONVERTER</h4>
+        <p>Strip JSON bloat to raw matrices.</p>
+        <button onclick="window.open('json-converter.html', '_blank')">LAUNCH MODULE</button>
+    </div>
+    
+    <button onclick="document.getElementById('catalogue-modal').style.display='none'" style="width:100%; text-align:center; background:#222; border:1px solid #444; margin-top:5px;">CLOSE</button>
+</div>
+<div class="menu-btn" onclick="document.getElementById('catalogue-modal').style.display='block'">☰</div>
         <span style="font-weight:bold; color:var(--accent); margin-right:10px;">WALLY v1.0.14</span>
         <button onclick="fileNew()">NEW</button>
         <button onclick="fileSave()">SAVE</button>
