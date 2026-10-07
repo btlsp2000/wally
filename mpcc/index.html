@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPCC - Communications Pipeline (/cp)</title>
+    <style>
+        :root {
+            --bg-primary: #0b1329;
+            --bg-secondary: #1e293b;
+            --bg-hover: #27354f;
+            --accent-blue: #38bdf8;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --success-green: #22c55e;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-family: monospace, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        /* --- MPCC Collapsible Toolbar --- */
+        #mpccToolbar {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            width: 280px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .toolbar-toggle {
+            width: 100%;
+            background: var(--bg-secondary);
+            border: none;
+            color: var(--accent-blue);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .toolbar-toggle:hover {
+            background: var(--bg-hover);
+        }
+
+        .hamburger-icon {
+            font-size: 1.1rem;
+            margin-right: 0.5rem;
+        }
+
+        .toolbar-title {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .toggle-arrow {
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+
+        .toolbar-content {
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            border-top: 1px solid var(--border-color);
+        }
+
+        #mpccToolbar.collapsed .toolbar-content {
+            display: none;
+        }
+
+        #mpccToolbar.collapsed .toggle-arrow {
+            transform: rotate(-90deg);
+        }
+
+        .toolbar-section {
+            margin-bottom: 1rem;
+        }
+
+        .toolbar-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .toolbar-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .toolbar-links li {
+            margin-bottom: 0.35rem;
+        }
+
+        .toolbar-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .toolbar-links a:hover, .toolbar-links a.active-link {
+            background: var(--bg-secondary);
+            color: var(--accent-blue);
+        }
+
+        /* --- Main Pipeline Container --- */
+        .main-container {
+            margin-top: 5rem;
+            width: 90%;
+            max-width: 900px;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            color: var(--accent-blue);
+            margin-top: 0;
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .pipeline-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .node {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            text-align: center;
+            min-width: 200px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .node.active {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .node-title {
+            font-weight: bold;
+            color: var(--accent-blue);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .node-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .arrow-down {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .branch-container {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        /* --- Controller & Console --- */
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        button.action-btn {
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+            border: none;
+            padding: 0.75rem 1.25rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity 0.2s;
+        }
+
+        button.action-btn:hover {
+            opacity: 0.9;
+        }
+
+        .console-log {
+            background: #020617;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            height: 140px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            color: #38bdf8;
+        }
+
+        .log-entry {
+            margin-bottom: 0.35rem;
+            border-left: 2px solid var(--accent-blue);
+            padding-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MPCC Collapsible Toolbar -->
+    <nav id="mpccToolbar" class="mpcc-toolbar collapsed">
+        <button class="toolbar-toggle" onclick="toggleMPCCToolbar()" aria-label="Toggle Navigation Toolbar">
+            <span class="hamburger-icon">☰</span>
+            <span class="toolbar-title">MPCC Command Center</span>
+            <span id="toggleIndicator" class="toggle-arrow">▼</span>
+        </button>
+
+        <div class="toolbar-content">
+            <div class="toolbar-section">
+                <span class="section-title">Active Modules</span>
+                <ul class="toolbar-links">
+                    <li><a href="/cp" class="active-link">Communications Pipeline (/cp)</a></li>
+                    <li><a href="/wallycad">WallyCAD Engine</a></li>
+                    <li><a href="/pool">Calculus of Pool</a></li>
+                    <li><a href="/wib">WIB Game Engine</a></li>
+                    <li><a href="/route2">Route 2 Dispatch</a></li>
+                </ul>
+            </div>
+
+            <div class="toolbar-section">
+                <span class="section-title">Documentation</span>
+                <ul class="toolbar-links">
+                    <li><a href="/textbook">WallyCAD Textbook</a></li>
+                    <li><a href="/quickclick">QuickClick (QC) Guide</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Communications Pipeline Visualizer App -->
+    <div class="main-container">
+        <h1>Communications Pipeline (/cp)</h1>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">
+            Real-time visual router for Message &rarr; QuickClick (QC) &rarr; Textfree &rarr; Destination Nodes.
+        </p>
+
+        <div class="pipeline-flow">
+            <!-- Message Node -->
+            <div id="node-message" class="node">
+                <div class="node-title">1. Message Input</div>
+                <div class="node-desc">Raw incoming transmission</div>
+            </div>
+            <div class="arrow-down">↓</div>
+
+            <!-- QC Node -->
+            <div id="node-qc" class="node">
+                <div class="node-title">2. QuickClick (QC)</div>
+                <div class="node-desc">Shorthand & Coordinate Parser</div>
+            </div>
+            <div class="arrow-down">↓</div>
+
+            <!-- Textfree Node -->
+            <div id="node-textfree" class="node">
+                <div class="node-title">3. Textfree Engine</div>
+                <div class="node-desc">Formatting & Payload Routing</div>
+            </div>
+            <div class="arrow-down">↓</div>
+
+            <!-- Branch Nodes -->
+            <div class="branch-container">
+                <div id="node-iris" class="node">
+                    <div class="node-title">Iris Node</div>
+                    <div class="node-desc">Target Channel A</div>
+                </div>
+                <div id="node-jason" class="node">
+                    <div class="node-title">Jason Node</div>
+                    <div class="node-desc">Target Channel B</div>
+                </div>
+                <div id="node-terminal" class="node">
+                    <div class="node-title">Terminal / Default</div>
+                    <div class="node-desc">Open Branch</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <input type="text" id="pipelineInput" placeholder="Type message (e.g., 'iris check coordinate grid' or 'jason review path')..." value="iris Check vector calculations">
+            <button class="action-btn" onclick="runPipeline()">Dispatch Packet</button>
+        </div>
+
+        <!-- Console Log -->
+        <div id="consoleLog" class="console-log">
+            <div class="log-entry">[System Ready] MPCC Pipeline loaded at /cp. Waiting for input...</div>
+        </div>
+    </div>
+
+    <script>
+        // Toolbar Toggle
+        function toggleMPCCToolbar() {
+            const toolbar = document.getElementById('mpccToolbar');
+            toolbar.classList.toggle('collapsed');
+        }
+
+        // Pipeline Logic & Animation
+        function logMessage(text) {
+            const consoleLog = document.getElementById('consoleLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+            consoleLog.appendChild(entry);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        }
+
+        function clearActiveNodes() {
+            document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
+        }
+
+        async function runPipeline() {
+            const inputField = document.getElementById('pipelineInput');
+            const rawText = inputField.value.trim();
+            if (!rawText) return;
+
+            clearActiveNodes();
+
+            // Step 1: Message Input
+            document.getElementById('node-message').classList.add('active');
+            logMessage(`[Message] Received raw input: "${rawText}"`);
+            await new Promise(r => setTimeout(r, 400));
+
+            // Step 2: QuickClick (QC)
+            document.getElementById('node-message').classList.remove('active');
+            document.getElementById('node-qc').classList.add('active');
+            logMessage(`[QC] QuickClick parsing shorthand coordinates...`);
+            await new Promise(r => setTimeout(r, 400));
+
+            // Step 3: Textfree
+            document.getElementById('node-qc').classList.remove('active');
+            document.getElementById('node-textfree').classList.add('active');
+            
+            const lowerText = rawText.toLowerCase();
+            let targetNode = 'terminal';
+            if (lowerText.startsWith('iris')) targetNode = 'iris';
+            else if (lowerText.startsWith('jason')) targetNode = 'jason';
+
+            const payload = rawText.replace(/^[a-zA-Z]+/, '').trim() || rawText;
+            logMessage(`[Textfree] Formatted payload. Target identified: [${targetNode.toUpperCase()}]`);
+            await new Promise(r => setTimeout(r, 400));
+
+            // Step 4: Dispatch to Target Node
+            document.getElementById('node-textfree').classList.remove('active');
+            document.getElementById(`node-${targetNode}`).classList.add('active');
+            logMessage(`-> Dispatched successfully to ${targetNode.toUpperCase()} Node: "${payload}"`);
+        }
+    </script>
+</body>
+</html>
