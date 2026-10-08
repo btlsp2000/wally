@@ -16,6 +16,7 @@
         #qc-hud { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border: 1px solid #00ff00; pointer-events: none; }
         .btn { margin-top:10px; background:#00ff00; color:#000; font-weight:bold; border:none; padding:10px; cursor:pointer; }
         .btn:hover { background:#00cc00; }
+        #file-input { display: none; }
     </style>
 </head>
 <body>
@@ -27,15 +28,18 @@
         
         <textarea id="command-log" readonly placeholder="Traverse Log..."></textarea>
         <input type="text" id="cli" placeholder="Command (e.g. L 10)" autofocus autocomplete="off">
+        <input type="file" id="file-input" accept=".json" onchange="handleFileImport(event)">
         
         <button class="btn" onclick="copyWallyPath()">COPY WALLY PATH</button>
         <button class="btn" onclick="exportWallyFile()">SAVE .WALLY FILE</button>
+        <button class="btn" onclick="exportJsonFile()">EXPORT JSON</button>
+        <button class="btn" onclick="document.getElementById('file-input').click()">IMPORT JSON</button>
         <button class="btn" onclick="exportToGist()">SYNC TO GIST</button>
     </div>
 
     <div id="canvas-pane">
         <canvas id="traverseCanvas"></canvas>
-        <div id="qc-hud">CLI: [ L {dist} | R {dist} | T {dist},{ang} | E (Extents) | W (Wally Path) | S (Save .Wally) ]<br>NAV: [ Scroll: Zoom | Click+Drag: Pan ]</div>
+        <div id="qc-hud">CLI: [ L {dist} | R {dist} | T {dist},{ang} | E (Extents) | W (Wally Path) | S (Save .Wally) | J (Export JSON) | I (Import JSON) ]<br>NAV: [ Scroll: Zoom | Click+Drag: Pan ]</div>
     </div>
 
 <script>
@@ -147,6 +151,66 @@
         log.scrollTop = log.scrollHeight;
     }
 
+    function exportJsonFile() {
+        if (points.length === 0) return;
+
+        const payload = {
+            format: "WallyCAD-Traverse",
+            version: "1.0",
+            timestamp: new Date().toISOString(),
+            point_count: points.length,
+            points: points.map(p => ({ x: Number(p.x.toFixed(4)), y: Number(p.y.toFixed(4)) }))
+        };
+
+        const jsonString = JSON.stringify(payload, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `traverse_path_${Date.now()}.json`;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        const log = document.getElementById('command-log');
+        log.value += `>> EXPORTED JSON: ${link.download}\n`;
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function handleFileImport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.points && Array.isArray(data.points) && data.points.length > 0) {
+                    points = data.points.map(p => ({ x: Number(p.x), y: Number(p.y) }));
+                    currentHeading = 0; // Reset heading on import
+                    
+                    const log = document.getElementById('command-log');
+                    log.value += `>> IMPORTED JSON: ${file.name} (${points.length} points)\n`;
+                    log.scrollTop = log.scrollHeight;
+                    
+                    document.getElementById('p-count').innerText = points.length;
+                    document.getElementById('heading-display').innerText = `${currentHeading}°`;
+                    
+                    zoomExtents();
+                } else {
+                    alert('Invalid JSON structure: missing points array.');
+                }
+            } catch (err) {
+                alert('Error parsing JSON file: ' + err.message);
+            }
+            // Reset input so same file can be reloaded if needed
+            event.target.value = '';
+        };
+        reader.readAsText(file);
+    }
+
     // Active CLI Event Listener
     cli.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -168,6 +232,10 @@
                 copyWallyPath();
             } else if (cmd === 'S') {
                 exportWallyFile();
+            } else if (cmd === 'J') {
+                exportJsonFile();
+            } else if (cmd === 'I') {
+                document.getElementById('file-input').click();
             } else if (cmd === 'L' || cmd === 'R') {
                 const def = cmd === 'L' ? 90 : -90;
                 addMove(Number(prompt(`Distance ${cmd === 'L' ? 'Left' : 'Right'} 90°:`)), def);
