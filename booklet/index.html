@@ -13,6 +13,31 @@
             size: letter landscape;
             margin: 0;
         }
+
+.quadrant {
+            border: 1px solid var(--line-color);
+            box-sizing: border-box;
+            padding: 0.3in;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        .image-container {
+            display: flex;
+            align-items: center;    /* Centers vertically */
+            justify-content: center; /* Centers horizontally */
+            flex-grow: 1;            /* Fills available vertical space */
+            width: 100%;
+            overflow: hidden;
+        }
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
         body {
             margin: 0;
             padding: 0;
@@ -186,6 +211,20 @@
     <div class="folder-matrix" id="bookletMatrix">
         <div class="center-crosshair"></div>
 
+<div class="quadrant top-half">
+            <div style="font-size: 10.5px; text-align: left; font-weight: bold;">PG ②</div>
+            <div style="text-align: center; font-size: 11.5px; font-weight: bold; letter-spacing: 1px;">SECTION 3: CLI COMMANDS</div>
+            
+            <!-- Centered Image Wrapper -->
+            <div class="image-container">
+                <img src="https://raw.githubusercontent.com/btlsp2000/wally/main/Screenshot%202026-10-09%20131751.png" alt="Wally Engine Screenshot">
+            </div>
+
+            <div style="font-size: 9px; line-height: 1.25; text-align: justify; margin-top: 3px;">
+                Driven primarily by the Command Line Interface (CLI): LINE spawns standard 0-thickness path, WALL creates thickened polyline structure, CIRCLE yields native circle, DIM generates annotation tool, and STAIR constructs parametric treads.
+            </div>
+        </div>
+        
         <div class="quadrant top-half">
             <div class="image-placeholder" style="height: 1.3in;">
                 <br><br>
