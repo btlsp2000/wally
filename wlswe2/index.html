@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WLSWE Example Solution - WallyCAD QSG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h1 {
+            color: #1a365d;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 1.1rem;
+            color: #2b6cb0;
+            margin-top: 20px;
+        }
+        p, li {
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        ul {
+            background: #f1f5f9;
+            padding: 15px 25px;
+            border-radius: 6px;
+            list-style-type: square;
+        }
+        .sdj-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2b6cb0;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>QSG Example Solution: Wrightwood Library South Wall Elevation (WLSWE)</h1>
+    
+    <p>This reference solution demonstrates how to construct the WLSWE using <a href="https://wallycad.com" target="_blank">WallyCAD</a> and associated parametric modules like <a href="https://wallycad.com/box" target="_blank">wallycad.com/box</a>. The elevation is built sequentially from the floor up, incorporating the border, title block, bookshelf, frame, 4 windows, and roof/ceiling gable components[cite: 4].</p>
+
+    <h2>Component Specifications</h2>
+    <ul>
+        <li><strong>Bookshelves:</strong> Width = 224, Height = 38, Insertion Point (X, Y) = 0, 0</li>
+        <li><strong>Frame:</strong> Width = 224, Height = 173, Insertion Point (X, Y) = 0, 38</li>
+        <li><strong>Window 1 (Lower Left):</strong> Width = 48, Height = 54, Insertion Point (X, Y) = 48, 59</li>
+        <li><strong>Window 2 (Lower Right):</strong> Width = 132, Height = 54, Insertion Point (X, Y) = 48, 59</li>
+        <li><strong>Window 3 (Upper Left):</strong> Width = 48, Height = 125, Insertion Point (X, Y) = 48, 59</li>
+        <li><strong>Window 4 (Upper Right):</strong> Width = 132, Height = 125, Insertion Point (X, Y) = 48, 59</li>
+    </ul>
+
+    <h2>SDJ Coordinate Data Set</h2>
+    <div class="sdj-block">
+; WLSWE SDJ COORDINATE SET EXAMPLE<br>
+; Layer: 0 (Base Geometry)<br>
+RECTANGLE 0,0 224,38          ; Bookshelves (Floor Base)<br>
+RECTANGLE 0,38 224,211        ; Frame Elevation (H = 173 above 38)<br>
+RECTANGLE 48,59 96,113        ; Window 1 (Lower Left: W=48, H=54)<br>
+RECTANGLE 48,59 180,113       ; Window 2 (Lower Right: W=132, H=54)<br>
+RECTANGLE 48,59 96,184        ; Window 3 (Upper Left: W=48, H=125)<br>
+RECTANGLE 48,59 180,184       ; Window 4 (Upper Right: W=132, H=125)<br>
+GABLE_ROOF 0,211 224,249      ; Roof/Ceiling Gable 2x8's (4 Elements)
+    </div>
+
+    <a class="back-link" href="https://wallycad.com/qsg/">← Back to WallyCAD Quick Start Guide</a>
+</div>
+
+</body>
+</html>
