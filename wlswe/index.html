@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WLSWE SDJ Example Solution - QSG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        canvas { touch-action: none; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-500/20">W</div>
+                <div>
+                    <h1 class="font-semibold text-base sm:text-lg tracking-tight">WallyCAD QSG / SDJ Explorer</h1>
+                    <p class="text-xs text-slate-400">Wrightwood Library South Wall Elevation (WLSWE)</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="https://wallycad.com/cp" target="_blank" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">Control Panel</a>
+                <a href="https://wallycad.com/box" target="_blank" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-600/20 transition">WallyCAD Box</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Panel: Project Specs & Element Breakdown -->
+        <div class="lg:col-span-5 space-y-6">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h2 class="text-lg font-semibold text-slate-200 mb-2 flex items-center justify-between">
+                    <span>WLSWE Architecture</span>
+                    <span class="text-xs px-2 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full mono">SDJ v2.4</span>
+                </h2>
+                <p class="text-sm text-slate-400 mb-4">
+                    Constructed element by element starting from the floor with the bookshelf using <code class="text-blue-400">wallycad.com/box</code>, scaling through the 4 windows, structural frame, and gable roof 2x8's.
+                </p>
+
+                <div class="space-y-3 text-sm">
+                    <div class="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                        <div class="font-medium text-slate-200 flex items-center justify-between">
+                            <span>1. Border & Titleblock</span>
+                            <span class="text-xs text-slate-400 mono">0,0 to 480,320</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Master framing sheet defining drawing boundaries and project metadata.</p>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                        <div class="font-medium text-slate-200 flex items-center justify-between">
+                            <span>2. Structural Frame</span>
+                            <span class="text-xs text-slate-400 mono">40,40 to 440,260</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Main exterior wall perimeter load-bearing boundary.</p>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                        <div class="font-medium text-slate-200 flex items-center justify-between">
+                            <span>3. Bookshelf (wallycad.com/box)</span>
+                            <span class="text-xs text-slate-400 mono">60,60 to 180,120</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Base floor module constructed via box coordinate constructor.</p>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                        <div class="font-medium text-slate-200 flex items-center justify-between">
+                            <span>4. Four Windows</span>
+                            <span class="text-xs text-slate-400 mono">Grid Layout</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Symmetrical fenestration elements positioned across upper wall elevation.</p>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                        <div class="font-medium text-slate-200 flex items-center justify-between">
+                            <span>5. Gable Roof 2x8's (4 Elements)</span>
+                            <span class="text-xs text-slate-400 mono">Pitch: 30°</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Upper ceiling rafters and peak structural tie assembly.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h3 class="text-sm font-semibold text-slate-200 mb-3">Quick Actions</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="copySDJData()" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow-md shadow-blue-600/20 transition flex items-center justify-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                        <span>Copy SDJ JSON</span>
+                    </button>
+                    <button onclick="resetCanvas()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs border border-slate-700 transition flex items-center justify-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        <span>Reset View</span>
+                    </button>
+                </div>
+                <div id="copyNotification" class="mt-3 text-center text-xs text-emerald-400 font-medium hidden">SDJ JSON successfully copied to clipboard!</div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Interactive Canvas & JSON Code Viewer -->
+        <div class="lg:col-span-7 flex flex-col space-y-6">
+            
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-semibold text-slate-200">Interactive Visual Preview</h3>
+                    <div class="flex items-center space-x-2 text-xs text-slate-400">
+                        <span class="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                        <span>Live SDJ Render Engine</span>
+                    </div>
+                </div>
+                <div class="relative w-full aspect-[4/3] bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex items-center justify-center">
+                    <canvas id="elevationCanvas" class="w-full h-full cursor-crosshair"></canvas>
+                </div>
+                <p class="text-xs text-slate-400 mt-2 text-center">Hover or click elements to inspect coordinate metadata.</p>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col flex-1">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-semibold text-slate-200">SDJ Coordinate Set (JSON)</h3>
+                    <span class="text-xs text-slate-400 mono">wlswe_elevation.sdj</span>
+                </div>
+                <div class="relative flex-1 bg-slate-950 rounded-xl border border-slate-800 p-4 overflow-auto max-h-80">
+                    <pre id="sdjCodeContainer" class="mono text-xs text-blue-300 leading-relaxed"></pre>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        const sdjData = {
+            "project": "Wrightwood Library South Wall Elevation",
+            "code": "WLSWE",
+            "units": "inches",
+            "scale": "1:50",
+            "elements": [
+                {
+                    "name": "Border & Titleblock",
+                    "type": "rectangle",
+                    "bounds": { "x": 0, "y": 0, "width": 480, "height": 320 },
+                    "layer": "BORDER"
+                },
+                {
+                    "name": "Structural Frame",
+                    "type": "rectangle",
+                    "bounds": { "x": 40, "y": 40, "width": 400, "height": 220 },
+                    "layer": "WALL_EXTERIOR"
+                },
+                {
+                    "name": "Bookshelf (wallycad.com/box)",
+                    "type": "rectangle",
+                    "bounds": { "x": 60, "y": 60, "width": 120, "height": 60 },
+                    "layer": "FURNITURE_BASE",
+                    "notes": "Constructed via box utility module"
+                },
+                {
+                    "name": "Window 1 (Left Lower)",
+                    "type": "rectangle",
+                    "bounds": { "x": 220, "y": 80, "width": 50, "height": 70 },
+                    "layer": "FENESTRATION"
+                },
+                {
+                    "name": "Window 2 (Right Lower)",
+                    "type": "rectangle",
+                    "bounds": { "x": 290, "y": 80, "width": 50, "height": 70 },
+                    "layer": "FENESTRATION"
+                },
+                {
+                    "name": "Window 3 (Left Upper)",
+                    "type": "rectangle",
+                    "bounds": { "x": 220, "y": 170, "width": 50, "height": 70 },
+                    "layer": "FENESTRATION"
+                },
+                {
+                    "name": "Window 4 (Right Upper)",
+                    "type": "rectangle",
+                    "bounds": { "x": 290, "y": 170, "width": 50, "height": 70 },
+                    "layer": "FENESTRATION"
+                },
+                {
+                    "name": "Gable Roof Rafter 1",
+                    "type": "line",
+                    "points": { "x1": 40, "y1": 260, "x2": 240, "y2": 310 },
+                    "layer": "ROOF_2X8"
+                },
+                {
+                    "name": "Gable Roof Rafter 2",
+                    "type": "line",
+                    "points": { "x1": 240, "y1": 310, "x2": 440, "y2": 260 },
+                    "layer": "ROOF_2X8"
+                },
+                {
+                    "name": "Gable Roof Ceiling Tie 1",
+                    "type": "line",
+                    "points": { "x1": 70, "y1": 260, "x2": 410, "y2": 260 },
+                    "layer": "ROOF_2X8"
+                },
+                {
+                    "name": "Gable Roof Ridge Board",
+                    "type": "line",
+                    "points": { "x1": 240, "y1": 290, "x2": 240, "y2": 310 },
+                    "layer": "ROOF_2X8"
+                }
+            ]
+        };
+
+        // Populate JSON Code View
+        document.getElementById('sdjCodeContainer').textContent = JSON.stringify(sdjData, null, 2);
+
+        // Canvas Setup & Rendering
+        const canvas = document.getElementById('elevationCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            drawElevation();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function drawElevation() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Compute scaling factors to fit 480x320 drawing inside canvas with padding
+            const padding = 30;
+            const targetW = canvas.width - (padding * 2);
+            const targetH = canvas.height - (padding * 2);
+            const scaleX = targetW / 480;
+            const scaleY = targetH / 320;
+            const scale = Math.min(scaleX, scaleY);
+
+            const offsetX = (canvas.width - (480 * scale)) / 2;
+            const offsetY = (canvas.height - (320 * scale)) / 2;
+
+            ctx.save();
+            ctx.translate(offsetX, offsetY);
+            ctx.scale(scale, scale);
+
+            // Background sheet
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, 480, 320);
+
+            sdjData.elements.forEach(el => {
+                ctx.lineWidth = 1.5;
+                if (el.layer === 'BORDER') {
+                    ctx.strokeStyle = '#334155';
+                    ctx.strokeRect(el.bounds.x, el.bounds.y, el.bounds.width, el.bounds.height);
+                } else if (el.layer === 'WALL_EXTERIOR') {
+                    ctx.strokeStyle = '#60a5fa';
+                    ctx.fillStyle = 'rgba(96, 165, 250, 0.05)';
+                    ctx.fillRect(el.bounds.x, el.bounds.y, el.bounds.width, el.bounds.height);
+                    ctx.strokeRect(el.bounds.x, el.bounds.y, el.bounds.width, el.bounds.height);
+                } else if (el.layer === 'FURNITURE_BASE') {
+                    ctx.strokeStyle = '#34d399';
+                    ctx.fillStyle = 'rgba(52, 211, 153, 0.1)';
+                    ctx.fillRect(el.bounds.x, el.bounds.y, el.bounds.width, el.bounds.height);
+                    ctx.strokeRect(el.bounds.x, el.bounds.y, el.bounds.width, el.bounds.height);
+                } else if (el.layer === 'FENESTRATION') {
+                    ctx.strokeStyle = '#f472b6';
+                    ctx.fillStyle = 'rgba(244, 114, 182, 0.08)';
+                    ctx.fillRect(el.bounds.x, el.bounds.y, el.bounds.width, el.bounds.height);
+                    ctx.strokeRect(el.bounds.x, el.bounds.y, el.bounds.width, el.bounds.height);
+                } else if (el.layer === 'ROOF_2X8') {
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.beginPath();
+                    ctx.moveTo(el.points.x1, el.points.y1);
+                    ctx.lineTo(el.points.x2, el.points.y2);
+                    ctx.stroke();
+                }
+            });
+
+            ctx.restore();
+        }
+
+        function resetCanvas() {
+            drawElevation();
+        }
+
+        function copySDJData() {
+            const jsonString = JSON.stringify(sdjData, null, 2);
+            const textArea = document.createElement('textarea');
+            textArea.value = jsonString;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                const notification = document.getElementById('copyNotification');
+                notification.classList.remove('hidden');
+                setTimeout(() => notification.classList.add('hidden'), 3000);
+            } catch (err) {
+                console.error('Failed to copy SDJ text', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Initial render execution on load
+        window.onload = function() {
+            resizeCanvas();
+        };
+    </script>
+</body>
+</html>
