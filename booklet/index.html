@@ -13,31 +13,6 @@
             size: letter landscape;
             margin: 0;
         }
-
-.quadrant {
-            border: 1px solid var(--line-color);
-            box-sizing: border-box;
-            padding: 0.3in;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
-        }
-        .image-container {
-            display: flex;
-            align-items: center;    /* Centers vertically */
-            justify-content: center; /* Centers horizontally */
-            flex-grow: 1;            /* Fills available vertical space */
-            width: 100%;
-            overflow: hidden;
-        }
-        .image-container img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-        
         body {
             margin: 0;
             padding: 0;
@@ -72,76 +47,24 @@
         .top-half {
             transform: rotate(180deg);
         }
+        .image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+        }
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
         .text-lines div {
             border-bottom: 1px solid #ccc;
             height: 18px;
             margin-bottom: 5px;
         }
-        .image-placeholder {
-            border: 2px solid var(--line-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-weight: bold;
-            font-size: 10px;
-            background: #fafafa;
-            color: black;
-        }
-        
-        /* High Fidelity Embedded Dark Business Card Styling */
-        .dark-biz-card {
-            background: #111;
-            color: #fff;
-            border: 1px solid #000;
-            height: 1.33in;
-            width: 2.0in;
-            margin: 0 auto;
-            box-sizing: border-box;
-            padding: 10px 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            font-family: var(--font-stack);
-        }
-        .card-top {
-            font-size: 9px;
-            color: #888;
-            letter-spacing: 0.5px;
-        }
-        .card-mid {
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 1.5px;
-            margin-top: 5px;
-        }
-        .card-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-top: 5px;
-        }
-        .card-name {
-            font-size: 10px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-        .card-qr-box {
-            width: 28px;
-            height: 28px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .card-mini-logo {
-            border: 1px solid #fff;
-            padding: 1px 3px;
-            font-size: 8px;
-            font-weight: bold;
-            display: inline-block;
-        }
-
         .single-rule {
             border: none;
             border-top: 1px solid var(--line-color);
@@ -211,38 +134,34 @@
     <div class="folder-matrix" id="bookletMatrix">
         <div class="center-crosshair"></div>
 
-<div class="quadrant top-half">
-
-            
-            <!-- Centered Image Wrapper -->
+        <!-- Quadrant 1 (Top-Left / Rotated) -->
+        <div class="quadrant top-half">
             <div class="image-container">
                 <img src="https://raw.githubusercontent.com/btlsp2000/wally/main/Screenshot%202026-10-09%20131751.png" alt="Wally Engine Screenshot">
             </div>
-
-
         </div>
-        
 
-
+        <!-- Quadrant 2 (Top-Right / Rotated) -->
         <div class="quadrant top-half">
-            <div style="text-align: left; font-size: 13px; font-weight: medium;">
+            <div style="text-align: left; font-size: 13px;">
                 <ul>
-            <li>LINE : Spawns a standard 0-thickness geometric path.</li>
-            <li>WALL : Spawns a thickened polyline structure.</li>
-            <li>CIRCLE : Spawns a native circle. Width = Radius. Depth = Tube Wall.</li>
-            <li>DIM : Spawns a dimension measurement tool.</li>
-            <li>TEXT : Spawns a text annotation label.</li>
-            <li>STAIR : Spawns a parametric stair tread array.</li>
-            <li>X,Y : Type a coordinate (e.g., <kbd>15,25</kbd> ) to append a point to the active path.</li>
-            <li>ERASE : Deletes the currently selected entity (or press <kbd>DEL</kbd> ).</li>
-            <li>ZOOM E : Zoom Extents. Automatically scales to fit your geometry.</li>
-            <li>DXF : Compiles visible layers into a 2D AutoCAD file for CNC/Laser.</li>
-            <li>HAL : Toggles the high-contrast presentation view.</li>
-            <li>SCRIPT : Opens the Macro Interpreter to batch-generate geometry from a .dat file.</li>
-        </ul></div>
-
+                    <li>LINE : Spawns a standard 0-thickness geometric path.</li>
+                    <li>WALL : Spawns a thickened polyline structure.</li>
+                    <li>CIRCLE : Spawns a native circle. Width = Radius. Depth = Tube Wall.</li>
+                    <li>DIM : Spawns a dimension measurement tool.</li>
+                    <li>TEXT : Spawns a text annotation label.</li>
+                    <li>STAIR : Spawns a parametric stair tread array.</li>
+                    <li>X,Y : Type a coordinate (e.g., <kbd>15,25</kbd>) to append a point to the active path.</li>
+                    <li>ERASE : Deletes the currently selected entity (or press <kbd>DEL</kbd>).</li>
+                    <li>ZOOM E : Zoom Extents. Automatically scales to fit your geometry.</li>
+                    <li>DXF : Compiles visible layers into a 2D AutoCAD file for CNC/Laser.</li>
+                    <li>HAL : Toggles the high-contrast presentation view.</li>
+                    <li>SCRIPT : Opens the Macro Interpreter to batch-generate geometry from a .dat file.</li>
+                </ul>
+            </div>
         </div>
 
+        <!-- Quadrant 3 (Bottom-Left) -->
         <div class="quadrant">
             <div style="display: block; width: 100%; min-height: 1.2in;">
                 <div id="qrcode" class="qr-container"></div>
@@ -258,25 +177,20 @@
             </div>
         </div>
 
+        <!-- Quadrant 4 (Bottom-Right) -->
         <div class="quadrant">
             <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; letter-spacing: 1px;">
                 <span id="bookletVersion" style="color: #666;">VER: FETCHING...</span>
-
             </div>
-             <div class="image-container">
-                <img src="https://raw.githubusercontent.com/btlsp2000/wally/main/wcard.jpg" alt="Wally Engine Screenshot">
+            <div class="image-container">
+                <img src="https://raw.githubusercontent.com/btlsp2000/wally/main/wcard.jpg" alt="Wally Card Artwork">
             </div>
-
             
             <hr class="single-rule">
             <div class="url-text">WALLYCAD.COM</div>
             
             <div class="intro-text-block">
-                Welcome to Wally, a pure, frictionless 2D drafting engine driven by 
-                Cartesian math operating completely offline. Bypassing subscription-trapped 
-                tools, it utilizes a precision spawn-and-modify sequence: spawn an entity 
-                via toolbar or CLI, adjust properties like thickness or radius for real-time 
-                scaling, and paste a Cartesian matrix for instant canvas updates.
+                Welcome to Wally, a pure, frictionless 2D drafting engine driven by Cartesian math operating completely offline. Bypassing subscription-trapped tools, it utilizes a precision spawn-and-modify sequence: spawn an entity via toolbar or CLI, adjust properties like thickness or radius for real-time scaling, and paste a Cartesian matrix for instant canvas updates.
             </div>
         </div>
     </div>
