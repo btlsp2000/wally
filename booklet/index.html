@@ -101,6 +101,55 @@
             text-align: justify;
             margin-top: 5px;
         }
+        
+        /* Quadrant 4 Specific Additions */
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+        .card-version-label {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #333;
+        }
+        .card-note-label {
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            color: #555;
+        }
+        .card-image-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+            margin: 2px 0;
+            padding: 4px;
+            border: 1px dashed #ccc;
+        }
+        .card-image-box img {
+            max-height: 1.5in;
+            object-fit: contain;
+        }
+        .url-text-compact {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-align: center;
+            margin: 2px 0;
+        }
+        .intro-text-compact {
+            font-size: 11.5px;
+            line-height: 1.3;
+            text-align: justify;
+            margin-top: 4px;
+        }
+
         .center-crosshair {
             position: absolute;
             top: 50%;
@@ -177,21 +226,21 @@
             </div>
         </div>
 
-        <!-- Quadrant 4 (Bottom-Right) --><!-- Quadrant 4 (Bottom-Right) -->
+        <!-- Quadrant 4 (Bottom-Right) -->
         <div class="quadrant">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-                <span id="bookletVersion" style="font-size: 10px; font-weight: bold; letter-spacing: 1px; color: #333;">VER: FETCHING...</span>
-                <span style="font-size: 9px; font-weight: bold; letter-spacing: 0.5px; color: #555;">[ NEW CARD + ALTERNATES ]</span>
+            <div class="card-header-row">
+                <span id="bookletVersion" class="card-version-label">VER: FETCHING...</span>
+                <span class="card-note-label">[ NEW CARD + ALTERNATES ]</span>
             </div>
             
-            <div class="image-container" style="margin: 2px 0; padding: 4px; border: 1px dashed #ccc;">
-                <img src="https://raw.githubusercontent.com/btlsp2000/wally/main/wcard.jpg" alt="Wally Card Artwork" style="max-height: 1.6in; object-fit: contain;">
+            <div class="card-image-box">
+                <img src="https://raw.githubusercontent.com/btlsp2000/wally/main/wcard.jpg" alt="Wally Card Artwork">
             </div>
             
             <hr class="single-rule" style="margin: 6px 0;">
-            <div class="url-text" style="font-size: 16px; margin: 2px 0;">WALLYCAD.COM</div>
+            <div class="url-text-compact">WALLYCAD.COM</div>
             
-            <div class="intro-text-block" style="font-size: 11.5px; line-height: 1.3;">
+            <div class="intro-text-compact">
                 Welcome to Wally, a pure, frictionless 2D drafting engine driven by Cartesian math operating completely offline. Bypassing subscription-trapped tools, it utilizes a precision spawn-and-modify sequence: spawn an entity via toolbar or CLI, adjust properties like thickness or radius for real-time scaling, and paste a Cartesian matrix for instant canvas updates.
             </div>
         </div>
