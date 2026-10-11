@@ -13,6 +13,42 @@
             size: letter landscape;
             margin: 0;
         }
+
+body {
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            font-family: var(--font-stack);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; /* Prevents accidental overflow */
+        }
+        .folder-matrix {
+            width: 11in;
+            height: 8.5in;
+            max-height: 8.5in;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            background: white;
+            color: black;
+            position: relative;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+        @media print {
+            body { background: white; }
+            .folder-matrix {
+                width: 11in;
+                height: 8.5in;
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+        }
+        
         body {
             margin: 0;
             padding: 0;
