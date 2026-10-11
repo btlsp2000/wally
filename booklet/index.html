@@ -192,30 +192,40 @@
 
         <!-- Quadrant 2 (Top-Right / Rotated) -->
         <div class="quadrant top-half">
-            <div style="text-align: left; font-size: 13px;">
-                <ul>
-                    <li>LINE : Spawns a standard 0-thickness geometric path.</li>
-                    <li>WALL : Spawns a thickened polyline structure.</li>
-                    <li>CIRCLE : Spawns a native circle. Width = Radius. Depth = Tube Wall.</li>
-                    <li>DIM : Spawns a dimension measurement tool.</li>
-                    <li>TEXT : Spawns a text annotation label.</li>
-                    <li>STAIR : Spawns a parametric stair tread array.</li>
-                    <li>X,Y : Type a coordinate (e.g., <kbd>15,25</kbd>) to append a point to the active path.</li>
-                    <li>ERASE : Deletes the currently selected entity (or press <kbd>DEL</kbd>).</li>
-                    <li>ZOOM E : Zoom Extents. Automatically scales to fit your geometry.</li>
-                    <li>DXF : Compiles visible layers into a 2D AutoCAD file for CNC/Laser.</li>
-                    <li>HAL : Toggles the high-contrast presentation view.</li>
-                    <li>SCRIPT : Opens the Macro Interpreter to batch-generate geometry from a .dat file.</li>
-                </ul>
+            <div style="display: flex; flex-direction: column; height: 100%;">
+                <div style="font-size: 13px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid var(--line-color); padding-bottom: 4px; margin-bottom: 6px; text-align: left;">
+                    COMMANDS
+                </div>
+                <div style="text-align: left; font-size: 11px; line-height: 1.3; overflow-y: auto;">
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>LINE</strong> : Spawns a standard 0-thickness geometric path.</li>
+                        <li><strong>WALL</strong> : Spawns a thickened polyline structure.</li>
+                        <li><strong>CIRCLE</strong> : Spawns a native circle. Width = Radius. Depth = Tube Wall.</li>
+                        <li><strong>DIM</strong> : Spawns a dimension measurement tool.</li>
+                        <li><strong>TEXT</strong> : Spawns a text annotation label.</li>
+                        <li><strong>STAIR</strong> : Spawns a parametric stair tread array.</li>
+                        <li><strong>X,Y</strong> : Type a coordinate (e.g., <kbd>15,25</kbd>) to append a point to the active path.</li>
+                        <li><strong>ERASE</strong> : Deletes the currently selected entity (or press <kbd>DEL</kbd>).</li>
+                        <li><strong>ZOOM E</strong> : Zoom Extents. Automatically scales to fit your geometry.</li>
+                        <li><strong>DXF</strong> : Compiles visible layers into a 2D AutoCAD file for CNC/Laser.</li>
+                        <li><strong>HAL</strong> : Toggles the high-contrast presentation view.</li>
+                        <li><strong>SCRIPT</strong> : Opens the Macro Interpreter to batch-generate geometry from a .dat file.</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
         <!-- Quadrant 3 (Bottom-Left) -->
         <div class="quadrant">
-            <div style="display: block; width: 100%; min-height: 1.2in;">
+            <div style="display: block; width: 100%;">
                 <div id="qrcode" class="qr-container"></div>
-                <div style="font-size: 12px; line-height: 1.35; text-align: justify;">
-                    Canvas navigation is straightforward: click and drag the Right Mouse Button, hold the ALT key with Left-Click, or use the Middle-Click wheel to pan; scroll wheel to zoom. Left-Click any entity to view data matrix. Click Coordinate Box to force values.
+                <div style="font-size: 11px; line-height: 1.3;">
+                    <div style="font-weight: bold; margin-bottom: 4px;">Canvas navigation:</div>
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>CLICK</strong> : Click and drag the Right Mouse Button to pan.</li>
+                        <li><strong>LEFT-CLICK</strong> : Hold ALT with Left-Click to pan, or click any entity to view data matrix. Click Coordinate Box to force values.</li>
+                        <li><strong>SCROLL</strong> : Use scroll wheel to zoom (or Middle-Click wheel to pan).</li>
+                    </ul>
                 </div>
             </div>
             
