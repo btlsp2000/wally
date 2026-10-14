@@ -3,11 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WallyCAD Manual - Production Booklet Print</title>
+    <title>Traverse Engine - Production Booklet Print</title>
     <style>
         :root {
             --line-color: #000;
             --font-stack: 'Consolas', 'Courier New', monospace;
+            /* Traverse UI Colors */
+            --bg-canvas: #000000;
+            --traverse-neon: #00ff00;
+            --traverse-origin: #ff0000;
+            --traverse-muted: #555555;
+            --grid: #111111;
         }
         @page {
             size: letter landscape;
@@ -48,6 +54,7 @@
             position: relative;
             overflow: hidden;
         }
+        /* Top half is rotated 180deg for tumble-fold booklet printing */
         .top-half {
             transform: rotate(180deg);
         }
@@ -58,29 +65,22 @@
             flex-grow: 1;
             width: 100%;
             overflow: hidden;
+            background: var(--bg-canvas);
+            border: 2px solid var(--line-color);
+            border-radius: 4px;
+            padding: 10px;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0,255,0,0.1);
         }
-        .image-container img {
+        .image-container svg {
             max-width: 100%;
             max-height: 100%;
-            object-fit: contain;
-        }
-        .text-lines div {
-            border-bottom: 1px solid #ccc;
-            height: 18px;
-            margin-bottom: 5px;
         }
         .single-rule {
             border: none;
             border-top: 1px solid var(--line-color);
             margin: 10px 0;
             width: 100%;
-        }
-        .url-text {
-            font-size: 18px;
-            font-weight: bold;
-            letter-spacing: 3px;
-            text-align: center;
-            margin: 4px 0;
         }
         .qr-container {
             float: right;
@@ -99,14 +99,7 @@
             line-height: 1.3;
             font-weight: bold;
         }
-        .intro-text-block {
-            font-size: 12px;
-            line-height: 1.35;
-            text-align: justify;
-            margin-top: 5px;
-        }
         
-        /* Quadrant 4 Specific Additions */
         .card-header-row {
             display: flex;
             justify-content: space-between;
@@ -135,10 +128,6 @@
             margin: 2px 0;
             padding: 4px;
             border: 1px dashed #ccc;
-        }
-        .card-image-box img {
-            max-height: 1.5in;
-            object-fit: contain;
         }
         .url-text-compact {
             font-size: 16px;
@@ -188,76 +177,116 @@
     <div class="folder-matrix" id="bookletMatrix">
         <div class="center-crosshair"></div>
 
-        <!-- Quadrant 1 (Top-Left / Rotated) -->
+        <!-- Quadrant 1 (Top-Left / Rotated): Illustration -->
         <div class="quadrant top-half">
+            <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px; text-align: center;">TRAVERSE LOGIC & DEFLECTION VECTORS</div>
             <div class="image-container">
-                <img src="https://raw.githubusercontent.com/btlsp2000/wally/main/blet2.png" alt="Wally Engine Screenshot">
+                <svg viewBox="0 0 350 160" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Grid Lines -->
+                    <g stroke="var(--grid)" stroke-width="1">
+                        <line x1="0" y1="40" x2="350" y2="40" />
+                        <line x1="0" y1="80" x2="350" y2="80" />
+                        <line x1="0" y1="120" x2="350" y2="120" />
+                        <line x1="50" y1="0" x2="50" y2="160" />
+                        <line x1="130" y1="0" x2="130" y2="160" />
+                        <line x1="210" y1="0" x2="210" y2="160" />
+                        <line x1="290" y1="0" x2="290" y2="160" />
+                    </g>
+
+                    <!-- Traverse Path Lines -->
+                    <polyline points="50,120 130,120 130,40 210,40 270,100" fill="none" stroke="var(--traverse-neon)" stroke-width="2" stroke-linejoin="miter"/>
+                    
+                    <!-- Projection Dash -->
+                    <line x1="210" y1="40" x2="240" y2="40" stroke="var(--traverse-muted)" stroke-dasharray="3,3" stroke-width="1.5"/>
+                    <path d="M 230,40 A 20,20 0 0,1 224,54" fill="none" stroke="var(--traverse-neon)" stroke-width="1"/>
+
+                    <!-- Nodes -->
+                    <!-- Start Point P0 (Red) -->
+                    <rect x="47" y="117" width="6" height="6" fill="var(--traverse-origin)" />
+                    <!-- P1 to P4 (Green) -->
+                    <rect x="128" y="118" width="4" height="4" fill="var(--traverse-neon)" />
+                    <rect x="128" y="38" width="4" height="4" fill="var(--traverse-neon)" />
+                    <rect x="208" y="38" width="4" height="4" fill="var(--traverse-neon)" />
+                    <rect x="268" y="98" width="4" height="4" fill="var(--traverse-neon)" />
+
+                    <!-- Annotations -->
+                    <text x="80" y="115" fill="var(--traverse-neon)" font-family="monospace" font-size="9">L 80</text>
+                    <text x="135" y="80" fill="var(--traverse-neon)" font-family="monospace" font-size="9">L 80</text>
+                    <text x="160" y="35" fill="var(--traverse-neon)" font-family="monospace" font-size="9">R 80</text>
+                    <text x="245" y="70" fill="var(--traverse-neon)" font-family="monospace" font-size="9">T 85, 45</text>
+                    
+                    <text x="10" y="20" fill="var(--traverse-muted)" font-family="monospace" font-size="10">Heading: 45° | P-Points: 5</text>
+                </svg>
             </div>
+            <div style="font-size: 9px; text-align: center; margin-top: 5px; color: #555;">RED: Origin P0 | GREEN: Computed Trajectory Vectors</div>
         </div>
 
-        <!-- Quadrant 2 (Top-Right / Rotated) -->
+        <!-- Quadrant 2 (Top-Right / Rotated): Commands & Instructions -->
         <div class="quadrant top-half">
             <div style="display: flex; flex-direction: column; height: 100%;">
                 <div style="font-size: 13px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid var(--line-color); padding-bottom: 4px; margin-bottom: 6px; text-align: left;">
-                    WALLY COMMANDS
+                    CLI COMMAND SYNTAX
                 </div>
-                <div style="text-align: left; font-size: 11px; line-height: 1.3; overflow-y: auto;">
+                <div style="text-align: left; font-size: 11px; line-height: 1.35; overflow-y: auto;">
+                    <p style="margin-top:0;">The engine plots relative survey offsets sequentially. Type commands directly into the CLI box and press Enter:</p>
                     <ul style="margin: 0; padding-left: 15px;">
-                        <li><strong>LINE</strong> : Spawns a standard 0-thickness geometric path.</li>
-                        <li><strong>WALL</strong> : Spawns a thickened polyline structure.</li>
-                        <li><strong>CIRCLE</strong> : Spawns a native circle. Width = Radius. Depth = Tube Wall.</li>
-                        <li><strong>DIM</strong> : Spawns a dimension measurement tool.</li>
-                        <li><strong>TEXT</strong> : Spawns a text annotation label.</li>
-                        <li><strong>STAIR</strong> : Spawns a parametric stair tread array.</li>
-                        <li><strong>X,Y</strong> : Type a coordinate (e.g., <kbd>15,25</kbd>) to append a point to the active path.</li>
-                        <li><strong>ERASE</strong> : Deletes the currently selected entity (or press <kbd>DEL</kbd>).</li>
-                        <li><strong>ZOOM E</strong> : Zoom Extents. Automatically scales to fit your geometry.</li>
-                        <li><strong>DXF</strong> : Compiles visible layers into a 2D AutoCAD file for CNC/Laser.</li>
-                        <li><strong>HAL</strong> : Toggles the high-contrast presentation view.</li>
-                        <li><strong>SCRIPT</strong> : Opens the Macro Interpreter to batch-generate geometry from a .dat file.</li>
+                        <li><strong>L {dist}</strong> : Turn Left (90°) relative to current heading and traverse <code>dist</code> units.</li>
+                        <li><strong>R {dist}</strong> : Turn Right (-90°) relative to current heading and traverse <code>dist</code> units.</li>
+                        <li><strong>T {dist},{ang}</strong> : Turn by a specific <code>ang</code> deflection and traverse <code>dist</code> units.</li>
+                        <li><strong>E</strong> : Zoom Extents (Fit active path to viewport).</li>
+                        <li><strong>W</strong> : Copy Wally Path to clipboard.</li>
+                    </ul>
+                    
+                    <div style="font-size: 13px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid var(--line-color); padding-bottom: 4px; margin: 10px 0 6px 0; text-align: left;">
+                        PATH EXPORT & SYNC
+                    </div>
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>COPY WALLY PATH:</strong> Translates the relative sequence into absolute Cartesian points locked to 4 decimal places, formatted explicitly for the WallyCAD engine (<code>**X,Y**</code> pairs).</li>
+                        <li><strong>SYNC TO GIST:</strong> Pushes the raw traverse log to GitHub Gists for cloud retention.</li>
                     </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Quadrant 3 (Bottom-Left) -->
+        <!-- Quadrant 3 (Bottom-Left): Nav & Signature -->
         <div class="quadrant">
             <div style="display: block; width: 100%;">
                 <div id="qrcode" class="qr-container"></div>
                 <div style="font-size: 11px; line-height: 1.3;">
-                    <div style="font-weight: bold; margin-bottom: 4px;">Canvas navigation:</div>
+                    <div style="font-weight: bold; margin-bottom: 4px; font-size: 13px; letter-spacing: 1px;">CANVAS NAVIGATION:</div>
                     <ul style="margin: 0; padding-left: 15px;">
-                        <li><strong>CLICK</strong> and drag the Right Mouse Button, hold ALT with Left-Click, or use the Middle-Click wheel to pan.</li>
-                        <li><strong>LEFT-CLICK</strong> any entity to view data matrix.</li>
-                        <li><strong>CLICK</strong> Coordinate Box to force values.</li>
-                        <li><strong>SCROLL</strong> wheel to zoom.</li>
+                        <li><strong>SCROLL WHEEL:</strong> Zoom in/out of the active viewport.</li>
+                        <li><strong>CLICK & DRAG:</strong> Free-pan across the Cartesian grid.</li>
+                        <li><strong>ORIGIN ANCHOR:</strong> P0 automatically centers to the screen on initialization and is locked at <code>0,0</code>.</li>
                     </ul>
+                    <div style="font-weight: bold; margin: 8px 0 4px 0; font-size: 13px; letter-spacing: 1px;">SURVEYOR WORKFLOW:</div>
+                    <p style="margin:0;">Instead of manually calculating sine/cosine offsets, input boundary calls sequentially. The engine handles all trigonometry.</p>
                 </div>
             </div>
             
             <hr class="single-rule">
             <div class="signature-block">
-                BILL TONNESEN<br>
-                WALLYCAD.COM
+                WALLYCAD.COM/TRAVERSE<br>
+                BILL TONNESEN
             </div>
         </div>
 
-        <!-- Quadrant 4 (Bottom-Right) -->
+        <!-- Quadrant 4 (Bottom-Right): Front Cover -->
         <div class="quadrant">
             <div class="card-header-row">
-                <span id="bookletVersion" class="card-version-label">VER: FETCHING...</span>
-                <span class="card-note-label">[ NEW CARD + ALTERNATES ]</span>
+                <span id="bookletVersion" class="card-version-label">VER: traverse-v1 [2026.10.14]</span>
+                <span class="card-note-label">[ RELATIVE-TO-ABSOLUTE ]</span>
             </div>
             
             <div class="card-image-box">
-                <img src="https://raw.githubusercontent.com/btlsp2000/wally/main/wcard.jpg" alt="Wally Card Artwork">
+                 <div style="font-size:24px; font-weight:bold; letter-spacing:4px;">WALLYCAD</div>
             </div>
             
             <hr class="single-rule" style="margin: 6px 0;">
-            <div class="url-text-compact">WALLYCAD.COM</div>
+            <div class="url-text-compact">TRAVERSE ENGINE</div>
             
             <div class="intro-text-compact">
-                Welcome to Wally, a pure, frictionless 2D drafting engine driven by Cartesian math operating completely offline. Bypassing subscription-trapped tools, it utilizes a precision spawn-and-modify sequence: spawn an entity via toolbar or CLI, adjust properties like thickness or radius for real-time scaling, and paste a Cartesian matrix for instant canvas updates.
+                The WallyCAD Traverse Engine converts sequential distances and deflection angles into precise Cartesian coordinates. It translates relative survey paths (Left/Right/Angle calls) into a continuous node array, automatically executing trigonometric math to export tuple scripts for immediate downstream DXF compilation or architectural framing.
             </div>
         </div>
     </div>
@@ -269,7 +298,7 @@
             if (qrContainer) {
                 qrContainer.innerHTML = "";
                 new QRCode(qrContainer, {
-                    text: "https://wallycad.com/manual",
+                    text: "https://wallycad.com/traverse",
                     width: 76,
                     height: 76,
                     colorDark : "#000000",
@@ -277,17 +306,6 @@
                     correctLevel : QRCode.CorrectLevel.H
                 });
             }
-
-            const versionLabel = document.getElementById("bookletVersion");
-            if (versionLabel) {
-                const timestamp = new Date();
-                const formattedDate = timestamp.getFullYear() + "." + 
-                                      String(timestamp.getMonth() + 1).padStart(2, '0') + "." + 
-                                      String(timestamp.getDate()).padStart(2, '0');
-                
-                versionLabel.innerText = `VER: wally-v1 [${formattedDate}]`;
-            }
-            
             window.print();
         });
     </script>
