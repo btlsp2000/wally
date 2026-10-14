@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truss Analytics Engine - Production Booklet Print</title>
+    <style>
+        :root {
+            --line-color: #000;
+            --font-stack: 'Consolas', 'Courier New', monospace;
+            /* Truss Engine Colors */
+            --bg-canvas: #000000;
+            --truss-neon: #00ff00;
+            --panel-bg: #1a1a1a;
+            --panel-border: #333333;
+            --table-header: #222222;
+            --text-muted: #888888;
+        }
+        @page {
+            size: letter landscape;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            font-family: var(--font-stack);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .folder-matrix {
+            width: 11in;
+            height: 8.5in;
+            max-height: 8.5in;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            background: white;
+            color: black;
+            position: relative;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+        .quadrant {
+            border: 1px solid var(--line-color);
+            box-sizing: border-box;
+            padding: 0.35in;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Top half is rotated 180deg for tumble-fold booklet printing */
+        .top-half {
+            transform: rotate(180deg);
+        }
+        .image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+            background: var(--bg-canvas);
+            border: 2px solid var(--line-color);
+            border-radius: 4px;
+            padding: 10px;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0,255,0,0.2);
+        }
+        .image-container svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .single-rule {
+            border: none;
+            border-top: 1px solid var(--line-color);
+            margin: 10px 0;
+            width: 100%;
+        }
+        .qr-container {
+            float: right;
+            width: 0.9in;
+            height: 0.9in;
+            border: 2px solid var(--line-color);
+            margin-left: 12px;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+        .signature-block {
+            font-size: 11px;
+            line-height: 1.3;
+            font-weight: bold;
+        }
+        
+        /* Quadrant 4 Specific Additions */
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+        .card-version-label {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #333;
+        }
+        .card-note-label {
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            color: #555;
+        }
+        .card-image-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+            margin: 2px 0;
+            padding: 4px;
+            border: 1px dashed #ccc;
+        }
+        .url-text-compact {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-align: center;
+            margin: 2px 0;
+        }
+        .intro-text-compact {
+            font-size: 11.5px;
+            line-height: 1.3;
+            text-align: justify;
+            margin-top: 4px;
+        }
+
+        .center-crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .center-crosshair::before, .center-crosshair::after {
+            content: "";
+            position: absolute;
+            background: var(--line-color);
+        }
+        .center-crosshair::before { top: 9px; left: 0; width: 20px; height: 2px; }
+        .center-crosshair::after { top: 0; left: 9px; width: 2px; height: 20px; }
+
+        @media print {
+            body { background: white; }
+            .folder-matrix {
+                width: 11in;
+                height: 8.5in;
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="folder-matrix" id="bookletMatrix">
+        <div class="center-crosshair"></div>
+
+        <!-- Quadrant 1 (Top-Left / Rotated): Illustration -->
+        <div class="quadrant top-half">
+            <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px; text-align: center;">V1.0.10 TRUSS ANALYTICS ENGINE</div>
+            <div class="image-container">
+                <!-- Custom SVG replicating the Truss Canvas Workspace -->
+                <svg viewBox="0 0 350 160" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Top Data Label -->
+                    <text x="10" y="15" fill="var(--text-muted)" font-family="monospace" font-size="10">Current Profile: 12' x 2' (6 Panels)</text>
+                    
+                    <!-- Web Framing Lines (Neon Green) -->
+                    <g fill="none" stroke="var(--truss-neon)" stroke-width="2" stroke-linejoin="round">
+                        <!-- Top Chord -->
+                        <line x1="25" y1="40" x2="325" y2="40" />
+                        <!-- Bottom Chord -->
+                        <line x1="50" y1="120" x2="300" y2="120" />
+                        <!-- Diagonals / Vertical Webs -->
+                        <polyline points="25,40 50,120 75,40 100,120 125,40 150,120 175,40 200,120 225,40 250,120 275,40 300,120 325,40" />
+                    </g>
+
+                    <!-- Nodes (Neon Green Circles) -->
+                    <g fill="var(--truss-neon)">
+                        <!-- Top Chord Nodes (T0 - T6) -->
+                        <circle cx="25" cy="40" r="3" />
+                        <circle cx="75" cy="40" r="3" />
+                        <circle cx="125" cy="40" r="3" />
+                        <circle cx="175" cy="40" r="3" />
+                        <circle cx="225" cy="40" r="3" />
+                        <circle cx="275" cy="40" r="3" />
+                        <circle cx="325" cy="40" r="3" />
+                        <!-- Bottom Chord Nodes (B0 - B5) -->
+                        <circle cx="50" cy="120" r="3" />
+                        <circle cx="100" cy="120" r="3" />
+                        <circle cx="150" cy="120" r="3" />
+                        <circle cx="200" cy="120" r="3" />
+                        <circle cx="250" cy="120" r="3" />
+                        <circle cx="300" cy="120" r="3" />
+                    </g>
+                    
+                    <!-- Node Annotations -->
+                    <text x="20" y="32" fill="var(--truss-neon)" font-family="monospace" font-size="8">T0</text>
+                    <text x="70" y="32" fill="var(--truss-neon)" font-family="monospace" font-size="8">T1</text>
+                    <text x="170" y="32" fill="var(--truss-neon)" font-family="monospace" font-size="8">T3</text>
+                    
+                    <text x="45" y="132" fill="var(--truss-neon)" font-family="monospace" font-size="8">B0</text>
+                    <text x="95" y="132" fill="var(--truss-neon)" font-family="monospace" font-size="8">B1</text>
+                </svg>
+            </div>
+            <div style="font-size: 9px; text-align: center; margin-top: 5px; color: #555;">TOP CHORD: (T) Nodes | BOTTOM CHORD: (B) Nodes</div>
+        </div>
+
+        <!-- Quadrant 2 (Top-Right / Rotated): Commands & Instructions -->
+        <div class="quadrant top-half">
+            <div style="display: flex; flex-direction: column; height: 100%;">
+                <div style="font-size: 13px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid var(--line-color); padding-bottom: 4px; margin-bottom: 6px; text-align: left;">
+                    QC COMMAND SYNTAX
+                </div>
+                <div style="text-align: left; font-size: 11px; line-height: 1.35; overflow-y: auto;">
+                    <p style="margin-top:0;">Type your parameter string directly into the <strong>QC Input Box</strong> and press Enter:</p>
+                    <div style="background:#eee; border:1px solid #ccc; padding:4px 8px; font-family:monospace; margin-bottom:8px;">
+                        T[SPAN]-[DEPTH]-[PANELS]
+                    </div>
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>SPAN:</strong> Total horizontal baseline length (feet).</li>
+                        <li><strong>DEPTH:</strong> Vertical height from bottom chord to top chord (feet).</li>
+                        <li><strong>PANELS:</strong> Number of upper chord divisions.</li>
+                    </ul>
+                    <p style="margin-top:6px; font-style:italic;">Example: <code>T12-2-8</code> (12ft span, 2ft deep, 8 panels)</p>
+                    
+                    <div style="font-size: 13px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid var(--line-color); padding-bottom: 4px; margin: 10px 0 6px 0; text-align: left;">
+                        DATA EXPORT
+                    </div>
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>COORDINATE TABLE:</strong> Live matrix mapping every T-node and B-node explicitly in X,Y space.</li>
+                        <li><strong>EXPORT JSON:</strong> Serializes the generated chord nodes into a <code>.json</code> array for downstream engineering analysis or fabrication logic.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quadrant 3 (Bottom-Left): Nav & Signature -->
+        <div class="quadrant">
+            <div style="display: block; width: 100%;">
+                <div id="qrcode" class="qr-container"></div>
+                <div style="font-size: 11px; line-height: 1.3;">
+                    <div style="font-weight: bold; margin-bottom: 4px; font-size: 13px; letter-spacing: 1px;">NODE ARCHITECTURE:</div>
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>TOP CHORD (T):</strong> Nodes are spaced equally along the <code>Y = DEPTH</code> axis, incrementing exactly by <code>SPAN / PANELS</code>.</li>
+                        <li><strong>BOTTOM CHORD (B):</strong> Nodes are staggered to center exactly between the top nodes along the baseline <code>Y = 0.000</code> axis, generating symmetrical structural webbing.</li>
+                        <li><strong>PTP LOGIC:</strong> Fully supports Plane to Plane mathematical integration.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="single-rule">
+            <div class="signature-block">
+                WALLYCAD.COM/TRUSS<br>
+                BILL TONNESEN
+            </div>
+        </div>
+
+        <!-- Quadrant 4 (Bottom-Right): Front Cover -->
+        <div class="quadrant">
+            <div class="card-header-row">
+                <span id="bookletVersion" class="card-version-label">VER: truss-v10 [2026.10.13]</span>
+                <span class="card-note-label">[ PTP LOGIC ENABLED ]</span>
+            </div>
+            
+            <div class="card-image-box">
+                 <div style="font-size:24px; font-weight:bold; letter-spacing:4px;">WALLYCAD</div>
+            </div>
+            
+            <hr class="single-rule" style="margin: 6px 0;">
+            <div class="url-text-compact">TRUSS ANALYTICS</div>
+            
+            <div class="intro-text-compact">
+                The WallyCAD Truss Analytics Standalone computes and visualizes deterministically generated truss chord nodes and web layouts based on explicit span, depth, and panel parameters. It bypasses manual CAD drawing, combining a live HTML5 Cartesian canvas with real-time coordinate tabulation and JSON data export for structural verification.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const qrContainer = document.getElementById("qrcode");
+            if (qrContainer) {
+                qrContainer.innerHTML = "";
+                new QRCode(qrContainer, {
+                    text: "https://wallycad.com/truss",
+                    width: 76,
+                    height: 76,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+            window.print();
+        });
+    </script>
+</body>
+</html>
