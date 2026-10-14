@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trans-Rot Matrix Engine - Production Booklet Print</title>
+    <style>
+        :root {
+            --line-color: #000;
+            --font-stack: 'Consolas', 'Courier New', monospace;
+            /* Trans-Rot UI Colors */
+            --bg-canvas: #000000;
+            --matrix-neon: #00ff00;
+            --matrix-muted: #555555;
+        }
+        @page {
+            size: letter landscape;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            font-family: var(--font-stack);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .folder-matrix {
+            width: 11in;
+            height: 8.5in;
+            max-height: 8.5in;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            background: white;
+            color: black;
+            position: relative;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+        .quadrant {
+            border: 1px solid var(--line-color);
+            box-sizing: border-box;
+            padding: 0.35in;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Top half is rotated 180deg for tumble-fold booklet printing */
+        .top-half {
+            transform: rotate(180deg);
+        }
+        .image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+            background: var(--bg-canvas);
+            border: 2px solid var(--line-color);
+            border-radius: 4px;
+            padding: 10px;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0,255,0,0.15);
+        }
+        .image-container svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .single-rule {
+            border: none;
+            border-top: 1px solid var(--line-color);
+            margin: 10px 0;
+            width: 100%;
+        }
+        .qr-container {
+            float: right;
+            width: 0.9in;
+            height: 0.9in;
+            border: 2px solid var(--line-color);
+            margin-left: 12px;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+        .signature-block {
+            font-size: 11px;
+            line-height: 1.3;
+            font-weight: bold;
+        }
+        
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+        .card-version-label {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #333;
+        }
+        .card-note-label {
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            color: #555;
+        }
+        .card-image-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+            margin: 2px 0;
+            padding: 4px;
+            border: 1px dashed #ccc;
+        }
+        .url-text-compact {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-align: center;
+            margin: 2px 0;
+        }
+        .intro-text-compact {
+            font-size: 11.5px;
+            line-height: 1.3;
+            text-align: justify;
+            margin-top: 4px;
+        }
+
+        .center-crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .center-crosshair::before, .center-crosshair::after {
+            content: "";
+            position: absolute;
+            background: var(--line-color);
+        }
+        .center-crosshair::before { top: 9px; left: 0; width: 20px; height: 2px; }
+        .center-crosshair::after { top: 0; left: 9px; width: 2px; height: 20px; }
+
+        @media print {
+            body { background: white; }
+            .folder-matrix {
+                width: 11in;
+                height: 8.5in;
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="folder-matrix" id="bookletMatrix">
+        <div class="center-crosshair"></div>
+
+        <!-- Quadrant 1 (Top-Left / Rotated): Illustration -->
+        <div class="quadrant top-half">
+            <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px; text-align: center;">MATRIX TRANSFORMATION LOGIC</div>
+            <div class="image-container">
+                <svg viewBox="0 0 350 160" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Background Grid -->
+                    <g stroke="#1a1a1a" stroke-width="1">
+                        <line x1="0" y1="20" x2="350" y2="20" />
+                        <line x1="0" y1="60" x2="350" y2="60" />
+                        <line x1="0" y1="100" x2="350" y2="100" />
+                        <line x1="0" y1="140" x2="350" y2="140" />
+                        <line x1="40" y1="0" x2="40" y2="160" />
+                        <line x1="100" y1="0" x2="100" y2="160" />
+                        <line x1="160" y1="0" x2="160" y2="160" />
+                        <line x1="220" y1="0" x2="220" y2="160" />
+                        <line x1="280" y1="0" x2="280" y2="160" />
+                    </g>
+                    
+                    <!-- Original Data Geometry -->
+                    <rect x="20" y="110" width="70" height="30" fill="none" stroke="var(--matrix-muted)" stroke-dasharray="2,2"/>
+                    <circle cx="20" cy="110" r="3" fill="var(--matrix-muted)" />
+                    <text x="20" y="152" fill="var(--matrix-muted)" font-family="monospace" font-size="8">ORIGIN TUPLES</text>
+
+                    <!-- Translation Vector Line -->
+                    <line x1="20" y1="110" x2="190" y2="70" stroke="var(--matrix-neon)" stroke-dasharray="4,2"/>
+                    <text x="100" y="85" fill="var(--matrix-neon)" font-family="monospace" font-size="9">dX, dY</text>
+
+                    <!-- Transformed (Rotated) Data Geometry -->
+                    <g transform="translate(190, 70) rotate(-30)">
+                        <rect x="0" y="0" width="70" height="30" fill="rgba(0,255,0,0.15)" stroke="var(--matrix-neon)" stroke-width="2"/>
+                        <circle cx="0" cy="0" r="3" fill="var(--matrix-neon)" />
+                        <!-- Baseline for rotation visual -->
+                        <line x1="0" y1="0" x2="80" y2="0" stroke="var(--matrix-muted)" stroke-dasharray="2,2" stroke-width="0.5"/>
+                    </g>
+                    
+                    <!-- Rotation Angle Arc -->
+                    <path d="M 230,70 A 40,40 0 0,0 224,48" fill="none" stroke="var(--matrix-neon)" stroke-width="1.5"/>
+                    <text x="235" y="60" fill="var(--matrix-neon)" font-family="monospace" font-size="9">Deg(θ)</text>
+                    
+                    <text x="200" y="25" fill="var(--matrix-neon)" font-family="monospace" font-size="9" font-weight="bold">TRANSFORMED</text>
+                </svg>
+            </div>
+            <div style="font-size: 9px; text-align: center; margin-top: 5px; color: #555;">APPLYING LINEAR TRANSLATION &amp; ROTATION MATRICES</div>
+        </div>
+
+        <!-- Quadrant 2 (Top-Right / Rotated): Commands & Instructions -->
+        <div class="quadrant top-half">
+            <div style="display: flex; flex-direction: column; height: 100%;">
+                <div style="font-size: 13px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid var(--line-color); padding-bottom: 4px; margin-bottom: 6px; text-align: left;">
+                    MATRIX PARAMETERS
+                </div>
+                <div style="text-align: left; font-size: 11px; line-height: 1.35; overflow-y: auto;">
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>dX (Translation):</strong> Distance to shift the entire coordinate array along the horizontal X-axis.</li>
+                        <li><strong>dY (Translation):</strong> Distance to shift the entire coordinate array along the vertical Y-axis.</li>
+                        <li><strong>Deg(θ) (Rotation):</strong> Counter-clockwise angular rotation applied to every vertex around its datum point.</li>
+                    </ul>
+                    
+                    <div style="font-size: 13px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid var(--line-color); padding-bottom: 4px; margin: 10px 0 6px 0; text-align: left;">
+                        TRIGONOMETRIC SOLVER
+                    </div>
+                    <p style="margin: 4px 0;">The engine loops through the numeric string pairs and applies standard Cartesian transformations:</p>
+                    <div style="background:#eee; border:1px solid #ccc; padding:6px; font-family:monospace; margin-bottom:4px;">
+                        rx = X * cos(θ) - Y * sin(θ)<br>
+                        ry = X * sin(θ) + Y * cos(θ)<br><br>
+                        nx = rx + dX<br>
+                        ny = ry + dY
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quadrant 3 (Bottom-Left): Nav & Signature -->
+        <div class="quadrant">
+            <div style="display: block; width: 100%;">
+                <div id="qrcode" class="qr-container"></div>
+                <div style="font-size: 11px; line-height: 1.3;">
+                    <div style="font-weight: bold; margin-bottom: 4px; font-size: 13px; letter-spacing: 1px;">INPUT / OUTPUT WORKFLOW:</div>
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>1. PASTE TUPLES:</strong> Paste standard space-separated or newline-separated Cartesian pairs (<code>X Y</code>) into the top Input text area (e.g., from Stair arrays or WallyCAD exports).</li>
+                        <li><strong>2. SET VALUES:</strong> Enter the desired translation and rotation limits.</li>
+                        <li><strong>3. EXECUTE:</strong> Click the execution button. The script auto-trims whitespace, builds the transformation float arrays, and calculates output to 4 decimal places.</li>
+                        <li><strong>4. COPY:</strong> Copy the newly rotated tuples from the Output buffer for DXF processing.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="single-rule">
+            <div class="signature-block">
+                WALLYCAD.COM/TRANS-ROT<br>
+                BILL TONNESEN
+            </div>
+        </div>
+
+        <!-- Quadrant 4 (Bottom-Right): Front Cover -->
+        <div class="quadrant">
+            <div class="card-header-row">
+                <span id="bookletVersion" class="card-version-label">VER: trans-rot-v1 [2026.10.13]</span>
+                <span class="card-note-label">[ MATRIX ENGINE ]</span>
+            </div>
+            
+            <div class="card-image-box">
+                 <div style="font-size:24px; font-weight:bold; letter-spacing:4px;">WALLYCAD</div>
+            </div>
+            
+            <hr class="single-rule" style="margin: 6px 0;">
+            <div class="url-text-compact">TRANS-ROT MATRIX</div>
+            
+            <div class="intro-text-compact">
+                The WallyCAD Trans-Rot Matrix Engine acts as a standalone spatial translation tool. By parsing raw coordinate arrays—such as structural stair profiles, modular framing, or surveyed plot lines—and applying explicit translation vectors and trigonometric rotation angles, operators can instantly transform baseline orthogonal arrays into complex, skewed structural orientations without manual drafting.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const qrContainer = document.getElementById("qrcode");
+            if (qrContainer) {
+                qrContainer.innerHTML = "";
+                new QRCode(qrContainer, {
+                    text: "https://wallycad.com/trans-rot",
+                    width: 76,
+                    height: 76,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+            window.print();
+        });
+    </script>
+</body>
+</html>
