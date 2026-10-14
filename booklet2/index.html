@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD Manual - Production Booklet Print</title>
+    <style>
+        :root {
+            --line-color: #000;
+            --font-stack: 'Consolas', 'Courier New', monospace;
+        }
+        @page {
+            size: letter landscape;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            font-family: var(--font-stack);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .folder-matrix {
+            width: 11in;
+            height: 8.5in;
+            max-height: 8.5in;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            background: white;
+            color: black;
+            position: relative;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+        .quadrant {
+            border: 1px solid var(--line-color);
+            box-sizing: border-box;
+            padding: 0.35in;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        .top-half {
+            transform: rotate(180deg);
+        }
+        .image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+        }
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .text-lines div {
+            border-bottom: 1px solid #ccc;
+            height: 18px;
+            margin-bottom: 5px;
+        }
+        .single-rule {
+            border: none;
+            border-top: 1px solid var(--line-color);
+            margin: 10px 0;
+            width: 100%;
+        }
+        .url-text {
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-align: center;
+            margin: 4px 0;
+        }
+        .qr-container {
+            float: right;
+            width: 0.9in;
+            height: 0.9in;
+            border: 2px solid var(--line-color);
+            margin-left: 12px;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+        .signature-block {
+            font-size: 11px;
+            line-height: 1.3;
+            font-weight: bold;
+        }
+        .intro-text-block {
+            font-size: 12px;
+            line-height: 1.35;
+            text-align: justify;
+            margin-top: 5px;
+        }
+        
+        /* Quadrant 4 Specific Additions */
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+        .card-version-label {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #333;
+        }
+        .card-note-label {
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            color: #555;
+        }
+        .card-image-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+            margin: 2px 0;
+            padding: 4px;
+            border: 1px dashed #ccc;
+        }
+        .card-image-box img {
+            max-height: 1.5in;
+            object-fit: contain;
+        }
+        .url-text-compact {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-align: center;
+            margin: 2px 0;
+        }
+        .intro-text-compact {
+            font-size: 11.5px;
+            line-height: 1.3;
+            text-align: justify;
+            margin-top: 4px;
+        }
+
+        .center-crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .center-crosshair::before, .center-crosshair::after {
+            content: "";
+            position: absolute;
+            background: var(--line-color);
+        }
+        .center-crosshair::before { top: 9px; left: 0; width: 20px; height: 2px; }
+        .center-crosshair::after { top: 0; left: 9px; width: 2px; height: 20px; }
+
+        @media print {
+            body { background: white; }
+            .folder-matrix {
+                width: 11in;
+                height: 8.5in;
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="folder-matrix" id="bookletMatrix">
+        <div class="center-crosshair"></div>
+
+        <!-- Quadrant 1 (Top-Left / Rotated) -->
+        <div class="quadrant top-half">
+            <div class="image-container">
+                <img src="https://raw.githubusercontent.com/btlsp2000/wally/main/blet2.png" alt="Wally Engine Screenshot">
+            </div>
+        </div>
+
+        <!-- Quadrant 2 (Top-Right / Rotated) -->
+        <div class="quadrant top-half">
+            <div style="display: flex; flex-direction: column; height: 100%;">
+                <div style="font-size: 13px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid var(--line-color); padding-bottom: 4px; margin-bottom: 6px; text-align: left;">
+                    WALLY COMMANDS
+                </div>
+                <div style="text-align: left; font-size: 11px; line-height: 1.3; overflow-y: auto;">
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>LINE</strong> : Spawns a standard 0-thickness geometric path.</li>
+                        <li><strong>WALL</strong> : Spawns a thickened polyline structure.</li>
+                        <li><strong>CIRCLE</strong> : Spawns a native circle. Width = Radius. Depth = Tube Wall.</li>
+                        <li><strong>DIM</strong> : Spawns a dimension measurement tool.</li>
+                        <li><strong>TEXT</strong> : Spawns a text annotation label.</li>
+                        <li><strong>STAIR</strong> : Spawns a parametric stair tread array.</li>
+                        <li><strong>X,Y</strong> : Type a coordinate (e.g., <kbd>15,25</kbd>) to append a point to the active path.</li>
+                        <li><strong>ERASE</strong> : Deletes the currently selected entity (or press <kbd>DEL</kbd>).</li>
+                        <li><strong>ZOOM E</strong> : Zoom Extents. Automatically scales to fit your geometry.</li>
+                        <li><strong>DXF</strong> : Compiles visible layers into a 2D AutoCAD file for CNC/Laser.</li>
+                        <li><strong>HAL</strong> : Toggles the high-contrast presentation view.</li>
+                        <li><strong>SCRIPT</strong> : Opens the Macro Interpreter to batch-generate geometry from a .dat file.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quadrant 3 (Bottom-Left) -->
+        <div class="quadrant">
+            <div style="display: block; width: 100%;">
+                <div id="qrcode" class="qr-container"></div>
+                <div style="font-size: 11px; line-height: 1.3;">
+                    <div style="font-weight: bold; margin-bottom: 4px;">Canvas navigation:</div>
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>CLICK</strong> and drag the Right Mouse Button, hold ALT with Left-Click, or use the Middle-Click wheel to pan.</li>
+                        <li><strong>LEFT-CLICK</strong> any entity to view data matrix.</li>
+                        <li><strong>CLICK</strong> Coordinate Box to force values.</li>
+                        <li><strong>SCROLL</strong> wheel to zoom.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="single-rule">
+            <div class="signature-block">
+                BILL TONNESEN<br>
+                WALLYCAD.COM
+            </div>
+        </div>
+
+        <!-- Quadrant 4 (Bottom-Right) -->
+        <div class="quadrant">
+            <div class="card-header-row">
+                <span id="bookletVersion" class="card-version-label">VER: FETCHING...</span>
+                <span class="card-note-label">[ NEW CARD + ALTERNATES ]</span>
+            </div>
+            
+            <div class="card-image-box">
+                <img src="https://raw.githubusercontent.com/btlsp2000/wally/main/wcard.jpg" alt="Wally Card Artwork">
+            </div>
+            
+            <hr class="single-rule" style="margin: 6px 0;">
+            <div class="url-text-compact">WALLYCAD.COM</div>
+            
+            <div class="intro-text-compact">
+                Welcome to Wally, a pure, frictionless 2D drafting engine driven by Cartesian math operating completely offline. Bypassing subscription-trapped tools, it utilizes a precision spawn-and-modify sequence: spawn an entity via toolbar or CLI, adjust properties like thickness or radius for real-time scaling, and paste a Cartesian matrix for instant canvas updates.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const qrContainer = document.getElementById("qrcode");
+            if (qrContainer) {
+                qrContainer.innerHTML = "";
+                new QRCode(qrContainer, {
+                    text: "https://wallycad.com/manual",
+                    width: 76,
+                    height: 76,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+
+            const versionLabel = document.getElementById("bookletVersion");
+            if (versionLabel) {
+                const timestamp = new Date();
+                const formattedDate = timestamp.getFullYear() + "." + 
+                                      String(timestamp.getMonth() + 1).padStart(2, '0') + "." + 
+                                      String(timestamp.getDate()).padStart(2, '0');
+                
+                versionLabel.innerText = `VER: wally-v1 [${formattedDate}]`;
+            }
+            
+            window.print();
+        });
+    </script>
+</body>
+</html>
