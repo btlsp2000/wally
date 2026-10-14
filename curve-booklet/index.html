@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD V.14 Mow Strip Engine - Production Booklet Print</title>
+    <style>
+        :root {
+            --line-color: #000;
+            --font-stack: 'Consolas', 'Courier New', monospace;
+            --bg-canvas: #070c18;
+            --spine: #38bdf8;
+            --curb: #ffffff;
+            --tick: #fbbf24;
+            --grid: #1e293b;
+        }
+        @page {
+            size: letter landscape;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            font-family: var(--font-stack);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .folder-matrix {
+            width: 11in;
+            height: 8.5in;
+            max-height: 8.5in;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            background: white;
+            color: black;
+            position: relative;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+        .quadrant {
+            border: 1px solid var(--line-color);
+            box-sizing: border-box;
+            padding: 0.35in;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        .top-half {
+            transform: rotate(180deg);
+        }
+        .image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+            background: var(--bg-canvas);
+            border: 2px solid var(--line-color);
+            border-radius: 4px;
+            padding: 10px;
+        }
+        .image-container svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .single-rule {
+            border: none;
+            border-top: 1px solid var(--line-color);
+            margin: 10px 0;
+            width: 100%;
+        }
+        .qr-container {
+            float: right;
+            width: 0.9in;
+            height: 0.9in;
+            border: 2px solid var(--line-color);
+            margin-left: 12px;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+        .signature-block {
+            font-size: 11px;
+            line-height: 1.3;
+            font-weight: bold;
+        }
+        
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+        .card-version-label {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #333;
+        }
+        .card-note-label {
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            color: #555;
+        }
+        .card-image-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+            margin: 2px 0;
+            padding: 4px;
+            border: 1px dashed #ccc;
+        }
+        .card-image-box img {
+            max-height: 1.5in;
+            object-fit: contain;
+        }
+        .url-text-compact {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-align: center;
+            margin: 2px 0;
+        }
+        .intro-text-compact {
+            font-size: 11.5px;
+            line-height: 1.3;
+            text-align: justify;
+            margin-top: 4px;
+        }
+
+        .center-crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .center-crosshair::before, .center-crosshair::after {
+            content: "";
+            position: absolute;
+            background: var(--line-color);
+        }
+        .center-crosshair::before { top: 9px; left: 0; width: 20px; height: 2px; }
+        .center-crosshair::after { top: 0; left: 9px; width: 2px; height: 20px; }
+
+        @media print {
+            body { background: white; }
+            .folder-matrix {
+                width: 11in;
+                height: 8.5in;
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="folder-matrix" id="bookletMatrix">
+        <div class="center-crosshair"></div>
+
+        <!-- Quadrant 1 (Top-Left / Rotated): Illustration -->
+        <div class="quadrant top-half">
+            <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px; text-align: center;">V.14 MOW STRIP & WALL GEOMETRY</div>
+            <div class="image-container">
+                <svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Grid Lines -->
+                    <g stroke="var(--grid)" stroke-width="1">
+                        <line x1="0" y1="30" x2="300" y2="30" />
+                        <line x1="0" y1="90" x2="300" y2="90" />
+                        <line x1="0" y1="150" x2="300" y2="150" />
+                        <line x1="50" y1="0" x2="50" y2="180" />
+                        <line x1="150" y1="0" x2="150" y2="180" />
+                        <line x1="250" y1="0" x2="250" y2="180" />
+                    </g>
+                    <!-- Ticks (Gold) -->
+                    <g stroke="var(--tick)" stroke-width="2">
+                        <line x1="45" y1="110" x2="55" y2="130" />
+                        <line x1="140" y1="65" x2="160" y2="95" />
+                        <line x1="245" y1="40" x2="255" y2="60" />
+                    </g>
+                    <!-- Curbs (White) -->
+                    <g fill="none" stroke="var(--curb)" stroke-width="2" stroke-linejoin="miter">
+                        <polyline points="40,117 142,72 247,47" />
+                        <polyline points="60,123 158,88 253,53" />
+                    </g>
+                    <!-- Spine (Blue) -->
+                    <g fill="none" stroke="var(--spine)" stroke-width="3" stroke-linejoin="bevel">
+                        <polyline points="50,120 150,80 250,50" />
+                    </g>
+                    <!-- Nodes (Blue Circles) -->
+                    <g fill="var(--spine)">
+                        <circle cx="50" cy="120" r="4" />
+                        <circle cx="150" cy="80" r="4" />
+                        <circle cx="250" cy="50" r="4" />
+                    </g>
+                    <!-- Annotations -->
+                    <text x="145" y="70" fill="var(--curb)" font-family="monospace" font-size="8">CURB</text>
+                    <text x="163" y="102" fill="var(--tick)" font-family="monospace" font-size="8">TICK</text>
+                    <text x="238" y="42" fill="var(--spine)" font-family="monospace" font-size="8">NODE</text>
+                </svg>
+            </div>
+            <div style="font-size: 9px; text-align: center; margin-top: 5px; color: #555;">BLUE: Spine | WHITE: Curb Offset | GOLD: Cross-Tick Normal</div>
+        </div>
+
+        <!-- Quadrant 2 (Top-Right / Rotated): Commands & Instructions -->
+        <div class="quadrant top-half">
+            <div style="display: flex; flex-direction: column; height: 100%;">
+                <div style="font-size: 13px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid var(--line-color); padding-bottom: 4px; margin-bottom: 6px; text-align: left;">
+                    ENGINE PARAMETERS
+                </div>
+                <div style="text-align: left; font-size: 11px; line-height: 1.35; overflow-y: auto;">
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>STRIP WIDTH:</strong> Defines the total face-to-face separation dimension between the parallel white CURB lines.</li>
+                        <li><strong>TICK OVERHANG:</strong> Sets the extension distance of the perpendicular gold CROSS-TICKS past the outer curb boundary.</li>
+                        <li><strong>SNAP GRID:</strong> Forces mouse clicks to round to nearest Cartesian intervals (e.g., 0.25, 0.5, 1.0).</li>
+                    </ul>
+                    
+                    <div style="font-size: 13px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid var(--line-color); padding-bottom: 4px; margin: 10px 0 6px 0; text-align: left;">
+                        DATA EXPORT
+                    </div>
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>COPY .WALLY:</strong> Serializes the generated spine, curb, and tick geometry into a raw <code>[X1,Y1,X2,Y2]</code> tuple string matrix.</li>
+                        <li><strong>EXPORT .DXF:</strong> Compiles the canvas vectors into an ASCII AutoCAD .DXF file with distinct layers (MOW_SPINE, MOW_CURB, MOW_TICK) for immediate machine routing or surveying.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quadrant 3 (Bottom-Left): Nav & Signature -->
+        <div class="quadrant">
+            <div style="display: block; width: 100%;">
+                <div id="qrcode" class="qr-container"></div>
+                <div style="font-size: 11px; line-height: 1.3;">
+                    <div style="font-weight: bold; margin-bottom: 4px; font-size: 13px; letter-spacing: 1px;">CANVAS NAVIGATION:</div>
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>LEFT-CLICK:</strong> Drops a central spine node at the crosshair and instantly recalculates the miter bisectors.</li>
+                        <li><strong>AUTO-COPY:</strong> Every left-click automatically copies the exact Cartesian <code>X,Y</code> coordinate to your system clipboard.</li>
+                        <li><strong>RIGHT-CLICK:</strong> Undoes the last node.</li>
+                        <li><strong>CLEAR:</strong> Wipes the entire node array and resets the engine.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="single-rule">
+            <div class="signature-block">
+                WALLYCAD.COM/CURVE<br>
+                BILL TONNESEN
+            </div>
+        </div>
+
+        <!-- Quadrant 4 (Bottom-Right): Front Cover -->
+        <div class="quadrant">
+            <div class="card-header-row">
+                <span id="bookletVersion" class="card-version-label">VER: curve-v14 [2026.10.13]</span>
+                <span class="card-note-label">[ LIVE CLICK SOLVER ]</span>
+            </div>
+            
+            <div class="card-image-box">
+                 <div style="font-size:24px; font-weight:bold; letter-spacing:4px;">WALLYCAD</div>
+            </div>
+            
+            <hr class="single-rule" style="margin: 6px 0;">
+            <div class="url-text-compact">CURVE &amp; MOW STRIP</div>
+            
+            <div class="intro-text-compact">
+                The WallyCAD V.14 Mow Strip Engine translates raw coordinate clicks into continuous, auto-mitered structural geometry. By mathematically projecting unit normals and bisector miter vectors in real time, it perfectly calculates parallel curb offsets and perpendicular surveyor cross-ticks, exporting directly to .DXF or raw coordinate Tuples.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const qrContainer = document.getElementById("qrcode");
+            if (qrContainer) {
+                qrContainer.innerHTML = "";
+                new QRCode(qrContainer, {
+                    text: "https://wallycad.com/curve",
+                    width: 76,
+                    height: 76,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+            window.print();
+        });
+    </script>
+</body>
+</html>
