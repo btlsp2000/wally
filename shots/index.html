@@ -7,18 +7,42 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background-color: #1a202c; /* Tailwind gray-900 */
-            color: #e2e8f0; /* Tailwind gray-200 */
+            background-color: #e0f2fe; /* Tailwind sky-100, light pastel blue */
+            color: #1f2937; /* Tailwind gray-800 */
             font-family: 'Inter', sans-serif;
             touch-action: none; /* Prevent scrolling when dragging on canvas */
+            margin: 0;
+        }
+        #app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+        #sidebar {
+            width: 300px;
+            background-color: #ffffff;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+        #main-area {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            overflow: hidden;
+            position: relative;
         }
         #canvas-container {
             position: relative;
             width: 100%;
             max-width: 1000px;
-            margin: 0 auto;
             aspect-ratio: 2 / 1;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             border-radius: 12px;
             overflow: hidden;
             background-color: #3b2415; /* Wood color fallback */
@@ -30,57 +54,73 @@
             cursor: crosshair;
         }
         .btn-active {
-            background-color: #3b82f6; /* Blue-500 */
-            color: white;
-            border-color: #2563eb; /* Blue-600 */
+            background-color: #3b82f6 !important; /* Blue-500 */
+            color: white !important;
+            border-color: #2563eb !important; /* Blue-600 */
+        }
+        .btn-active svg {
+            stroke: white !important;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col p-4 md:p-8">
+<body class="font-sans antialiased text-gray-800 bg-sky-50">
 
-    <header class="text-center mb-6">
-        <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">Pool Shots Diagrammer</h1>
-        <p class="text-gray-400 text-sm">Plan your shots, banks, and cue ball positioning.</p>
-    </header>
+    <div id="app-container">
+        <aside id="sidebar">
+            <header class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Pool Shots<br>Diagrammer</h1>
+                <p class="text-gray-500 text-sm mt-1">Plan your shots and export data.</p>
+            </header>
 
-    <div class="max-w-4xl mx-auto w-full flex flex-wrap gap-2 justify-center mb-6" id="toolbar">
-        <button id="btn-cue" class="toolbar-btn px-4 py-2 bg-gray-800 border border-gray-600 rounded-md hover:bg-gray-700 transition font-medium shadow-sm flex items-center gap-2">
-            <div class="w-4 h-4 rounded-full bg-white border border-gray-400"></div>
-            Place Cue Ball
-        </button>
-        <button id="btn-object" class="toolbar-btn px-4 py-2 bg-gray-800 border border-gray-600 rounded-md hover:bg-gray-700 transition font-medium shadow-sm flex items-center gap-2">
-            <div class="w-4 h-4 rounded-full bg-red-500 border border-red-700 shadow-inner"></div>
-            Place Object Ball
-        </button>
-        <button id="btn-draw" class="toolbar-btn px-4 py-2 bg-gray-800 border border-gray-600 rounded-md hover:bg-gray-700 transition font-medium shadow-sm flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-            Draw Path
-        </button>
-        <div class="w-px h-8 bg-gray-600 mx-2 self-center"></div>
-        <button id="btn-undo" class="px-4 py-2 bg-gray-800 border border-gray-600 rounded-md hover:bg-gray-700 transition font-medium shadow-sm text-gray-300">
-            Undo Last
-        </button>
-        <button id="btn-clear" class="px-4 py-2 bg-red-900 border border-red-700 rounded-md hover:bg-red-800 transition font-medium shadow-sm text-red-100">
-            Clear Table
-        </button>
+            <div class="flex flex-col gap-2" id="toolbar">
+                <button id="btn-cue1" class="toolbar-btn px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition font-medium shadow-sm flex items-center gap-2 text-gray-700 text-sm">
+                    <div class="w-4 h-4 rounded-full bg-white border border-gray-400"></div>
+                    Place Cue Ball 1
+                </button>
+                <button id="btn-cue2" class="toolbar-btn px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition font-medium shadow-sm flex items-center gap-2 text-gray-700 text-sm">
+                    <div class="w-4 h-4 rounded-full bg-yellow-100 border border-yellow-500"></div>
+                    Place Cue Ball 2
+                </button>
+                <button id="btn-object" class="toolbar-btn px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition font-medium shadow-sm flex items-center gap-2 text-gray-700 text-sm">
+                    <div class="w-4 h-4 rounded-full bg-red-500 border border-red-700 shadow-inner"></div>
+                    Place Object Ball
+                </button>
+                <button id="btn-draw" class="toolbar-btn px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition font-medium shadow-sm flex items-center gap-2 text-gray-700 text-sm">
+                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    Draw Path
+                </button>
+                <hr class="my-3 border-gray-200">
+                <button id="btn-clear" class="px-4 py-2 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition font-medium shadow-sm text-red-700 text-sm">
+                    Clear Board
+                </button>
+            </div>
+
+            <div class="mt-auto flex flex-col h-1/3 min-h-[200px]">
+                <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">.wally Data Readout</label>
+                <textarea id="wally-readout" readonly class="w-full flex-grow p-3 bg-gray-900 text-green-400 font-mono text-xs rounded-md shadow-inner resize-none focus:outline-none border border-gray-700 whitespace-pre"></textarea>
+            </div>
+        </aside>
+
+        <main id="main-area">
+            <div id="canvas-container">
+                <canvas id="poolCanvas"></canvas>
+            </div>
+            <p class="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-gray-500 text-xs text-center max-w-lg hidden md:block">
+                Select a tool on the left. Click/tap on the table to place balls. Click and drag to draw directional paths.
+            </p>
+        </main>
     </div>
-
-    <div id="canvas-container">
-        <canvas id="poolCanvas"></canvas>
-    </div>
-
-    <p class="text-center text-gray-500 mt-6 text-xs max-w-lg mx-auto">
-        Select a tool above. Click/tap on the table to place balls. Click and drag to draw directional paths for shots and banks.
-    </p>
 
     <script>
         const canvas = document.getElementById('poolCanvas');
         const ctx = canvas.getContext('2d');
         const container = document.getElementById('canvas-container');
+        const readout = document.getElementById('wally-readout');
 
         // State
-        let mode = 'cue'; // 'cue', 'object', 'draw'
-        let cueBall = null; // {x, y}
+        let mode = 'cue1'; // 'cue1', 'cue2', 'object', 'draw'
+        let cueBall1 = null; // {x, y}
+        let cueBall2 = null; // {x, y}
         let objectBalls = []; // array of {x, y, color}
         let paths = []; // array of {startX, startY, endX, endY}
         
@@ -93,9 +133,7 @@
 
         // Resize handler
         function resizeCanvas() {
-            // Set canvas resolution to match display size for crispness
             const rect = container.getBoundingClientRect();
-            // Using a standard 2:1 aspect ratio internally
             canvas.width = rect.width;
             canvas.height = rect.height;
             render();
@@ -103,13 +141,12 @@
 
         window.addEventListener('resize', resizeCanvas);
 
-        // Coordinates mapping (Event to Canvas)
+        // Coordinates mapping
         function getMousePos(evt) {
             const rect = canvas.getBoundingClientRect();
             let clientX = evt.clientX;
             let clientY = evt.clientY;
 
-            // Handle touch events
             if (evt.touches && evt.touches.length > 0) {
                 clientX = evt.touches[0].clientX;
                 clientY = evt.touches[0].clientY;
@@ -123,55 +160,46 @@
 
         // Toolbar Interaction
         const buttons = {
-            'cue': document.getElementById('btn-cue'),
+            'cue1': document.getElementById('btn-cue1'),
+            'cue2': document.getElementById('btn-cue2'),
             'object': document.getElementById('btn-object'),
             'draw': document.getElementById('btn-draw')
         };
 
         function setMode(newMode) {
             mode = newMode;
-            Object.values(buttons).forEach(btn => btn.classList.remove('btn-active', 'bg-blue-600', 'border-blue-500'));
+            Object.values(buttons).forEach(btn => btn.classList.remove('btn-active'));
             buttons[mode].classList.add('btn-active');
             
-            // Adjust cursor
             if (mode === 'draw') canvas.style.cursor = 'crosshair';
             else canvas.style.cursor = 'pointer';
         }
 
-        document.getElementById('btn-cue').addEventListener('click', () => setMode('cue'));
+        document.getElementById('btn-cue1').addEventListener('click', () => setMode('cue1'));
+        document.getElementById('btn-cue2').addEventListener('click', () => setMode('cue2'));
         document.getElementById('btn-object').addEventListener('click', () => setMode('object'));
         document.getElementById('btn-draw').addEventListener('click', () => setMode('draw'));
         
-        document.getElementById('btn-undo').addEventListener('click', () => {
-            if (mode === 'draw' && paths.length > 0) paths.pop();
-            else if (mode === 'object' && objectBalls.length > 0) objectBalls.pop();
-            else if (mode === 'cue') cueBall = null;
-            // Fallback undo logic if current mode doesn't have anything to undo
-            else {
-                if (paths.length > 0) paths.pop();
-                else if (objectBalls.length > 0) objectBalls.pop();
-                else cueBall = null;
-            }
-            render();
-        });
-
         document.getElementById('btn-clear').addEventListener('click', () => {
-            cueBall = null;
+            cueBall1 = null;
+            cueBall2 = null;
             objectBalls = [];
             paths = [];
             render();
         });
 
-        // Setup default mode
-        setMode('cue');
+        setMode('cue1');
 
         // Canvas Events
         function handleStart(e) {
-            e.preventDefault(); // Prevent scrolling on touch
+            e.preventDefault();
             const pos = getMousePos(e);
             
-            if (mode === 'cue') {
-                cueBall = { x: pos.x, y: pos.y };
+            if (mode === 'cue1') {
+                cueBall1 = { x: pos.x, y: pos.y };
+                render();
+            } else if (mode === 'cue2') {
+                cueBall2 = { x: pos.x, y: pos.y };
                 render();
             } else if (mode === 'object') {
                 const color = ballColors[objectBalls.length % ballColors.length];
@@ -196,7 +224,6 @@
             e.preventDefault();
             isDrawing = false;
             
-            // Only save if line has some length
             const dist = Math.hypot(drawCurrent.x - drawStart.x, drawCurrent.y - drawStart.y);
             if (dist > 5) {
                 paths.push({
@@ -214,46 +241,75 @@
         canvas.addEventListener('mouseup', handleEnd);
         canvas.addEventListener('mouseleave', handleEnd);
 
-        // Touch support
         canvas.addEventListener('touchstart', handleStart, {passive: false});
         canvas.addEventListener('touchmove', handleMove, {passive: false});
         canvas.addEventListener('touchend', handleEnd);
+
+        function generateWallyData() {
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            // Normalize coordinates relative to table size (0 to 1) for .wally format
+            const normX = (val) => (val / w).toFixed(4);
+            const normY = (val) => (val / h).toFixed(4);
+
+            let data = "FORMAT: .wally/1.0\n";
+            data += "TABLE_ASPECT: 2.0\n\n";
+            
+            if (cueBall1) data += `CUE_BALL_1: [${normX(cueBall1.x)}, ${normY(cueBall1.y)}]\n`;
+            if (cueBall2) data += `CUE_BALL_2: [${normX(cueBall2.x)}, ${normY(cueBall2.y)}]\n`;
+            
+            if (objectBalls.length > 0) {
+                data += `\nOBJECT_BALLS:\n`;
+                objectBalls.forEach((b, i) => {
+                    data += `  BALL_${i+1}: [${normX(b.x)}, ${normY(b.y)}]\n`;
+                });
+            }
+            
+            if (paths.length > 0) {
+                data += `\nVECTOR_PATHS:\n`;
+                paths.forEach((p, i) => {
+                    data += `  PATH_${i+1}: START[${normX(p.startX)}, ${normY(p.startY)}] -> END[${normX(p.endX)}, ${normY(p.endY)}]\n`;
+                });
+            }
+            
+            if (!cueBall1 && !cueBall2 && objectBalls.length === 0 && paths.length === 0) {
+                data += "TABLE_STATE: EMPTY\n";
+            }
+
+            readout.value = data;
+        }
 
         // Drawing Logic
         function render() {
             const w = canvas.width;
             const h = canvas.height;
-            const railSize = w * 0.05; // 5% of width for wood rails
+            const railSize = w * 0.05;
             const cushionSize = railSize * 0.5;
 
             ctx.clearRect(0, 0, w, h);
 
-            // Draw Outer Wood Rail
             ctx.fillStyle = '#4a2f1d';
             ctx.fillRect(0, 0, w, h);
             
-            // Draw Rails (Shadow/Highlight)
-            ctx.fillStyle = '#654321'; // Lighter wood
+            ctx.fillStyle = '#654321';
             ctx.fillRect(railSize*0.2, railSize*0.2, w - railSize*0.4, h - railSize*0.4);
 
-            // Draw Green Felt Playing Surface
-            ctx.fillStyle = '#107a47'; // Classic pool green
+            ctx.fillStyle = '#107a47'; // Classic green
             ctx.fillRect(railSize, railSize, w - railSize * 2, h - railSize * 2);
 
-            // Draw Cushions (Inner border of the felt)
             ctx.strokeStyle = '#0c5c35';
             ctx.lineWidth = cushionSize;
             ctx.strokeRect(railSize + cushionSize/2, railSize + cushionSize/2, w - railSize*2 - cushionSize, h - railSize*2 - cushionSize);
 
-            // Draw Pockets
             const pocketRadius = w * 0.025;
             const pocketPositions = [
-                {x: railSize, y: railSize}, // Top Left
-                {x: w / 2, y: railSize}, // Top Middle
-                {x: w - railSize, y: railSize}, // Top Right
-                {x: railSize, y: h - railSize}, // Bottom Left
-                {x: w / 2, y: h - railSize}, // Bottom Middle
-                {x: w - railSize, y: h - railSize}, // Bottom Right
+                {x: railSize, y: railSize},
+                {x: w / 2, y: railSize},
+                {x: w - railSize, y: railSize},
+                {x: railSize, y: h - railSize},
+                {x: w / 2, y: h - railSize},
+                {x: w - railSize, y: h - railSize},
             ];
 
             ctx.fillStyle = '#111';
@@ -263,24 +319,25 @@
                 ctx.fill();
             });
 
-            // Draw Lines (Paths)
             paths.forEach(p => drawArrow(p.startX, p.startY, p.endX, p.endY, 'white'));
             
-            // Draw current drawing line
             if (isDrawing && mode === 'draw') {
                 drawArrow(drawStart.x, drawStart.y, drawCurrent.x, drawCurrent.y, 'rgba(255, 255, 255, 0.6)');
             }
 
-            // Draw Object Balls
-            const ballRadius = w * 0.012; // Dynamic ball size based on table
+            const ballRadius = w * 0.012;
             objectBalls.forEach(ball => {
                 drawBall(ball.x, ball.y, ballRadius, ball.color);
             });
 
-            // Draw Cue Ball
-            if (cueBall) {
-                drawBall(cueBall.x, cueBall.y, ballRadius, '#ffffff', true);
+            if (cueBall1) {
+                drawBall(cueBall1.x, cueBall1.y, ballRadius, '#ffffff', true);
             }
+            if (cueBall2) {
+                drawBall(cueBall2.x, cueBall2.y, ballRadius, '#fef08a', true); // yellowish/off-white
+            }
+
+            generateWallyData();
         }
 
         function drawBall(x, y, radius, color, isCue = false) {
@@ -289,19 +346,17 @@
             ctx.fillStyle = color;
             ctx.fill();
             
-            // Highlight
             ctx.beginPath();
             ctx.arc(x - radius*0.3, y - radius*0.3, radius*0.3, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
             ctx.fill();
 
             ctx.lineWidth = 1;
-            ctx.strokeStyle = isCue ? '#ccc' : 'rgba(0,0,0,0.5)';
+            ctx.strokeStyle = isCue ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.6)';
             ctx.beginPath();
             ctx.arc(x, y, radius, 0, Math.PI * 2);
             ctx.stroke();
 
-            // Shadow
             ctx.beginPath();
             ctx.arc(x, y + radius*0.2, radius, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(0,0,0,0.2)';
@@ -309,7 +364,7 @@
         }
 
         function drawArrow(fromX, fromY, toX, toY, color) {
-            const headlen = 10; // length of head in pixels
+            const headlen = 10;
             const dx = toX - fromX;
             const dy = toY - fromY;
             const angle = Math.atan2(dy, dx);
@@ -322,7 +377,6 @@
             ctx.lineCap = 'round';
             ctx.stroke();
             
-            // Arrowhead
             ctx.beginPath();
             ctx.moveTo(toX, toY);
             ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
@@ -331,8 +385,7 @@
             ctx.stroke();
         }
 
-        // Init
-        setTimeout(resizeCanvas, 100); // Give browser a moment to render layout
+        setTimeout(resizeCanvas, 100);
     </script>
 </body>
 </html>
