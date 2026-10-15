@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD - Data Processor</title>
+    <style>
+        :root { --accent: #0f0; --bg: #121212; --panel: #1e1e1e; }
+        body { margin: 0; background: var(--bg); color: #ececec; font-family: 'Courier New', monospace; }
+        
+        /* Layout */
+        .wally-interface { display: flex; flex-direction: column; height: 100vh; }
+        .data-bay { display: flex; flex: 1; gap: 10px; padding: 15px; background: #000; }
+        
+        /* Textareas */
+        textarea { 
+            flex: 1; background: var(--panel); color: var(--accent); 
+            border: 1px solid #333; padding: 15px; font-size: 14px; 
+            resize: none; outline: none; border-radius: 4px;
+        }
+        textarea:focus { border-color: var(--accent); }
+        
+        /* Labels & Status */
+        .label { font-size: 12px; color: #888; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .panel-container { display: flex; flex-direction: column; flex: 1; }
+        
+        /* Footer Controls */
+        .controls { padding: 15px; background: var(--panel); display: flex; align-items: center; gap: 20px; border-top: 1px solid #333; }
+        button { 
+            background: var(--accent); color: #000; border: none; padding: 10px 20px; 
+            font-weight: bold; cursor: pointer; text-transform: uppercase;
+        }
+        button:hover { background: #0c0; }
+    </style>
+</head>
+<body>
+
+<div class="wally-interface">
+    <div class="data-bay">
+        <div class="panel-container">
+            <div class="label">Raw Input (Space Delimited)</div>
+            <textarea id="rawInput" placeholder="Astoria -123.83 46.19&#10;PDX -122.67 45.51..."></textarea>
+        </div>
+        
+        <div class="panel-container">
+            <div class="label">WallyCAD Output (Parsed for Engine)</div>
+            <textarea id="parsedOutput" readonly placeholder="Waiting for processing..."></textarea>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="processData()">Parse & Plot</button>
+        <div id="status">Ready for scale input...</div>
+    </div>
+</div>
+
+<script>
+    function processData() {
+        const input = document.getElementById('rawInput').value.trim();
+        const outputField = document.getElementById('parsedOutput');
+        const status = document.getElementById('status');
+        
+        if (!input) {
+            status.innerText = "Error: No data detected.";
+            return;
+        }
+
+        const lines = input.split('\n');
+        let processed = [];
+
+        lines.forEach(line => {
+            // Clean up whitespace and format
+            const parts = line.split(/\s+/);
+            if (parts.length >= 3) {
+                const [name, x, y] = parts;
+                // Add a structured prefix for the WallyCAD geometry engine
+                processed.push(`POINT "${name}" X:${parseFloat(x).toFixed(4)} Y:${parseFloat(y).toFixed(4)}`);
+            }
+        });
+
+        outputField.value = processed.join('\n');
+        status.innerText = `Success: Processed ${processed.length} points.`;
+        
+        // At this point, you would trigger your canvas render function:
+        // wally.render(processed);
+    }
+</script>
+
+</body>
+</html>
