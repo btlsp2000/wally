@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Interactive Pool Shots Diagrammer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1a202c; /* Tailwind gray-900 */
+            color: #e2e8f0; /* Tailwind gray-200 */
+            font-family: 'Inter', sans-serif;
+            touch-action: none; /* Prevent scrolling when dragging on canvas */
+        }
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            aspect-ratio: 2 / 1;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #3b2415; /* Wood color fallback */
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+        .btn-active {
+            background-color: #3b82f6; /* Blue-500 */
+            color: white;
+            border-color: #2563eb; /* Blue-600 */
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8">
+
+    <header class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">Pool Shots Diagrammer</h1>
+        <p class="text-gray-400 text-sm">Plan your shots, banks, and cue ball positioning.</p>
+    </header>
+
+    <div class="max-w-4xl mx-auto w-full flex flex-wrap gap-2 justify-center mb-6" id="toolbar">
+        <button id="btn-cue" class="toolbar-btn px-4 py-2 bg-gray-800 border border-gray-600 rounded-md hover:bg-gray-700 transition font-medium shadow-sm flex items-center gap-2">
+            <div class="w-4 h-4 rounded-full bg-white border border-gray-400"></div>
+            Place Cue Ball
+        </button>
+        <button id="btn-object" class="toolbar-btn px-4 py-2 bg-gray-800 border border-gray-600 rounded-md hover:bg-gray-700 transition font-medium shadow-sm flex items-center gap-2">
+            <div class="w-4 h-4 rounded-full bg-red-500 border border-red-700 shadow-inner"></div>
+            Place Object Ball
+        </button>
+        <button id="btn-draw" class="toolbar-btn px-4 py-2 bg-gray-800 border border-gray-600 rounded-md hover:bg-gray-700 transition font-medium shadow-sm flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+            Draw Path
+        </button>
+        <div class="w-px h-8 bg-gray-600 mx-2 self-center"></div>
+        <button id="btn-undo" class="px-4 py-2 bg-gray-800 border border-gray-600 rounded-md hover:bg-gray-700 transition font-medium shadow-sm text-gray-300">
+            Undo Last
+        </button>
+        <button id="btn-clear" class="px-4 py-2 bg-red-900 border border-red-700 rounded-md hover:bg-red-800 transition font-medium shadow-sm text-red-100">
+            Clear Table
+        </button>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="poolCanvas"></canvas>
+    </div>
+
+    <p class="text-center text-gray-500 mt-6 text-xs max-w-lg mx-auto">
+        Select a tool above. Click/tap on the table to place balls. Click and drag to draw directional paths for shots and banks.
+    </p>
+
+    <script>
+        const canvas = document.getElementById('poolCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        // State
+        let mode = 'cue'; // 'cue', 'object', 'draw'
+        let cueBall = null; // {x, y}
+        let objectBalls = []; // array of {x, y, color}
+        let paths = []; // array of {startX, startY, endX, endY}
+        
+        let isDrawing = false;
+        let drawStart = { x: 0, y: 0 };
+        let drawCurrent = { x: 0, y: 0 };
+
+        // Colors for object balls
+        const ballColors = ['#ef4444', '#eab308', '#3b82f6', '#a855f7', '#f97316', '#22c55e', '#7f1d1d', '#111827'];
+
+        // Resize handler
+        function resizeCanvas() {
+            // Set canvas resolution to match display size for crispness
+            const rect = container.getBoundingClientRect();
+            // Using a standard 2:1 aspect ratio internally
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            render();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Coordinates mapping (Event to Canvas)
+        function getMousePos(evt) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX = evt.clientX;
+            let clientY = evt.clientY;
+
+            // Handle touch events
+            if (evt.touches && evt.touches.length > 0) {
+                clientX = evt.touches[0].clientX;
+                clientY = evt.touches[0].clientY;
+            }
+
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        // Toolbar Interaction
+        const buttons = {
+            'cue': document.getElementById('btn-cue'),
+            'object': document.getElementById('btn-object'),
+            'draw': document.getElementById('btn-draw')
+        };
+
+        function setMode(newMode) {
+            mode = newMode;
+            Object.values(buttons).forEach(btn => btn.classList.remove('btn-active', 'bg-blue-600', 'border-blue-500'));
+            buttons[mode].classList.add('btn-active');
+            
+            // Adjust cursor
+            if (mode === 'draw') canvas.style.cursor = 'crosshair';
+            else canvas.style.cursor = 'pointer';
+        }
+
+        document.getElementById('btn-cue').addEventListener('click', () => setMode('cue'));
+        document.getElementById('btn-object').addEventListener('click', () => setMode('object'));
+        document.getElementById('btn-draw').addEventListener('click', () => setMode('draw'));
+        
+        document.getElementById('btn-undo').addEventListener('click', () => {
+            if (mode === 'draw' && paths.length > 0) paths.pop();
+            else if (mode === 'object' && objectBalls.length > 0) objectBalls.pop();
+            else if (mode === 'cue') cueBall = null;
+            // Fallback undo logic if current mode doesn't have anything to undo
+            else {
+                if (paths.length > 0) paths.pop();
+                else if (objectBalls.length > 0) objectBalls.pop();
+                else cueBall = null;
+            }
+            render();
+        });
+
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            cueBall = null;
+            objectBalls = [];
+            paths = [];
+            render();
+        });
+
+        // Setup default mode
+        setMode('cue');
+
+        // Canvas Events
+        function handleStart(e) {
+            e.preventDefault(); // Prevent scrolling on touch
+            const pos = getMousePos(e);
+            
+            if (mode === 'cue') {
+                cueBall = { x: pos.x, y: pos.y };
+                render();
+            } else if (mode === 'object') {
+                const color = ballColors[objectBalls.length % ballColors.length];
+                objectBalls.push({ x: pos.x, y: pos.y, color: color });
+                render();
+            } else if (mode === 'draw') {
+                isDrawing = true;
+                drawStart = pos;
+                drawCurrent = pos;
+            }
+        }
+
+        function handleMove(e) {
+            if (!isDrawing || mode !== 'draw') return;
+            e.preventDefault();
+            drawCurrent = getMousePos(e);
+            render();
+        }
+
+        function handleEnd(e) {
+            if (!isDrawing || mode !== 'draw') return;
+            e.preventDefault();
+            isDrawing = false;
+            
+            // Only save if line has some length
+            const dist = Math.hypot(drawCurrent.x - drawStart.x, drawCurrent.y - drawStart.y);
+            if (dist > 5) {
+                paths.push({
+                    startX: drawStart.x,
+                    startY: drawStart.y,
+                    endX: drawCurrent.x,
+                    endY: drawCurrent.y
+                });
+            }
+            render();
+        }
+
+        canvas.addEventListener('mousedown', handleStart);
+        canvas.addEventListener('mousemove', handleMove);
+        canvas.addEventListener('mouseup', handleEnd);
+        canvas.addEventListener('mouseleave', handleEnd);
+
+        // Touch support
+        canvas.addEventListener('touchstart', handleStart, {passive: false});
+        canvas.addEventListener('touchmove', handleMove, {passive: false});
+        canvas.addEventListener('touchend', handleEnd);
+
+        // Drawing Logic
+        function render() {
+            const w = canvas.width;
+            const h = canvas.height;
+            const railSize = w * 0.05; // 5% of width for wood rails
+            const cushionSize = railSize * 0.5;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Draw Outer Wood Rail
+            ctx.fillStyle = '#4a2f1d';
+            ctx.fillRect(0, 0, w, h);
+            
+            // Draw Rails (Shadow/Highlight)
+            ctx.fillStyle = '#654321'; // Lighter wood
+            ctx.fillRect(railSize*0.2, railSize*0.2, w - railSize*0.4, h - railSize*0.4);
+
+            // Draw Green Felt Playing Surface
+            ctx.fillStyle = '#107a47'; // Classic pool green
+            ctx.fillRect(railSize, railSize, w - railSize * 2, h - railSize * 2);
+
+            // Draw Cushions (Inner border of the felt)
+            ctx.strokeStyle = '#0c5c35';
+            ctx.lineWidth = cushionSize;
+            ctx.strokeRect(railSize + cushionSize/2, railSize + cushionSize/2, w - railSize*2 - cushionSize, h - railSize*2 - cushionSize);
+
+            // Draw Pockets
+            const pocketRadius = w * 0.025;
+            const pocketPositions = [
+                {x: railSize, y: railSize}, // Top Left
+                {x: w / 2, y: railSize}, // Top Middle
+                {x: w - railSize, y: railSize}, // Top Right
+                {x: railSize, y: h - railSize}, // Bottom Left
+                {x: w / 2, y: h - railSize}, // Bottom Middle
+                {x: w - railSize, y: h - railSize}, // Bottom Right
+            ];
+
+            ctx.fillStyle = '#111';
+            pocketPositions.forEach(pos => {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, pocketRadius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Draw Lines (Paths)
+            paths.forEach(p => drawArrow(p.startX, p.startY, p.endX, p.endY, 'white'));
+            
+            // Draw current drawing line
+            if (isDrawing && mode === 'draw') {
+                drawArrow(drawStart.x, drawStart.y, drawCurrent.x, drawCurrent.y, 'rgba(255, 255, 255, 0.6)');
+            }
+
+            // Draw Object Balls
+            const ballRadius = w * 0.012; // Dynamic ball size based on table
+            objectBalls.forEach(ball => {
+                drawBall(ball.x, ball.y, ballRadius, ball.color);
+            });
+
+            // Draw Cue Ball
+            if (cueBall) {
+                drawBall(cueBall.x, cueBall.y, ballRadius, '#ffffff', true);
+            }
+        }
+
+        function drawBall(x, y, radius, color, isCue = false) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            
+            // Highlight
+            ctx.beginPath();
+            ctx.arc(x - radius*0.3, y - radius*0.3, radius*0.3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.fill();
+
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = isCue ? '#ccc' : 'rgba(0,0,0,0.5)';
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Shadow
+            ctx.beginPath();
+            ctx.arc(x, y + radius*0.2, radius, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fill();
+        }
+
+        function drawArrow(fromX, fromY, toX, toY, color) {
+            const headlen = 10; // length of head in pixels
+            const dx = toX - fromX;
+            const dy = toY - fromY;
+            const angle = Math.atan2(dy, dx);
+            
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            
+            // Arrowhead
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.stroke();
+        }
+
+        // Init
+        setTimeout(resizeCanvas, 100); // Give browser a moment to render layout
+    </script>
+</body>
+</html>
