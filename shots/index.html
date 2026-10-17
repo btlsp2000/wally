@@ -83,7 +83,7 @@
     <!-- Left Sidebar: The UI Parser -->
     <div id="sidebar">
         
-        <!-- MODULE: SCATTER (RNG) -->
+        <!-- MODULE: SCATTER (RNG Physics) -->
         <h2>/SCATTER</h2>
         <div class="qc-control">
             <button onclick="executeBreak(15)">BREAK (FULL RACK)</button>
@@ -94,16 +94,16 @@
             <button onclick="scatterCustom()">SCATTER CUSTOM</button>
         </div>
 
-        <!-- MODULE: SHOTS (DETERMINISTIC PARSER) -->
-        <h2>/SHOTS</h2>
+        <!-- MODULE: SHOTS (Bidirectional I/O Console) -->
+        <h2>/SHOTS I/O</h2>
         <div class="qc-control">
-            <label for="shot-input" style="font-size: 12px; font-weight: bold;">INPUT TUPLES (ID X Y):</label>
-            <textarea id="shot-input" rows="5" placeholder="CB 0 0&#10;2 45 -15&#10;8 60 20"></textarea>
+            <label for="shot-input" style="font-size: 12px; font-weight: bold;">TUPLE CONSOLE (ID X Y):</label>
+            <textarea id="shot-input" rows="8" placeholder="CB 0 0&#10;2 45 -15&#10;8 60 20"></textarea>
             <button onclick="loadShot()" class="btn-teal">LOAD SHOT</button>
         </div>
 
-        <!-- MODULE: I/O & CLEAR -->
-        <h2>/DATA I/O</h2>
+        <!-- MODULE: DATA COMMANDS -->
+        <h2>/DATA COMMANDS</h2>
         <div class="qc-control">
             <button onclick="outputTuples()" class="btn-blue">OUTPUT TUPLES</button>
         </div>
@@ -244,12 +244,15 @@
         // --- MODULE: DATA I/O ---
         function outputTuples() {
             if (balls.length === 0) {
-                alert("Table is empty. No tuples to output.");
+                document.getElementById('shot-input').value = "No balls on table.";
                 return;
             }
+            
+            // Extract the tuples
             const tuples = balls.map(b => `${b.id} ${Math.round(b.x)} ${Math.round(b.y)}`).join('\n');
-            console.log(tuples);
-            alert("Coordinate Tuples:\n\n" + tuples);
+            
+            // Route the output directly into the I/O Console textbox
+            document.getElementById('shot-input').value = tuples;
         }
 
         function clearTable() {
