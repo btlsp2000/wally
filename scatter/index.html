@@ -1,59 +1,210 @@
-// The RNG scatter function for the /SHOTS layer
-// 'n' determines how many object balls to spawn (defaults to 15 for a full rack)
-function executeBreak(n = 15) {
-    // 1. Clear the existing dynamic BALLS layer
-    balls = []; 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD /SHOTS - Calculus of Pool</title>
+    <style>
+        /* The TABLE and environment boundaries */
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f0f4f8; /* Light pastel background */
+            font-family: 'Courier New', Courier, monospace; /* Structural, monospaced font */
+            color: #333;
+        }
+        #sidebar {
+            width: 250px;
+            background-color: #e2e8f0;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #canvas-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            /* The physical felt and rails */
+            background-color: #d8e2dc;
+            border: 24px solid #718096; /* The rails */
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .qc-control {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4a5568;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #2d3748; }
+        input[type="number"] {
+            padding: 8px;
+            border: 1px solid #cbd5e0;
+            font-family: inherit;
+            text-align: center;
+        }
+        h2 { font-size: 1.2rem; text-transform: uppercase; margin-top: 0; border-bottom: 2px solid #a0aec0; padding-bottom: 5px; }
+    </style>
+</head>
+<body>
 
-    // 2. Define the absolute Cartesian boundaries of the TABLE
-    // Assuming tableWidth and tableLength are your playable area dimensions
-    const minX = -(tableWidth / 2) + ballRadius;
-    const maxX = (tableWidth / 2) - ballRadius;
-    const minY = -(tableLength / 2) + ballRadius;
-    const maxY = (tableLength / 2) - ballRadius;
+    <!-- Left Sidebar: The UI Parser -->
+    <div id="sidebar">
+        <h2>/SHOTS</h2>
+        
+        <div class="qc-control">
+            <button onclick="executeBreak(15)">BREAK (FULL RACK)</button>
+        </div>
 
-    // 3. The Collision Parser: Enforces structural physics
-    function isValidPosition(rx, ry) {
-        for (let b of balls) {
-            let dx = rx - b.x;
-            let dy = ry - b.y;
-            // Use 2.05 to give a fractional millimeter buffer between balls
-            if (Math.hypot(dx, dy) < (ballRadius * 2.05)) { 
-                return false; // Coordinate rejected, balls would overlap
+        <div class="qc-control" style="margin-top: 15px;">
+            <label for="n-balls">SCATTER [N] BALLS:</label>
+            <input type="number" id="n-balls" value="3" min="1" max="15">
+            <button onclick="scatterCustom()">SCATTER CUSTOM</button>
+        </div>
+
+        <div class="qc-control" style="margin-top: 15px;">
+            <button onclick="clearTable()" style="background-color: #9b2c2c;">CLEAR TABLE</button>
+        </div>
+    </div>
+
+    <!-- The Cartesian Grid -->
+    <div id="canvas-container">
+        <canvas id="poolTable" width="800" height="400"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('poolTable');
+        const ctx = canvas.getContext('2d');
+
+        // WALLYCAD Constants
+        const tableWidth = 800;
+        const tableLength = 400;
+        const ballRadius = 12; // Radius in pixels
+        let balls = []; // The dynamic variables
+
+        // Center-anchor translation (0,0 is center of table)
+        function renderWallyCAD() {
+            // 1. Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 2. Shift origin to center
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+
+            // 3. Render Pockets (simple radius zones at the boundaries)
+            ctx.fillStyle = '#2d3748';
+            const pocketOffsetW = tableWidth / 2 - 5;
+            const pocketOffsetL = tableLength / 2 - 5;
+            const pocketRadius = 18;
+            const pockets = [
+                [-pocketOffsetW, -pocketOffsetL], [0, -pocketOffsetL], [pocketOffsetW, -pocketOffsetL],
+                [-pocketOffsetW, pocketOffsetL],  [0, pocketOffsetL],  [pocketOffsetW, pocketOffsetL]
+            ];
+            pockets.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p[0], p[1], pocketRadius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 4. Render the BALLS layer
+            for (let b of balls) {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, ballRadius, 0, Math.PI * 2);
+                
+                // Color formatting
+                ctx.fillStyle = b.id === 'CB' ? '#ffffff' : '#e2e8f0';
+                ctx.fill();
+                
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = '#4a5568';
+                ctx.stroke();
+
+                // Draw labels
+                ctx.fillStyle = '#1a202c';
+                ctx.font = 'bold 12px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(b.id, b.x, b.y);
+            }
+
+            ctx.restore();
+        }
+
+        // The RNG Physics Parser
+        function executeBreak(n) {
+            balls = []; // Clear existing layer
+            
+            // Define playable boundaries
+            const minX = -(tableWidth / 2) + ballRadius + 18; // 18 buffers the pockets/rails
+            const maxX = (tableWidth / 2) - ballRadius - 18;
+            const minY = -(tableLength / 2) + ballRadius + 18;
+            const maxY = (tableLength / 2) - ballRadius - 18;
+
+            // Strict collision check
+            function isValidPosition(rx, ry) {
+                for (let b of balls) {
+                    let dx = rx - b.x;
+                    let dy = ry - b.y;
+                    if (Math.hypot(dx, dy) < (ballRadius * 2.05)) { 
+                        return false; // Rejected: Physics violation
+                    }
+                }
+                return true; // Accepted: Clean drop
+            }
+
+            // Create array of variables (CB + N object balls)
+            let entitiesToDrop = ['CB'];
+            for (let i = 1; i <= n; i++) {
+                entitiesToDrop.push(i.toString());
+            }
+
+            // Execute deterministic scatter
+            for (let label of entitiesToDrop) {
+                let placed = false;
+                let attempts = 0;
+                while (!placed && attempts < 1000) {
+                    let rx = minX + Math.random() * (maxX - minX);
+                    let ry = minY + Math.random() * (maxY - minY);
+
+                    if (isValidPosition(rx, ry)) {
+                        balls.push({ id: label, x: rx, y: ry });
+                        placed = true;
+                    }
+                    attempts++;
+                }
+            }
+            renderWallyCAD();
+        }
+
+        function scatterCustom() {
+            let n = parseInt(document.getElementById('n-balls').value);
+            if (n > 0 && n <= 15) {
+                executeBreak(n);
             }
         }
-        return true; // Coordinate accepted
-    }
 
-    // 4. Build the array of entities to drop (CB + n object balls)
-    let entitiesToDrop = ['CB'];
-    for (let i = 1; i <= n; i++) {
-        entitiesToDrop.push(i.toString());
-    }
-
-    // 5. Execute the random drop
-    for (let label of entitiesToDrop) {
-        let placed = false;
-        let attempts = 0; // Failsafe to prevent infinite loops
-
-        while (!placed && attempts < 1000) {
-            // Generate a random float within the table bounds
-            let rx = minX + Math.random() * (maxX - minX);
-            let ry = minY + Math.random() * (maxY - minY);
-
-            if (isValidPosition(rx, ry)) {
-                balls.push({
-                    id: label,
-                    x: rx,
-                    y: ry,
-                    // Keep CB white, style object balls based on your stroke/fill settings
-                    color: label === 'CB' ? '#ffffff' : '#f0f0f0' 
-                });
-                placed = true;
-            }
-            attempts++;
+        function clearTable() {
+            balls = [];
+            renderWallyCAD();
         }
-    }
-    
-    // 6. Push the updated data to the canvas render cycle
-    renderWallyCAD(); 
-}
+
+        // Initial render on load
+        renderWallyCAD();
+    </script>
+</body>
+</html>
