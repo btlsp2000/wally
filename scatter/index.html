@@ -1,0 +1,59 @@
+// The RNG scatter function for the /SHOTS layer
+// 'n' determines how many object balls to spawn (defaults to 15 for a full rack)
+function executeBreak(n = 15) {
+    // 1. Clear the existing dynamic BALLS layer
+    balls = []; 
+
+    // 2. Define the absolute Cartesian boundaries of the TABLE
+    // Assuming tableWidth and tableLength are your playable area dimensions
+    const minX = -(tableWidth / 2) + ballRadius;
+    const maxX = (tableWidth / 2) - ballRadius;
+    const minY = -(tableLength / 2) + ballRadius;
+    const maxY = (tableLength / 2) - ballRadius;
+
+    // 3. The Collision Parser: Enforces structural physics
+    function isValidPosition(rx, ry) {
+        for (let b of balls) {
+            let dx = rx - b.x;
+            let dy = ry - b.y;
+            // Use 2.05 to give a fractional millimeter buffer between balls
+            if (Math.hypot(dx, dy) < (ballRadius * 2.05)) { 
+                return false; // Coordinate rejected, balls would overlap
+            }
+        }
+        return true; // Coordinate accepted
+    }
+
+    // 4. Build the array of entities to drop (CB + n object balls)
+    let entitiesToDrop = ['CB'];
+    for (let i = 1; i <= n; i++) {
+        entitiesToDrop.push(i.toString());
+    }
+
+    // 5. Execute the random drop
+    for (let label of entitiesToDrop) {
+        let placed = false;
+        let attempts = 0; // Failsafe to prevent infinite loops
+
+        while (!placed && attempts < 1000) {
+            // Generate a random float within the table bounds
+            let rx = minX + Math.random() * (maxX - minX);
+            let ry = minY + Math.random() * (maxY - minY);
+
+            if (isValidPosition(rx, ry)) {
+                balls.push({
+                    id: label,
+                    x: rx,
+                    y: ry,
+                    // Keep CB white, style object balls based on your stroke/fill settings
+                    color: label === 'CB' ? '#ffffff' : '#f0f0f0' 
+                });
+                placed = true;
+            }
+            attempts++;
+        }
+    }
+    
+    // 6. Push the updated data to the canvas render cycle
+    renderWallyCAD(); 
+}
