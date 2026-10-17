@@ -10,8 +10,8 @@
             margin: 0;
             display: flex;
             height: 100vh;
-            background-color: #f0f4f8; /* Light pastel background */
-            font-family: 'Courier New', Courier, monospace; /* Structural, monospaced font */
+            background-color: #f0f4f8; 
+            font-family: 'Courier New', Courier, monospace; 
             color: #333;
         }
         #sidebar {
@@ -32,7 +32,7 @@
         canvas {
             /* The physical felt and rails */
             background-color: #d8e2dc;
-            border: 24px solid #718096; /* The rails */
+            border: 24px solid #718096; 
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
@@ -52,6 +52,10 @@
             transition: background 0.2s;
         }
         button:hover { background-color: #2d3748; }
+        .btn-red { background-color: #9b2c2c; }
+        .btn-red:hover { background-color: #742a2a; }
+        .btn-blue { background-color: #2b6cb0; }
+        .btn-blue:hover { background-color: #2c5282; }
         input[type="number"] {
             padding: 8px;
             border: 1px solid #cbd5e0;
@@ -77,8 +81,13 @@
             <button onclick="scatterCustom()">SCATTER CUSTOM</button>
         </div>
 
+        <!-- The I/O Extraction Module -->
         <div class="qc-control" style="margin-top: 15px;">
-            <button onclick="clearTable()" style="background-color: #9b2c2c;">CLEAR TABLE</button>
+            <button onclick="outputTuples()" class="btn-blue">OUTPUT TUPLES</button>
+        </div>
+
+        <div class="qc-control" style="margin-top: auto;">
+            <button onclick="clearTable()" class="btn-red">CLEAR TABLE</button>
         </div>
     </div>
 
@@ -106,7 +115,7 @@
             ctx.save();
             ctx.translate(canvas.width / 2, canvas.height / 2);
 
-            // 3. Render Pockets (simple radius zones at the boundaries)
+            // 3. Render Pockets
             ctx.fillStyle = '#2d3748';
             const pocketOffsetW = tableWidth / 2 - 5;
             const pocketOffsetL = tableLength / 2 - 5;
@@ -150,7 +159,7 @@
             balls = []; // Clear existing layer
             
             // Define playable boundaries
-            const minX = -(tableWidth / 2) + ballRadius + 18; // 18 buffers the pockets/rails
+            const minX = -(tableWidth / 2) + ballRadius + 18; 
             const maxX = (tableWidth / 2) - ballRadius - 18;
             const minY = -(tableLength / 2) + ballRadius + 18;
             const maxY = (tableLength / 2) - ballRadius - 18;
@@ -161,10 +170,10 @@
                     let dx = rx - b.x;
                     let dy = ry - b.y;
                     if (Math.hypot(dx, dy) < (ballRadius * 2.05)) { 
-                        return false; // Rejected: Physics violation
+                        return false; 
                     }
                 }
-                return true; // Accepted: Clean drop
+                return true; 
             }
 
             // Create array of variables (CB + N object balls)
@@ -201,6 +210,18 @@
         function clearTable() {
             balls = [];
             renderWallyCAD();
+        }
+
+        // The Data Extraction Module
+        function outputTuples() {
+            if (balls.length === 0) {
+                alert("Table is empty. No tuples to output.");
+                return;
+            }
+            // Generates whitespace-delimited tuples mapping exactly to your WallyCAD I/O
+            const tuples = balls.map(b => `${b.id} ${Math.round(b.x)} ${Math.round(b.y)}`).join('\n');
+            console.log(tuples);
+            alert("Coordinate Tuples:\n\n" + tuples);
         }
 
         // Initial render on load
