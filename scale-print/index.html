@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scale Engine & Data Processor - Production Booklet Print</title>
+    <style>
+        :root {
+            --line-color: #000;
+            --font-stack: 'Consolas', 'Courier New', monospace;
+            /* Data Processor Colors */
+            --bg-canvas: #000000;
+            --dp-neon: #00ff00;
+            --dp-panel: #1e1e1e;
+            --dp-muted: #888888;
+        }
+        @page {
+            size: letter landscape;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            font-family: var(--font-stack);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .folder-matrix {
+            width: 11in;
+            height: 8.5in;
+            max-height: 8.5in;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            background: white;
+            color: black;
+            position: relative;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+        .quadrant {
+            border: 1px solid var(--line-color);
+            box-sizing: border-box;
+            padding: 0.35in;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Top half is rotated 180deg for tumble-fold booklet printing */
+        .top-half {
+            transform: rotate(180deg);
+        }
+        .image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+            background: var(--bg-canvas);
+            border: 2px solid var(--line-color);
+            border-radius: 4px;
+            padding: 10px;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0,255,0,0.15);
+        }
+        .image-container svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .single-rule {
+            border: none;
+            border-top: 1px solid var(--line-color);
+            margin: 10px 0;
+            width: 100%;
+        }
+        .qr-container {
+            float: right;
+            width: 0.9in;
+            height: 0.9in;
+            border: 2px solid var(--line-color);
+            margin-left: 12px;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+        .signature-block {
+            font-size: 11px;
+            line-height: 1.3;
+            font-weight: bold;
+        }
+        
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+        .card-version-label {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #333;
+        }
+        .card-note-label {
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            color: #555;
+        }
+        .card-image-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+            margin: 2px 0;
+            padding: 4px;
+            border: 1px dashed #ccc;
+        }
+        .url-text-compact {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-align: center;
+            margin: 2px 0;
+        }
+        .intro-text-compact {
+            font-size: 11.5px;
+            line-height: 1.3;
+            text-align: justify;
+            margin-top: 4px;
+        }
+
+        .center-crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .center-crosshair::before, .center-crosshair::after {
+            content: "";
+            position: absolute;
+            background: var(--line-color);
+        }
+        .center-crosshair::before { top: 9px; left: 0; width: 20px; height: 2px; }
+        .center-crosshair::after { top: 0; left: 9px; width: 2px; height: 20px; }
+
+        @media print {
+            body { background: white; }
+            .folder-matrix {
+                width: 11in;
+                height: 8.5in;
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="folder-matrix" id="bookletMatrix">
+        <div class="center-crosshair"></div>
+
+        <!-- Quadrant 1 (Top-Left / Rotated): Illustration -->
+        <div class="quadrant top-half">
+            <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px; text-align: center;">DATA PARSING & PLOT LOGIC</div>
+            <div class="image-container">
+                <svg viewBox="0 0 350 160" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Raw Input Box -->
+                    <rect x="10" y="20" width="130" height="120" fill="var(--dp-panel)" stroke="#333" stroke-width="1" rx="4"/>
+                    <text x="15" y="35" fill="var(--dp-muted)" font-family="monospace" font-size="8">RAW INPUT (DELIMITED)</text>
+                    <text x="15" y="60" fill="var(--dp-neon)" font-family="monospace" font-size="9">Astoria -123.8 46.1</text>
+                    <text x="15" y="80" fill="var(--dp-neon)" font-family="monospace" font-size="9">PDX -122.67 45.51</text>
+                    <text x="15" y="100" fill="var(--dp-neon)" font-family="monospace" font-size="9">Salem -123.0 44.9</text>
+                    
+                    <!-- Processing Arrow -->
+                    <path d="M 145,80 L 175,80" fill="none" stroke="var(--dp-neon)" stroke-width="2" stroke-dasharray="4,2"/>
+                    <polygon points="175,80 170,75 170,85" fill="var(--dp-neon)"/>
+                    <text x="160" y="70" fill="var(--dp-neon)" font-family="monospace" font-size="8" text-anchor="middle">PARSE</text>
+
+                    <!-- Parsed Output Box -->
+                    <rect x="180" y="20" width="160" height="120" fill="var(--dp-panel)" stroke="var(--dp-neon)" stroke-width="1" rx="4"/>
+                    <text x="185" y="35" fill="var(--dp-muted)" font-family="monospace" font-size="8">WALLYCAD OUTPUT</text>
+                    <text x="185" y="60" fill="var(--dp-neon)" font-family="monospace" font-size="7">POINT "Astoria" X:-123.8000 Y:46.1000</text>
+                    <text x="185" y="80" fill="var(--dp-neon)" font-family="monospace" font-size="7">POINT "PDX" X:-122.6700 Y:45.5100</text>
+                    <text x="185" y="100" fill="var(--dp-neon)" font-family="monospace" font-size="7">POINT "Salem" X:-123.0000 Y:44.9000</text>
+                    
+                    <!-- Plot Interface Viz -->
+                    <rect x="185" y="115" width="150" height="15" fill="#000" stroke="#333" stroke-width="1"/>
+                    <circle cx="210" cy="122" r="2" fill="var(--dp-neon)"/>
+                    <circle cx="260" cy="122" r="2" fill="var(--dp-neon)"/>
+                    <circle cx="310" cy="122" r="2" fill="var(--dp-neon)"/>
+                    <line x1="190" y1="122" x2="325" y2="122" stroke="#333" stroke-width="0.5"/>
+                </svg>
+            </div>
+            <div style="font-size: 9px; text-align: center; margin-top: 5px; color: #555;">REGEX EXTRACTION &amp; FLOAT PRECISION LOCKING</div>
+        </div>
+
+        <!-- Quadrant 2 (Top-Right / Rotated): Commands & Instructions -->
+        <div class="quadrant top-half">
+            <div style="display: flex; flex-direction: column; height: 100%;">
+                <div style="font-size: 13px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid var(--line-color); padding-bottom: 4px; margin-bottom: 6px; text-align: left;">
+                    PARSER PARAMETERS
+                </div>
+                <div style="text-align: left; font-size: 11px; line-height: 1.35; overflow-y: auto;">
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>RAW INPUT:</strong> Paste spatial data into the left bay. The engine accepts strictly structured, space-delimited text.</li>
+                        <li><strong>SYNTAX:</strong> <code>[NAME] [X_COORD] [Y_COORD]</code></li>
+                        <li><strong>TOLERANCE:</strong> The parser utilizes Regex (`/\s+/`) to aggressively clean irregular spaces, tabs, and line breaks before extraction.</li>
+                    </ul>
+                    
+                    <div style="font-size: 13px; font-weight: bold; letter-spacing: 2px; border-bottom: 1px solid var(--line-color); padding-bottom: 4px; margin: 10px 0 6px 0; text-align: left;">
+                        ENGINE OUTPUT FORMAT
+                    </div>
+                    <p style="margin: 4px 0;">Upon execution, the string arrays are mapped into pure float geometry explicitly built for the WallyCAD CLI:</p>
+                    <div style="background:#eee; border:1px solid #ccc; padding:6px; font-family:monospace; margin-bottom:4px;">
+                        POINT "NAME" X:0.0000 Y:0.0000
+                    </div>
+                    <p style="margin: 4px 0;">All Cartesian outputs are locked strictly to 4 decimal places via <code>.toFixed(4)</code> to ensure CAD drafting standards and downstream DXF stability.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quadrant 3 (Bottom-Left): Nav & Signature -->
+        <div class="quadrant">
+            <div style="display: block; width: 100%;">
+                <div id="qrcode" class="qr-container"></div>
+                <div style="font-size: 11px; line-height: 1.3;">
+                    <div style="font-weight: bold; margin-bottom: 4px; font-size: 13px; letter-spacing: 1px;">WORKFLOW:</div>
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>1. INGEST:</strong> Paste unformatted spatial data, surveyor plots, or coordinate maps into the Raw Input bay.</li>
+                        <li><strong>2. PROCESS:</strong> Click the "Parse & Plot" interface button. The engine validates arrays containing at least 3 parts per line.</li>
+                        <li><strong>3. VERIFY:</strong> Check the status indicator at the bottom to confirm successful node compilation.</li>
+                        <li><strong>4. EXPORT:</strong> Copy the reformatted syntax matrix directly into the active WallyCAD macro interpreter or Canvas CLI.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="single-rule">
+            <div class="signature-block">
+                WALLYCAD.COM/SCALE<br>
+                BILL TONNESEN
+            </div>
+        </div>
+
+        <!-- Quadrant 4 (Bottom-Right): Front Cover -->
+        <div class="quadrant">
+            <div class="card-header-row">
+                <span id="bookletVersion" class="card-version-label">VER: dp-v1 [2026.10.15]</span>
+                <span class="card-note-label">[ DATA PROCESSOR ]</span>
+            </div>
+            
+            <div class="card-image-box">
+                 <div style="font-size:24px; font-weight:bold; letter-spacing:4px; text-align:center;">WALLYCAD<br><span style="font-size:12px; letter-spacing: 2px;">SCALE ENGINE</span></div>
+            </div>
+            
+            <hr class="single-rule" style="margin: 6px 0;">
+            <div class="url-text-compact">SCALE & DATA PROCESSOR</div>
+            
+            <div class="intro-text-compact">
+                The WallyCAD Data Processor acts as a universal interpreter for raw Cartesian data. By pasting space-delimited survey points, city coordinates, or unformatted floats, the engine instantly cleans, scales, and reformats the data into strictly typed geometry arrays ready for immediate rendering in the WallyCAD workspace.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const qrContainer = document.getElementById("qrcode");
+            if (qrContainer) {
+                qrContainer.innerHTML = "";
+                new QRCode(qrContainer, {
+                    text: "https://wallycad.com/scale",
+                    width: 76,
+                    height: 76,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+            window.print();
+        });
+    </script>
+</body>
+</html>
