@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traverse Engine - CLI Commands Panel</title>
+    <style>
+        :root {
+            --line-color: #000;
+            --font-stack: 'Consolas', 'Courier New', monospace;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4; /* Off-white for screen viewing */
+            font-family: var(--font-stack);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        /* Sized exactly to 1 panel of the 4-quadrant layout */
+        .quadrant {
+            width: 5.5in;
+            height: 4.25in;
+            background-color: white;
+            border: 1px solid var(--line-color);
+            box-sizing: border-box;
+            padding: 0.35in;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .card-version-label {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #333;
+        }
+        .card-note-label {
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            color: #555;
+        }
+        .section-title {
+            font-size: 13px; 
+            font-weight: bold; 
+            letter-spacing: 2px; 
+            border-bottom: 1px solid var(--line-color); 
+            padding-bottom: 4px; 
+            margin-bottom: 6px; 
+            text-align: left;
+        }
+        .content-body {
+            text-align: left; 
+            font-size: 11px; 
+            line-height: 1.35; 
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        
+        @media print {
+            body { 
+                background: white; 
+                padding: 0; 
+                display: block; 
+            }
+            .quadrant { 
+                box-shadow: none; 
+                margin: 0; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quadrant">
+        <!-- Added Header Row -->
+        <div class="card-header-row">
+            <span class="card-version-label">VER: traverse-v1 [2026.10.14]</span>
+            <span class="card-note-label">[ RELATIVE-TO-ABSOLUTE ]</span>
+        </div>
+        
+        <!-- Commands & Instructions Content -->
+        <div style="display: flex; flex-direction: column; height: 100%;">
+            <div class="section-title">
+                CLI COMMAND SYNTAX
+            </div>
+            <div class="content-body">
+                <p style="margin-top:0;">The engine plots relative survey offsets sequentially. Type commands directly into the CLI box and press Enter:</p>
+                <ul style="margin: 0; padding-left: 15px;">
+                    <li><strong>L {dist}</strong> : Turn Left (90°) relative to current heading and traverse <code>dist</code> units.</li>
+                    <li><strong>R {dist}</strong> : Turn Right (-90°) relative to current heading and traverse <code>dist</code> units.</li>
+                    <li><strong>T {dist},{ang}</strong> : Turn by a specific <code>ang</code> deflection and traverse <code>dist</code> units.</li>
+                    <li><strong>E</strong> : Zoom Extents (Fit active path to viewport).</li>
+                    <li><strong>W</strong> : Copy Wally Path to clipboard.</li>
+                </ul>
+                
+                <div class="section-title" style="margin: 10px 0 6px 0;">
+                    PATH EXPORT & SYNC
+                </div>
+                <ul style="margin: 0; padding-left: 15px;">
+                    <li><strong>COPY WALLY PATH:</strong> Translates the relative sequence into absolute Cartesian points locked to 4 decimal places, formatted explicitly for the WallyCAD engine (<code>**X,Y**</code> pairs).</li>
+                    <li><strong>SYNC TO GIST:</strong> Pushes the raw traverse log to GitHub Gists for cloud retention.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
