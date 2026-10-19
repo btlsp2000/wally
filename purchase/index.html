@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WallyCAD v1.0.15 Manual</title>
+  <style>
+    /* =========================================
+       WALLYCAD MASTER BOOKLET STYLESHEET
+       Format: 5.5" x 8.5" Continuous Container
+       ========================================= */
+
+    :root {
+      --wally-bg: #ffffff;
+      --wally-text: #1a1a1a;
+      --wally-accent: #333333;
+      --safe-margin: 0.375in; /* Standard 3/8" print margin */
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: #525252; /* Dark workspace for screen viewing */
+      font-family: 'SquareFont', monospace, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px; /* Space between pages on screen */
+      counter-reset: wally-counter; /* Initialize page numbers */
+    }
+
+    .wally-page {
+      width: 5.5in;
+      height: 8.5in;
+      background-color: var(--wally-bg);
+      box-sizing: border-box;
+      padding: var(--safe-margin);
+      position: relative;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      counter-increment: wally-counter; /* Auto-increment */
+    }
+
+    /* Module Headers */
+    .module-header {
+      border-bottom: 2px solid var(--wally-accent);
+      padding-bottom: 0.25in;
+      margin-bottom: 0.25in;
+    }
+
+    .module-header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      text-transform: uppercase;
+    }
+
+    .module-content {
+      flex-grow: 1;
+      font-family: sans-serif; /* Body text */
+      font-size: 10pt;
+      line-height: 1.4;
+    }
+
+    /* Auto-Pagination */
+    .page-number {
+      position: absolute;
+      bottom: var(--safe-margin);
+      right: var(--safe-margin);
+      font-size: 9pt;
+      font-weight: bold;
+    }
+    
+    .page-number::before {
+      content: counter(wally-counter, decimal-leading-zero);
+    }
+
+    /* Title Page Elements */
+    .business-card-mount {
+      width: 2in;
+      height: 1.33in;
+      border: 1px dashed var(--wally-accent);
+      margin: 0 auto 0.2in auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 7pt;
+      color: #64748b;
+      text-transform: uppercase;
+      background-color: #f8f9fa;
+    }
+
+    .toc-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 0.25in 0;
+      font-family: 'SquareFont', monospace, sans-serif;
+      font-size: 9pt;
+    }
+
+    .toc-list li {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      border-bottom: 1px dotted #cbd5e1;
+    }
+
+    .sync-terminal {
+      background: #1e293b;
+      color: #10b981; 
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 7pt;
+      padding: 0.1in;
+      border-radius: 3px;
+      margin-top: auto; 
+    }
+
+    .sync-terminal-header {
+      color: #f8fafc;
+      border-bottom: 1px solid #475569;
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+    }
+
+    .qr-mount {
+      position: absolute;
+      bottom: var(--safe-margin);
+      left: var(--safe-margin);
+      width: 0.75in;
+      height: 0.75in;
+      border: 1px solid #000;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6pt;
+      text-align: center;
+    }
+
+    /* Math & Tables */
+    .math-callout {
+      background: #e2e8f0;
+      padding: 0.1in;
+      text-align: center;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      font-size: 10pt;
+      margin: 0.15in 0;
+      border-radius: 4px;
+    }
+
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt;
+      margin-bottom: 0.15in;
+    }
+
+    .param-table th, .param-table td {
+      border: 1px solid #cbd5e1;
+      padding: 4px 8px;
+      text-align: left;
+    }
+
+    .param-table th {
+      background-color: #f1f5f9;
+      font-family: 'SquareFont', monospace, sans-serif;
+      text-transform: uppercase;
+    }
+
+    /* Code & AutoLISP */
+    .code-container {
+      background: #f8f9fa;
+      border: 1px solid #d1d5db;
+      border-left: 4px solid var(--wally-accent);
+      border-radius: 3px;
+      padding: 0.15in;
+      margin: 0.15in 0;
+      overflow-x: auto;
+    }
+
+    .lisp-code {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 7.5pt;
+      line-height: 1.3;
+      color: #333;
+      white-space: pre;
+    }
+
+    .lisp-comment { color: #6b7280; font-style: italic; }
+    .lisp-func { color: #0284c7; font-weight: bold; }
+    .lisp-var { color: #d97706; }
+
+    /* Grids (QC & SquareFont) */
+    .qc-matrix {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      margin-top: 0.1in;
+      margin-bottom: 0.2in;
+    }
+
+    .qc-key {
+      background: #f8f9fa;
+      border: 1px solid #cbd5e1;
+      text-align: center;
+      padding: 6px 0;
+      font-size: 8pt;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: var(--wally-accent);
+      border-radius: 2px;
+    }
+
+    .squarefont-demo {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin: 0.15in 0;
+      padding: 0.1in;
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+
+    .sf-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 12px);
+      grid-template-rows: repeat(5, 12px);
+      gap: 1px;
+      background-color: #94a3b8;
+      border: 1px solid #64748b;
+      padding: 2px;
+    }
+    .sf-cell { background-color: #ffffff; }
+    .sf-filled { background-color: var(--wally-accent); }
+
+    /* Truss Diagrams */
+    .diagram-frame {
+      background: #ffffff;
+      border: 1px solid var(--wally-accent);
+      padding: 0.15in;
+      margin: 0.15in 0;
+      text-align: center;
+      border-radius: 2px;
+    }
+
+    .diagram-frame svg {
+      max-width: 100%;
+      height: auto;
+      stroke: var(--wally-text);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .diagram-caption {
+      font-family: 'SquareFont', monospace, sans-serif;
+      font-size: 7pt;
+      color: #666;
+      text-transform: uppercase;
+      margin-top: 0.1in;
+    }
+
+    .node-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.1in;
+      margin-bottom: 0.15in;
+    }
+
+    /* HDC Form Layout */
+    .hdc-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .hdc-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.15in;
+      margin-bottom: 0.25in;
+    }
+
+    .form-line {
+      border-bottom: 1px solid #94a3b8;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 8pt;
+      color: #64748b;
+      padding-bottom: 2px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .sketch-canvas {
+      flex-grow: 1; 
+      border: 2px solid var(--wally-accent);
+      background-color: #ffffff;
+      background-image: 
+        linear-gradient(#e2e8f0 1px, transparent 1px),
+        linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
+      background-size: 0.25in 0.25in;
+      position: relative;
+      min-height: 3.5in; 
+    }
+
+    .sketch-label {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-family: 'SquareFont', monospace, sans-serif;
+      font-size: 7pt;
+      color: #475569;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 2px 4px;
+    }
+
+    /* Print Driver Overrides */
+    @media print {
+      @page {
+        size: 5.5in 8.5in portrait; 
+        margin: 0;
+      }
+      body {
+        background: none;
+        padding: 0;
+        gap: 0;
+      }
+      .wally-page {
+        box-shadow: none;
+        margin: 0;
+        page-break-after: always; 
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================
+       PAGE 01: FRONT COVER 
+       ========================================= -->
+  <div class="wally-page" style="justify-content: space-between; text-align: center; border: 6px solid var(--wally-accent); padding: 0.5in var(--safe-margin);">
+    <div style="text-align: right; font-family: 'Courier New', Courier, monospace; font-size: 8pt; color: #64748b; font-weight: bold;">
+      VOL. 1 / REL. 1.0.15<br>HTML VERSION A
+    </div>
+    <div style="margin-top: -0.5in;">
+      <h1 style="font-size: 3.2rem; margin: 0; letter-spacing: 2px;">WallyCAD</h1>
+      <div style="background: var(--wally-accent); color: var(--wally-bg); font-family: 'Courier New', Courier, monospace; font-weight: bold; padding: 6px 10px; margin-top: 10px; font-size: 10pt; letter-spacing: 1px;">
+        ENGINEERING & GEOMETRY MANUAL
+      </div>
+    </div>
+    <div class="business-card-mount" style="margin: 0 auto; background-color: #ffffff;">
+      [ Mount 2" x 1.33" Card Here ]
+    </div>
+    <div style="border-top: 2px solid var(--wally-accent); padding-top: 0.2in;">
+      <p style="font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: 11pt; margin: 0; color: var(--wally-text);">
+        BILL TONNESEN (BEI)
+      </p>
+      <p style="font-size: 8pt; color: #64748b; margin: 4px 0 0 0; text-transform: uppercase;">
+        Structural Vector Reference
+      </p>
+    </div>
+    <!-- Hide page number on cover -->
+    <div class="page-number" style="display: none;"></div>
+  </div>
+
+  <!-- =========================================
+       PAGE 02: INDEX & SYNC TERMINAL 
+       ========================================= -->
+  <div class="wally-page">
+    <div class="module-header">
+      <h1>Directory</h1>
+      <p>System Index & Version Control</p>
+    </div>
+    <div class="module-content" style="display: flex; flex-direction: column;">
+      <p style="font-weight: bold; margin-top: 0; margin-bottom: 12px; font-size: 9pt;">MASTER MANIFEST</p>
+      <ul class="toc-list" style="margin-bottom: auto;">
+        <li><span>03. Interface & QuickClick (QC)</span> <span>PG 03</span></li>
+        <li><span>04. Data Processor</span> <span>PG 04</span></li>
+        <li><span>05. Scale Manual</span> <span>PG 05</span></li>
+        <li><span>06. Traverse Operations</span> <span>PG 06</span></li>
+        <li><span>07. Trans-Rot Matrix</span> <span>PG 07</span></li>
+        <li><span>08. Plane to Plane (PTP)</span> <span>PG 08</span></li>
+        <li><span>09. Truss Analytics</span> <span>PG 09</span></li>
+        <li><span>10. /shots Module (CofP)</span> <span>PG 10</span></li>
+        <li><span>11. QUICK HDC Form</span> <span>PG 11</span></li>
+      </ul>
+      <div class="sync-terminal">
+        <div class="sync-terminal-header">
+          LKA REPOSITORY INDEX > wallycad.com/dir<br>TARGET: github.com/btlsp2000/wally-v1/
+        </div>
+        <table style="width: 100%; text-align: left; border-collapse: collapse; margin-top: 4px;">
+          <tr style="color: #94a3b8;">
+            <th style="padding-bottom: 2px;">BRANCH</th><th>.TEXT</th><th>.IMAGES</th><th>.HORIZ RULE</th>
+          </tr>
+          <tr><td>wally-v1</td><td>PASS</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>test-5</td><td>PASS</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>white</td><td>PASS</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>black</td><td>PASS</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>hdc</td><td>PASS</td><td>WARN</td><td>PASS</td></tr>
+          <tr><td>s2</td><td>PASS</td><td>PASS</td><td>PASS</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="page-number"></div>
+  </div>
+
+  <!-- =========================================
+       PAGE 03: INTERFACE & QUICKCLICK 
+       ========================================= -->
+  <div class="wally-page">
+    <div class="module-header">
+      <h1>Interface & Input</h1>
+      <p>QuickClick (QC) & SquareFont Parameters</p>
+    </div>
+    <div class="module-content">
+      <p style="margin-bottom: 8px;"><strong>QuickClick (QC)</strong></p>
+      <p style="font-size: 9pt; margin-top: 0;">The native frequency-based shorthand text entry and keyboard layout interface designed for rapid field data processing. <em>(Note: In all documentation, QC designates QuickClick, never Quality Control.)</em></p>
+      <div class="qc-matrix">
+        <div class="qc-key">1</div><div class="qc-key">2</div><div class="qc-key">3</div><div class="qc-key">N</div><div class="qc-key">S</div>
+        <div class="qc-key">4</div><div class="qc-key">5</div><div class="qc-key">6</div><div class="qc-key">E</div><div class="qc-key">W</div>
+        <div class="qc-key">7</div><div class="qc-key">8</div><div class="qc-key">9</div><div class="qc-key">D</div><div class="qc-key">M</div>
+        <div class="qc-key">.</div><div class="qc-key">0</div><div class="qc-key">,</div><div class="qc-key">PT</div><div class="qc-key">ENT</div>
+      </div>
+      <p style="margin-bottom: 8px;"><strong>SquareFont Typeface</strong></p>
+      <p style="font-size: 9pt; margin-top: 0;">The proprietary 5x5 grid-matrix vector font used for CAD labels and rapid graphics rendering. Coordinates generate continuous line paths mapped across the 25-cell grid.</p>
+      <div class="squarefont-demo">
+        <!-- Letter W -->
+        <div class="sf-grid">
+          <div class="sf-cell sf-filled"></div><div class="sf-cell"></div><div class="sf-cell"></div><div class="sf-cell"></div><div class="sf-cell sf-filled"></div>
+          <div class="sf-cell sf-filled"></div><div class="sf-cell"></div><div class="sf-cell"></div><div class="sf-cell"></div><div class="sf-cell sf-filled"></div>
+          <div class="sf-cell sf-filled"></div><div class="sf-cell"></div><div class="sf-cell sf-filled"></div><div class="sf-cell"></div><div class="sf-cell sf-filled"></div>
+          <div class="sf-cell sf-filled"></div><div class="sf-cell sf-filled"></div><div class="sf-cell"></div><div class="sf-cell sf-filled"></div><div class="sf-cell sf-filled"></div>
+          <div class="sf-cell sf-filled"></div><div class="sf-cell"></div><div class="sf-cell"></div><div class="sf-cell"></div><div class="sf-cell sf-filled"></div>
+        </div>
+        <!-- Letter C -->
+        <div class="sf-grid">
+          <div class="sf-cell"></div><div class="sf-cell sf-filled"></div><div class="sf-cell sf-filled"></div><div class="sf-cell sf-filled"></div><div class="sf-cell sf-filled"></div>
+          <div class="sf-cell sf-filled"></div><div class="sf-cell"></div><div class="sf-cell"></div><div class="sf-cell"></div><div class="sf-cell"></div>
+          <div class="sf-cell sf-filled"></div><div class="sf-cell"></div><div class="sf-cell"></div><div class="sf-cell"></div><div class="sf-cell"></div>
+          <div class="sf-cell sf-filled"></div><div class="sf-cell"></div><div class="sf-cell"></div><div class="sf-cell"></div><div class="sf-cell"></div>
+          <div class="sf-cell"></div><div class="sf-cell sf-filled"></div><div class="sf-cell sf-filled"></div><div class="sf-cell sf-filled"></div><div class="sf-cell sf-filled"></div>
+        </div>
+      </div>
+      <div class="code-container" style="margin-top: 0.15in;">
+<div class="lisp-code"><span class="lisp-comment">; SquareFont Path Array for 'W'</span>
+((0 4) (0 0) (2 2) (4 0) (4 4))</div>
+      </div>
+    </div>
+    <div class="page-number"></div>
+  </div>
+
+  <!-- =========================================
+       PAGE 04: DATA PROCESSOR 
+       ========================================= -->
+  <div class="wally-page">
+    <div class="module-header">
+      <h1>Data Processor</h1>
+      <p>Field Data Entry & Parsing Rules</p>
+    </div>
+    <div class="module-content">
+      <p>The translation layer between raw field shorthand (including QuickClick strings) and actionable coordinate geometry. The processor normalizes bearings, distances, and node identifiers before passing them to the Traverse Engine.</p>
+      <p style="font-weight: bold; margin-bottom: 4px;">Standard Input Syntax:</p>
+      <div class="code-container">
+<div class="lisp-code">[NODE_ID],[BEARING_QUADRANT],[DEGREES],[MINUTES],[DISTANCE]
+Ex: N1,NE,45,30,125.5</div>
+      </div>
+      <table class="param-table" style="margin-top: 0.15in;">
+        <thead>
+          <tr><th>Index</th><th>Field Element</th><th>Parser Logic / Constraint</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0</td><td>Node ID</td><td>String. Must be unique per loop.</td></tr>
+          <tr><td>1</td><td>Quadrant</td><td>Enum: NE(1), SE(2), SW(3), NW(4)</td></tr>
+          <tr><td>2</td><td>Degrees</td><td>Integer: 0 to 89</td></tr>
+          <tr><td>3</td><td>Minutes</td><td>Float: 0.0 to 59.99</td></tr>
+          <tr><td>4</td><td>Distance</td><td>Float: Decimal feet (e.g., 12.50)</td></tr>
+        </tbody>
+      </table>
+      <div class="math-callout" style="margin-top: 0.15in;">
+        Parsing Hook: (split-string input-str ",")
+      </div>
+    </div>
+    <div class="page-number"></div>
+  </div>
+
+  <!-- =========================================
+       PAGE 05: SCALE MANUAL 
+       ========================================= -->
+  <div class="wally-page">
+    <div class="module-header">
+      <h1>Scale Manual</h1>
+      <p>Dimension Variables & Plot Scaling</p>
+    </div>
+    <div class="module-content">
+      <p>Standardized multipliers for translating 1:1 model space geometry into fixed-scale viewports and physical paper space plots. These factors govern `DIMSCALE`, text heights, and linetype generation.</p>
+      <table class="param-table">
+        <thead>
+          <tr><th>Architectural Scale</th><th>Plot Factor</th><th>Viewport XP</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1/16" = 1'-0"</td><td>192</td><td>1/192xp</td></tr>
+          <tr><td>1/8" = 1'-0"</td><td>96</td><td>1/96xp</td></tr>
+          <tr><td>1/4" = 1'-0"</td><td>48</td><td>1/48xp</td></tr>
+          <tr><td>3/8" = 1'-0"</td><td>32</td><td>1/32xp</td></tr>
+          <tr><td>1/2" = 1'-0"</td><td>24</td><td>1/24xp</td></tr>
+          <tr><td>3/4" = 1'-0"</td><td>16</td><td>1/16xp</td></tr>
+          <tr><td>1" = 1'-0"</td><td>12</td><td>1/12xp</td></tr>
+          <tr><td>1 1/2" = 1'-0"</td><td>8</td><td>1/8xp</td></tr>
+          <tr><td>3" = 1'-0"</td><td>4</td><td>1/4xp</td></tr>
+        </tbody>
+      </table>
+      <div class="code-container" style="margin-top: 0.15in;">
+<div class="lisp-code"><span class="lisp-comment">; Base Configuration Variables</span>
+(<span class="lisp-func">setvar</span> "DIMSCALE" 48)  <span class="lisp-comment">; Set for 1/4" scale</span>
+(<span class="lisp-func">setvar</span> "LTSCALE" 24)   <span class="lisp-comment">; Typically 0.5x of Dimscale</span>
+(<span class="lisp-func">setvar</span> "TEXTSIZE" 0.125) <span class="lisp-comment">; 1/8" plotted text height</span></div>
+      </div>
+    </div>
+    <div class="page-number"></div>
+  </div>
+
+  <!-- =========================================
+       PAGE 06: TRAVERSE OPERATIONS 
+       ========================================= -->
+  <div class="wally-page">
+    <div class="module-header">
+      <h1>Traverse Engine</h1>
+      <p>Core Coordinate Geometry & Vector Translation</p>
+    </div>
+    <div class="module-content">
+      <p>The primary vector generation loop. The Traverse Engine consumes parsed field data from the Data Processor, applying standard trigonometric transformations to plot sequential Cartesian nodes from a Point of Beginning (POB).</p>
+      <div class="math-callout">
+        ΔX (Easting) = Distance × Sin(Azimuth)<br>
+        ΔY (Northing) = Distance × Cos(Azimuth)
+      </div>
+      <table class="param-table" style="margin-top: 0.15in;">
+        <thead>
+          <tr><th>Traverse State</th><th>Geometric Logic & Validation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Open Link</td><td>Sequential node generation without geometric termination.</td></tr>
+          <tr><td>Closed Loop</td><td>Final vector must return to POB. Engine calculates Error of Closure.</td></tr>
+          <tr><td>Side-Shot</td><td>Spur vector generated from occupied node. Does not advance traverse.</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top: 0.15in; margin-bottom: 4px; font-weight: bold; font-size: 8pt;">Engine Core: Polar Coordinate Resolution</p>
+      <div class="code-container" style="margin-top: 0;">
+<div class="lisp-code"><span class="lisp-comment">; AutoLISP Vector Translation Routine</span>
+(<span class="lisp-func">defun</span> c:CALC_NODE (pt1 quad deg min dist / az ang pt2)
+  <span class="lisp-comment">; Convert parsed Bearing to absolute Azimuth</span>
+  (<span class="lisp-func">setq</span> az (<span class="lisp-func">brg->az</span> quad deg min))
+  
+  <span class="lisp-comment">; Translate Azimuth to AutoLISP Radian Standard</span>
+  (<span class="lisp-func">setq</span> ang (<span class="lisp-func">az->rad</span> az))
+  
+  <span class="lisp-comment">; Plot Cartesian Node via internal polar projection</span>
+  (<span class="lisp-func">setq</span> pt2 (<span class="lisp-func">polar</span> pt1 ang dist))
+  
+  (<span class="lisp-func">return</span> pt2)
+)</div>
+      </div>
+    </div>
+    <div class="page-number"></div>
+  </div>
+
+  <!-- =========================================
+       PAGE 07: TRANS-ROT MATRIX 
+       ========================================= -->
+  <div class="wally-page">
+    <div class="module-header">
+      <h1>Trans-Rot Matrix</h1>
+      <p>Assembly Rotations & Translations</p>
+    </div>
+    <div class="module-content">
+      <p>Coordinate transformation matrix generation to process and rotate Element A into the master assembly environment.</p>
+      <table class="param-table">
+        <thead>
+          <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>PT1</td><td>Tuple</td><td>Base origin for Element A</td></tr>
+          <tr><td>ANG</td><td>Real</td><td>Rotation vector against master grid</td></tr>
+        </tbody>
+      </table>
+      <div class="code-container">
+<div class="lisp-code"><span class="lisp-comment">; Subroutine: Generate Trans-Rot output for Element A</span>
+(<span class="lisp-func">defun</span> c:ELEM_ROT ( / pt1 ang matX matY)
+  (<span class="lisp-func">setq</span> pt1 (<span class="lisp-func">getpoint</span> "\nSelect Element A Base Origin: "))
+  (<span class="lisp-func">setq</span> ang (<span class="lisp-func">getangle</span> pt1 "\nSelect Target Assembly Vector: "))
+  
+  <span class="lisp-comment">; Initialize matrix transformations</span>
+  (<span class="lisp-func">setq</span> matX (<span class="lisp-func">*</span> (<span class="lisp-func">cos</span> ang) 1.0))
+  (<span class="lisp-func">setq</span> matY (<span class="lisp-func">*</span> (<span class="lisp-func">sin</span> ang) 1.0))
+  
+  <span class="lisp-comment">; Output transformed tuple</span>
+  (<span class="lisp-func">princ</span> (<span class="lisp-func">strcat</span> "\nMATRIX APPLIED. Element A Rotated."))
+  (<span class="lisp-func">princ</span>)
+)</div>
+      </div>
+    </div>
+    <div class="page-number"></div>
+  </div>
+
+  <!-- =========================================
+       PAGE 08: PLANE TO PLANE (PTP) 
+       ========================================= -->
+  <div class="wally-page">
+    <div class="module-header">
+      <h1>Plane to Plane (PTP)</h1>
+      <p>3DFace Intersection Logic</p>
+    </div>
+    <div class="module-content">
+      <p>Legacy logic established circa 1992. Computes the intersecting line segments between 3D faces using similar triangle proportionality.</p>
+      <div class="math-callout">
+        Formula: d = (a * b) / c
+      </div>
+      <p>The routine calculates intersection parameters by resolving proportional vector lengths between opposing plane coordinates.</p>
+      <div class="code-container">
+<div class="lisp-code"><span class="lisp-comment">; AutoLISP PTP Intersection Extractor</span>
+(<span class="lisp-func">defun</span> c:PTP ( / p1 p2 p3 p4 distA distB distC finalD)
+  (<span class="lisp-func">setq</span> p1 (<span class="lisp-func">getpoint</span> "\nSelect Plane 1 Node A: "))
+  (<span class="lisp-func">setq</span> p2 (<span class="lisp-func">getpoint</span> "\nSelect Plane 1 Node B: "))
+  
+  <span class="lisp-comment">; Apply similar triangle intersection logic</span>
+  (<span class="lisp-func">setq</span> distA (<span class="lisp-func">distance</span> p1 p2))
+  (<span class="lisp-func">setq</span> distB 1.0) <span class="lisp-comment">; Proportional factor b</span>
+  (<span class="lisp-func">setq</span> distC 2.0) <span class="lisp-comment">; Proportional factor c</span>
+  
+  <span class="lisp-comment">; d = ab/c</span>
+  (<span class="lisp-func">setq</span> finalD (<span class="lisp-func">/</span> (<span class="lisp-func">*</span> distA distB) distC))
+  
+  (<span class="lisp-func">princ</span> (<span class="lisp-func">strcat</span> "\nIntersection Segment Length: " (<span class="lisp-func">rtos</span> finalD 2 4)))
+  (<span class="lisp-func">princ</span>)
+)</div>
+      </div>
+    </div>
+    <div class="page-number"></div>
+  </div>
+
+  <!-- =========================================
+       PAGE 09: TRUSS ANALYTICS 
+       ========================================= -->
+  <div class="wally-page">
+    <div class="module-header">
+      <h1>Truss Analytics</h1>
+      <p>Warren Truss Geometry & Node Solvers</p>
+    </div>
+    <div class="module-content">
+      <p>Automated coordinate generation and structural analytics for Warren truss assemblies, featuring PTP logic integration and direct .wally / JSON export.</p>
+      <table class="param-table">
+        <thead>
+          <tr><th>Variable</th><th>Input Value</th><th>System Constraint</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Span (L)</td><td>7'-0"</td><td>Overall Horizontal Traverse</td></tr>
+          <tr><td>Depth (D)</td><td>1'-0"</td><td>Chord-to-Chord Vertical Offset</td></tr>
+          <tr><td>Panels (N)</td><td>6</td><td>Internal Diagonal Subdivisions</td></tr>
+        </tbody>
+      </table>
+      <div class="diagram-frame">
+        <svg viewBox="0 0 700 100" xmlns="http://www.w3.org/2000/svg">
+          <line x1="58.33" y1="0" x2="641.67" y2="0" />
+          <line x1="0" y1="100" x2="700" y2="100" />
+          <polyline points="0,100 58.33,0 116.66,100 175,0 233.33,100 291.66,0 350,100 408.33,0 466.66,100 525,0 583.33,100 641.67,0 700,100" />
+        </svg>
+        <div class="diagram-caption">Fig 1: 7-Foot Span / 6-Panel Configuration</div>
+      </div>
+      <div class="node-grid">
+        <div>
+          <p style="font-size: 8pt; font-weight: bold; margin: 0 0 4px 0;">Live Node Coordinates:</p>
+          <div class="code-container" style="margin: 0;">
+<div class="lisp-code">N0: (0.000, 0.000)
+N1: (1.166, 0.000)
+N2: (2.333, 0.000)
+N3: (3.500, 0.000)
+N4: (4.666, 0.000)</div>
+          </div>
+        </div>
+        <div>
+          <p style="font-size: 8pt; font-weight: bold; margin: 0 0 4px 0;">.wally JSON Export:</p>
+          <div class="code-container" style="margin: 0;">
+<div class="lisp-code">{
+ "type": "warren",
+ "span": 84.0,
+ "depth": 12.0,
+ "panels": 6,
+ "ptp_enabled": true
+}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page-number"></div>
+  </div>
+
+  <!-- =========================================
+       PAGE 10: /SHOTS MODULE (CofP) 
+       ========================================= -->
+  <div class="wally-page">
+    <div class="module-header">
+      <h1>/shots Module (CofP)</h1>
+      <p>The Calculus of Pool: Vector Analysis</p>
+    </div>
+    <div class="module-content">
+      <p>Standalone shot diagrammer utilizing a center-anchored (0,0) coordinate system. The engine calculates multi-factor shot analysis by applying geometric ghost-ball alignment and tangent-line collision logic.</p>
+      <table class="param-table" style="margin-top: 0.15in;">
+        <thead>
+          <tr><th>Variable</th><th>Definition</th><th>Engine State</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>C(x,y)</td><td>Cue Ball Origin</td><td>QC or Drag Input</td></tr>
+          <tr><td>O(x,y)</td><td>Object Ball Pos.</td><td>QC or Drag Input</td></tr>
+          <tr><td>P(x,y)</td><td>Pocket / Target</td><td>Radius Collision Zone</td></tr>
+          <tr><td>G(x,y)</td><td>Ghost Ball Node</td><td>Engine Calculated</td></tr>
+        </tbody>
+      </table>
+      <div class="math-callout" style="margin-top: 0.15in;">
+        Vector G = Vector O - (2r) * normalize(P - O)
+      </div>
+      <p style="margin-top: 0.15in; margin-bottom: 4px; font-weight: bold; font-size: 8pt;">Coordinate Tuple Export (JSON State):</p>
+      <div class="code-container" style="margin-top: 0;">
+<div class="lisp-code">{
+  "shot_id": "CofP_Bank_01",
+  "table_grid": "9ft_center_anchor",
+  "coordinates": {
+    "C": [-12.50, -5.00],
+    "O": [18.00, 10.00],
+    "P": [50.00, 25.00],
+    "G": [16.85, 9.23]
+  },
+  "analytics": {
+    "cut_angle_deg": 14.5,
+    "tangent_vector": [-0.83, 0.55],
+    "throw_comp": true
+  }
+}</div>
+      </div>
+    </div>
+    <div class="page-number"></div>
+  </div>
+
+  <!-- =========================================
+       PAGE 11: QUICK HDC FORM 
+       ========================================= -->
+  <div class="wally-page">
+    <div class="module-header">
+      <h1>QUICK HDC</h1>
+      <p>Horizontal Data Collection & Sketch Field</p>
+    </div>
+    <div class="module-content hdc-layout">
+      <div class="hdc-meta-grid">
+        <div class="form-line"><span>PROJECT:</span><span></span></div>
+        <div class="form-line"><span>DATE:</span><span></span></div>
+        <div class="form-line"><span>STATION / ORIGIN:</span><span></span></div>
+        <div class="form-line"><span>QC ENCODING:</span><span>[ ] Y  [ ] N</span></div>
+        <div class="form-line" style="grid-column: span 2;"><span>CONDITIONS / NOTES:</span><span></span></div>
+      </div>
+      <table class="param-table" style="margin-bottom: 0.25in;">
+        <thead>
+          <tr><th>PT</th><th>QUAD</th><th>DEG</th><th>MIN</th><th>DIST</th><th>Z-ELEV</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+        </tbody>
+      </table>
+      <div class="sketch-canvas">
+        <div class="sketch-label">1/4" Grid • Plan / Profile Sketch</div>
+      </div>
+    </div>
+    <div class="page-number"></div>
+  </div>
+
+  <!-- =========================================
+       PAGE 12: BACK COVER 
+       ========================================= -->
+  <div class="wally-page" style="justify-content: center; text-align: center;">
+    <div style="margin-bottom: 0.4in; margin-top: -1in;">
+      <h1 style="font-size: 2.8rem; margin: 0; letter-spacing: 4px; border-bottom: 3px solid var(--wally-accent); display: inline-block; padding-bottom: 8px;">WallyCAD</h1>
+      <p style="font-family: 'Courier New', Courier, monospace; font-weight: bold; margin-top: 12px; font-size: 11pt;">ENGINEERING & GEOMETRY MANUAL</p>
+    </div>
+    <div class="module-content" style="flex-grow: 0; margin-bottom: 0.6in;">
+      <p style="font-size: 10pt; max-width: 85%; margin: 0 auto; line-height: 1.6; color: var(--wally-text);">
+        A web-native and AutoLISP-based geometry engine for architectural drafting, traverse operations, truss analytics, and parametric design.
+      </p>
+    </div>
+    <div style="font-size: 8pt; font-family: 'Courier New', Courier, monospace; color: #475569; border-top: 1px solid #cbd5e1; padding-top: 0.25in; width: 75%; margin: 0 auto;">
+      <p style="margin: 4px 0;"><strong>DEVELOPED BY:</strong> Bill Tonnesen (Bei)</p>
+      <p style="margin: 4px 0;"><strong>CORE SYSTEM:</strong> Traverse Engine v1.0.15</p>
+      <p style="margin: 4px 0;"><strong>DATA ENTRY:</strong> QuickClick (QC) Matrix</p>
+      <p style="margin: 4px 0;"><strong>TYPEFACE:</strong> SquareFont 5x5 Vector</p>
+      <p style="margin: 16px 0 0 0;">&copy; 2026 WallyCAD Systems</p>
+    </div>
+    <div style="position: absolute; bottom: var(--safe-margin); left: 0; width: 100%; display: flex; justify-content: center;">
+      <div class="qr-mount" style="position: static; margin: 0;">
+        QR<br>wallycad.com<br>/manual
+      </div>
+    </div>
+    <!-- Hide page number on cover -->
+    <div class="page-number" style="display: none;"></div>
+  </div>
+
+</body>
+</html>
