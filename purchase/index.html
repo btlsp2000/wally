@@ -8,7 +8,22 @@
        WALLYCAD MASTER BOOKLET STYLESHEET
        Format: 5.5" x 8.5" Continuous Container
        ========================================= */
-
+/* Purchase Button CTA */
+    .purchase-btn {
+      display: inline-block;
+      background-color: var(--wally-accent);
+      color: var(--wally-bg);
+      text-decoration: none;
+      padding: 10px 20px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      font-size: 10pt;
+      border-radius: 4px;
+      margin-top: 20px;
+      border: 2px solid var(--wally-accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
     :root {
       --wally-bg: #ffffff;
       --wally-text: #1a1a1a;
@@ -772,18 +787,22 @@ N4: (4.666, 0.000)</div>
     <div class="page-number"></div>
   </div>
 
-  <!-- =========================================
+ <!-- =========================================
        PAGE 12: BACK COVER 
        ========================================= -->
   <div class="wally-page" style="justify-content: center; text-align: center;">
-    <div style="margin-bottom: 0.4in; margin-top: -1in;">
+    <div style="margin-bottom: 0.3in; margin-top: -1in;">
       <h1 style="font-size: 2.8rem; margin: 0; letter-spacing: 4px; border-bottom: 3px solid var(--wally-accent); display: inline-block; padding-bottom: 8px;">WallyCAD</h1>
       <p style="font-family: 'Courier New', Courier, monospace; font-weight: bold; margin-top: 12px; font-size: 11pt;">ENGINEERING & GEOMETRY MANUAL</p>
     </div>
-    <div class="module-content" style="flex-grow: 0; margin-bottom: 0.6in;">
+    <div class="module-content" style="flex-grow: 0; margin-bottom: 0.4in;">
       <p style="font-size: 10pt; max-width: 85%; margin: 0 auto; line-height: 1.6; color: var(--wally-text);">
         A web-native and AutoLISP-based geometry engine for architectural drafting, traverse operations, truss analytics, and parametric design.
       </p>
+      
+      <!-- Clickable Purchase Button -->
+      <a href="https://gumroad.com/l/your-wallycad-link" class="purchase-btn" target="_blank">Purchase Core Engine</a>
+      
     </div>
     <div style="font-size: 8pt; font-family: 'Courier New', Courier, monospace; color: #475569; border-top: 1px solid #cbd5e1; padding-top: 0.25in; width: 75%; margin: 0 auto;">
       <p style="margin: 4px 0;"><strong>DEVELOPED BY:</strong> Bill Tonnesen (Bei)</p>
