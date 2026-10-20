@@ -484,26 +484,47 @@ function processSDJString(sdjString) {
 }
 
 // Core Tokenizer
+// Core Tokenizer with Text Delimiter Support
 function parseWallyString(sdjString) {
     const tokenRegex = /"([^"]+)"|(\S+)/g;
     let match; const tokens = [];
     while ((match = tokenRegex.exec(sdjString)) !== null) { tokens.push(match[1] || match[2]); }
     
     const entities = []; let currentEntity = null;
+    
     for (let i = 0; i < tokens.length; i++) {
         const token = tokens[i];
+        
+        // 1. Detect Explicit Entity Headers
         if (token.startsWith('[')) {
-            if (currentEntity) entities.push(currentEntity);
-            currentEntity = { type: token.replace(/\[\vert{}\]/g, ''), coords: [], thick: 0, text: "" };
-        } else if (token.startsWith('T:')) {
-            currentEntity.thick = parseFloat(token.substring(2));
-        } else if (currentEntity && currentEntity.type === 'TEXT' && isNaN(token)) {
+            if (currentEntity && currentEntity.coords.length > 0) entities.push(currentEntity);
+            currentEntity = { type: token.replace(/\[|\]/g, ''), coords: [], thick: 0, text: "" };
+        } 
+        // 2. Detect Thickness/Scale Parameter
+        else if (token.startsWith('T:')) {
+            if (currentEntity) currentEntity.thick = parseFloat(token.substring(2));
+        } 
+        // 3. Detect Quoted Text Payload
+        else if (currentEntity && currentEntity.type === 'TEXT' && isNaN(token)) {
             currentEntity.text = token;
-        } else if (currentEntity) {
-            currentEntity.coords.push(parseFloat(token));
+        } 
+        // 4. Process Coordinates and Text Delimiters
+        else if (currentEntity) {
+            const parsedNum = parseFloat(token);
+            if (!isNaN(parsedNum)) {
+                currentEntity.coords.push(parsedNum);
+            } else {
+                // It is a stray text label (e.g., "Corner", "Door"). 
+                // Treat it as a break to prevent continuous spiderwebbing.
+                if (currentEntity.coords.length > 0) {
+                    entities.push(currentEntity);
+                    // Spin up a fresh clone of the current entity for the next set of numbers
+                    currentEntity = { type: currentEntity.type, coords: [], thick: currentEntity.thick, text: "" };
+                }
+            }
         }
     }
-    if (currentEntity) entities.push(currentEntity);
+    if (currentEntity && currentEntity.coords.length > 0) entities.push(currentEntity);
     return entities;
 }
 </script>
