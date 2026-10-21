@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD - Vector Mirror</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #121212; color: #0f0; padding: 15px; }
+        .ui-box { max-width: 550px; margin: auto; border: 1px solid #333; padding: 20px; background: #1a1a1a; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 10px; gap: 10px; align-items: center; }
+        input { background: #000; color: #f0f; border: 1px solid #f0f; width: 70px; padding: 4px; text-align: center; }
+        textarea { width: 100%; height: 200px; background: #000; color: #fff; border: 1px solid #444; font-size: 11px; margin-top: 5px; }
+        button { width: 100%; background: #f0f; color: #000; border: none; padding: 12px; cursor: pointer; font-weight: bold; margin: 15px 0; }
+        h2 { border-bottom: 1px solid #f0f; font-size: 14px; margin-top: 0; color: #fff; }
+        label { font-size: 11px; color: #888; }
+        .math-note { font-size: 10px; color: #f0f; margin-bottom: 10px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="ui-box">
+    <h2>VECTOR MIRROR ENGINE (S2-82)</h2>
+    <div class="math-note">Objective: Mirror V2 about Unit Vector V3</div>
+    
+    <div class="row">
+        <div>
+            <label>V3.x (Axis):</label> 
+            <input type="number" id="v3x" value="1" step="0.1">
+        </div>
+        <div>
+            <label>V3.y (Axis):</label> 
+            <input type="number" id="v3y" value="0" step="0.1">
+        </div>
+        <div style="font-size: 10px; color: #666; width: 120px;">
+            (1,0) = Horiz Mirror<br>(0,1) = Vert Mirror
+        </div>
+    </div>
+
+    <label>INPUT COORDINATE BLOB:</label>
+    <textarea id="input" placeholder="Paste tuples here..."></textarea>
+    
+    <button onclick="applyMirror()">REFLECT GEOMETRY</button>
+    
+    <label>MIRRORED OUTPUT (V6):</label>
+    <textarea id="output" readonly></textarea>
+</div>
+
+<script>
+    function applyMirror() {
+        // 1. Get Axis Vector V3
+        let vx = parseFloat(document.getElementById('v3x').value) || 0;
+        let vy = parseFloat(document.getElementById('v3y').value) || 0;
+
+        // 2. Normalize V3 (Ensure it is a Unit Vector)
+        const mag = Math.sqrt(vx * vx + vy * vy);
+        if (mag === 0) { vx = 1; vy = 0; } // Default to X-axis if error
+        const ux = vx / mag;
+        const uy = vy / mag;
+
+        // 3. Parse Input (Blob or Line Format)
+        const data = document.getElementById('input').value;
+        const rawNumbers = data.trim().split(/\s+/).map(Number);
+        let result = [];
+
+        // 4. Apply Reflection: P' = 2(P · U)U - P
+        for (let i = 0; i < rawNumbers.length; i += 2) {
+            let px = rawNumbers[i];
+            let py = rawNumbers[i + 1];
+
+            if (isNaN(px) || isNaN(py)) continue;
+
+            // Dot Product (P · U)
+            const dot = px * ux + py * uy;
+
+            // Mirror Logic
+            let mx = (2 * dot * ux - px).toFixed(4);
+            let my = (2 * dot * uy - py).toFixed(4);
+
+            result.push(`${mx} ${my}`);
+        }
+
+        document.getElementById('output').value = result.join('\n');
+    }
+</script>
+
+</body>
+</html>
