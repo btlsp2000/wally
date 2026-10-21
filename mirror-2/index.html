@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Standalone Engine</title>
+    <style>
+        body {
+            background-color: #e0e0e0;
+            font-family: 'Courier New', Courier, monospace;
+            color: #000;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: #fff;
+            border: 3px solid #000;
+            padding: 20px;
+            box-shadow: 8px 8px 0px #000;
+        }
+        h1 { margin-top: 0; font-size: 2em; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 10px; }
+        
+        /* The Viewport */
+        canvas {
+            background: #1a1a1a;
+            width: 100%;
+            height: 400px;
+            border: 2px solid #000;
+            display: block;
+            margin-bottom: 15px;
+            cursor: crosshair;
+        }
+        
+        /* The Command Line */
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: #f4f4f4;
+            border: 2px solid #000;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            font-weight: bold;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        button {
+            background: #000;
+            color: #fff;
+            border: 2px solid #000;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        button:hover {
+            background: #fff;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>WallyCAD Engine</h1>
+        
+        <canvas id="wallyCanvas" width="850" height="400"></canvas>
+        
+<textarea id="commandInput" spellcheck="false">
+// 1. Draw the left half
+Wally Line 0,0 / 10,0
+Wally Line 10,0 / 10,20
+Wally Line 10,20 / 0,10
+Wally Circle 5,5 / 2
+
+// 2. Reflect across the X=10 axis
+Wally Mirror X, 10
+        </textarea>
+
+        <textarea id="tupleOutput" readonly placeholder="Cartesian Tuples Output..." style="background: #e8e8e8; margin-top: 10px;"></textarea>
+        
+        <div class="controls">
+            <button onclick="executeEngine()">Render to Viewport</button>
+        </div>
+
+// 3. Reflect the whole thing downward
+Wally Mirror Y, -5
+        </textarea>
+        
+        <div class="controls">
+            <button onclick="executeEngine()">Render to Viewport</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wallyCanvas');
+        const ctx = canvas.getContext('2d');
+        let elements = [];
+
+        /*
+        function executeEngine() {
+            const rawText = document.getElementById('commandInput').value;
+            parsePayload(rawText);
+            drawExtents();
+        }
+        */
+
+        function executeEngine() {
+            const rawText = document.getElementById('commandInput').value;
+            parsePayload(rawText);
+            drawExtents();
+            generateTuples(); // NEW: Trigger the tuple output
+        }
+
+        // --- NEW: THE TUPLE GENERATOR ---
+        function generateTuples() {
+            let outputText = "// GENERATED COORDINATE TUPLES\n";
+            
+            elements.forEach(el => {
+                if (el.type === 'line') {
+                    // Formatted as: L: (x1, y1) -> (x2, y2)
+                    // .toFixed(4) cleans up floating point math artifacts from mirroring
+                    outputText += `L: (${el.x1.toFixed(4)}, ${el.y1.toFixed(4)}) -> (${el.x2.toFixed(4)}, ${el.y2.toFixed(4)})\n`;
+                } else if (el.type === 'circle') {
+                    // Formatted as: C: (cx, cy) R: r
+                    outputText += `C: (${el.cx.toFixed(4)}, ${el.cy.toFixed(4)}) R: ${el.r.toFixed(4)}\n`;
+                }
+            });
+            
+            document.getElementById('tupleOutput').value = outputText;
+        }
+
+        // --- THE CARTESIAN PARSER (Remains the same) ---
+
+        // --- THE CARTESIAN PARSER ---
+        function parsePayload(text) {
+            elements = []; // Reset geometry state
+            const lines = text.split('\n');
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (!line || line.startsWith("//")) return; // Ignore blanks and comments
+
+                // PARSE: WALLY LINE
+                if (line.startsWith("Wally Line")) {
+                    let parts = line.replace("Wally Line", "").split("/");
+                    if (parts.length === 2) {
+                        let p1 = parts[0].split(",");
+                        let p2 = parts[1].split(",");
+                        elements.push({
+                            type: 'line',
+                            x1: parseFloat(p1[0]), y1: parseFloat(p1[1]),
+                            x2: parseFloat(p2[0]), y2: parseFloat(p2[1])
+                        });
+                    }
+                }
+                // PARSE: WALLY CIRCLE
+                else if (line.startsWith("Wally Circle")) {
+                    let parts = line.replace("Wally Circle", "").split("/");
+                    if (parts.length === 2) {
+                        let center = parts[0].split(",");
+                        let r = parseFloat(parts[1]);
+                        elements.push({
+                            type: 'circle',
+                            cx: parseFloat(center[0]), cy: parseFloat(center[1]), r: r
+                        });
+                    }
+                }
+                // PARSE: WALLY MIRROR
+                else if (line.startsWith("Wally Mirror")) {
+                    let params = line.replace("Wally Mirror", "").split(",");
+                    if (params.length === 2) {
+                        let axis = params[0].trim().toUpperCase(); // 'X' or 'Y'
+                        let val = parseFloat(params[1]);
+                        let mirroredElements = [];
+                        
+                        elements.forEach(el => {
+                            if (el.type === 'line') {
+                                if (axis === 'X') mirroredElements.push({ type: 'line', x1: (2*val) - el.x1, y1: el.y1, x2: (2*val) - el.x2, y2: el.y2 });
+                                if (axis === 'Y') mirroredElements.push({ type: 'line', x1: el.x1, y1: (2*val) - el.y1, x2: el.x2, y2: (2*val) - el.y2 });
+                            } else if (el.type === 'circle') {
+                                if (axis === 'X') mirroredElements.push({ type: 'circle', cx: (2*val) - el.cx, cy: el.cy, r: el.r });
+                                if (axis === 'Y') mirroredElements.push({ type: 'circle', cx: el.cx, cy: (2*val) - el.cy, r: el.r });
+                            }
+                        });
+                        elements = elements.concat(mirroredElements);
+                    }
+                }
+            });
+        }
+
+        // --- THE ZOOM EXTENTS RENDERER ---
+        function drawExtents() {
+            // 1. Clear Canvas
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (elements.length === 0) return;
+
+            // 2. Calculate Bounding Box
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            
+            elements.forEach(el => {
+                if (el.type === 'line') {
+                    minX = Math.min(minX, el.x1, el.x2); maxX = Math.max(maxX, el.x1, el.x2);
+                    minY = Math.min(minY, el.y1, el.y2); maxY = Math.max(maxY, el.y1, el.y2);
+                } else if (el.type === 'circle') {
+                    minX = Math.min(minX, el.cx - el.r); maxX = Math.max(maxX, el.cx + el.r);
+                    minY = Math.min(minY, el.cy - el.r); maxY = Math.max(maxY, el.cy + el.r);
+                }
+            });
+
+            // 3. Calculate Scale & Offset (Auto-Fit)
+            const padding = 40; // Pixels of margin
+            const geomWidth = maxX - minX;
+            const geomHeight = maxY - minY;
+            
+            // Prevent division by zero if geometry is a single point
+            const scaleX = geomWidth > 0 ? (canvas.width - padding * 2) / geomWidth : 1;
+            const scaleY = geomHeight > 0 ? (canvas.height - padding * 2) / geomHeight : 1;
+            const scale = Math.min(scaleX, scaleY);
+
+            const offsetX = (canvas.width - (geomWidth * scale)) / 2 - (minX * scale);
+            const offsetY = (canvas.height - (geomHeight * scale)) / 2 - (minY * scale);
+
+            // 4. Transform Coordinate System to Cartesian (Y-up)
+            ctx.save();
+            ctx.translate(0, canvas.height); // Move origin to bottom
+            ctx.scale(1, -1);                // Flip Y axis
+
+            // 5. Draw Geometry
+            ctx.strokeStyle = '#00ff00'; // Classic CAD Green
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+
+            elements.forEach(el => {
+                if (el.type === 'line') {
+                    ctx.moveTo(offsetX + el.x1 * scale, canvas.height - (offsetY + el.y1 * scale));
+                    ctx.lineTo(offsetX + el.x2 * scale, canvas.height - (offsetY + el.y2 * scale));
+                } else if (el.type === 'circle') {
+                    ctx.moveTo(offsetX + (el.cx + el.r) * scale, canvas.height - (offsetY + el.cy * scale));
+                    ctx.arc(
+                        offsetX + el.cx * scale, 
+                        canvas.height - (offsetY + el.cy * scale), 
+                        el.r * scale, 
+                        0, Math.PI * 2
+                    );
+                }
+            });
+
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Initialize empty canvas on load
+        executeEngine();
+    </script>
+</body>
+</html>
