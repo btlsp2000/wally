@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD | Master Pro Dashboard</title>
+    <style>
+        body { background: #0a0a0a; color: #00ff00; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        #launcher { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 40px; flex-grow: 1; }
+        .entity-node { border: 2px solid #333; padding: 30px; text-align: center; cursor: pointer; transition: 0.3s; background: #111; }
+        .entity-node:hover { border-color: #00ff00; background: #1a1a1a; box-shadow: 0 0 15px rgba(0,255,0,0.2); }
+        .key-hint { display: block; font-size: 0.8em; color: #666; margin-top: 10px; }
+        #system-log { height: 150px; background: #000; border-top: 1px solid #00ff00; padding: 15px; overflow-y: auto; font-size: 13px; color: #00cc00; }
+        h1 { padding: 20px 40px; margin: 0; letter-spacing: 5px; border-bottom: 1px solid #333; }
+    </style>
+</head>
+<body>
+
+    <h1>WALLY PRO :: SYSTEM_DASHBOARD</h1>
+
+    <div id="launcher">
+        <div class="entity-node" onclick="launch('g-coder.html')">
+            <h2>G-CODER PRO</h2>
+            <p>CAM / Split-Screen Simulator</p>
+            <span class="key-hint">QC: [G]</span>
+        </div>
+        <div class="entity-node" onclick="launch('mapper.html')">
+            <h2>PERIMETER HUB</h2>
+            <p>Western States & Arc Logic</p>
+            <span class="key-hint">QC: [M]</span>
+        </div>
+        <div class="entity-node" onclick="launch('wib.html')">
+            <h2>WIB DATA</h2>
+            <p>Memoir & Game Timeline</p>
+            <span class="key-hint">QC: [W]</span>
+        </div>
+        <div class="entity-node" onclick="launch('logic.html')">
+            <h2>ARC_LOGIC_LAB</h2>
+            <p>Seamless Boundary Refinement</p>
+            <span class="key-hint">QC: [L]</span>
+        </div>
+        <div class="entity-node" onclick="launch('logic-river.html')">
+    <h2>RIVER MAPPER</h2>
+    <p>Organic Vector Processing</p>
+    <span class="key-hint">QC: [R]</span>
+</div>
+        <div class="entity-node" onclick="launch('traverse.html')">
+    <h2>TRAVERSE ENGINE</h2>
+    <p>P1-Pn Vector Mapping</p>
+    <span class="key-hint">QC: [T]</span>
+</div>
+<div class="entity-node" onclick="launch('about.html')">
+    <h2>DESIGNER PROFILE</h2>
+    <p>Resume, Teachers & Portfolio</p>
+    <span class="key-hint">QC: [A]</span>
+</div>
+    </div>
+
+    <div id="system-log">> System initialized. Ready for PCC Demo.</div>
+
+<script>
+    const log = document.getElementById('system-log');
+    
+    function launch(url) {
+        log.innerHTML += `<br>> Launching ${url}...`;
+        window.open(url, '_blank');
+    }
+
+    // Master QC Keyboard Logic
+    window.addEventListener('keydown', (e) => {
+        const key = e.key.toUpperCase();
+        if (key === 'G') launch('g-coder.html');
+        if (key === 'M') launch('mapper.html');
+        if (key === 'W') launch('wib.html');
+        if (key === 'L') launch('logic.html');
+    });
+</script>
+</body>
+</html>
