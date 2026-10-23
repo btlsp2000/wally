@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | DIM Engine Q2-3 Spread</title>
+    <style>
+        :root {
+            --cad-black: #121212;
+            --cad-accent: #00ff00;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #e5e7eb;
+            color: var(--cad-black);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 11x8.5 Landscape Canvas - 2 Column Spread */
+        .sheet {
+            width: 11in;
+            height: 8.5in;
+            background: white;
+            display: grid;
+            grid-template-columns: 5.5in 5.5in;
+            grid-template-rows: 8.5in;
+            position: relative;
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        /* Center Fold Crease */
+        .crosshair-vert {
+            position: absolute;
+            top: 0;
+            left: 5.5in;
+            width: 1px;
+            height: 8.5in;
+            border-left: 1px dashed #aaa;
+            z-index: 10;
+        }
+
+        .quadrant {
+            padding: 0.75in;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        h1, h2, h3, h4 { margin: 0; font-weight: bold; }
+        h1 { font-size: 24pt; border-bottom: 2px solid var(--cad-black); margin-bottom: 12px; padding-bottom: 4px; }
+        h2 { font-size: 14pt; margin-bottom: 8px; color: #444; margin-top: 15px; }
+        h4 { font-size: 11pt; margin-bottom: 5px; margin-top: 15px; }
+        p, li { font-size: 10pt; line-height: 1.5; margin-top: 0; }
+        ul { padding-left: 15px; margin-bottom: 15px; }
+        
+        .code-block {
+            background: #f4f4f4;
+            border: 1px solid #ccc;
+            padding: 8px;
+            font-size: 9pt;
+            font-weight: bold;
+            margin: 10px 0;
+            display: block;
+        }
+
+        /* Print Override */
+        @media print {
+            @page { size: letter landscape; margin: 0; }
+            body { background: none; }
+            .sheet { box-shadow: none; border: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sheet">
+        <!-- Fold Guide -->
+        <div class="crosshair-vert"></div>
+
+        <!-- QUADRANT 2: INSIDE LEFT (Left Pane) -->
+        <div class="quadrant" style="border-right: 1px solid #eee;">
+            <h1>THE 3 DIM MODES</h1>
+            <p>The engine now supports three dimension types to accurately document architectural layouts.</p>
+            
+            <h2>1. [DIM] - Aligned</h2>
+            <p>The standard dimension. The measurement string runs perfectly parallel to the angle between Point 1 and Point 2. Used for diagonals and angled walls.</p>
+            
+            <h2>2. [DIMH] - Horizontal</h2>
+            <p>Locks the measurement strictly to the X-Axis. Even if P1 and P2 are at different heights, the engine only calculates the horizontal distance between them.</p>
+
+            <h2>3. [DIMV] - Vertical</h2>
+            <p>Locks the measurement strictly to the Y-Axis. The engine isolates the vertical height difference. Text is automatically rotated 90 degrees to read bottom-to-top.</p>
+        </div>
+
+        <!-- QUADRANT 3: INSIDE RIGHT (Right Pane) -->
+        <div class="quadrant">
+            <h1>SDJ SYNTAX</h1>
+            <p>The core schema for dimensioning relies on the T: parameter to define the offset distance.</p>
+            
+            <span class="code-block">[TYPE] X1 Y1 X2 Y2 T:OFFSET "TEXT"</span>
+
+            <h4>The T: Offset Parameter</h4>
+            <p>Unlike Walls or Lines where <code>T:</code> controls thickness, in a DIM entity, <code>T:</code> tells the engine how far to pull the dimension line away from the baseline nodes.</p>
+            <ul>
+                <li><code>T:15</code> throws the line 15 units outward.</li>
+                <li><code>T:-20</code> throws the line 20 units in the opposite direction.</li>
+            </ul>
+
+            <h4>Command Line Examples</h4>
+            <span class="code-block">[DIMV] 0 0 0 108 T:-20</span>
+            <p>Measures the vertical height of a 108-unit wall, and places the dimension string 20 units to the LEFT of the wall.</p>
+
+            <span class="code-block">[DIMH] 0 0 192 0 T:15 "16'-0"</span>
+            <p>Measures a 192-unit horizontal span, offsets it 15 units, and replaces the decimal output with custom text.</p>
+        </div>
+    </div>
+
+</body>
+</html>
