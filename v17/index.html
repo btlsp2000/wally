@@ -131,7 +131,7 @@
 
 <script>
 let state = { ents: [], view: { x: 0, y: 0, scale: 5, panStart: null }, mouse: { worldX: 0, worldY: 0 }, osnap: null, selection: null, showWatermark: true };
-
+const DIM_FONT_SIZE = 12; // Adjust this number to change all DIM text sizes
 class M { 
     constructor(x,y){this.x=x;this.y=y} 
     add(v){return new M(this.x+v.x,this.y+v.y)} 
@@ -332,6 +332,7 @@ function exec(c){
 }
 
 function draw(){
+    ctx.font = `${DIM_FONT_SIZE}px 'Courier New', monospace`;
     const cvs=document.getElementById('canvas'); const ctx=cvs.getContext('2d'); 
     ctx.fillStyle=document.body.classList.contains('hal-mode')?'#000':'#121212'; 
     ctx.fillRect(0,0,cvs.width,cvs.height);
