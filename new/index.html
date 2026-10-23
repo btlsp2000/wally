@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's New | WallyCAD</title>
+    <style>
+        :root {
+            --cad-bg: #121212;
+            --panel-bg: #1e1e1e;
+            --accent: #00ff00;
+            --text-main: #eeeeee;
+            --text-dim: #aaaaaa;
+            --border: #444444;
+            --highlight: #61afef;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            background-color: var(--cad-bg);
+            color: var(--text-main);
+            font-family: 'Consolas', 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 15px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            letter-spacing: 2px;
+            color: var(--text-main);
+        }
+
+        .header p {
+            color: var(--highlight);
+            margin: 10px 0 0 0;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            padding: 20px;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.1);
+        }
+
+        .card-tag {
+            font-size: 10px;
+            color: #000;
+            background-color: var(--accent);
+            padding: 2px 6px;
+            display: inline-block;
+            align-self: flex-start;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .card-tag.core { background-color: var(--highlight); }
+
+        .card h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: var(--accent);
+        }
+
+        .card p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .card-url {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #666;
+            border-top: 1px dashed var(--border);
+            padding-top: 10px;
+        }
+
+        .card:hover .card-url {
+            color: var(--accent);
+        }
+
+        .footer {
+            margin-top: 50px;
+            font-size: 12px;
+            color: var(--border);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>WHAT'S NEW AT WALLYCAD</h1>
+        <p>Latest Protocol Updates & Standalone Modules</p>
+    </div>
+
+    <div class="grid-container">
+        
+        <!-- V17 CORE ENGINE -->
+        <a href="https://wallycad.com/v17" class="card">
+            <span class="card-tag core">CORE ENGINE UPDATE</span>
+            <h2>WallyCAD v1.0.17</h2>
+            <p>The flagship update. Features the new Smart Dimensioning system (auto-bounding DIM, DIMH, DIMV), bulletproof SDJ string parsing, and physical Delete/Backspace keyboard integration.</p>
+            <div class="card-url">wallycad.com/v17</div>
+        </a>
+
+        <!-- DASHBOARD -->
+        <a href="https://wallycad.com/home" class="card">
+            <span class="card-tag core">SYSTEM HUB</span>
+            <h2>The Dashboard (CP)</h2>
+            <p>Your centralized Control Panel and dynamic router. Access the core drafting engine and all auxiliary tools from a single, unified interface without cluttering browser tabs.</p>
+            <div class="card-url">wallycad.com/home</div>
+        </a>
+
+        <!-- ELLIPSE GENERATOR -->
+        <a href="https://wallycad.com/ellipse" class="card">
+            <span class="card-tag">STANDALONE MODULE</span>
+            <h2>Ellipse Generator</h2>
+            <p>Parametric ellipse calculator. Define your major and minor radii, rotation angle, and segment resolution to instantly generate copy-ready SDJ vector matrices.</p>
+            <div class="card-url">wallycad.com/ellipse</div>
+        </a>
+
+        <!-- JSON TO WALLY -->
+        <a href="https://wallycad.com/jsontowally" class="card">
+            <span class="card-tag">STANDALONE MODULE</span>
+            <h2>JSON to SDJ Converter</h2>
+            <p>Sanitize and flatten raw coordinate data into mathematically perfect Space-Delimited JSON (SDJ) strings. Now equipped with intelligent auto-quoting for multi-word labels.</p>
+            <div class="card-url">wallycad.com/jsontowally</div>
+        </a>
+
+        <!-- OFFSET ENGINE -->
+        <a href="https://wallycad.com/offset" class="card">
+            <span class="card-tag">STANDALONE MODULE</span>
+            <h2>Offset Engine</h2>
+            <p>Generate parallel geometries and automated line offsets for rapid perimeter framing, wall thicknesses, and spatial boundaries.</p>
+            <div class="card-url">wallycad.com/offset</div>
+        </a>
+
+    </div>
+
+    <div class="footer">
+        &copy; 2026 WALLYCAD ENTERPRISE | LKA
+    </div>
+
+</body>
+</html>
