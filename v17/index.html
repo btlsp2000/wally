@@ -662,7 +662,7 @@ function parseWallyString(sdjString) {
         // 1. Detect Explicit Entity Headers (Fixed Regex)
         if (token.startsWith('[')) {
             if (currentEntity && currentEntity.coords.length > 0) entities.push(currentEntity);
-            currentEntity = { type: token.replace(/\[\vert{}\]/g, ''), coords: [], thick: 0, text: "" };
+        currentEntity = { type: token.replace(/\[|\]/g, ''), coords: [], thick: 0, text: "" };
         } 
         // 2. Detect Thickness/Scale Parameter
         else if (token.startsWith('T:')) {
