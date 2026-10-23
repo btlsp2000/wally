@@ -12,7 +12,6 @@
     </style>
 </head>
 <body>
-
     <h2>WALLY DATA CONVERTER</h2>
     
     <span class="label">INPUT: Standard JSON or Wally Entity (e.g. [{"type": "SQFONT", "geo": "..."}])</span>
@@ -20,7 +19,7 @@
     
     <button onclick="convertToWally()">CONVERT TO SDJ STRING</button>
     <br><br>
-
+    
     <span class="label">OUTPUT: Wally Space-Delimited String (Ready for Gist)</span>
     <textarea id="wallyOutput" readonly></textarea>
 
@@ -38,10 +37,26 @@
                     // Case 1: Standard Wally CAD Entity Object (SQFONT, WALL, LINE, etc.)
                     if (item.type || item.geo) {
                         const type = item.type || 'ENTITY';
-                        // Clean newline characters (\n) inside 'geo' string into space-delimited tokens
-                        const cleanGeo = item.geo ? item.geo.replace(/\r?\n|\r/g, ' ') : '';
+                        
+                        let cleanGeo = "";
+                        if (item.geo) {
+                            cleanGeo = item.geo.split(/\r?\n/).map(line => {
+                                // Strip commas and normalize spaces
+                                let t = line.trim().replace(/,/g, ' ').replace(/\s+/g, ' ');
+                                if (!t) return "";
+                                
+                                // If the line contains letters, it's a label. Wrap it in quotes.
+                                if (/[a-zA-Z]/.test(t)) return `"${t}"`; 
+                                
+                                // Otherwise, it's pure coordinate math. Leave it alone.
+                                return t; 
+                            }).filter(Boolean).join(' ');
+                        }
+                        
                         const thick = item.thick !== undefined ? item.thick : 0;
-                        return `[${type}] ${cleanGeo} T:${thick}`;
+                        const entText = item.text ? ` "${item.text}"` : "";
+                        
+                        return `[${type}] ${cleanGeo} T:${thick}${entText}`;
                     }
                     
                     // Case 2: Raw Coordinate Pairs (lat/lng or x/y)
