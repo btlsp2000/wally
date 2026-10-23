@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD | Footprint Offset Generator</title>
+    <style>
+        body { 
+            background: #1a1a1a; 
+            color: #00ff00; 
+            font-family: 'Courier New', Courier, monospace; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        h2 { margin: 0 0 10px 0; letter-spacing: 2px; }
+        p { color: #888; font-size: 12px; margin-bottom: 20px; text-align: center; max-width: 600px; }
+        
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        .control-group { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; color: #38bdf8; margin-bottom: 5px; font-weight: bold; }
+        
+        textarea { 
+            width: 100%; 
+            height: 120px; 
+            background: #000; 
+            color: #00ff00; 
+            border: 1px solid #444; 
+            padding: 10px; 
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        
+        input[type="number"] {
+            background: #000;
+            color: #00ff00;
+            border: 1px solid #444;
+            padding: 8px;
+            font-family: inherit;
+            width: 100px;
+        }
+
+        button { 
+            background: #10b981; 
+            color: #000; 
+            border: none; 
+            padding: 12px 20px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%;
+            margin-top: 10px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        button:hover { background: #059669; }
+
+        .output-box { margin-top: 20px; }
+        .output-box textarea { height: 80px; border-color: #10b981; }
+    </style>
+</head>
+<body>
+
+    <h2>WALLY FOOTPRINT OFFSET</h2>
+    <p>Pastes an exact interior footprint loop (e.g. 0,0 to 192,108). Generates the outward-offset baseline required to render the [WALL] entity without shrinking the room.</p>
+
+    <div class="container">
+        
+        <div class="control-group">
+            <label>1. INSIDE PATH (X Y or X,Y coordinates)</label>
+            <textarea id="inputCoords" placeholder="0 0&#10;192 0&#10;192 108&#10;0 108&#10;0 0"></textarea>
+        </div>
+
+        <div class="control-group">
+            <label>2. WALL THICKNESS (T:)</label>
+            <input type="number" id="inputThick" value="6" step="0.5">
+            <span style="font-size: 12px; color: #888; margin-left: 10px;">Offset distance will be half of this value.</span>
+        </div>
+
+        <button onclick="generateOffset()">GENERATE OFFSET SDJ</button>
+
+        <div class="control-group output-box">
+            <label>3. OFFSET OUTPUT (Ready for Command Bar)</label>
+            <textarea id="outputSDJ" readonly></textarea>
+        </div>
+
+    </div>
+
+    <script>
+        class Vector {
+            constructor(x, y) { this.x = x; this.y = y; }
+            add(v) { return new Vector(this.x + v.x, this.y + v.y); }
+            sub(v) { return new Vector(this.x - v.x, this.y - v.y); }
+            mul(s) { return new Vector(this.x * s, this.y * s); }
+            mag() { return Math.sqrt(this.x * this.x + this.y * this.y); }
+            norm() { const m = this.mag(); return m === 0 ? new Vector(0, 0) : new Vector(this.x / m, this.y / m); }
+            // 90-degree rotations
+            perpCW() { return new Vector(this.y, -this.x); }
+            perpCCW() { return new Vector(-this.y, this.x); }
+        }
+
+        // Calculates polygon area to determine winding order (positive = CW, negative = CCW)
+        function getWinding(pts) {
+            let sum = 0;
+            for (let i = 0; i < pts.length - 1; i++) {
+                sum += (pts[i+1].x - pts[i].x) * (pts[i+1].y + pts[i].y);
+            }
+            return sum;
+        }
+
+        function generateOffset() {
+            const rawText = document.getElementById('inputCoords').value.trim();
+            const thickness = parseFloat(document.getElementById('inputThick').value);
+            
+            if (!rawText || isNaN(thickness)) {
+                alert("Please provide valid coordinates and thickness.");
+                return;
+            }
+
+            // Parse input into Vector array
+            const tokens = rawText.replace(/,/g, ' ').split(/\s+/).map(Number).filter(n => !isNaN(n));
+            const pts = [];
+            for (let i = 0; i < tokens.length; i += 2) {
+                if (tokens[i+1] !== undefined) {
+                    pts.push(new Vector(tokens[i], tokens[i+1]));
+                }
+            }
+
+            if (pts.length < 3) {
+                alert("Require at least 3 points to define a path.");
+                return;
+            }
+
+            // Ensure the loop is closed for processing
+            const isClosed = (pts[0].x === pts[pts.length-1].x && pts[0].y === pts[pts.length-1].y);
+            if (!isClosed) {
+                pts.push(new Vector(pts[0].x, pts[0].y));
+            }
+
+            const offsetDist = thickness / 2;
+            const winding = getWinding(pts);
+            const isCW = winding > 0;
+
+            const offsetPts = [];
+
+            // Calculate vertex intersection offsets
+            for (let i = 0; i < pts.length - 1; i++) {
+                const prev = i === 0 ? pts[pts.length - 2] : pts[i - 1];
+                const curr = pts[i];
+                const next = pts[i + 1];
+
+                const vIn = curr.sub(prev).norm();
+                const vOut = next.sub(curr).norm();
+
+                // Select the correct outward perpendicular normal based on winding
+                const nIn = isCW ? vIn.perpCCW() : vIn.perpCW();
+                const nOut = isCW ? vOut.perpCCW() : vOut.perpCW();
+
+                // Calculate the shift
+                const offsetLineInP1 = prev.add(nIn.mul(offsetDist));
+                const offsetLineInP2 = curr.add(nIn.mul(offsetDist));
+                
+                const offsetLineOutP1 = curr.add(nOut.mul(offsetDist));
+                const offsetLineOutP2 = next.add(nOut.mul(offsetDist));
+
+                // Find intersection of the two offset lines (handles standard and angled corners)
+                const det = vIn.x * vOut.y - vIn.y * vOut.x;
+                
+                if (Math.abs(det) < 1e-9) {
+                    // Lines are parallel, just apply standard offset
+                    offsetPts.push(offsetLineInP2);
+                } else {
+                    const dx = offsetLineOutP1.x - offsetLineInP1.x;
+                    const dy = offsetLineOutP1.y - offsetLineInP1.y;
+                    const t = (dx * vOut.y - dy * vOut.x) / det;
+                    const intersection = new Vector(offsetLineInP1.x + vIn.x * t, offsetLineInP1.y + vIn.y * t);
+                    offsetPts.push(intersection);
+                }
+            }
+
+            // Close the loop
+            offsetPts.push(new Vector(offsetPts[0].x, offsetPts[0].y));
+
+            // Format to SDJ String
+            let sdjString = `[WALL] `;
+            offsetPts.forEach(p => {
+                // Round to 4 decimal places to prevent floating point drift, drop trailing zeros
+                sdjString += `${parseFloat(p.x.toFixed(4))} ${parseFloat(p.y.toFixed(4))} `;
+            });
+            sdjString += `T:${thickness}`;
+
+            const outputBox = document.getElementById('outputSDJ');
+            outputBox.value = sdjString;
+            
+            // Auto-copy to clipboard
+            navigator.clipboard.writeText(sdjString);
+        }
+    </script>
+</body>
+</html>
