@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD | Ellipse Standalone</title>
+    <style>
+        body { background: #1a1a1a; color: #00ff00; font-family: monospace; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 800px; }
+        .panel { background: #000; border: 1px solid #444; padding: 15px; width: 300px; box-sizing: border-box; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center; }
+        input { background: #111; border: 1px solid #444; color: #00ff00; padding: 5px; width: 70px; font-family: monospace; text-align: right; }
+        button { background: #00ff00; color: #000; border: none; padding: 10px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        button:hover { background: #00cc00; }
+        textarea { width: 100%; height: 120px; background: #111; color: #00ff00; border: 1px solid #444; padding: 10px; margin-top: 10px; box-sizing: border-box; font-size: 10px; }
+        canvas { background: #121212; border: 1px solid #444; }
+        h2 { margin-top: 0; color: #fff; text-align: center; font-size: 16px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="panel">
+            <h2>WALLY ELLIPSE GENERATOR</h2>
+            <div class="row"><span>Center X:</span><input type="number" id="cx" value="0"></div>
+            <div class="row"><span>Center Y:</span><input type="number" id="cy" value="0"></div>
+            <div class="row"><span>Radius X (Major):</span><input type="number" id="rx" value="60"></div>
+            <div class="row"><span>Radius Y (Minor):</span><input type="number" id="ry" value="25"></div>
+            <div class="row"><span>Rotation (Deg):</span><input type="number" id="rot" value="0"></div>
+            <div class="row"><span>Segments:</span><input type="number" id="seg" value="36"></div>
+            
+            <button onclick="generateEllipse()">GENERATE SDJ MATRIX</button>
+            
+            <textarea id="output" readonly placeholder="SDJ String will appear here..."></textarea>
+        </div>
+        
+        <div>
+            <canvas id="preview" width="300" height="300"></canvas>
+        </div>
+    </div>
+
+    <script>
+        function generateEllipse() {
+            const cx = parseFloat(document.getElementById('cx').value);
+            const cy = parseFloat(document.getElementById('cy').value);
+            const rx = parseFloat(document.getElementById('rx').value);
+            const ry = parseFloat(document.getElementById('ry').value);
+            const rot = parseFloat(document.getElementById('rot').value) * (Math.PI / 180);
+            const seg = parseInt(document.getElementById('seg').value) || 36;
+            
+            let coords = [];
+            const cvs = document.getElementById('preview');
+            const ctx = cvs.getContext('2d');
+            
+            // Clear and setup Cartesian preview
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            ctx.save();
+            ctx.translate(cvs.width / 2, cvs.height / 2);
+            ctx.scale(1, -1); 
+            
+            // Draw origin crosshairs
+            ctx.strokeStyle = '#333';
+            ctx.beginPath(); ctx.moveTo(-150, 0); ctx.lineTo(150, 0); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, -150); ctx.lineTo(0, 150); ctx.stroke();
+            
+            // Render Ellipse
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            
+            for (let i = 0; i <= seg; i++) {
+                // Parametric angle
+                let t = (i / seg) * Math.PI * 2;
+                
+                // Base unrotated coordinates
+                let x_prime = rx * Math.cos(t);
+                let y_prime = ry * Math.sin(t);
+                
+                // Apply rotation and translation to Center
+                let x = cx + x_prime * Math.cos(rot) - y_prime * Math.sin(rot);
+                let y = cy + x_prime * Math.sin(rot) + y_prime * Math.cos(rot);
+                
+                // Format to 4 decimal places for SDJ matrix
+                coords.push(`${x.toFixed(4)} ${y.toFixed(4)}`);
+                
+                // Draw to canvas preview
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            
+            ctx.stroke();
+            ctx.restore();
+            
+            // Package into Wally SDJ format
+            const sdj = `[LINE] ${coords.join(' ')} T:0`;
+            const outBox = document.getElementById('output');
+            outBox.value = sdj;
+            
+            // Auto-copy to clipboard
+            navigator.clipboard.writeText(sdj);
+        }
+        
+        // Generate on initialization
+        generateEllipse();
+    </script>
+</body>
+</html>
