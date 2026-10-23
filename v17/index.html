@@ -317,4 +317,380 @@ function exec(c){
     }
     else if(cmd.startsWith('BOX')) {
         const parts = cmd.split(' ');
-        if(parts.length >=
+        if(parts.length >= 4) {
+            const coords = parts[1].split(',');
+            const x = parseFloat(coords[0]); const y = parseFloat(coords[1]);
+            const w = parseFloat(parts[2]); const h = parseFloat(parts[3]);
+            const t = parts[4] ? parseFloat(parts[4]) : 0;
+            if(!isNaN(x) && !isNaN(y) && !isNaN(w) && !isNaN(h)) {
+                createWallyBox(x, y, w, h, t);
+                log(`BOX CREATED: ${w}x${h} AT ${x},${y}`);
+            }
+        }
+    }
+    draw();
+}
+
+function draw(){
+    const cvs=document.getElementById('canvas'); const ctx=cvs.getContext('2d'); 
+    ctx.fillStyle=document.body.classList.contains('hal-mode')?'#000':'#121212'; 
+    ctx.fillRect(0,0,cvs.width,cvs.height);
+    
+    ctx.save(); ctx.translate(state.view.x,state.view.y); ctx.scale(state.view.scale,-state.view.scale);
+    
+    state.ents.forEach(ent=>{
+        const isSel=state.selection===ent; 
+        const col=isSel?'#98c379':(document.body.classList.contains('hal-mode')?'red':'#00ff00');
+        
+        const blocks = parseBlocks(ent.geo);
+        blocks.forEach(pts => {
+            if(!pts || pts.length === 0) return;
+            
+            // --- UPDATED SCALED TEXT RENDER LOGIC ---
+            if(ent.type==='TEXT'){ 
+                const baseFontSize = 10;
+                const scaleMultiplier = ent.thick > 0 ? ent.thick : 1;
+                const fontSize = baseFontSize * scaleMultiplier;
+
+                ctx.fillStyle=col; 
+                ctx.font=`${fontSize}px 'SquareFont', 'Courier New', monospace`;
+                
+                ctx.save();
+                ctx.translate(pts[0].x, pts[0].y);
+                ctx.scale(1, -1);
+                ctx.fillText(ent.text || "TEXT", 0, 0);
+                ctx.restore();
+            } 
+            else if(ent.type==='CIRCLE'){ 
+                ctx.strokeStyle=col; ctx.lineWidth=1/state.view.scale; 
+                ctx.beginPath(); ctx.arc(pts[0].x,pts[0].y,ent.thick,0,Math.PI*2); ctx.stroke();
+            } 
+            else if(ent.thick>0 && ent.type==='WALL'){
+                const geo=ComputeGeometry(pts,ent.thick); 
+                if(geo) {
+                    ctx.strokeStyle=col; ctx.lineWidth=1/state.view.scale;
+                    const dp=(a)=>{ctx.beginPath();a.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));ctx.stroke();};
+                    dp(geo.joints.map(j=>j.L)); dp(geo.joints.map(j=>j.R));
+                }
+            } 
+            // --- ARCHITECTURAL DIMENSION RENDERER (ALIGNED, HORIZONTAL, VERTICAL) ---
+            else if(ent.type.startsWith('DIM')) {
+                if(pts.length >= 2) {
+                    const p1 = pts[0];
+                    const p2 = pts[1];
+                    const offsetDist = ent.thick !== 0 ? ent.thick : 15;
+                    const overshoot = 3;
+
+                    let dp1, dp2, ext1Start, ext1End, ext2Start, ext2End, angle, dist;
+
+                    if (ent.type === 'DIMV') {
+                        dist = Math.abs(p2.y - p1.y);
+                        const baseX = p1.x + offsetDist; 
+                        
+                        dp1 = { x: baseX, y: p1.y };
+                        dp2 = { x: baseX, y: p2.y };
+                        
+                        ext1Start = { x: p1.x + Math.sign(offsetDist)*2, y: p1.y };
+                        ext1End   = { x: baseX + Math.sign(offsetDist)*overshoot, y: p1.y };
+                        ext2Start = { x: p2.x + Math.sign(offsetDist)*2, y: p2.y };
+                        ext2End   = { x: baseX + Math.sign(offsetDist)*overshoot, y: p2.y };
+
+                    } else if (ent.type === 'DIMH') {
+                        dist = Math.abs(p2.x - p1.x);
+                        const baseY = p1.y + offsetDist; 
+                        
+                        dp1 = { x: p1.x, y: baseY };
+                        dp2 = { x: p2.x, y: baseY };
+                        
+                        ext1Start = { x: p1.x, y: p1.y + Math.sign(offsetDist)*2 };
+                        ext1End   = { x: p1.x, y: baseY + Math.sign(offsetDist)*overshoot };
+                        ext2Start = { x: p2.x, y: p2.y + Math.sign(offsetDist)*2 };
+                        ext2End   = { x: p2.x, y: baseY + Math.sign(offsetDist)*overshoot };
+
+                    } else {
+                        const dx = p2.x - p1.x;
+                        const dy = p2.y - p1.y;
+                        dist = Math.sqrt(dx*dx + dy*dy);
+                        const perpAngle = Math.atan2(dy, dx);
+                        const nx = -dy / dist;
+                        const ny = dx / dist;
+
+                        dp1 = { x: p1.x + nx * offsetDist, y: p1.y + ny * offsetDist };
+                        dp2 = { x: p2.x + nx * offsetDist, y: p2.y + ny * offsetDist };
+                        
+                        ext1Start = { x: p1.x + nx * 2, y: p1.y + ny * 2 };
+                        ext1End   = { x: dp1.x + nx * overshoot, y: dp1.y + ny * overshoot };
+                        ext2Start = { x: p2.x + nx * 2, y: p2.y + ny * 2 };
+                        ext2End   = { x: dp2.x + nx * overshoot, y: dp2.y + ny * overshoot };
+                    }
+                    
+                    ctx.strokeStyle = col; 
+                    ctx.lineWidth = 1 / state.view.scale;
+                    
+                    // --- DRAW LINES ---
+                    ctx.beginPath();
+                    ctx.moveTo(ext1Start.x, ext1Start.y); ctx.lineTo(ext1End.x, ext1End.y); 
+                    ctx.moveTo(ext2Start.x, ext2Start.y); ctx.lineTo(ext2End.x, ext2End.y);
+                    
+                    const vAngle = Math.atan2(dp2.y - dp1.y, dp2.x - dp1.x); 
+                    const vx = Math.cos(vAngle) * overshoot;
+                    const vy = Math.sin(vAngle) * overshoot;
+                    ctx.moveTo(dp1.x - vx, dp1.y - vy);
+                    ctx.lineTo(dp2.x + vx, dp2.y + vy);
+                    ctx.stroke();
+                    
+                    // --- DRAW ARCHITECTURAL TICKS ---
+                    const tickSize = 4;
+                    const tickAngle = vAngle + (Math.PI / 4); 
+                    const drawTick = (px, py) => {
+                        ctx.beginPath();
+                        ctx.moveTo(px - Math.cos(tickAngle)*tickSize, py - Math.sin(tickAngle)*tickSize);
+                        ctx.lineTo(px + Math.cos(tickAngle)*tickSize, py + Math.sin(tickAngle)*tickSize);
+                        ctx.stroke();
+                    };
+                    drawTick(dp1.x, dp1.y);
+                    drawTick(dp2.x, dp2.y);
+                    
+                    // --- DRAW TEXT ---
+                    const dimText = ent.text ? ent.text : dist.toFixed(2); 
+                    ctx.save();
+                    ctx.translate((dp1.x + dp2.x) / 2, (dp1.y + dp2.y) / 2);
+                    
+                    let textAngle = vAngle;
+                    if (textAngle < -Math.PI/2 + 0.01 || textAngle > Math.PI/2 + 0.01) {
+                        textAngle += Math.PI;
+                    }
+                    
+                    ctx.rotate(textAngle);
+                    ctx.scale(1, -1); 
+                    
+                    ctx.fillStyle = col;
+                    ctx.font = `${DIM_FONT_SIZE}px 'Courier New', monospace`;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "bottom";
+                    ctx.fillText(dimText, 0, -2); 
+                    ctx.restore();
+                }
+            }
+            // Handles standard Geometry AND raw SquareFont (SQFONT) node paths natively
+            else {
+                ctx.strokeStyle=col; ctx.lineWidth=1/state.view.scale; 
+                ctx.beginPath(); 
+                pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)); 
+                ctx.stroke();
+            }
+
+            // Visual AABB Bounds
+            if(isSel && ent.type !== 'TEXT' && ent.type !== 'CIRCLE') {
+                const aabb = calculateAABB(pts);
+                ctx.save();
+                ctx.strokeStyle = 'rgba(152, 195, 121, 0.4)'; 
+                ctx.lineWidth = 1 / state.view.scale;
+                ctx.setLineDash([4 / state.view.scale, 4 / state.view.scale]);
+                const pad = 2 / state.view.scale;
+                ctx.strokeRect(aabb.minX - pad, aabb.minY - pad, aabb.w + (pad * 2), aabb.h + (pad * 2));
+                ctx.restore();
+            }
+        });
+    });
+    
+    if(state.osnap){ ctx.strokeStyle='yellow'; ctx.lineWidth=2/state.view.scale; let s=6/state.view.scale; ctx.strokeRect(state.osnap.x-s/2,state.osnap.y-s/2,s,s); }
+    ctx.restore();
+
+    if (state.showWatermark) {
+        ctx.save();
+        ctx.font = 'bold 24px Consolas, monospace'; 
+        ctx.fillStyle = 'rgba(136, 136, 136, 0.4)';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('WALLYCAD', cvs.width - 20, cvs.height - 20);
+        ctx.restore();
+    }
+}
+
+function onDown(e){
+    if(e.button===1||e.button===2||(e.button===0&&e.altKey)){ state.view.panStart={x:e.clientX,y:e.clientY,vx:state.view.x,vy:state.view.y}; }
+    else if(e.button===0){ const r=cvsRect(); const mx=((e.clientX-r.left)-state.view.x)/state.view.scale; const my=-((e.clientY-r.top)-state.view.y)/state.view.scale;
+        const hit=state.ents.find(ent=>parseBlocks(ent.geo).some(pts=>pts.some(p=>Math.hypot(p.x-mx,p.y-my)<2))); selectEnt(hit);
+    }
+}
+function onMove(e){
+    if(state.view.panStart){ state.view.x=state.view.panStart.vx+(e.clientX-state.view.panStart.x); state.view.y=state.view.panStart.vy+(e.clientY-state.view.panStart.y); draw(); return; }
+    const r=cvsRect(); state.mouse.worldX=((e.clientX-r.left)-state.view.x)/state.view.scale; state.mouse.worldY=-((e.clientY-r.top)-state.view.y)/state.view.scale;
+    state.osnap = null; state.ents.forEach(ent=>{ parseBlocks(ent.geo).forEach(pts=>pts.forEach(p=>{if(Math.hypot(p.x-state.mouse.worldX,p.y-state.mouse.worldY)<15/state.view.scale) state.osnap=p;})); });
+    const tt=document.getElementById('nice-title')||document.body.appendChild(Object.assign(document.createElement('div'),{id:'nice-title'}));
+    tt.innerText = state.osnap ? `X:${state.osnap.x.toFixed(2)} Y:${state.osnap.y.toFixed(2)} (SNAP)` : `X:${state.mouse.worldX.toFixed(2)} Y:${state.mouse.worldY.toFixed(2)}`;
+    tt.style.display=(e.target.id==='canvas'?'block':'none'); tt.style.left=(e.clientX+15)+'px'; tt.style.top=(e.clientY+15)+'px'; draw();
+}
+function onUp(){state.view.panStart=null;} 
+function onWheel(e){state.view.scale*=e.deltaY<0?1.1:0.9;draw();}
+function resize(){const c=document.getElementById('canvas'),p=document.getElementById('canvas-area');c.width=p.clientWidth;c.height=p.clientHeight;draw();}
+function cvsRect(){return document.getElementById('canvas').getBoundingClientRect();}
+
+function createWallyBox(startX, startY, width, height, thickness = 0) {
+    const p1 = `${startX},${startY}`; const p2 = `${startX + width},${startY}`;
+    const p3 = `${startX + width},${startY + height}`; const p4 = `${startX},${startY + height}`;
+    const geoString = `${p1}\n${p2}\n${p3}\n${p4}\n${p1}`;
+    createEnt(thickness > 0 ? 'WALL' : 'LINE', geoString, thickness);
+}
+
+function createEnt(type, geo, thick, text=''){ 
+    const ent={id:Date.now(), type, geo, thick, text}; 
+    state.ents.push(ent); 
+    selectEnt(ent); 
+    renderList(); 
+}
+
+function selectEnt(e){ 
+    state.selection=e; 
+    if(e){ 
+        document.getElementById('prop-type').value=e.type; 
+        document.getElementById('prop-thick').value=e.thick; 
+        document.getElementById('prop-geo').value=e.geo; 
+        document.getElementById('prop-txt').value=e.text || '';
+        document.getElementById('row-txt').style.display = e.type === 'TEXT' ? 'flex' : 'none';
+    } else {
+        document.getElementById('row-txt').style.display = 'none';
+    }
+    renderList(); draw(); 
+}
+
+function updateProp(){ 
+    if(!state.selection)return; 
+    state.selection.type=document.getElementById('prop-type').value; 
+    state.selection.thick=parseFloat(document.getElementById('prop-thick').value)||0; 
+    state.selection.geo=document.getElementById('prop-geo').value; 
+    state.selection.text=document.getElementById('prop-txt').value;
+    document.getElementById('row-txt').style.display = state.selection.type === 'TEXT' ? 'flex' : 'none';
+    draw(); 
+}
+
+function renderList(){ 
+    const l=document.getElementById('ent-list'); l.innerHTML=''; 
+    state.ents.forEach(e=>{ 
+        const r=document.createElement('div'); 
+        r.className='list-row'+(state.selection===e?' selected':''); 
+        r.innerText=`${e.type} [${e.thick}]`; 
+        r.onclick=()=>selectEnt(e); 
+        l.appendChild(r); 
+    }); 
+}
+
+function getExtents(){ 
+    let mX=Infinity,MX=-Infinity,mY=Infinity,MY=-Infinity,v=false; 
+    state.ents.forEach(e=>{ parseBlocks(e.geo).forEach(pts=>pts.forEach(p=>{mX=Math.min(mX,p.x);MX=Math.max(MX,p.x);mY=Math.min(mY,p.y);MY=Math.max(MY,p.y);v=true;})); }); 
+    return v?{mX,MX,mY,MY,w:MX-mX||1,h:MY-mY||1,cx:(mX+MX)/2,cy:(mY+MY)/2}:null; 
+}
+function centerView(){ 
+    const ext=getExtents(); if(!ext)return; const cvs=document.getElementById('canvas'); 
+    state.view.scale=Math.min((cvs.width-50)/ext.w,(cvs.height-50)/ext.h); 
+    state.view.x=(cvs.width/2)-(ext.cx*state.view.scale); 
+    state.view.y=(cvs.height/2)+(ext.cy*state.view.scale); 
+    draw(); 
+}
+
+// ==========================================
+// PROTOCOL I/O & SDJ PARSER
+// ==========================================
+function fileSave(){ localStorage.setItem('wally_protocol', JSON.stringify(state.ents)); log("DWG SAVED TO CACHE"); }
+function fileLoad(){ const d=localStorage.getItem('wally_protocol'); if(d){ state.ents=JSON.parse(d); selectEnt(state.ents[0]); log("DWG LOADED FROM CACHE"); } }
+function fileNew(){ if(confirm("Clear Workspace?")){ state.ents=[]; selectEnt(null); draw(); } }
+
+function exportJSON() {
+    const data = JSON.stringify(state.ents, null, 2);
+    const blob = new Blob([data], {type: 'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'project_v17.wally'; a.click(); log("EXPORTED .WALLY FILE");
+}
+function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const cvs = document.getElementById('canvas');
+    const orientation = cvs.width > cvs.height ? 'l' : 'p';
+    const pdf = new jsPDF({ orientation: orientation, unit: 'px', format: [cvs.width, cvs.height] });
+    const imgData = cvs.toDataURL('image/png', 1.0);
+    pdf.addImage(imgData, 'PNG', 0, 0, cvs.width, cvs.height);
+    pdf.save('WallyCAD_Print.pdf');
+    log("PDF EXPORTED TO DOWNLOADS");
+}
+function importJSON() { document.getElementById('protocol-input').click(); }
+function handleProtocol(input) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try { state.ents = JSON.parse(e.target.result); selectEnt(state.ents[0]); centerView(); log("IMPORTED .WALLY FILE"); } 
+        catch(err) { log("ERROR: INVALID JSON"); }
+    };
+    reader.readAsText(input.files[0]);
+}
+
+// Intercepts SDJ Paste either from the UI button or the Command Bar
+function importSDJ() {
+    const sdj = prompt("Paste Wally Space-Delimited JSON (SDJ) String here:");
+    if (sdj) processSDJString(sdj);
+}
+
+function processSDJString(sdjString) {
+    const parsed = parseWallyString(sdjString);
+    if (parsed.length > 0) {
+        parsed.forEach(p => {
+            let geoStr = "";
+            for(let i=0; i<p.coords.length; i+=2) {
+                if(p.coords[i] !== undefined && p.coords[i+1] !== undefined) {
+                    geoStr += `${p.coords[i]},${p.coords[i+1]}\n`;
+                }
+            }
+            createEnt(p.type, geoStr.trim(), p.thick, p.text);
+        });
+        centerView();
+        log(`IMPORTED ${parsed.length} SDJ ENTITIES`);
+        draw();
+    } else {
+        log("ERROR: NO ENTITIES PARSED");
+    }
+}
+
+// Core Tokenizer with Text Delimiter Support
+function parseWallyString(sdjString) {
+    const tokenRegex = /"([^"]+)"|(\S+)/g;
+    let match; const tokens = [];
+    while ((match = tokenRegex.exec(sdjString)) !== null) { tokens.push(match[1] || match[2]); }
+    
+    const entities = []; let currentEntity = null;
+    
+    for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        
+        // 1. Detect Explicit Entity Headers (Fixed Regex)
+        if (token.startsWith('[')) {
+            if (currentEntity && currentEntity.coords.length > 0) entities.push(currentEntity);
+        currentEntity = { type: token.replace(/\[|\]/g, ''), coords: [], thick: 0, text: "" };
+        } 
+        // 2. Detect Thickness/Scale Parameter
+        else if (token.startsWith('T:')) {
+            if (currentEntity) currentEntity.thick = parseFloat(token.substring(2));
+        } 
+        // 3. Detect Quoted Text Payload
+        else if (currentEntity && currentEntity.type === 'TEXT' && isNaN(token)) {
+            currentEntity.text = token;
+        } 
+        // 4. Process Coordinates and Text Delimiters
+        else if (currentEntity) {
+            const parsedNum = parseFloat(token);
+            if (!isNaN(parsedNum)) {
+                currentEntity.coords.push(parsedNum);
+            } else {
+                // It is a stray text label (e.g., "Corner", "Door"). 
+                // Treat it as a break to prevent continuous spiderwebbing.
+                if (currentEntity.coords.length > 0) {
+                    entities.push(currentEntity);
+                    // Spin up a fresh clone of the current entity for the next set of numbers
+                    currentEntity = { type: currentEntity.type, coords: [], thick: currentEntity.thick, text: "" };
+                }
+            }
+        }
+    }
+    if (currentEntity && currentEntity.coords.length > 0) entities.push(currentEntity);
+    return entities;
+}
+</script>
+</body>
+</html>
