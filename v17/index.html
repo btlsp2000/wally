@@ -61,7 +61,8 @@
         <div class="menu-btn" onclick="document.getElementById('catalogue-modal').style.display='block'">☰</div>
         <span style="font-weight:bold; color:var(--accent); margin-right:10px;">WALLY v1.0.17</span>
         <button onclick="fileNew()">NEW</button>
-        <button onclick="fileSave()">SAVE</button>        <button onclick="fileLoad()">LOAD</button>
+        <button onclick="fileSave()">SAVE</button>
+        <button onclick="fileLoad()">LOAD</button>
         <span style="width:1px; height:20px; background:#444; margin:0 5px;"></span>
         <button onclick="exec('WALL')">WALL</button>
         <button onclick="exec('LINE')">LINE</button>
@@ -281,20 +282,7 @@ function exec(c){
             log("ERROR: ELEMENT HAS NO VALID NODES");
         }
     }
-    else if(cmd.startsWith('DIM')) {
-        let dimType = 'DIM';
-        if (cmd === 'DIMH' || cmd === 'DIM H') dimType = 'DIMH';
-        else if (cmd === 'DIMV' || cmd === 'DIM V') dimType = 'DIMV';
-        
-        createEnt(dimType, "0,0\n30,20", 15); 
-        log(`${dimType} CREATED`);
-    }
-    else if(cmd==='HAL')document.body.classList.toggle('hal-mode');
-    else if(cmd==='WATERMARK') {
-        state.showWatermark = !state.showWatermark;
-        log(state.showWatermark ? "WATERMARK: ON" : "WATERMARK: OFF");
-    }
-    else if(cmd === 'BORDER') {
+    else if(cmd === 'DIMBORDER' || cmd === 'DB' || cmd === 'BORDER') {
         const w = 110; 
         const h = 85; 
         const tbX = w - 40; 
@@ -314,6 +302,48 @@ function exec(c){
         
         centerView();
         log("STANDARD TITLE BLOCK INSERTED");
+    }
+    else if(cmd === 'DIM' || cmd === 'DIMH' || cmd === 'DIMV' || cmd === 'DIM H' || cmd === 'DIM V') {
+        let dimType = 'DIM';
+        if (cmd.includes('H')) dimType = 'DIMH';
+        if (cmd.includes('V')) dimType = 'DIMV';
+        
+        // Smart Auto-Dimensioning: If an object is selected, automatically bound it
+        if (state.selection && state.selection.type !== 'DIM' && state.selection.type !== 'TEXT') {
+            const blocks = parseBlocks(state.selection.geo);
+            const pts = blocks.flat();
+            if (pts.length >= 2) {
+                const aabb = calculateAABB(pts);
+                let geoStr = "";
+                let offset = 15;
+                
+                if (dimType === 'DIMV') {
+                    geoStr = `${aabb.minX},${aabb.minY}\n${aabb.minX},${aabb.maxY}`;
+                    offset = -20; // Automatically throw the line to the left
+                } else if (dimType === 'DIMH') {
+                    geoStr = `${aabb.minX},${aabb.minY}\n${aabb.maxX},${aabb.minY}`;
+                    offset = -15; // Automatically throw the line below the object
+                } else {
+                    const p1 = pts[0];
+                    const p2 = pts[pts.length - 1];
+                    geoStr = `${p1.x},${p1.y}\n${p2.x},${p2.y}`;
+                }
+                
+                createEnt(dimType, geoStr, offset);
+                log(`AUTO-${dimType} GENERATED FOR SELECTION`);
+                draw();
+                return; // Exit so it doesn't create the fallback template
+            }
+        }
+        
+        // Fallback Template if nothing is selected
+        createEnt(dimType, "0,0\n30,20", 15); 
+        log(`${dimType} TEMPLATE CREATED`);
+    }
+    else if(cmd==='HAL')document.body.classList.toggle('hal-mode');
+    else if(cmd==='WATERMARK') {
+        state.showWatermark = !state.showWatermark;
+        log(state.showWatermark ? "WATERMARK: ON" : "WATERMARK: OFF");
     }
     else if(cmd.startsWith('BOX')) {
         const parts = cmd.split(' ');
