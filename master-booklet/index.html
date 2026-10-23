@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Master Stacked Standalone Booklet</title>
+    <style>
+        :root { --cad-black: #121212; --cad-accent: #00ff00; }
+        body { margin: 0; padding: 0; background: #e5e7eb; color: var(--cad-black); font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        /* 11x8.5 Landscape Canvas */
+        .sheet { width: 11in; height: 8.5in; background: white; position: relative; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+        
+        /* Half-sheet rows (4.25in tall) */
+        .half-row { width: 11in; height: 4.25in; display: flex; position: relative; }
+        .top-row { border-bottom: 1px dashed #aaa; }
+        
+        /* Center Fold Crease */
+        .crosshair-vert { position: absolute; top: 0; left: 5.5in; width: 1px; height: 100%; border-left: 1px dashed #aaa; z-index: 10; }
+        
+        .quadrant { width: 5.5in; height: 4.25in; padding: 0.4in 0.6in; box-sizing: border-box; display: flex; flex-direction: column; }
+        .border-right { border-right: 1px solid #eee; }
+
+        h1, h2, h3, h4 { margin: 0; font-weight: bold; }
+        h1 { font-size: 18pt; border-bottom: 2px solid var(--cad-black); margin-bottom: 8px; padding-bottom: 4px; }
+        h2 { font-size: 12pt; margin-bottom: 6px; color: #444; margin-top: 10px; }
+        h4 { font-size: 10pt; margin-bottom: 4px; margin-top: 10px; }
+        p, li { font-size: 9pt; line-height: 1.4; margin-top: 0; }
+        ul { padding-left: 15px; margin-bottom: 10px; }
+        
+        .code-block { background: #f4f4f4; border: 1px solid #ccc; padding: 6px; font-size: 8pt; font-weight: bold; margin: 8px 0; display: block; }
+
+        /* Print Override */
+        @media print { @page { size: letter landscape; margin: 0; } body { background: none; } .sheet { box-shadow: none; border: none; } }
+    </style>
+</head>
+<body>
+    <div class="sheet">
+        
+        <!-- TOP HALF: MODULE 1 (e.g. ELLIPSE) -->
+        <div class="half-row top-row">
+            <div class="crosshair-vert"></div>
+            
+            <!-- Q2: INSIDE LEFT -->
+            <div class="quadrant border-right">
+                <h1>THE ELLIPSE ENGINE</h1>
+                <p>The Ellipse Standalone Module is a parametric calculator designed to generate mathematically pure curved geometry using straight-line vector arrays.</p>
+                
+                <h2>1. Major and Minor Radii</h2>
+                <p>WallyCAD requires two radii to plot an ellipse. The X-Radius (Major) dictates horizontal stretch, while the Y-Radius (Minor) dictates vertical stretch.</p>
+                
+                <h2>2. Segment Resolution</h2>
+                <p>Because the core engine renders via coordinate arrays, curves must be faceted. Increase segment count for smoother arcs, or decrease it for polygons.</p>
+
+                <h2>3. Axial Rotation</h2>
+                <p>Enter a degree value to tilt the ellipse on its origin point before generation, eliminating the need to manually rotate complex matrices.</p>
+            </div>
+
+            <!-- Q3: INSIDE RIGHT -->
+            <div class="quadrant">
+                <h1>SDJ GENERATION</h1>
+                <p>The module automatically translates the parametric math into a raw, copy-ready Space-Delimited JSON (SDJ) string.</p>
+                
+                <span class="code-block">[LINE] X1 Y1 X2 Y2 ... Xn Yn T:0</span>
+
+                <h4>Workflow Integration</h4>
+                <p>Upon clicking "GENERATE", the module plots the curve on the preview canvas and instantly copies the finalized string to your clipboard.</p>
+                <ul>
+                    <li>Navigate back to the WallyCAD v17 core engine.</li>
+                    <li>Click the command bar input field.</li>
+                    <li>Paste the string (Ctrl+V) and press Enter.</li>
+                </ul>
+
+                <h4>Entity Type Override</h4>
+                <p>By default, the engine outputs the matrix as a <code>[LINE]</code> entity. You can manually change `[LINE]` to `[WALL]` and adjust the `T:` parameter before pasting to create a thick boundary.</p>
+            </div>
+        </div>
+
+        <!-- BOTTOM HALF: MODULE 2 (e.g. JSON-TO-SDJ) -->
+        <div class="half-row">
+            <div class="crosshair-vert"></div>
+            
+            <!-- Q2: INSIDE LEFT -->
+            <div class="quadrant border-right">
+                <h1>THE SDJ CONVERTER</h1>
+                <p>The JSON-to-SDJ module is the foundational data bridge for WallyCAD. It strips proprietary syntax bloat and reduces complex objects into pure text.</p>
+                
+                <h2>1. Flattening the Matrix</h2>
+                <p>A standard `.wally` cache uses JS Object arrays. The converter flattens this syntax, replacing brackets and line breaks with space-delimited text.</p>
+                
+                <h2>2. The Gist Workflow</h2>
+                <p>Because SDJ data is entirely plain-text, drawings can be backed up to GitHub Gists, shared over email, or pasted into chat terminals.</p>
+                
+                <h2>3. Cross-Compatibility</h2>
+                <p>The parser accepts both standard WallyCAD Entity exports and raw Lat/Lng coordinate tuples, acting as a universal translator.</p>
+            </div>
+
+            <!-- Q3: INSIDE RIGHT -->
+            <div class="quadrant">
+                <h1>AUTO-SANITIZATION</h1>
+                <p>As of v1.0.17, the converter actively cleans "dirty" inputs to ensure zero crash risk when pasting into the core CLI.</p>
+                
+                <span class="code-block">"Door Swing" -1.0 72.0 1.35 72.09</span>
+
+                <h4>Comma Stripping</h4>
+                <p>Older data blocks occasionally feature trailing commas attached to coordinate axes. The converter aggressively destroys these artifacts.</p>
+
+                <h4>Intelligent Text Quoting</h4>
+                <p>When line items contain alphabetical characters, the converter identifies them as architectural labels. It automatically wraps multi-word strings in double-quotes so the tokenizer does not trigger empty entity loops.</p>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
