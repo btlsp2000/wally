@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | 30-Min Timer</title>
+    <style>
+        :root {
+            --cad-bg: #121212;
+            --panel-bg: #1e1e1e;
+            --accent: #00ff00;
+            --text-main: #eeeeee;
+            --border: #444444;
+            --alert: #ff3333;
+        }
+
+        body {
+            background-color: var(--cad-bg);
+            color: var(--text-main);
+            font-family: 'Consolas', 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            user-select: none;
+        }
+
+        .timer-container {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            min-width: 250px;
+        }
+
+        .header {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        #display {
+            font-size: 64px;
+            font-weight: bold;
+            color: var(--accent);
+            margin: 20px 0;
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        #display.finished {
+            color: var(--alert);
+            text-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            background-color: #333;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 8px 15px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        button:hover {
+            background-color: #444;
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        button:active {
+            background-color: #222;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="timer-container">
+        <div class="header">SPRINT TIMER</div>
+        <div id="display">30:00</div>
+        <div class="controls">
+            <button id="startBtn" onclick="startTimer()">START</button>
+            <button id="pauseBtn" onclick="pauseTimer()">PAUSE</button>
+            <button id="resetBtn" onclick="resetTimer()">RESET</button>
+        </div>
+    </div>
+
+    <script>
+        const START_TIME = 30 * 60; // 30 minutes in seconds
+        let timeRemaining = START_TIME;
+        let timerInterval = null;
+        let isRunning = false;
+
+        const displayEl = document.getElementById('display');
+
+        function updateDisplay() {
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+            
+            // Pad with zero if needed
+            let minsStr = minutes < 10 ? '0' + minutes : minutes;
+            let secsStr = seconds < 10 ? '0' + seconds : seconds;
+            
+            displayEl.textContent = `${minsStr}:${secsStr}`;
+            
+            // Document title update so you can see it when tabbed out
+            document.title = `[${minsStr}:${secsStr}] Timer`;
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+            
+            if (timeRemaining <= 0) {
+                resetTimer();
+            }
+
+            displayEl.classList.remove('finished');
+            isRunning = true;
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateDisplay();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    displayEl.classList.add('finished');
+                    document.title = "[00:00] TIME UP";
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            if (!isRunning) return;
+            clearInterval(timerInterval);
+            isRunning = false;
+            document.title = `PAUSED - ${displayEl.textContent}`;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            timeRemaining = START_TIME;
+            displayEl.classList.remove('finished');
+            updateDisplay();
+            document.title = "WallyCAD | 30-Min Timer";
+        }
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>
