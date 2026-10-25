@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD /SHOTS - Calculus of Pool</title>
+    <style>
+        /* The TABLE and environment boundaries */
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f0f4f8; 
+            font-family: 'Courier New', Courier, monospace; 
+            color: #333;
+        }
+        #sidebar {
+            width: 270px;
+            background-color: #e2e8f0;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+        #canvas-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            /* The physical felt and rails */
+            background-color: #d8e2dc;
+            border: 24px solid #718096; 
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .qc-control {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4a5568;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: background 0.2s;
+            font-size: 13px;
+        }
+        button:hover { background-color: #2d3748; }
+        .btn-red { background-color: #9b2c2c; }
+        .btn-red:hover { background-color: #742a2a; }
+        .btn-blue { background-color: #2b6cb0; }
+        .btn-blue:hover { background-color: #2c5282; }
+        .btn-teal { background-color: #319795; }
+        .btn-teal:hover { background-color: #285e61; }
+        input[type="number"], textarea {
+            padding: 8px;
+            border: 1px solid #cbd5e0;
+            font-family: inherit;
+            font-size: 12px;
+        }
+        input[type="number"] { text-align: center; }
+        textarea { resize: vertical; }
+        h2 { 
+            font-size: 1.1rem; 
+            text-transform: uppercase; 
+            margin: 10px 0 0 0; 
+            border-bottom: 2px solid #a0aec0; 
+            padding-bottom: 5px; 
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Sidebar: The UI Parser -->
+    <div id="sidebar">
+        
+        <!-- MODULE: SCATTER (RNG Physics) -->
+        <h2>/SCATTER</h2>
+        <div class="qc-control">
+            <button onclick="executeBreak(15)">BREAK (FULL RACK)</button>
+        </div>
+        <div class="qc-control" style="margin-top: 5px;">
+            <label for="n-balls" style="font-size: 12px; font-weight: bold;">SCATTER [N] BALLS:</label>
+            <input type="number" id="n-balls" value="3" min="1" max="15">
+            <button onclick="scatterCustom()">SCATTER CUSTOM</button>
+        </div>
+
+        <!-- MODULE: SHOTS (Bidirectional I/O Console) -->
+        <h2>/SHOTS I/O</h2>
+        <div class="qc-control">
+            <label for="shot-input" style="font-size: 12px; font-weight: bold;">TUPLE CONSOLE (ID X Y):</label>
+            <textarea id="shot-input" rows="8" placeholder="CB 0 0&#10;2 45 -15&#10;8 60 20"></textarea>
+            <button onclick="loadShot()" class="btn-teal">LOAD SHOT</button>
+        </div>
+
+        <!-- MODULE: DATA COMMANDS -->
+        <h2>/DATA COMMANDS</h2>
+        <div class="qc-control">
+            <button onclick="outputTuples()" class="btn-blue">OUTPUT TUPLES</button>
+        </div>
+        <div class="qc-control" style="margin-top: auto;">
+            <button onclick="clearTable()" class="btn-red">CLEAR TABLE</button>
+        </div>
+    </div>
+
+    <!-- The Cartesian Grid -->
+    <div id="canvas-container">
+        <canvas id="poolTable" width="800" height="400"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('poolTable');
+        const ctx = canvas.getContext('2d');
+
+        // WALLYCAD Constants
+        const tableWidth = 800;
+        const tableLength = 400;
+        const ballRadius = 12; // Radius in pixels
+        let balls = []; // The dynamic variables
+
+        // Center-anchor translation (0,0 is center of table)
+        function renderWallyCAD() {
+            // 1. Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 2. Shift origin to center
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+
+            // 3. Render Pockets
+            ctx.fillStyle = '#2d3748';
+            const pocketOffsetW = tableWidth / 2 - 5;
+            const pocketOffsetL = tableLength / 2 - 5;
+            const pocketRadius = 18;
+            const pockets = [
+                [-pocketOffsetW, -pocketOffsetL], [0, -pocketOffsetL], [pocketOffsetW, -pocketOffsetL],
+                [-pocketOffsetW, pocketOffsetL],  [0, pocketOffsetL],  [pocketOffsetW, pocketOffsetL]
+            ];
+            pockets.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p[0], p[1], pocketRadius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 4. Render the BALLS layer
+            for (let b of balls) {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, ballRadius, 0, Math.PI * 2);
+                
+                // Color formatting: Yellow CB, Red object balls
+                ctx.fillStyle = b.id === 'CB' ? '#ecc94b' : '#e53e3e';
+                ctx.fill();
+                
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = '#2d3748';
+                ctx.stroke();
+
+                // Draw labels: Dark text for yellow CB, White text for red object balls
+                ctx.fillStyle = b.id === 'CB' ? '#1a202c' : '#ffffff';
+                ctx.font = 'bold 12px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(b.id, b.x, b.y);
+            }
+
+            ctx.restore();
+        }
+
+        // --- MODULE: SCATTER (RNG Physics) ---
+        function executeBreak(n) {
+            balls = []; // Clear existing layer
+            const minX = -(tableWidth / 2) + ballRadius + 18; 
+            const maxX = (tableWidth / 2) - ballRadius - 18;
+            const minY = -(tableLength / 2) + ballRadius + 18;
+            const maxY = (tableLength / 2) - ballRadius - 18;
+
+            function isValidPosition(rx, ry) {
+                for (let b of balls) {
+                    let dx = rx - b.x;
+                    let dy = ry - b.y;
+                    if (Math.hypot(dx, dy) < (ballRadius * 2.05)) return false; 
+                }
+                return true; 
+            }
+
+            let entitiesToDrop = ['CB'];
+            for (let i = 1; i <= n; i++) entitiesToDrop.push(i.toString());
+
+            for (let label of entitiesToDrop) {
+                let placed = false;
+                let attempts = 0;
+                while (!placed && attempts < 1000) {
+                    let rx = minX + Math.random() * (maxX - minX);
+                    let ry = minY + Math.random() * (maxY - minY);
+                    if (isValidPosition(rx, ry)) {
+                        balls.push({ id: label, x: rx, y: ry });
+                        placed = true;
+                    }
+                    attempts++;
+                }
+            }
+            renderWallyCAD();
+        }
+
+        function scatterCustom() {
+            let n = parseInt(document.getElementById('n-balls').value);
+            if (n > 0 && n <= 15) executeBreak(n);
+        }
+
+        // --- MODULE: SHOTS (Deterministic Parser) ---
+        function loadShot() {
+            const input = document.getElementById('shot-input').value.trim();
+            if (!input) return;
+
+            balls = []; // Clear existing variables to load the new shot
+            const lines = input.split('\n');
+
+            for (let line of lines) {
+                // Split by any whitespace
+                const parts = line.trim().split(/\s+/);
+                if (parts.length >= 3) {
+                    const id = parts[0];
+                    const x = parseFloat(parts[1]);
+                    const y = parseFloat(parts[2]);
+
+                    // Only push valid integers/floats. Filters out noise.
+                    if (!isNaN(x) && !isNaN(y)) {
+                        balls.push({ id: id, x: x, y: y });
+                    }
+                }
+            }
+            renderWallyCAD();
+        }
+
+        // --- MODULE: DATA I/O ---
+        function outputTuples() {
+            if (balls.length === 0) {
+                document.getElementById('shot-input').value = "No balls on table.";
+                return;
+            }
+            
+            // Extract the tuples
+            const tuples = balls.map(b => `${b.id} ${Math.round(b.x)} ${Math.round(b.y)}`).join('\n');
+            
+            // Route the output directly into the I/O Console textbox
+            document.getElementById('shot-input').value = tuples;
+        }
+
+        function clearTable() {
+            balls = [];
+            document.getElementById('shot-input').value = '';
+            renderWallyCAD();
+        }
+
+        // Initial render on load
+        renderWallyCAD();
+    </script>
+</body>
+</html>
