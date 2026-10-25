@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD | Offset Engine Standalone</title>
+    <style>
+        body { background: #1a1a1a; color: #00ff00; font-family: monospace; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 900px; width: 100%; }
+        .panel { background: #000; border: 1px solid #444; padding: 15px; width: 320px; box-sizing: border-box; display: flex; flex-direction: column; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
+        input { background: #111; border: 1px solid #444; color: #00ff00; padding: 5px; width: 80px; font-family: monospace; text-align: right; }
+        textarea { width: 100%; background: #111; color: #00ff00; border: 1px solid #444; padding: 10px; margin-bottom: 10px; box-sizing: border-box; font-size: 10px; resize: vertical; }
+        button { background: #00ff00; color: #000; border: none; padding: 10px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; }
+        button:hover { background: #00cc00; }
+        canvas { background: #121212; border: 1px solid #444; flex-grow: 1; min-width: 400px; height: 400px; }
+        h2 { margin-top: 0; color: #fff; text-align: center; font-size: 16px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .label { font-size: 10px; color: #aaa; margin-bottom: 4px; display: block; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="panel">
+            <h2>WALLY OFFSET ENGINE</h2>
+            
+            <span class="label">INPUT GEOMETRY (RAW COORDS OR SDJ):</span>
+            <!-- Pre-loaded with the Room 219 Perimeter -->
+            <textarea id="inputGeo" rows="6">0 0
+192 0
+192 108
+0 108
+0 0</textarea>
+            
+            <div class="row">
+                <span title="Positive = Outward/Right, Negative = Inward/Left">Offset Distance:</span>
+                <input type="number" id="dist" value="6" step="0.5">
+            </div>
+            <div class="row">
+                <span>Output Entity:</span>
+                <input type="text" id="entType" value="LINE" style="text-transform: uppercase;">
+            </div>
+            
+            <button onclick="generateOffset()">GENERATE OFFSET MATRIX</button>
+            
+            <span class="label" style="margin-top: 15px;">OUTPUT SDJ:</span>
+            <textarea id="outputSdj" rows="4" readonly placeholder="SDJ String will appear here..."></textarea>
+        </div>
+        
+        <canvas id="preview"></canvas>
+    </div>
+
+    <script>
+        // Core v17 Vector Math
+        class M { 
+            constructor(x,y){this.x=x;this.y=y} 
+            add(v){return new M(this.x+v.x,this.y+v.y)} 
+            sub(v){return new M(this.x-v.x,this.y-v.y)} 
+            mul(s){return new M(this.x*s,this.y*s)} 
+            div(s){return new M(this.x/s,this.y/s)} 
+            cross(v){return (this.x*v.y)-(this.y*v.x)} 
+            dot(v){return (this.x*v.x)+(this.y*v.y)} 
+            mag(){return Math.sqrt(this.x**2+this.y**2)} 
+            norm(){const m=this.mag();return m===0?new M(0,0):this.div(m)} 
+            perp(){return new M(-this.y,this.x)} 
+        }
+
+        // Core v17 Vector Intersection
+        function VIA(P1,v1,P2,v2,th){ 
+            const det=v1.cross(v2); 
+            if(Math.abs(det)<1e-9)return null; 
+            const t=(P2.sub(P1).x*v2.y-P2.sub(P1).y*v2.x)/det; 
+            const I=P1.add(v1.mul(t)); 
+            const mv=v1.mul(-1).add(v2).norm(); 
+            let sm=(th/2)/Math.sqrt(Math.max(0,1-v1.mul(-1).dot(mv)**2)); 
+            if(sm>th*5)sm=th*5; 
+            return {I, In:I.add(mv.mul(sm)), Out:I.sub(mv.mul(sm)), Turn:det>0?'L':'R'}; 
+        }
+
+        function extractPoints(str) {
+            const tokens = str.replace(/\[.*?\]|T:\S+|"[^"]*"/g, '').replace(/,/g, ' ').trim().split(/\s+/);
+            const pts = [];
+            for (let i = 0; i < tokens.length; i += 2) {
+                const x = parseFloat(tokens[i]);
+                const y = parseFloat(tokens[i+1]);
+                if (!isNaN(x) && !isNaN(y)) pts.push(new M(x, y));
+            }
+            return pts;
+        }
+
+        function calculateOffset(pts, offsetDist) {
+            if(pts.length < 2) return [];
+            
+            // To use the core engine's VIA logic, we trick it by passing double the offset 
+            // as the 'thickness' (th), then grab the Left or Right array based on distance polarity.
+            const th = Math.abs(offsetDist) * 2;
+            const useLeft = offsetDist > 0;
+            const outPts = [];
+
+            for(let i=0; i<pts.length; i++){ 
+                let pp = i===0 ? null : pts[i-1];
+                let pn = i===pts.length-1 ? null : pts[i+1];
+                let vin, vout, res; 
+                
+                if(pp) vin = pts[i].sub(pp).norm(); 
+                if(pn) vout = pn.sub(pts[i]).norm(); 
+                
+                if(pp && pn){ 
+                    const v = VIA(pp, vin, pts[i], vout, th); 
+                    if(v) res = v.Turn==='L' ? {L:v.In, R:v.Out} : {L:v.Out, R:v.In}; 
+                    else { const p = vin.perp(); res = {L:pts[i].add(p.mul(th/2)), R:pts[i].sub(p.mul(th/2))} } 
+                } 
+                else if(!pp) { const p = vout.perp(); res = {L:pts[i].add(p.mul(th/2)), R:pts[i].sub(p.mul(th/2))} } 
+                else { const p = vin.perp(); res = {L:pts[i].add(p.mul(th/2)), R:pts[i].sub(p.mul(th/2))} } 
+                
+                outPts.push(useLeft ? res.L : res.R);
+            }
+            return outPts;
+        }
+
+        function generateOffset() {
+            const inputStr = document.getElementById('inputGeo').value;
+            const dist = parseFloat(document.getElementById('dist').value) || 0;
+            const type = document.getElementById('entType').value.toUpperCase() || 'LINE';
+            
+            const originalPts = extractPoints(inputStr);
+            if (originalPts.length < 2) return alert("Requires at least 2 valid coordinates.");
+            
+            const offsetPts = calculateOffset(originalPts, dist);
+            
+            // Format for Output SDJ
+            const outStrArray = offsetPts.map(p => `${p.x.toFixed(4)} ${p.y.toFixed(4)}`);
+            const finalSdj = `[${type}] ${outStrArray.join(' ')} T:0`;
+            
+            document.getElementById('outputSdj').value = finalSdj;
+            navigator.clipboard.writeText(finalSdj);
+
+            drawPreview(originalPts, offsetPts);
+        }
+
+        function drawPreview(orig, off) {
+            const cvs = document.getElementById('preview');
+            // Responsive sizing
+            cvs.width = cvs.parentElement.clientWidth - 360; 
+            cvs.height = 400;
+            const ctx = cvs.getContext('2d');
+            
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+            // Auto-scale and center
+            let minX=Infinity, maxX=-Infinity, minY=Infinity, maxY=-Infinity;
+            [...orig, ...off].forEach(p => {
+                minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+                minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+            });
+
+            const pad = 40;
+            const scaleX = (cvs.width - pad*2) / (maxX - minX || 1);
+            const scaleY = (cvs.height - pad*2) / (maxY - minY || 1);
+            const scale = Math.min(scaleX, scaleY);
+            
+            const cx = (minX + maxX) / 2;
+            const cy = (minY + maxY) / 2;
+
+            ctx.save();
+            ctx.translate(cvs.width/2, cvs.height/2);
+            ctx.scale(scale, -scale);
+            ctx.translate(-cx, -cy);
+
+            // Draw Original (Dim White)
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 2 / scale;
+            ctx.setLineDash([4/scale, 4/scale]);
+            ctx.beginPath();
+            orig.forEach((p, i) => i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+            ctx.stroke();
+
+            // Draw Offset (Cyan)
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2 / scale;
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            off.forEach((p, i) => i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // Handle window resize for canvas
+        window.addEventListener('resize', () => { if(document.getElementById('outputSdj').value) generateOffset(); });
+        
+        // Auto-run on load with defaults
+        generateOffset();
+    </script>
+</body>
+</html>
