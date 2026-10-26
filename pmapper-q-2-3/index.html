@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | pMapper Q2-3 Spread</title>
+    <style>
+        :root { --cad-black: #121212; --cad-accent: #00ff00; }
+        body { margin: 0; padding: 0; background: #e5e7eb; color: var(--cad-black); font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .sheet { width: 11in; height: 8.5in; background: white; display: grid; grid-template-columns: 5.5in 5.5in; grid-template-rows: 8.5in; position: relative; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .crosshair-vert { position: absolute; top: 0; left: 5.5in; width: 1px; height: 8.5in; border-left: 1px dashed #aaa; z-index: 10; }
+        .quadrant { padding: 0.75in; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
+        h1, h2, h3, h4 { margin: 0; font-weight: bold; }
+        h1 { font-size: 20pt; border-bottom: 2px solid var(--cad-black); margin-bottom: 12px; padding-bottom: 4px; text-transform: uppercase; }
+        h2 { font-size: 13pt; margin-bottom: 8px; color: #444; margin-top: 15px; text-transform: uppercase; }
+        h4 { font-size: 11pt; margin-bottom: 5px; margin-top: 15px; text-transform: uppercase; }
+        p, li { font-size: 9.5pt; line-height: 1.5; margin-top: 0; }
+        ul { padding-left: 15px; margin-bottom: 15px; }
+        .code-block { background: #f4f4f4; border: 1px solid #ccc; padding: 8px; font-size: 8.5pt; font-weight: bold; margin: 10px 0; display: block; white-space: pre-wrap; word-break: break-all; }
+        @media print { @page { size: letter landscape; margin: 0; } body { background: none; } .sheet { box-shadow: none; border: none; } }
+    </style>
+</head>
+<body>
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        
+        <!-- QUADRANT 2: INSIDE LEFT -->
+        <div class="quadrant" style="border-right: 1px solid #eee;">
+            <h1>PMAPPER MODULE</h1>
+            <p>The Perimeter Hub (/pmapper) is a specialized standalone module designed to translate geographical coordinates (Latitude/Longitude) into planar Cartesian geometry for WallyCAD preview and export.</p>
+            
+            <h2>Canvas Translation Engine</h2>
+            <p>The core rendering function applies a direct mathematical translation to plot spherical coordinates onto a 2D HTML5 canvas, shifting the origin to keep the US West Coast in frame:</p>
+            
+            <span class="code-block">let y = canvas.height - ((Lat - 31) * 40);
+let x = (Long + 125) * 40;</span>
+
+            <p>This isolates geographical polygons—such as the borders of Washington, Oregon, or California—and scales them for immediate visual verification before they are committed to an SDJ string.</p>
+            
+            <h2>Dynamic State Library</h2>
+            <p>The left pane sidebar dynamically builds a clickable library based on an internal JSON object (<code>Perimeters</code>). Clicking any card instantly recalculates the bounds and renders the closed loop on the preview canvas.</p>
+        </div>
+
+        <!-- QUADRANT 3: INSIDE RIGHT -->
+        <div class="quadrant">
+            <h1>QC COMMAND LINE</h1>
+            <p>The /pmapper module features an integrated QuickClick (QC) command line interface anchored to the bottom of the viewport, enabling rapid data entry and execution without touching a mouse.</p>
+            
+            <h4>The ADD Syntax</h4>
+            <p>Users can inject new geographical boundaries directly into the active session memory by typing into the QC CLI. The command follows a strict tokenized syntax:</p>
+            <span class="code-block">ADD [NAME] [LAT1] [LON1] [LAT2] [LON2]...</span>
+            <p>Example: <code>ADD NEVADA 42.0 -114.0 42.0 -120.0...</code></p>
+            <p>Pressing Enter will parse the string, push the new entity into the <code>Perimeters</code> library, rebuild the sidebar, and instantly render the new state.</p>
+
+            <h4>Global QC Hotkeys</h4>
+            <p>When the CLI input box is not focused, the module listens for global keystrokes to execute macro commands:</p>
+            <ul>
+                <li><strong>[ 4 ]</strong> : Instantly renders the Four Corners geometry.</li>
+                <li><strong>[ C ]</strong> : Clears the canvas and deselects the active state.</li>
+                <li><strong>[ G ]</strong> : Pipes the active state's raw coordinate data out for G-Coder formatting.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
