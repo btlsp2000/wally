@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Parabola V2 Q2-3 Spread</title>
+    <style>
+        :root { --cad-black: #121212; --cad-accent: #00ff00; }
+        body { margin: 0; padding: 0; background: #e5e7eb; color: var(--cad-black); font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .sheet { width: 11in; height: 8.5in; background: white; display: grid; grid-template-columns: 5.5in 5.5in; grid-template-rows: 8.5in; position: relative; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .crosshair-vert { position: absolute; top: 0; left: 5.5in; width: 1px; height: 8.5in; border-left: 1px dashed #aaa; z-index: 10; }
+        .quadrant { padding: 0.75in; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
+        h1, h2, h3, h4 { margin: 0; font-weight: bold; }
+        h1 { font-size: 20pt; border-bottom: 2px solid var(--cad-black); margin-bottom: 12px; padding-bottom: 4px; text-transform: uppercase; }
+        h2 { font-size: 13pt; margin-bottom: 8px; color: #444; margin-top: 15px; text-transform: uppercase; }
+        h4 { font-size: 11pt; margin-bottom: 5px; margin-top: 15px; text-transform: uppercase; color: var(--cad-black); }
+        p, li { font-size: 9.5pt; line-height: 1.5; margin-top: 0; }
+        ul { padding-left: 15px; margin-bottom: 15px; }
+        .code-block { background: #f4f4f4; border: 1px solid #ccc; padding: 8px; font-size: 8.5pt; font-weight: bold; margin: 10px 0; display: block; white-space: pre-wrap; word-break: break-all; }
+        @media print { @page { size: letter landscape; margin: 0; } body { background: none; } .sheet { box-shadow: none; border: none; } }
+    </style>
+</head>
+<body>
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        
+        <!-- QUADRANT 2: INSIDE LEFT -->
+        <div class="quadrant" style="border-right: 1px solid #eee;">
+            <h1>PARABOLA HYBRID V2</h1>
+            <p>The <code>wallycad.com/parabola</code> V2 standalone merges the original <i>y = x²</i> mathematical macro framework with a responsive visualizer and optimized data extraction pipeline.</p>
+            
+            <h2>Core Parameters</h2>
+            <p>The tool strictly adheres to the original CLI input syntax parameters:</p>
+            <ul>
+                <li><strong>Vertex (vx, vy):</strong> The origin anchor point mapping the geometric center.</li>
+                <li><strong>Domain (Xmin, Xmax):</strong> The absolute limits dictating the horizontal span of the curve.</li>
+                <li><strong>Grid Scale:</strong> The spatial multiplier expanding the base <i>y = x²</i> function.</li>
+            </ul>
+            
+            <h2>Dual-Mode Geometry</h2>
+            <p>Users can instantly toggle between two distinct subdivision algorithms:</p>
+            <ul>
+                <li><strong>Uniform Mode:</strong> Slices the domain into a user-defined number of equal, straight-line segments.</li>
+                <li><strong>Fractional Notebook Mode:</strong> Uses a hardcoded geometric progression (0, &plusmn;1/4, &plusmn;1/2, &plusmn;1, &plusmn;3/2, &plusmn;2) designed to land precisely on standard imperial grid intersections.</li>
+            </ul>
+        </div>
+
+        <!-- QUADRANT 3: INSIDE RIGHT -->
+        <div class="quadrant">
+            <h1>PIPELINE & VISUALIZER</h1>
+            
+            <h4>Pre-Flattened SDJ Output</h4>
+            <p>The output generator eliminates external dependencies (like the Flattener or JSON converter). Calculated nodes are packaged directly into a 1-dimensional, space-delimited string of <code>[LINE]</code> entities.</p>
+            <span class="code-block">[LINE] 0 0 4 1 [LINE] 4 1 8 4 [LINE] 8 4 16 16 T:0</span>
+            <p>This strict formatting guarantees zero-latency execution when pasted into the core v1.0.17 engine's CLI prompt.</p>
+
+            <h4>Responsive Auto-Scaling</h4>
+            <p>The internal HTML5 canvas calculates the coordinate deltas and dynamically scales the view. The parabola remains perfectly centered and visible on-screen regardless of the extreme aspect ratios caused by high Grid Scale multipliers.</p>
+
+            <h4>Floating-Point Accuracy</h4>
+            <p>To prevent cumulative drift, all vertices and endpoints are rounded precisely to 4 decimal places before SDJ array injection, safeguarding the structural integrity of intersecting CAD entities.</p>
+        </div>
+    </div>
+</body>
+</html>
