@@ -3,63 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WallyCAD | Parabola V2 Q2-3 Spread</title>
+    <title>WallyCAD | Parabola Generator Standalone</title>
     <style>
-        :root { --cad-black: #121212; --cad-accent: #00ff00; }
-        body { margin: 0; padding: 0; background: #e5e7eb; color: var(--cad-black); font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .sheet { width: 11in; height: 8.5in; background: white; display: grid; grid-template-columns: 5.5in 5.5in; grid-template-rows: 8.5in; position: relative; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .crosshair-vert { position: absolute; top: 0; left: 5.5in; width: 1px; height: 8.5in; border-left: 1px dashed #aaa; z-index: 10; }
-        .quadrant { padding: 0.75in; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
-        h1, h2, h3, h4 { margin: 0; font-weight: bold; }
-        h1 { font-size: 20pt; border-bottom: 2px solid var(--cad-black); margin-bottom: 12px; padding-bottom: 4px; text-transform: uppercase; }
-        h2 { font-size: 13pt; margin-bottom: 8px; color: #444; margin-top: 15px; text-transform: uppercase; }
-        h4 { font-size: 11pt; margin-bottom: 5px; margin-top: 15px; text-transform: uppercase; color: var(--cad-black); }
-        p, li { font-size: 9.5pt; line-height: 1.5; margin-top: 0; }
-        ul { padding-left: 15px; margin-bottom: 15px; }
-        .code-block { background: #f4f4f4; border: 1px solid #ccc; padding: 8px; font-size: 8.5pt; font-weight: bold; margin: 10px 0; display: block; white-space: pre-wrap; word-break: break-all; }
-        @media print { @page { size: letter landscape; margin: 0; } body { background: none; } .sheet { box-shadow: none; border: none; } }
+        body { 
+            background: #1a1a1a; 
+            color: #00ff00; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container { 
+            display: flex; 
+            gap: 20px; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            max-width: 1000px; 
+            width: 100%; 
+            flex-grow: 1;
+        }
+        .panel { 
+            background: #000; 
+            border: 1px solid #444; 
+            padding: 20px; 
+            width: 340px; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 12px; 
+            align-items: center; 
+            font-size: 12px;
+        }
+        input, select { 
+            background: #111; 
+            border: 1px solid #444; 
+            color: #00ff00; 
+            padding: 6px; 
+            width: 90px; 
+            font-family: inherit; 
+            text-align: right; 
+        }
+        input:focus, select:focus {
+            outline: 1px solid #00ff00;
+        }
+        textarea { 
+            width: 100%; 
+            background: #111; 
+            color: #00ff00; 
+            border: 1px solid #444; 
+            padding: 10px; 
+            margin-bottom: 10px; 
+            box-sizing: border-box; 
+            font-size: 11px; 
+            resize: vertical; 
+        }
+        button { 
+            background: #00ff00; 
+            color: #000; 
+            border: none; 
+            padding: 12px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+            margin-top: 10px; 
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        button:hover { 
+            background: #00cc00; 
+        }
+        canvas { 
+            background: #121212; 
+            border: 1px solid #444; 
+            flex-grow: 1; 
+            min-width: 400px; 
+            min-height: 400px; 
+        }
+        h2 { 
+            margin-top: 0; 
+            color: #fff; 
+            text-align: center; 
+            font-size: 16px; 
+            border-bottom: 1px solid #444; 
+            padding-bottom: 10px; 
+            letter-spacing: 1px;
+        }
+        .label { 
+            font-size: 10px; 
+            color: #aaa; 
+            margin-bottom: 4px; 
+            display: block; 
+            text-transform: uppercase; 
+        }
     </style>
 </head>
 <body>
-    <div class="sheet">
-        <div class="crosshair-vert"></div>
+    <div class="container">
+        <div class="panel">
+            <h2>WALLY PARABOLA ENGINE</h2>
+            
+            <div class="row" style="margin-top: 10px;">
+                <span title="Total width from start to end on the X-axis">Span Width (W):</span>
+                <input type="number" id="pSpan" value="120" step="1" oninput="generate()">
+            </div>
+            <div class="row">
+                <span title="Maximum height of the curve on the Y-axis">Apex Height (H):</span>
+                <input type="number" id="pApex" value="48" step="1" oninput="generate()">
+            </div>
+            <div class="row">
+                <span title="Number of straight line segments making up the curve">Resolution (Segs):</span>
+                <input type="number" id="pRes" value="36" step="1" min="2" max="360" oninput="generate()">
+            </div>
+            <div class="row">
+                <span title="Orientation of the curve">Polarity:</span>
+                <select id="pFlip" onchange="generate()">
+                    <option value="UP">Arch (Up)</option>
+                    <option value="DOWN">Sag (Down)</option>
+                </select>
+            </div>
+
+            <button onclick="copyToClipboard()" id="copyBtn">COPY FLATTENED SDJ</button>
+            
+            <span class="label" style="margin-top: 20px;">OUTPUT (1D STRING):</span>
+            <textarea id="outputSdj" rows="8" readonly placeholder="SDJ String will appear here..."></textarea>
+            
+            <div style="font-size: 9px; color: #666; text-align: center; margin-top: auto;">
+                SYS.MODULE // /PARABOLA
+            </div>
+        </div>
         
-        <!-- QUADRANT 2: INSIDE LEFT -->
-        <div class="quadrant" style="border-right: 1px solid #eee;">
-            <h1>PARABOLA HYBRID V2</h1>
-            <p>The <code>wallycad.com/parabola</code> V2 standalone merges the original <i>y = x²</i> mathematical macro framework with a responsive visualizer and optimized data extraction pipeline.</p>
-            
-            <h2>Core Parameters</h2>
-            <p>The tool strictly adheres to the original CLI input syntax parameters:</p>
-            <ul>
-                <li><strong>Vertex (vx, vy):</strong> The origin anchor point mapping the geometric center.</li>
-                <li><strong>Domain (Xmin, Xmax):</strong> The absolute limits dictating the horizontal span of the curve.</li>
-                <li><strong>Grid Scale:</strong> The spatial multiplier expanding the base <i>y = x²</i> function.</li>
-            </ul>
-            
-            <h2>Dual-Mode Geometry</h2>
-            <p>Users can instantly toggle between two distinct subdivision algorithms:</p>
-            <ul>
-                <li><strong>Uniform Mode:</strong> Slices the domain into a user-defined number of equal, straight-line segments.</li>
-                <li><strong>Fractional Notebook Mode:</strong> Uses a hardcoded geometric progression (0, &plusmn;1/4, &plusmn;1/2, &plusmn;1, &plusmn;3/2, &plusmn;2) designed to land precisely on standard imperial grid intersections.</li>
-            </ul>
-        </div>
-
-        <!-- QUADRANT 3: INSIDE RIGHT -->
-        <div class="quadrant">
-            <h1>PIPELINE & VISUALIZER</h1>
-            
-            <h4>Pre-Flattened SDJ Output</h4>
-            <p>The output generator eliminates external dependencies (like the Flattener or JSON converter). Calculated nodes are packaged directly into a 1-dimensional, space-delimited string of <code>[LINE]</code> entities.</p>
-            <span class="code-block">[LINE] 0 0 4 1 [LINE] 4 1 8 4 [LINE] 8 4 16 16 T:0</span>
-            <p>This strict formatting guarantees zero-latency execution when pasted into the core v1.0.17 engine's CLI prompt.</p>
-
-            <h4>Responsive Auto-Scaling</h4>
-            <p>The internal HTML5 canvas calculates the coordinate deltas and dynamically scales the view. The parabola remains perfectly centered and visible on-screen regardless of the extreme aspect ratios caused by high Grid Scale multipliers.</p>
-
-            <h4>Floating-Point Accuracy</h4>
-            <p>To prevent cumulative drift, all vertices and endpoints are rounded precisely to 4 decimal places before SDJ array injection, safeguarding the structural integrity of intersecting CAD entities.</p>
-        </div>
+        <canvas id="preview"></canvas>
     </div>
+
+    <script>
+        function generate() {
+            const span = parseFloat(document.getElementById('pSpan').value) || 120;
+            const apex = parseFloat(document.getElementById('pApex').value) || 48;
+            const res = parseInt(document.getElementById('pRes').value) || 36;
+            const flip = document.getElementById('pFlip').value === 'DOWN';
+            
+            if (res < 2) return;
+
+            const pts = [];
+            // Vertex form equation: y = a(x - h)^2 + k
+            // Baseline from 0 to Span. Apex at (Span/2, Apex).
+            // 0 = a(0 - Span/2)^2 + Apex  =>  a = -4 * Apex / (Span^2)
+            const a = (-4 * apex) / (span * span);
+
+            for (let i = 0; i <= res; i++) {
+                const x = (i / res) * span;
+                let y = a * Math.pow(x - span / 2, 2) + apex;
+                
+                if (flip) y = -y;
+                
+                pts.push({ x: parseFloat(x.toFixed(4)), y: parseFloat(y.toFixed(4)) });
+            }
+
+            // Generate 1D SDJ String
+            let sdjArray = [];
+            for (let i = 0; i < pts.length - 1; i++) {
+                const p1 = pts[i];
+                const p2 = pts[i+1];
+                sdjArray.push(`[LINE] ${p1.x} ${p1.y} ${p2.x} ${p2.y} T:0`);
+            }
+            
+            const finalString = sdjArray.join(" ");
+            document.getElementById('outputSdj').value = finalString;
+
+            drawPreview(pts, span, apex, flip);
+        }
+
+        function drawPreview(pts, span, apex, flip) {
+            const cvs = document.getElementById('preview');
+            // Responsive sizing
+            cvs.width = cvs.parentElement.clientWidth - 380; 
+            cvs.height = cvs.parentElement.clientHeight;
+            const ctx = cvs.getContext('2d');
+            
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+            // Auto-scale logic
+            const pad = 60;
+            const minX = 0;
+            const maxX = span;
+            const minY = flip ? -apex : 0;
+            const maxY = flip ? 0 : apex;
+            
+            const w = maxX - minX || 1;
+            const h = maxY - minY || 1;
+            
+            const scaleX = (cvs.width - pad * 2) / w;
+            const scaleY = (cvs.height - pad * 2) / h;
+            const scale = Math.min(scaleX, scaleY);
+            
+            const cx = (minX + maxX) / 2;
+            const cy = (minY + maxY) / 2;
+
+            ctx.save();
+            ctx.translate(cvs.width / 2, cvs.height / 2);
+            ctx.scale(scale, -scale); // Flip Y to match Cartesian
+            ctx.translate(-cx, -cy);
+
+            // Draw Baseline/Axis
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1 / scale;
+            ctx.beginPath();
+            ctx.moveTo(-span*0.1, 0);
+            ctx.lineTo(span*1.1, 0);
+            ctx.moveTo(span/2, minY - Math.abs(apex)*0.1);
+            ctx.lineTo(span/2, maxY + Math.abs(apex)*0.1);
+            ctx.stroke();
+
+            // Draw Parabola
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2 / scale;
+            ctx.beginPath();
+            pts.forEach((p, i) => {
+                if (i === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+            });
+            ctx.stroke();
+
+            // Draw Nodes
+            ctx.fillStyle = '#00ff00';
+            pts.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3 / scale, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.restore();
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('outputSdj').value;
+            navigator.clipboard.writeText(output).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.innerText;
+                btn.innerText = "COPIED TO CLIPBOARD!";
+                btn.style.background = "#fff";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "#00ff00";
+                }, 1500);
+            });
+        }
+
+        // Handle window resize for canvas
+        window.addEventListener('resize', generate);
+        
+        // Run on load
+        window.onload = generate;
+    </script>
 </body>
 </html>
