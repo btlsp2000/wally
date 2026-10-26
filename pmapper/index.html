@@ -7,21 +7,27 @@
         body { background: #1a1a1a; color: #00ff00; font-family: monospace; display: flex; height: 100vh; margin: 0; }
         
         /* Left Pane: State Library */
-        #sidebar { width: 300px; border-right: 1px solid #444; padding: 20px; overflow-y: auto; }
+        #sidebar { width: 300px; border-right: 1px solid #444; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
         .state-card { border: 1px solid #444; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
         .state-card:hover { border-color: #00ff00; background: #222; }
         .active-state { border-color: #00ff00; background: #003300; }
 
         /* Right Pane: Vector Preview */
-        #preview-pane { flex-grow: 1; position: relative; background: #000; overflow: hidden; }
-        canvas { width: 100%; height: 100%; cursor: crosshair; }
+        #preview-pane { flex-grow: 1; position: relative; background: #000; overflow: hidden; display: flex; flex-direction: column; }
+        canvas { width: 100%; height: 100%; cursor: crosshair; flex-grow: 1; }
         
-        #hud { position: absolute; top: 10px; right: 10px; text-align: right; pointer-events: none; }
-        #qc-footer { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); padding: 10px; font-size: 12px; }
+        #hud { position: absolute; top: 10px; right: 10px; text-align: right; pointer-events: none; text-shadow: 1px 1px 2px #000; }
+        
+        /* QC Input Method */
+        #qc-cli-container { background: rgba(0,0,0,0.8); border-top: 1px solid #444; padding: 10px; display: flex; align-items: center; }
+        #qc-cli-label { margin-right: 10px; font-weight: bold; }
+        #qc-cli { flex-grow: 1; background: #111; color: #00ff00; border: 1px solid #00ff00; padding: 8px; font-family: monospace; outline: none; }
+        #qc-cli:focus { background: #222; }
+        
+        #qc-footer { background: rgba(0,0,0,0.9); padding: 5px 10px; font-size: 12px; border-top: 1px solid #222; }
     </style>
 </head>
 <body>
-
     <div id="sidebar">
         <h3>PERIMETER HUB</h3>
         <div id="state-list"></div>
@@ -33,14 +39,22 @@
             <div id="state-name">SELECT STATE</div>
             <div id="coord-display">0.00, 0.00</div>
         </div>
-        <div id="qc-footer">QC: [G: Export to G-Coder | C: Clear | 4: Zoom Four Corners]</div>
+        
+        <!-- QC Input Bar -->
+        <div id="qc-cli-container">
+            <span id="qc-cli-label">QC CMD:</span>
+            <input type="text" id="qc-cli" placeholder="Format: ADD [NAME] [LAT] [LON]... (e.g., ADD NEVADA 42.0 -114.0 42.0 -120.0...)">
+        </div>
+        
+        <div id="qc-footer">QC: [G: Export to G-Coder | C: Clear | 4: Zoom Four Corners | Focus CMD input and press Enter to execute]</div>
     </div>
 
 <script>
     const canvas = document.getElementById('previewCanvas');
     const ctx = canvas.getContext('2d');
+    const qcCli = document.getElementById('qc-cli');
     
-    // Example high-res vector data (truncated)
+    // Core Vector Data
     const Perimeters = {
         "WASHINGTON": "49.0 -124.7 49.0 -117.0 46.0 -117.0 46.2 -124.0",
         "OREGON": "46.2 -124.0 42.0 -124.0 42.0 -117.0 46.2 -117.0",
@@ -51,8 +65,11 @@
     let activeState = null;
 
     function renderState(name) {
+        if (!Perimeters[name]) return;
         activeState = name;
         document.getElementById('state-name').innerText = name;
+        updateSidebarUI();
+        
         const coords = Perimeters[name].split(' ').map(Number);
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -60,10 +77,10 @@
         ctx.lineWidth = 2;
         ctx.beginPath();
 
-        // Simple Mapping Logic (Lat/Long to Canvas)
+        // Mapping Logic (Lat/Long to Canvas)
         for (let i = 0; i < coords.length; i += 2) {
             let y = canvas.height - ((coords[i] - 31) * 40); // Lat
-            let x = (coords[i+1] + 125) * 40;            // Long
+            let x = (coords[i+1] + 125) * 40;                // Long
             if (i === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
         }
@@ -71,31 +88,84 @@
         ctx.stroke();
     }
 
-    // QC Integration
+    // Refresh the Left Pane Library
+    function buildSidebar() {
+        const list = document.getElementById('state-list');
+        list.innerHTML = ''; // Clear existing
+        Object.keys(Perimeters).forEach(s => {
+            const div = document.createElement('div');
+            div.id = 'card-' + s;
+            div.className = 'state-card';
+            div.innerText = s;
+            div.onclick = () => renderState(s);
+            list.appendChild(div);
+        });
+    }
+
+    function updateSidebarUI() {
+        document.querySelectorAll('.state-card').forEach(el => el.classList.remove('active-state'));
+        const activeCard = document.getElementById('card-' + activeState);
+        if (activeCard) activeCard.classList.add('active-state');
+    }
+
+    // QC Input CLI Logic
+    qcCli.addEventListener('keydown', (e) => {
+        // Prevent global hotkeys from firing when typing in the input box
+        e.stopPropagation(); 
+        
+        if (e.key === 'Enter') {
+            const inputVal = qcCli.value.trim();
+            const parts = inputVal.split(/\s+/); // Split by any whitespace
+            const command = parts[0].toUpperCase();
+            
+            if (command === 'ADD' && parts.length >= 3) {
+                const name = parts[1].toUpperCase();
+                const coordsString = parts.slice(2).join(' ');
+                
+                // Inject into library and re-render
+                Perimeters[name] = coordsString;
+                buildSidebar();
+                renderState(name);
+                qcCli.value = ''; // Clear input on success
+            } else if (command === 'C' || command === 'CLEAR') {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                activeState = null;
+                document.getElementById('state-name').innerText = "CLEARED";
+                updateSidebarUI();
+                qcCli.value = '';
+            } else {
+                alert("QC Syntax Error. Use: ADD [NAME] [LAT] [LON]...");
+            }
+        }
+    });
+
+    // Global QC Hotkeys (only trigger if not focused on CLI)
     window.addEventListener('keydown', (e) => {
+        if (document.activeElement === qcCli) return; 
+
         const key = e.key.toUpperCase();
         if (key === '4') renderState("FOUR_CORNERS");
+        if (key === 'C') {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            activeState = null;
+            document.getElementById('state-name').innerText = "SELECT STATE";
+            updateSidebarUI();
+        }
         if (key === 'G' && activeState) {
-            alert(`Piping ${activeState} to G-Coder Entity...`);
+            alert(`Piping ${activeState} to G-Coder Entity...\nData: ${Perimeters[activeState]}`);
             // Logic to open/update G-Coder.html
         }
     });
 
-    // Initialize list
-    Object.keys(Perimeters).forEach(s => {
-        const div = document.createElement('div');
-        div.className = 'state-card';
-        div.innerText = s;
-        div.onclick = () => renderState(s);
-        document.getElementById('state-list').appendChild(div);
-    });
-
+    // Initialize
     function resize() {
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
         if(activeState) renderState(activeState);
     }
     window.onresize = resize;
+    
+    buildSidebar();
     resize();
 </script>
 </body>
