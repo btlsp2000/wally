@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD | Perimeter Hub & Preview</title>
+    <style>
+        body { background: #1a1a1a; color: #00ff00; font-family: monospace; display: flex; height: 100vh; margin: 0; }
+        
+        /* Left Pane: State Library */
+        #sidebar { width: 300px; border-right: 1px solid #444; padding: 20px; overflow-y: auto; }
+        .state-card { border: 1px solid #444; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .state-card:hover { border-color: #00ff00; background: #222; }
+        .active-state { border-color: #00ff00; background: #003300; }
+
+        /* Right Pane: Vector Preview */
+        #preview-pane { flex-grow: 1; position: relative; background: #000; overflow: hidden; }
+        canvas { width: 100%; height: 100%; cursor: crosshair; }
+        
+        #hud { position: absolute; top: 10px; right: 10px; text-align: right; pointer-events: none; }
+        #qc-footer { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); padding: 10px; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h3>PERIMETER HUB</h3>
+        <div id="state-list"></div>
+    </div>
+
+    <div id="preview-pane">
+        <canvas id="previewCanvas"></canvas>
+        <div id="hud">
+            <div id="state-name">SELECT STATE</div>
+            <div id="coord-display">0.00, 0.00</div>
+        </div>
+        <div id="qc-footer">QC: [G: Export to G-Coder | C: Clear | 4: Zoom Four Corners]</div>
+    </div>
+
+<script>
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Example high-res vector data (truncated)
+    const Perimeters = {
+        "WASHINGTON": "49.0 -124.7 49.0 -117.0 46.0 -117.0 46.2 -124.0",
+        "OREGON": "46.2 -124.0 42.0 -124.0 42.0 -117.0 46.2 -117.0",
+        "CALIFORNIA": "42.0 -124.4 32.5 -117.1 35.0 -114.6 42.0 -120.0",
+        "FOUR_CORNERS": "37.0 -114.0 42.0 -114.0 42.0 -102.0 31.3 -103.0 31.3 -114.0"
+    };
+
+    let activeState = null;
+
+    function renderState(name) {
+        activeState = name;
+        document.getElementById('state-name').innerText = name;
+        const coords = Perimeters[name].split(' ').map(Number);
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#00ff00';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        // Simple Mapping Logic (Lat/Long to Canvas)
+        for (let i = 0; i < coords.length; i += 2) {
+            let y = canvas.height - ((coords[i] - 31) * 40); // Lat
+            let x = (coords[i+1] + 125) * 40;            // Long
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+    }
+
+    // QC Integration
+    window.addEventListener('keydown', (e) => {
+        const key = e.key.toUpperCase();
+        if (key === '4') renderState("FOUR_CORNERS");
+        if (key === 'G' && activeState) {
+            alert(`Piping ${activeState} to G-Coder Entity...`);
+            // Logic to open/update G-Coder.html
+        }
+    });
+
+    // Initialize list
+    Object.keys(Perimeters).forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'state-card';
+        div.innerText = s;
+        div.onclick = () => renderState(s);
+        document.getElementById('state-list').appendChild(div);
+    });
+
+    function resize() {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+        if(activeState) renderState(activeState);
+    }
+    window.onresize = resize;
+    resize();
+</script>
+</body>
+</html>
