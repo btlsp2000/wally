@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WallyCAD - Continuous Switchback</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #121212; color: #0f0; padding: 15px; }
+        .panel { max-width: 450px; margin: auto; border: 1px solid #333; padding: 20px; background: #1a1a1a; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        input { background: #000; color: #0f0; border: 1px solid #0f0; width: 60px; text-align: center; }
+        textarea { width: 100%; height: 300px; background: #000; color: #fff; border: 1px solid #444; margin-top: 10px; font-size: 11px; }
+        button { width: 100%; background: #0f0; color: #000; border: none; padding: 12px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="panel">
+    <h2 style="margin-top:0; font-size:14px; border-bottom:1px solid #0f0;">CONTINUOUS SWITCHBACK</h2>
+    <div class="row"><span>Total Treads:</span> <input type="number" id="H" value="6"></div>
+    <div class="row"><span>Tread Depth (b):</span> <input type="number" id="b" value="11"></div>
+    <div class="row"><span>Tread Width (a):</span> <input type="number" id="a" value="7"></div>
+    <div class="row"><span>Well Gap (g):</span> <input type="number" id="g" value="4"></div>
+    
+    <button onclick="genSwitch()">GENERATE POLYLINE</button>
+    <textarea id="output" readonly></textarea>
+</div>
+
+<script>
+    function genSwitch() {
+        const H = parseInt(document.getElementById('H').value);
+        const b = parseFloat(document.getElementById('b').value);
+        const a = parseFloat(document.getElementById('a').value);
+        const g = parseFloat(document.getElementById('g').value);
+        
+        let x = 0, y = 0;
+        let pts = [[0, 0]];
+        const half = Math.floor(H / 2);
+
+        // 1. FORWARD FLIGHT
+        for (let n = 1; n <= half; n++) {
+            x += b; pts.push([x, y]);
+            y += (n % 2 !== 0) ? a : -a;
+            pts.push([x, y]);
+        }
+
+        // 2. THE LANDING (The U-Turn)
+        // Move across the width of both flights + gap
+        y += (a + g); 
+        pts.push([x, y]);
+        
+        // 3. RETURN FLIGHT (Reverse X)
+        for (let n = 1; n <= half; n++) {
+            x -= b; pts.push([x, y]);
+            // Reverse the toggle to keep zig-zag aligned
+            y += (n % 2 === 0) ? a : -a;
+            pts.push([x, y]);
+        }
+
+        document.getElementById('output').value = pts.map(p => `${p[0].toFixed(2)} ${p[1].toFixed(2)}`).join('\n');
+    }
+</script>
+</body>
+</html>
