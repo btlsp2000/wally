@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WallyCAD - Shutters</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #00ff00;
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        canvas {
+            background-color: #000000;
+            border: 2px solid #00ff00;
+            cursor: crosshair;
+        }
+        #coords {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>WallyCAD Shutter Generator</h2>
+    <canvas id="wallyCanvas" width="800" height="700"></canvas>
+    <div id="coords">X: 0 | Y: 0</div>
+
+<script>
+    const canvas = document.getElementById('wallyCanvas');
+    const ctx = canvas.getContext('2d');
+    const coordDisplay = document.getElementById('coords');
+
+    // Scale: 4 pixels per inch
+    const scale = 4;
+    const originX = 150;
+    const originY = 600; // Bottom left anchor
+
+    // Dimensions in inches
+    const panelWidth = 54; // 4'-6"
+    const panelHeight = 108; // 9'-0"
+    const louverSpacing = 6; // 6 inch spacing for the louvers
+
+    function drawLine(x1, y1, x2, y2, color="#00ff00") {
+        ctx.beginPath();
+        ctx.moveTo(originX + x1 * scale, originY - y1 * scale);
+        ctx.lineTo(originX + x2 * scale, originY - y2 * scale);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    function drawDimension(x1, y1, x2, y2, text, offsetX, offsetY) {
+        ctx.beginPath();
+        // Dimension line
+        ctx.moveTo(originX + x1 * scale, originY - y1 * scale);
+        ctx.lineTo(originX + x2 * scale, originY - y2 * scale);
+        ctx.strokeStyle = "#ff00ff"; // Magenta for dimensions
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Tick marks
+        ctx.moveTo(originX + x1 * scale - 5, originY - y1 * scale - 5);
+        ctx.lineTo(originX + x1 * scale + 5, originY - y1 * scale + 5);
+        ctx.moveTo(originX + x2 * scale - 5, originY - y2 * scale - 5);
+        ctx.lineTo(originX + x2 * scale + 5, originY - y2 * scale + 5);
+        ctx.stroke();
+
+        // Text
+        ctx.fillStyle = "#ff00ff";
+        ctx.font = "14px monospace";
+        ctx.fillText(text, originX + ((x1 + x2)/2) * scale + offsetX, originY - ((y1 + y2)/2) * scale + offsetY);
+    }
+
+    function renderShutters() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Left Panel (4'-6" x 9'-0")
+        drawLine(0, 0, panelWidth, 0);
+        drawLine(panelWidth, 0, panelWidth, panelHeight);
+        drawLine(panelWidth, panelHeight, 0, panelHeight);
+        drawLine(0, panelHeight, 0, 0);
+
+        // Right Panel (4'-6" x 9'-0")
+        drawLine(panelWidth, 0, panelWidth * 2, 0);
+        drawLine(panelWidth * 2, 0, panelWidth * 2, panelHeight);
+        drawLine(panelWidth * 2, panelHeight, panelWidth, panelHeight);
+        drawLine(panelWidth, panelHeight, panelWidth, 0);
+
+        // Right Panel Louvers
+        for (let y = louverSpacing; y < panelHeight; y += louverSpacing) {
+            drawLine(panelWidth, y, panelWidth * 2, y, "#008800");
+        }
+
+        // Shading on right edge (as sketched)
+        for (let y = louverSpacing; y < panelHeight; y += louverSpacing * 2) {
+            drawLine(panelWidth * 2, y, panelWidth * 2 + 6, y - 6, "#008800");
+        }
+
+        // Top Dimensions (4'-6")
+        drawDimension(0, panelHeight + 12, panelWidth, panelHeight + 12, "4'-6\"", -20, -10);
+        drawDimension(panelWidth, panelHeight + 12, panelWidth * 2, panelHeight + 12, "4'-6\"", -20, -10);
+
+        // Center Height Dimension (9'-0")
+        drawDimension(panelWidth, 0, panelWidth, panelHeight, "9'-0\"", 10, 0);
+    }
+
+    // Mouse coordinate tracking
+    canvas.addEventListener('mousemove', function(e) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        
+        // Convert to drafting coordinates
+        const draftX = ((mouseX - originX) / scale).toFixed(2);
+        const draftY = ((originY - mouseY) / scale).toFixed(2);
+        
+        coordDisplay.innerText = `X: ${draftX}" | Y: ${draftY}"`;
+    });
+
+    renderShutters();
+</script>
+</body>
+</html>
