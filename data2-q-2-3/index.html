@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Data Format Contrast Q2-3</title>
+    <style>
+        :root { --cad-black: #121212; --cad-accent: #00ff00; }
+        body { margin: 0; padding: 0; background: #e5e7eb; color: var(--cad-black); font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .sheet { width: 11in; height: 8.5in; background: white; display: grid; grid-template-columns: 5.5in 5.5in; grid-template-rows: 8.5in; position: relative; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .crosshair-vert { position: absolute; top: 0; left: 5.5in; width: 1px; height: 8.5in; border-left: 1px dashed #aaa; z-index: 10; }
+        .quadrant { padding: 0.75in; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
+        h1, h2, h3, h4 { margin: 0; font-weight: bold; }
+        h1 { font-size: 20pt; border-bottom: 2px solid var(--cad-black); margin-bottom: 12px; padding-bottom: 4px; text-transform: uppercase; }
+        h2 { font-size: 13pt; margin-bottom: 8px; color: #444; margin-top: 15px; text-transform: uppercase; }
+        h4 { font-size: 11pt; margin-bottom: 5px; margin-top: 15px; text-transform: uppercase; color: var(--cad-black); }
+        p, li { font-size: 9.5pt; line-height: 1.5; margin-top: 0; }
+        ul { padding-left: 15px; margin-bottom: 15px; }
+        .code-block { background: #f4f4f4; border: 1px solid #ccc; padding: 8px; font-size: 8.5pt; font-weight: bold; margin: 10px 0; display: block; white-space: pre-wrap; word-break: break-all; }
+        
+        .funnel-container { display: flex; align-items: center; justify-content: center; margin-top: 30px; gap: 20px; }
+        .funnel-label { font-weight: bold; font-size: 12pt; }
+        .funnel-flow { display: flex; flex-direction: column; align-items: center; }
+        .funnel-stage { border: 1px solid #333; padding: 8px; text-align: center; background: #f8fafc; font-size: 9.5pt; margin-bottom: 5px; }
+        .funnel-arrow { font-size: 14pt; margin-bottom: 5px; }
+        .funnel-final { text-align: center; font-weight: bold; font-size: 11pt; border-bottom: 2px solid #121212; padding-bottom: 4px; }
+        
+        @media print { @page { size: letter landscape; margin: 0; } body { background: none; } .sheet { box-shadow: none; border: none; } }
+    </style>
+</head>
+<body>
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        
+        <!-- QUADRANT 2: INSIDE LEFT -->
+        <div class="quadrant" style="border-right: 1px solid #eee;">
+            <h1>DATA FORMAT CONTRAST</h1>
+            <h2>THE WALLY SPECIFICATION</h2>
+            
+            <p style="font-size: 11pt; margin-top: 10px; margin-bottom: 20px; line-height: 1.6;">
+                <strong>.WALLY IS THE PREFERRED DATA FORMAT, IT PARSES ELEMENTS BY PARAMETERS WHEREAS &mdash;</strong>
+            </p>
+            
+            <h2>WALLY (.WALLY)</h2>
+            <ul style="font-size: 10.5pt; line-height: 1.6;">
+                <li>Uses condensed polymorphic structure.</li>
+                <li>Parses elements strictly by contextual parameters (vx, vy, Xmin, Xmax, Scale, T:thick).</li>
+                <li>Eliminates redundant variables.</li>
+                <li>Yields zero-latency continuous 1D streams.</li>
+            </ul>
+        </div>
+
+        <!-- QUADRANT 3: INSIDE RIGHT -->
+        <div class="quadrant">
+            <h1>ALTERNATIVE FORMATS</h1>
+            <h2>THE JSON / DXF CONTRAST</h2>
+            
+            <ul style="font-size: 10.5pt; line-height: 1.6;">
+                <li><strong>JSON Object Arrays</strong> are universal but carry heavy overhead (repetitive keys, quotes, brackets).</li>
+                <li><strong>Multi-Line SDJ</strong> contains carriage returns, newlines, and tabs that require regex sanitization.</li>
+                <li><strong>DXF/SVG</strong> are proprietary CAD/vector schemas that require external compiler engines.</li>
+            </ul>
+
+            <div class="funnel-container">
+                <div class="funnel-label">DATA<br>FUNNEL</div>
+                <div class="funnel-flow">
+                    <div class="funnel-stage" style="width: 240px;">HEAVYWEIGHT (JSON)</div>
+                    <div class="funnel-arrow">&darr;</div>
+                    <div class="funnel-stage" style="width: 180px;">INTERMEDIATE (MULTI-LINE)</div>
+                    <div class="funnel-arrow">&darr;</div>
+                    <div class="funnel-final" style="width: 280px;">1D CONTINUOUS STRING (WALLY)</div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</body>
+</html>
