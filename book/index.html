@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE WALLY BOOK | Master Digital Index</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --accent: #00d2ff;
+            --accent-alt: #3fb950;
+            --highlight: #f0883e;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #sidebar {
+            width: 340px;
+            background-color: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .brand-header {
+            padding: 25px 20px;
+            border-bottom: 2px solid var(--border-color);
+            background: linear-gradient(180deg, rgba(0,210,255,0.05) 0%, transparent 100%);
+        }
+
+        .brand-header h1 {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 22px;
+            color: #fff;
+            letter-spacing: 1.5px;
+        }
+
+        .brand-header p {
+            margin: 5px 0 0 0;
+            font-size: 11px;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-section {
+            padding: 15px 20px 5px 20px;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.2);
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(0, 210, 255, 0.05);
+            padding-left: 25px;
+        }
+
+        .nav-item.active {
+            border-left: 4px solid var(--accent);
+            background-color: rgba(0, 210, 255, 0.1);
+            padding-left: 16px;
+        }
+
+        .nav-item.addendum {
+            border-left: 4px solid var(--highlight);
+        }
+
+        .nav-item.addendum.active {
+            background-color: rgba(240, 136, 62, 0.1);
+        }
+
+        .nav-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .nav-desc {
+            font-size: 11px;
+            color: #8b949e;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #main-view {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-color);
+            position: relative;
+        }
+
+        #top-bar {
+            height: 50px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+            background: var(--panel-bg);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+        }
+
+        .status-badge {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--accent-alt);
+            padding: 4px 8px;
+            border: 1px solid var(--accent-alt);
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        iframe {
+            flex-grow: 1;
+            border: none;
+            width: 100%;
+            height: 100%;
+            background: #fff; /* White background for loading standard HTML documents/booklets */
+        }
+
+        .placeholder-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #8b949e;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .placeholder-content h2 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <div class="brand-header">
+            <h1>THE WALLY BOOK</h1>
+            <p>Comprehensive Digital Architecture</p>
+        </div>
+
+        <div class="nav-section">Volume I: Core Ecosystem</div>
+        
+        <div class="nav-item" onclick="loadContent('textbook', this)">
+            <div class="nav-title">The Textbook</div>
+            <div class="nav-desc">3-Lesson Curriculum & CLI Labs</div>
+        </div>
+        
+        <div class="nav-item" onclick="loadContent('dashboard', this)">
+            <div class="nav-title">WallyCAD Studio</div>
+            <div class="nav-desc">v1.0.17 Main Drafting Engine</div>
+        </div>
+
+        <div class="nav-section">Volume II: Standalone Modules</div>
+        
+        <div class="nav-item" onclick="loadContent('parabola', this)">
+            <div class="nav-title">Parabola Generator V2</div>
+            <div class="nav-desc">Pre-flattened SDJ Output Pipeline</div>
+        </div>
+        
+        <div class="nav-item" onclick="loadContent('shutters', this)">
+            <div class="nav-title">Shutters Engine</div>
+            <div class="nav-desc">Parametric Architectural Elements</div>
+        </div>
+        
+        <div class="nav-item" onclick="loadContent('pmapper', this)">
+            <div class="nav-title">Perimeter Hub (/pmapper)</div>
+            <div class="nav-desc">Cartesian Map Translation</div>
+        </div>
+
+        <div class="nav-section" style="color: var(--highlight);">Addendums & Treatises</div>
+        
+        <div class="nav-item addendum active" onclick="loadContent('master-booklet', this)">
+            <div class="nav-title">Addendum A: Master Booklet</div>
+            <div class="nav-desc">Compiled Q-2-3 Documentation Spreads</div>
+        </div>
+        
+        <div class="nav-item addendum" onclick="loadContent('calculus-of-pool', this)">
+            <div class="nav-title">Addendum B: Calculus of Pool</div>
+            <div class="nav-desc">Ghost Ball Geometry & Vector Physics</div>
+        </div>
+
+        <div class="nav-item addendum" onclick="loadContent('route-two', this)">
+            <div class="nav-title">Addendum C: Route 2 / ARMike</div>
+            <div class="nav-desc">Transit Routes & Regional Portals</div>
+        </div>
+        
+        <div class="nav-item addendum" onclick="loadContent('wib', this)">
+            <div class="nav-title">Addendum D: WIB</div>
+            <div class="nav-desc">Transit Matrix Board Game Logic</div>
+        </div>
+    </div>
+
+    <div id="main-view">
+        <div id="top-bar">
+            <span id="current-path">WALLYCAD://ADDENDUMS/MASTER-BOOKLET</span>
+            <span class="status-badge">SYSTEM ONLINE</span>
+        </div>
+        
+        <!-- Iframe acts as the viewport for the connected HTML hubs -->
+        <iframe id="content-frame" src="wallycad-master-booklet.html" title="Wally Book Content"></iframe>
+        
+        <div id="placeholder" class="placeholder-content" style="display:none;">
+            <h2 id="placeholder-title">Module Pending Load</h2>
+            <p id="placeholder-desc">Awaiting connection to external module or file.</p>
+        </div>
+    </div>
+
+    <script>
+        function loadContent(targetId, el) {
+            // Update active state in sidebar
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            el.classList.add('active');
+
+            const frame = document.getElementById('content-frame');
+            const placeholder = document.getElementById('placeholder');
+            const pathDisplay = document.getElementById('current-path');
+
+            // Routing logic
+            switch(targetId) {
+                case 'master-booklet':
+                    pathDisplay.innerText = "WALLYCAD://ADDENDUMS/MASTER-BOOKLET";
+                    frame.style.display = "block";
+                    placeholder.style.display = "none";
+                    frame.src = "wallycad-master-booklet.html";
+                    break;
+                case 'parabola':
+                    pathDisplay.innerText = "WALLYCAD://MODULES/PARABOLA-V2";
+                    frame.style.display = "block";
+                    placeholder.style.display = "none";
+                    frame.src = "parabola-standalone-v2.html";
+                    break;
+                case 'shutters':
+                    pathDisplay.innerText = "WALLYCAD://MODULES/SHUTTERS";
+                    frame.style.display = "block";
+                    placeholder.style.display = "none";
+                    frame.src = "shutters-standalone.html";
+                    break;
+                case 'textbook':
+                    pathDisplay.innerText = "WALLYCAD://TEXTBOOK (wallycad.com/textbook)";
+                    frame.style.display = "none";
+                    placeholder.style.display = "flex";
+                    document.getElementById('placeholder-title').innerText = "The WallyCAD Textbook";
+                    document.getElementById('placeholder-desc').innerText = "Link to external 3-lesson curriculum and interactive HTML5/CSS dashboard.";
+                    break;
+                case 'calculus-of-pool':
+                    pathDisplay.innerText = "WALLYCAD://ADDENDUMS/CALCULUS-OF-POOL";
+                    frame.style.display = "none";
+                    placeholder.style.display = "flex";
+                    document.getElementById('placeholder-title').innerText = "The Calculus of Pool";
+                    document.getElementById('placeholder-desc').innerText = "Treatise on cue ball vector trajectories, 3-rail banks, and /shots interactive scatters.";
+                    break;
+                case 'route-two':
+                    pathDisplay.innerText = "WALLYCAD://ADDENDUMS/ROUTE-TWO";
+                    frame.style.display = "none";
+                    placeholder.style.display = "flex";
+                    document.getElementById('placeholder-title').innerText = "Route 2 / ARMike";
+                    document.getElementById('placeholder-desc').innerText = "Adventure Road digital portal and regional transit documentation.";
+                    break;
+                default:
+                    pathDisplay.innerText = `WALLYCAD://${targetId.toUpperCase()}`;
+                    frame.style.display = "none";
+                    placeholder.style.display = "flex";
+                    document.getElementById('placeholder-title').innerText = "Module Connected";
+                    document.getElementById('placeholder-desc').innerText = "Awaiting source HTML.";
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
