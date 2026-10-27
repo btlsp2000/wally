@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Master Q-2-3 Booklet</title>
+    <style>
+        :root { --cad-black: #121212; --cad-accent: #00ff00; }
+        body { margin: 0; padding: 20px; background: #e5e7eb; color: var(--cad-black); font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+        .sheet { width: 11in; height: 8.5in; background: white; display: grid; grid-template-columns: 5.5in 5.5in; grid-template-rows: 8.5in; position: relative; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; page-break-after: always; }
+        .crosshair-vert { position: absolute; top: 0; left: 5.5in; width: 1px; height: 8.5in; border-left: 1px dashed #aaa; z-index: 10; }
+        .quadrant { padding: 0.75in; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
+        h1, h2, h3, h4 { margin: 0; font-weight: bold; }
+        h1 { font-size: 18pt; border-bottom: 2px solid var(--cad-black); margin-bottom: 12px; padding-bottom: 4px; text-transform: uppercase; }
+        h2 { font-size: 12pt; margin-bottom: 8px; color: #444; margin-top: 15px; text-transform: uppercase; }
+        h4 { font-size: 10.5pt; margin-bottom: 5px; margin-top: 15px; text-transform: uppercase; color: var(--cad-black); }
+        p, li { font-size: 9pt; line-height: 1.4; margin-top: 0; margin-bottom: 8px; }
+        ul { padding-left: 15px; margin-bottom: 15px; }
+        .code-block { background: #f4f4f4; border: 1px solid #ccc; padding: 8px; font-size: 8.5pt; font-weight: bold; margin: 10px 0; display: block; white-space: pre-wrap; word-break: break-all; }
+        
+        .module-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .module-item { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px; }
+        .module-item h4 { margin-top: 0; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; font-size: 9pt; }
+
+        @media print { 
+            @page { size: letter landscape; margin: 0; } 
+            body { background: none; padding: 0; gap: 0; } 
+            .sheet { box-shadow: none; border: none; margin: 0; } 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SHEET 1: CORE INPUT PROTOCOL -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant" style="border-right: 1px solid #eee;">
+            <h1>CORE INPUT PROTOCOL</h1>
+            <p>The v1.0.17 engine utilizes an aggressive space-delimited tokenizer designed for high-speed HTML5 canvas rendering. All vector data enters the engine through the "PASTE SDJ STRING" panel located in the Data Protocol sidebar.</p>
+            <h2>The RegEx Gatekeeper</h2>
+            <p>To protect the parser from failing on invisible formatting characters, the input panel routes all pasted data through a native JavaScript Regular Expression sanitization function.</p>
+            <span class="code-block">.replace(/[\r\n\t]+/g, ' ')
+.replace(/\s{2,}/g, ' ')
+.trim()</span>
+            <p>This gatekeeper instantly strips carriage returns, line breaks, and tabs, flattening multi-line text into the pure 1-dimensional string required by the tokenizer. This allows users to paste raw columns directly from Excel or Google Sheets without breaking the canvas rendering loop.</p>
+            <h2>Entity Tagging Requirement</h2>
+            <p>The tokenizer sweeps left-to-right looking for valid floats. Naked coordinates will be dropped unless they are prefaced by a valid WallyCAD entity tag (e.g., <code>[WALL]</code>, <code>[LINE]</code>, <code>[CIRCLE]</code>) which tells the engine which active array to push the subsequent vector nodes into.</p>
+        </div>
+        <div class="quadrant">
+            <h1>THE DATA FUNNEL</h1>
+            <p>External data steps down through three distinct tiers of formatting complexity before hitting the canvas.</p>
+            <h4>Tier 1: Heavyweight JSON</h4>
+            <p>Standard JavaScript Object Arrays (e.g., <code>[{"type":"line","x1":0...}]</code>). Universal for web APIs, but bloated with syntax. <strong>Cannot be pasted directly into the core engine.</strong> Must be routed through the <code>/jsontowally</code> Data Converter or standalone Flattener module first.</p>
+            <h4>Tier 2: Multi-Line SDJ</h4>
+            <p>Human-readable Space-Delimited JSON blocks. Contains no JSON keys or brackets, but retains line breaks for notebook readability.</p>
+            <span class="code-block">[LINE] 10 90 90 90 T:0
+[LINE] 10 95 90 95 T:0</span>
+            <p><strong>Supported Natively.</strong> The RegEx Gatekeeper intercepts these line breaks upon paste and sanitizes them into Tier 3 automatically.</p>
+            <h4>Tier 3: The 1D Continuous String</h4>
+            <p>The absolute bottom of the funnel and the engine's native language. A single uninterrupted text stream separated only by single spaces.</p>
+            <span class="code-block">[LINE] 10 90 90 90 T:0 [LINE] 10 95 90 95 T:0</span>
+            <p>This format achieves zero-latency parsing, allowing the core to instantly render thousands of vectors without halting the browser thread.</p>
+        </div>
+    </div>
+
+    <!-- SHEET 2: .WALLY DATA SYSTEM -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant" style="border-right: 1px solid #eee;">
+            <h1>.WALLY DATA SYSTEM</h1>
+            <p>The native <code>.WALLY</code> file format and its flattened Space-Delimited JSON (SDJ) counterpart utilize a highly condensed, polymorphic data architecture. This design keeps file sizes small and parsing speeds near-instantaneous.</p>
+            <h2>Width Parameter Sensitivity</h2>
+            <p>The core rendering loop is intensely sensitive to the "Width" parameter (stored natively as <code>thick</code> in JSON objects, or as the <code>T:</code> tag in SDJ strings).</p>
+            <p>Rather than bloating the file format with redundant, entity-specific variables (like <i>radius</i>, <i>scale</i>, or <i>offset</i>), the WallyCAD engine hijacks this single numeric value. The engine dynamically changes its mathematical behavior and routes the data through different algorithms entirely based on the leading Entity Tag.</p>
+            <span class="code-block">[ENTITY] X Y X Y ... T:[WIDTH SENSITIVITY]</span>
+        </div>
+        <div class="quadrant">
+            <h1>ENTITY ROUTING LOGIC</h1>
+            <p>When the core engine parses the <code>T:</code> parameter, it applies the following contextual translations during the canvas rendering phase:</p>
+            <h4>[WALL] : Vector Intersection</h4>
+            <p><code>[WALL] 0 0 120 0 T:6</code><br>
+            Triggers the heavy Vector Intersection Algorithm (VIA). The engine splits the coordinate baseline, pushing parallel geometry outward by exactly half the width (3 units) to create physical mass.</p>
+            <h4>[TEXT] : Scale Multiplier</h4>
+            <p><code>[TEXT] 10 10 T:1.5</code><br>
+            Bypasses physical thickness. The parameter acts as a Font Scale Multiplier, increasing the base font size by 1.5x.</p>
+            <h4>[CIRCLE] : Radial Distance</h4>
+            <p><code>[CIRCLE] 60 48 T:12</code><br>
+            The width parameter dictates the exact Radius of the sweep.</p>
+            <h4>[DIM] : Extension Offset</h4>
+            <p><code>[DIM] 0 96 120 96 T:15</code><br>
+            The parameter sets the perpendicular offset distance for the dimension line away from the measured nodes.</p>
+            <h4>[LINE] : 1D Bypass</h4>
+            <p><code>[LINE] 10 10 90 90 T:0</code><br>
+            Defaults to 0. Bypasses all complex math to render as a pure 1D stroke, ignoring physical thickness entirely.</p>
+        </div>
+    </div>
+
+    <!-- SHEET 3: PARABOLA HYBRID V2 -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant" style="border-right: 1px solid #eee;">
+            <h1>PARABOLA HYBRID V2</h1>
+            <p>The <code>wallycad.com/parabola</code> V2 standalone merges the original <i>y = x²</i> mathematical macro framework with a responsive visualizer and optimized data extraction pipeline.</p>
+            <h2>Core Parameters</h2>
+            <p>The tool strictly adheres to the original CLI input syntax parameters:</p>
+            <ul>
+                <li><strong>Vertex (vx, vy):</strong> The origin anchor point mapping the geometric center.</li>
+                <li><strong>Domain (Xmin, Xmax):</strong> The absolute limits dictating the horizontal span of the curve.</li>
+                <li><strong>Grid Scale:</strong> The spatial multiplier expanding the base <i>y = x²</i> function.</li>
+            </ul>
+            <h2>Dual-Mode Geometry</h2>
+            <p>Users can instantly toggle between two distinct subdivision algorithms:</p>
+            <ul>
+                <li><strong>Uniform Mode:</strong> Slices the domain into a user-defined number of equal, straight-line segments.</li>
+                <li><strong>Fractional Notebook Mode:</strong> Uses a hardcoded geometric progression (0, &plusmn;1/4, &plusmn;1/2, &plusmn;1, &plusmn;3/2, &plusmn;2) designed to land precisely on standard imperial grid intersections.</li>
+            </ul>
+        </div>
+        <div class="quadrant">
+            <h1>PIPELINE & VISUALIZER</h1>
+            <h4>Pre-Flattened SDJ Output</h4>
+            <p>The output generator eliminates external dependencies (like the Flattener or JSON converter). Calculated nodes are packaged directly into a 1-dimensional, space-delimited string of <code>[LINE]</code> entities.</p>
+            <span class="code-block">[LINE] 0 0 4 1 [LINE] 4 1 8 4 [LINE] 8 4 16 16 T:0</span>
+            <p>This strict formatting guarantees zero-latency execution when pasted into the core v1.0.17 engine's CLI prompt.</p>
+            <h4>Responsive Auto-Scaling</h4>
+            <p>The internal HTML5 canvas calculates the coordinate deltas and dynamically scales the view. The parabola remains perfectly centered and visible on-screen regardless of the extreme aspect ratios caused by high Grid Scale multipliers.</p>
+            <h4>Floating-Point Accuracy</h4>
+            <p>To prevent cumulative drift, all vertices and endpoints are rounded precisely to 4 decimal places before SDJ array injection, safeguarding the structural integrity of intersecting CAD entities.</p>
+        </div>
+    </div>
+
+    <!-- SHEET 4: PMAPPER MODULE -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant" style="border-right: 1px solid #eee;">
+            <h1>PMAPPER MODULE</h1>
+            <p>The Perimeter Hub (/pmapper) is a specialized standalone module designed to translate geographical coordinates (Latitude/Longitude) into planar Cartesian geometry for WallyCAD preview and export.</p>
+            <h2>Canvas Translation Engine</h2>
+            <p>The core rendering function applies a direct mathematical translation to plot spherical coordinates onto a 2D HTML5 canvas, shifting the origin to keep the US West Coast in frame:</p>
+            <span class="code-block">let y = canvas.height - ((Lat - 31) * 40);
+let x = (Long + 125) * 40;</span>
+            <p>This isolates geographical polygons—such as the borders of Washington, Oregon, or California—and scales them for immediate visual verification before they are committed to an SDJ string.</p>
+            <h2>Dynamic State Library</h2>
+            <p>The left pane sidebar dynamically builds a clickable library based on an internal JSON object (<code>Perimeters</code>). Clicking any card instantly recalculates the bounds and renders the closed loop on the preview canvas.</p>
+        </div>
+        <div class="quadrant">
+            <h1>QC COMMAND LINE</h1>
+            <p>The /pmapper module features an integrated QuickClick (QC) command line interface anchored to the bottom of the viewport, enabling rapid data entry and execution without touching a mouse.</p>
+            <h4>The ADD Syntax</h4>
+            <p>Users can inject new geographical boundaries directly into the active session memory by typing into the QC CLI. The command follows a strict tokenized syntax:</p>
+            <span class="code-block">ADD [NAME] [LAT1] [LON1] [LAT2] [LON2]...</span>
+            <p>Example: <code>ADD NEVADA 42.0 -114.0 42.0 -120.0...</code></p>
+            <p>Pressing Enter will parse the string, push the new entity into the <code>Perimeters</code> library, rebuild the sidebar, and instantly render the new state.</p>
+            <h4>Global QC Hotkeys</h4>
+            <p>When the CLI input box is not focused, the module listens for global keystrokes to execute macro commands:</p>
+            <ul>
+                <li><strong>[ 4 ]</strong> : Instantly renders the Four Corners geometry.</li>
+                <li><strong>[ C ]</strong> : Clears the canvas and deselects the active state.</li>
+                <li><strong>[ G ]</strong> : Pipes the active state's raw coordinate data out for G-Coder formatting.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- SHEET 5: DEVELOPMENT ROADMAP -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant" style="border-right: 1px solid #eee;">
+            <h1>DEVELOPMENT ROADMAP I</h1>
+            <p>Catalogue of standalone modules extracted from the ledger pending deployment to the <code>/NEW</code> index. These tools represent the next phase of WallyCAD's mathematical expansion.</p>
+            <h2>Geometry & Transformation</h2>
+            <div class="module-list">
+                <div class="module-item">
+                    <h4>/PARABOLA & /CURVE</h4>
+                    <p>Advanced non-linear vector plotting, expanding standard arc/ellipse generation.</p>
+                </div>
+                <div class="module-item">
+                    <h4>/DIAMOND</h4>
+                    <p>Parametric polygon generation for specialized layout matrices.</p>
+                </div>
+                <div class="module-item">
+                    <h4>/SCALE & /MIR</h4>
+                    <p>SDJ matrix transformers. Mirror and uniformly scale raw coordinates.</p>
+                </div>
+                <div class="module-item">
+                    <h4>/TRANS-ROT</h4>
+                    <p>Translate and rotate tool for repositioning arrays relative to a new 0,0 datum.</p>
+                </div>
+            </div>
+            <h2>Structural & Woodworking</h2>
+            <div class="module-list" style="margin-top: 10px;">
+                <div class="module-item">
+                    <h4>/STAIR & /STAIRELEMENT</h4>
+                    <p>Automated architectural framing. Calculates tapered treads and landing configurations.</p>
+                </div>
+                <div class="module-item">
+                    <h4>/FINGER & /CLOCK</h4>
+                    <p>Parametric generators targeting finger joinery matrices and radial clock carousels.</p>
+                </div>
+            </div>
+        </div>
+        <div class="quadrant">
+            <h1>DEVELOPMENT ROADMAP II</h1>
+            <p>System environments and utilities targeting data ingestion, documentation, and external workflow mapping.</p>
+            <h2>System Utilities</h2>
+            <div class="module-list">
+                <div class="module-item">
+                    <h4>/QC</h4>
+                    <p>QuickClick automated data entry system and syntax shorthand parser.</p>
+                </div>
+                <div class="module-item">
+                    <h4>/QR-HUB</h4>
+                    <p>Physical-to-digital bridge for generating scannable assets for printed plans.</p>
+                </div>
+                <div class="module-item">
+                    <h4>/CONVERTER</h4>
+                    <p>Expanded ingestion engine for flattening complex external data structures into SDJ.</p>
+                </div>
+                <div class="module-item">
+                    <h4>/MANUAL & /QSG</h4>
+                    <p>Technical documentation, engine parameters, and Quick Start Guide formatting.</p>
+                </div>
+            </div>
+            <h2>Environment Integrations</h2>
+            <div class="module-list" style="margin-top: 10px;">
+                <div class="module-item">
+                    <h4>/ROUTETWO</h4>
+                    <p>Geospatial and location-based integration environments.</p>
+                </div>
+                <div class="module-item">
+                    <h4>/S2</h4>
+                    <p>Master viewport logic and isolated layer rendering testing.</p>
+                </div>
+                <div class="module-item">
+                    <h4>/CP</h4>
+                    <p>Centralized Control Panel / Dashboard router architecture.</p>
+                </div>
+                <div class="module-item">
+                    <h4>/BOX & /DIM</h4>
+                    <p>Primitives and automated aligned/horizontal/vertical dimensioning generators.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
