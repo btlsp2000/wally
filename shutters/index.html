@@ -2,127 +2,332 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WallyCAD - Shutters</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Shutters Generator Standalone</title>
     <style>
-        body {
-            background-color: #1e1e1e;
-            color: #00ff00;
-            font-family: monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
+        body { 
+            background: #1a1a1a; 
+            color: #00ff00; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
-        canvas {
-            background-color: #000000;
-            border: 2px solid #00ff00;
-            cursor: crosshair;
+        .container { 
+            display: flex; 
+            gap: 20px; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            max-width: 1200px; 
+            width: 100%; 
+            flex-grow: 1;
         }
-        #coords {
-            margin-top: 10px;
-            font-size: 16px;
+        .panel { 
+            background: #000; 
+            border: 1px solid #444; 
+            padding: 20px; 
+            width: 380px; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        .row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 12px; 
+            align-items: center; 
+            font-size: 12px;
+        }
+        .section-title {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #333;
+            margin: 15px 0 10px 0;
+            padding-bottom: 4px;
+            font-weight: bold;
+        }
+        input, select { 
+            background: #111; 
+            border: 1px solid #444; 
+            color: #00ff00; 
+            padding: 6px; 
+            width: 90px; 
+            font-family: inherit; 
+            text-align: right; 
+        }
+        input:focus, select:focus {
+            outline: 1px solid #00ff00;
+        }
+        textarea { 
+            width: 100%; 
+            background: #111; 
+            color: #00ff00; 
+            border: 1px solid #444; 
+            padding: 10px; 
+            margin-bottom: 10px; 
+            box-sizing: border-box; 
+            font-size: 11px; 
+            resize: vertical; 
+        }
+        button { 
+            background: #00ff00; 
+            color: #000; 
+            border: none; 
+            padding: 12px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+            margin-top: 10px; 
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        button:hover { 
+            background: #00cc00; 
+        }
+        canvas { 
+            background: #121212; 
+            border: 1px solid #444; 
+            flex-grow: 1; 
+            min-width: 400px; 
+            min-height: 400px; 
+        }
+        h2 { 
+            margin-top: 0; 
+            color: #fff; 
+            text-align: center; 
+            font-size: 16px; 
+            border-bottom: 1px solid #444; 
+            padding-bottom: 10px; 
+            letter-spacing: 1px;
+        }
+        .label { 
+            font-size: 10px; 
+            color: #aaa; 
+            margin-bottom: 4px; 
+            display: block; 
+            text-transform: uppercase; 
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <div class="panel">
+            <h2>WALLY SHUTTERS ENGINE</h2>
+            
+            <div class="section-title">Global Origin (Window Bottom-Left)</div>
+            <div class="row">
+                <span>Vertex X (vx):</span>
+                <input type="number" id="pVx" value="0" step="1" oninput="generate()">
+            </div>
+            <div class="row">
+                <span>Vertex Y (vy):</span>
+                <input type="number" id="pVy" value="0" step="1" oninput="generate()">
+            </div>
 
-    <h2>WallyCAD Shutter Generator</h2>
-    <canvas id="wallyCanvas" width="800" height="700"></canvas>
-    <div id="coords">X: 0 | Y: 0</div>
+            <div class="section-title">Window Context</div>
+            <div class="row">
+                <span>Window Width:</span>
+                <input type="number" id="pWinW" value="36" step="1" oninput="generate()">
+            </div>
+            <div class="row">
+                <span>Window Height:</span>
+                <input type="number" id="pWinH" value="48" step="1" oninput="generate()">
+            </div>
+            <div class="row">
+                <span>Include Window Box in SDJ?</span>
+                <select id="pIncWin" onchange="generate()">
+                    <option value="YES">Yes</option>
+                    <option value="NO" selected>No (Shutters Only)</option>
+                </select>
+            </div>
 
-<script>
-    const canvas = document.getElementById('wallyCanvas');
-    const ctx = canvas.getContext('2d');
-    const coordDisplay = document.getElementById('coords');
+            <div class="section-title">Shutter Parameters</div>
+            <div class="row">
+                <span title="Width of a single shutter">Shutter Width:</span>
+                <input type="number" id="pShutW" value="18" step="1" oninput="generate()">
+            </div>
+            <div class="row">
+                <span title="Thickness of the outer shutter frame">Frame Thickness:</span>
+                <input type="number" id="pFrameT" value="2" step="0.5" oninput="generate()">
+            </div>
+            <div class="row">
+                <span title="Vertical gap between individual louvers">Louver Spacing:</span>
+                <input type="number" id="pLouverGap" value="1.5" step="0.5" oninput="generate()">
+            </div>
 
-    // Scale: 4 pixels per inch
-    const scale = 4;
-    const originX = 150;
-    const originY = 600; // Bottom left anchor
+            <button onclick="copyToClipboard()" id="copyBtn">COPY FLATTENED SDJ</button>
+            
+            <span class="label" style="margin-top: 20px;">OUTPUT (1D STRING):</span>
+            <textarea id="outputSdj" rows="5" readonly placeholder="SDJ String will appear here..."></textarea>
+            
+            <div style="font-size: 9px; color: #666; text-align: center; margin-top: auto;">
+                SYS.MODULE // /SHUTTERS V1
+            </div>
+        </div>
+        
+        <canvas id="preview"></canvas>
+    </div>
 
-    // Dimensions in inches
-    const panelWidth = 54; // 4'-6"
-    const panelHeight = 108; // 9'-0"
-    const louverSpacing = 6; // 6 inch spacing for the louvers
-
-    function drawLine(x1, y1, x2, y2, color="#00ff00") {
-        ctx.beginPath();
-        ctx.moveTo(originX + x1 * scale, originY - y1 * scale);
-        ctx.lineTo(originX + x2 * scale, originY - y2 * scale);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    }
-
-    function drawDimension(x1, y1, x2, y2, text, offsetX, offsetY) {
-        ctx.beginPath();
-        // Dimension line
-        ctx.moveTo(originX + x1 * scale, originY - y1 * scale);
-        ctx.lineTo(originX + x2 * scale, originY - y2 * scale);
-        ctx.strokeStyle = "#ff00ff"; // Magenta for dimensions
-        ctx.lineWidth = 1;
-        ctx.stroke();
-
-        // Tick marks
-        ctx.moveTo(originX + x1 * scale - 5, originY - y1 * scale - 5);
-        ctx.lineTo(originX + x1 * scale + 5, originY - y1 * scale + 5);
-        ctx.moveTo(originX + x2 * scale - 5, originY - y2 * scale - 5);
-        ctx.lineTo(originX + x2 * scale + 5, originY - y2 * scale + 5);
-        ctx.stroke();
-
-        // Text
-        ctx.fillStyle = "#ff00ff";
-        ctx.font = "14px monospace";
-        ctx.fillText(text, originX + ((x1 + x2)/2) * scale + offsetX, originY - ((y1 + y2)/2) * scale + offsetY);
-    }
-
-    function renderShutters() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Left Panel (4'-6" x 9'-0")
-        drawLine(0, 0, panelWidth, 0);
-        drawLine(panelWidth, 0, panelWidth, panelHeight);
-        drawLine(panelWidth, panelHeight, 0, panelHeight);
-        drawLine(0, panelHeight, 0, 0);
-
-        // Right Panel (4'-6" x 9'-0")
-        drawLine(panelWidth, 0, panelWidth * 2, 0);
-        drawLine(panelWidth * 2, 0, panelWidth * 2, panelHeight);
-        drawLine(panelWidth * 2, panelHeight, panelWidth, panelHeight);
-        drawLine(panelWidth, panelHeight, panelWidth, 0);
-
-        // Right Panel Louvers
-        for (let y = louverSpacing; y < panelHeight; y += louverSpacing) {
-            drawLine(panelWidth, y, panelWidth * 2, y, "#008800");
+    <script>
+        function createBoxLines(x, y, w, h) {
+            return [
+                { x1: x, y1: y, x2: x+w, y2: y },
+                { x1: x+w, y1: y, x2: x+w, y2: y+h },
+                { x1: x+w, y1: y+h, x2: x, y2: y+h },
+                { x1: x, y1: y+h, x2: x, y2: y }
+            ];
         }
 
-        // Shading on right edge (as sketched)
-        for (let y = louverSpacing; y < panelHeight; y += louverSpacing * 2) {
-            drawLine(panelWidth * 2, y, panelWidth * 2 + 6, y - 6, "#008800");
+        function generate() {
+            const vx = parseFloat(document.getElementById('pVx').value) || 0;
+            const vy = parseFloat(document.getElementById('pVy').value) || 0;
+            const winW = parseFloat(document.getElementById('pWinW').value) || 36;
+            const winH = parseFloat(document.getElementById('pWinH').value) || 48;
+            const shutW = parseFloat(document.getElementById('pShutW').value) || 18;
+            const frameT = parseFloat(document.getElementById('pFrameT').value) || 2;
+            const louverGap = parseFloat(document.getElementById('pLouverGap').value) || 1.5;
+            const incWin = document.getElementById('pIncWin').value === 'YES';
+            
+            let lines = [];
+            let windowLines = [];
+
+            // Window Context (Always calculated for preview, optional for SDJ export)
+            windowLines = createBoxLines(vx, vy, winW, winH);
+            if (incWin) {
+                lines = lines.concat(windowLines);
+            }
+
+            // Function to generate a single shutter
+            function buildShutter(startX, startY, width, height, thickness, gap) {
+                let shutterLines = [];
+                // Outer Frame
+                shutterLines = shutterLines.concat(createBoxLines(startX, startY, width, height));
+                // Inner Frame
+                shutterLines = shutterLines.concat(createBoxLines(startX + thickness, startY + thickness, width - (thickness*2), height - (thickness*2)));
+                
+                // Louvers
+                const innerX1 = startX + thickness;
+                const innerX2 = startX + width - thickness;
+                const innerY1 = startY + thickness;
+                const innerY2 = startY + height - thickness;
+                
+                if (gap > 0) {
+                    let currentY = innerY1 + gap;
+                    while (currentY < innerY2 - 0.1) {
+                        shutterLines.push({ x1: innerX1, y1: currentY, x2: innerX2, y2: currentY });
+                        currentY += gap;
+                    }
+                }
+                return shutterLines;
+            }
+
+            // Left Shutter
+            const leftShutter = buildShutter(vx - shutW, vy, shutW, winH, frameT, louverGap);
+            // Right Shutter
+            const rightShutter = buildShutter(vx + winW, vy, shutW, winH, frameT, louverGap);
+
+            lines = lines.concat(leftShutter).concat(rightShutter);
+
+            // Generate 1D Pre-Flattened SDJ String
+            let sdjArray = lines.map(l => `[LINE] ${parseFloat(l.x1.toFixed(4))} ${parseFloat(l.y1.toFixed(4))} ${parseFloat(l.x2.toFixed(4))} ${parseFloat(l.y2.toFixed(4))} T:0`);
+            
+            const finalString = sdjArray.join(" ");
+            document.getElementById('outputSdj').value = finalString;
+
+            // Pipe to Auto-Scaling Canvas
+            drawPreview(lines, windowLines, incWin);
         }
 
-        // Top Dimensions (4'-6")
-        drawDimension(0, panelHeight + 12, panelWidth, panelHeight + 12, "4'-6\"", -20, -10);
-        drawDimension(panelWidth, panelHeight + 12, panelWidth * 2, panelHeight + 12, "4'-6\"", -20, -10);
+        function drawPreview(lines, windowLines, incWin) {
+            const cvs = document.getElementById('preview');
+            // Responsive sizing
+            cvs.width = cvs.parentElement.clientWidth - 420; 
+            cvs.height = cvs.parentElement.clientHeight;
+            const ctx = cvs.getContext('2d');
+            
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            
+            if(lines.length === 0 && windowLines.length === 0) return;
 
-        // Center Height Dimension (9'-0")
-        drawDimension(panelWidth, 0, panelWidth, panelHeight, "9'-0\"", 10, 0);
-    }
+            // Auto-scale logic
+            const pad = 60;
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            
+            const allPreviewLines = incWin ? lines : lines.concat(windowLines);
 
-    // Mouse coordinate tracking
-    canvas.addEventListener('mousemove', function(e) {
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
+            allPreviewLines.forEach(l => {
+                minX = Math.min(minX, l.x1, l.x2); maxX = Math.max(maxX, l.x1, l.x2);
+                minY = Math.min(minY, l.y1, l.y2); maxY = Math.max(maxY, l.y1, l.y2);
+            });
+            
+            const w = maxX - minX || 1;
+            const h = maxY - minY || 1;
+            
+            const scaleX = (cvs.width - pad * 2) / w;
+            const scaleY = (cvs.height - pad * 2) / h;
+            const scale = Math.min(scaleX, scaleY);
+            
+            const cx = (minX + maxX) / 2;
+            const cy = (minY + maxY) / 2;
+
+            ctx.save();
+            ctx.translate(cvs.width / 2, cvs.height / 2);
+            ctx.scale(scale, -scale); // Flip Y to match Cartesian
+            ctx.translate(-cx, -cy);
+
+            // Draw Window (If not included in SDJ, draw it dashed as a reference)
+            if (!incWin) {
+                ctx.strokeStyle = '#555';
+                ctx.lineWidth = 1.5 / scale;
+                ctx.setLineDash([5/scale, 5/scale]);
+                ctx.beginPath();
+                windowLines.forEach(l => {
+                    ctx.moveTo(l.x1, l.y1);
+                    ctx.lineTo(l.x2, l.y2);
+                });
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Draw Generated Lines (Shutters + optional Window)
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 1.5 / scale;
+            ctx.beginPath();
+            lines.forEach(l => {
+                ctx.moveTo(l.x1, l.y1);
+                ctx.lineTo(l.x2, l.y2);
+            });
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('outputSdj').value;
+            navigator.clipboard.writeText(output).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.innerText;
+                btn.innerText = "COPIED TO CLIPBOARD!";
+                btn.style.background = "#fff";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "#00ff00";
+                }, 1500);
+            });
+        }
+
+        // Handle window resize for canvas
+        window.addEventListener('resize', generate);
         
-        // Convert to drafting coordinates
-        const draftX = ((mouseX - originX) / scale).toFixed(2);
-        const draftY = ((originY - mouseY) / scale).toFixed(2);
-        
-        coordDisplay.innerText = `X: ${draftX}" | Y: ${draftY}"`;
-    });
-
-    renderShutters();
-</script>
+        // Run on load
+        window.onload = generate;
+    </script>
 </body>
 </html>
