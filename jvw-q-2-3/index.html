@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Data Conversion Q2-3 Spread</title>
+    <style>
+        :root { --cad-black: #121212; --cad-accent: #00ff00; }
+        body { margin: 0; padding: 0; background: #e5e7eb; color: var(--cad-black); font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .sheet { width: 11in; height: 8.5in; background: white; display: grid; grid-template-columns: 5.5in 5.5in; grid-template-rows: 8.5in; position: relative; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .crosshair-vert { position: absolute; top: 0; left: 5.5in; width: 1px; height: 8.5in; border-left: 1px dashed #aaa; z-index: 10; }
+        .quadrant { padding: 0.75in; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
+        h1, h2, h3, h4 { margin: 0; font-weight: bold; }
+        h1 { font-size: 20pt; border-bottom: 2px solid var(--cad-black); margin-bottom: 12px; padding-bottom: 4px; text-transform: uppercase; }
+        h2 { font-size: 13pt; margin-bottom: 8px; color: #444; margin-top: 15px; text-transform: uppercase; }
+        h4 { font-size: 11pt; margin-bottom: 5px; margin-top: 15px; text-transform: uppercase; color: var(--cad-black); }
+        p, li { font-size: 9.5pt; line-height: 1.5; margin-top: 0; }
+        ul { padding-left: 15px; margin-bottom: 15px; }
+        .code-block { background: #f4f4f4; border: 1px solid #ccc; padding: 8px; font-size: 8.5pt; font-weight: bold; margin: 10px 0; display: block; white-space: pre-wrap; word-break: break-all; }
+        @media print { @page { size: letter landscape; margin: 0; } body { background: none; } .sheet { box-shadow: none; border: none; } }
+    </style>
+</head>
+<body>
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        
+        <!-- QUADRANT 2: INSIDE LEFT -->
+        <div class="quadrant" style="border-right: 1px solid #eee;">
+            <h1>DATA CONVERSION</h1>
+            <h2>INTERNAL VS. STANDALONE</h2>
+            <p>A core architectural decision in the WallyCAD ecosystem dictates where the heavy lifting of data sanitization and vector processing takes place.</p>
+            
+            <h4>Inside (Internal to) Core Engine</h4>
+            <p>When raw, unformatted text or multi-line macros are pasted directly into the v1.0.17 Studio dashboard, the core engine's internal RegEx Gatekeeper must fire.</p>
+            <ul>
+                <li>Scrubbing tabs and carriage returns.</li>
+                <li>Executing the Vector Intersection Algorithm (VIA) for wall thickness calculations in real-time.</li>
+                <li>Parsing raw notebook fractions into usable floating-point decimals.</li>
+            </ul>
+
+            <h4>Standalone Modules</h4>
+            <p>Generators like <code>/parabola</code>, <code>/shutters</code>, and <code>/array-polar</code> act as external preprocessing servers. By the time data leaves a standalone module, it has already been calculated, rounded to 4 decimal places, and flattened.</p>
+            <p><strong>The Advantage:</strong> Bypassing the core engine's internal conversion routines yields absolute zero-latency rendering when the resulting 1D string hits the main canvas.</p>
+        </div>
+
+        <!-- QUADRANT 3: INSIDE RIGHT -->
+        <div class="quadrant">
+            <h1>DATA TYPES</h1>
+            <h2>JSON VS. .WALLY</h2>
+            <p>WallyCAD supports multiple data schemas depending on the specific workflow requirement, though the native format remains vastly superior for computational speed.</p>
+            
+            <h4>1. JSON (JavaScript Object Notation)</h4>
+            <span class="code-block">[
+  {"type": "line", "x1": 0, "y1": 0, "x2": 10, "y2": 10, "thick": 0}
+]</span>
+            <ul>
+                <li>The universal standard for web APIs and database storage.</li>
+                <li>Highly legible for traditional software development.</li>
+                <li><strong>Drawback:</strong> Contains massive syntactical overhead. Brackets, quotes, and repetitive keys bloat file sizes and slow down the rendering loop.</li>
+            </ul>
+
+            <h4>2. .WALLY (Space-Delimited JSON)</h4>
+            <span class="code-block">[LINE] 0 0 10 10 T:0</span>
+            <ul>
+                <li>A condensed, polymorphic string structure.</li>
+                <li>Parses elements contextually based entirely on parameter sequence.</li>
+                <li><strong>Advantage:</strong> Eliminates all redundant variables, providing the ultra-lightweight, continuous 1D stream required for WallyCAD's high-speed tokenizer.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
