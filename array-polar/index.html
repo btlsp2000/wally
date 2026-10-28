@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Polar Array Generator</title>
+    <style>
+        body { 
+            background: #1a1a1a; 
+            color: #00ff00; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container { 
+            display: flex; 
+            gap: 20px; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            max-width: 1200px; 
+            width: 100%; 
+            flex-grow: 1;
+        }
+        .panel { 
+            background: #000; 
+            border: 1px solid #444; 
+            padding: 20px; 
+            width: 380px; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        .row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 12px; 
+            align-items: center; 
+            font-size: 12px;
+        }
+        .section-title {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #333;
+            margin: 15px 0 10px 0;
+            padding-bottom: 4px;
+            font-weight: bold;
+        }
+        input, select { 
+            background: #111; 
+            border: 1px solid #444; 
+            color: #00ff00; 
+            padding: 6px; 
+            width: 90px; 
+            font-family: inherit; 
+            text-align: right; 
+        }
+        input:focus, select:focus {
+            outline: 1px solid #00ff00;
+        }
+        textarea { 
+            width: 100%; 
+            background: #111; 
+            color: #00ff00; 
+            border: 1px solid #444; 
+            padding: 10px; 
+            margin-bottom: 10px; 
+            box-sizing: border-box; 
+            font-size: 11px; 
+            resize: vertical; 
+        }
+        button { 
+            background: #00ff00; 
+            color: #000; 
+            border: none; 
+            padding: 12px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+            margin-top: 10px; 
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        button:hover { 
+            background: #00cc00; 
+        }
+        canvas { 
+            background: #121212; 
+            border: 1px solid #444; 
+            flex-grow: 1; 
+            min-width: 400px; 
+            min-height: 400px; 
+        }
+        h2 { 
+            margin-top: 0; 
+            color: #fff; 
+            text-align: center; 
+            font-size: 16px; 
+            border-bottom: 1px solid #444; 
+            padding-bottom: 10px; 
+            letter-spacing: 1px;
+        }
+        .label { 
+            font-size: 10px; 
+            color: #aaa; 
+            margin-bottom: 4px; 
+            display: block; 
+            text-transform: uppercase; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="panel">
+            <h2>WALLY POLAR ARRAY ENGINE</h2>
+            
+            <div class="section-title">Center of Rotation</div>
+            <div class="row">
+                <span title="Origin X coordinate for the rotation hub">Hub Center X (cx):</span>
+                <input type="number" id="pCx" value="0" step="1" oninput="generate()">
+            </div>
+            <div class="row">
+                <span title="Origin Y coordinate for the rotation hub">Hub Center Y (cy):</span>
+                <input type="number" id="pCy" value="0" step="1" oninput="generate()">
+            </div>
+
+            <div class="section-title">Array Parameters</div>
+            <div class="row">
+                <span title="Total number of items (including the original)">Total Copies (N):</span>
+                <input type="number" id="pCount" value="5" step="1" min="1" oninput="generate()">
+            </div>
+            <div class="row">
+                <span title="Angle between each copy in degrees">Increment Angle (&deg;):</span>
+                <input type="number" id="pAngle" value="72" step="0.5" oninput="generate()">
+            </div>
+            
+            <div class="section-title">Source SDJ Entity</div>
+            <span class="label">PASTE RAW SDJ (E.G., BASE SEGMENT):</span>
+            <!-- Default shape roughly mimics the trailer quadrant from the user's screenshot -->
+            <textarea id="sourceSdj" rows="4" oninput="generate()">[LINE] 0 20 40 20 50 40 10 40 0 20 T:0</textarea>
+
+            <button onclick="copyToClipboard()" id="copyBtn">COPY FLATTENED ARRAY</button>
+            
+            <span class="label" style="margin-top: 20px;">OUTPUT (1D MULTIPLIED STRING):</span>
+            <textarea id="outputSdj" rows="5" readonly placeholder="SDJ String will appear here..."></textarea>
+            
+            <div style="font-size: 9px; color: #666; text-align: center; margin-top: auto;">
+                SYS.MODULE // /ARRAY-POLAR V1
+            </div>
+        </div>
+        
+        <canvas id="preview"></canvas>
+    </div>
+
+    <script>
+        function rotatePoint(x, y, cx, cy, angleDeg) {
+            const angleRad = angleDeg * (Math.PI / 180);
+            const cos = Math.cos(angleRad);
+            const sin = Math.sin(angleRad);
+            const nx = (cos * (x - cx)) - (sin * (y - cy)) + cx;
+            const ny = (sin * (x - cx)) + (cos * (y - cy)) + cy;
+            return { x: parseFloat(nx.toFixed(4)), y: parseFloat(ny.toFixed(4)) };
+        }
+
+        function generate() {
+            const cx = parseFloat(document.getElementById('pCx').value) || 0;
+            const cy = parseFloat(document.getElementById('pCy').value) || 0;
+            const count = parseInt(document.getElementById('pCount').value) || 1;
+            const angleStep = parseFloat(document.getElementById('pAngle').value) || 0;
+            const sourceText = document.getElementById('sourceSdj').value.trim();
+            
+            if (!sourceText || count < 1) {
+                document.getElementById('outputSdj').value = '';
+                drawPreview([], cx, cy);
+                return;
+            }
+
+            // A very simple regex parser to extract coordinates from standard [LINE] SDJ tags
+            // Formats supported: [LINE] x1 y1 x2 y2 ... T:0
+            const segments = sourceText.split(/\s*\[LINE\]\s*/).filter(Boolean);
+            
+            let allLines = [];
+            let outputString = "";
+
+            segments.forEach(segment => {
+                const parts = segment.trim().split(/\s*T:\s*/);
+                const coordsRaw = parts[0];
+                const thick = parts.length > 1 ? parts[1] : "0";
+                
+                const coordTokens = coordsRaw.split(/\s+/).map(Number).filter(n => !isNaN(n));
+                
+                if (coordTokens.length % 2 !== 0) return; // Malformed coordinate pairs
+                
+                // Build original geometry pairs
+                let originalPairs = [];
+                for(let i = 0; i < coordTokens.length; i += 2) {
+                    originalPairs.push({ x: coordTokens[i], y: coordTokens[i+1] });
+                }
+
+                // Process Array Copies
+                for (let c = 0; c < count; c++) {
+                    const currentAngle = c * angleStep;
+                    let rotatedPairs = [];
+                    
+                    originalPairs.forEach(p => {
+                        rotatedPairs.push(rotatePoint(p.x, p.y, cx, cy, currentAngle));
+                    });
+                    
+                    allLines.push(rotatedPairs);
+                    
+                    // Format back to SDJ
+                    outputString += `[LINE] `;
+                    rotatedPairs.forEach(p => {
+                        outputString += `${p.x} ${p.y} `;
+                    });
+                    outputString += `T:${thick} `;
+                }
+            });
+
+            document.getElementById('outputSdj').value = outputString.trim();
+            drawPreview(allLines, cx, cy);
+        }
+
+        function drawPreview(allLines, cx, cy) {
+            const cvs = document.getElementById('preview');
+            cvs.width = cvs.parentElement.clientWidth - 420; 
+            cvs.height = cvs.parentElement.clientHeight;
+            const ctx = cvs.getContext('2d');
+            
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            
+            if(allLines.length === 0) return;
+
+            // Auto-scale logic
+            const pad = 80;
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            
+            allLines.forEach(lineGroup => {
+                lineGroup.forEach(p => {
+                    minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+                    minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+                });
+            });
+            
+            // Include Hub in bounds
+            minX = Math.min(minX, cx); maxX = Math.max(maxX, cx);
+            minY = Math.min(minY, cy); maxY = Math.max(maxY, cy);
+
+            const w = maxX - minX || 1;
+            const h = maxY - minY || 1;
+            
+            const scaleX = (cvs.width - pad * 2) / w;
+            const scaleY = (cvs.height - pad * 2) / h;
+            const scale = Math.min(scaleX, scaleY);
+            
+            const transX = (minX + maxX) / 2;
+            const transY = (minY + maxY) / 2;
+
+            ctx.save();
+            ctx.translate(cvs.width / 2, cvs.height / 2);
+            ctx.scale(scale, -scale); // Flip Y to match Cartesian
+            ctx.translate(-transX, -transY);
+
+            // Draw Rotation Hub
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 1 / scale;
+            ctx.beginPath();
+            ctx.moveTo(cx - 20/scale, cy); ctx.lineTo(cx + 20/scale, cy);
+            ctx.moveTo(cx, cy - 20/scale); ctx.lineTo(cx, cy + 20/scale);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#ff00ff';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 4 / scale, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw Arrayed Geometry
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2 / scale;
+            
+            allLines.forEach((lineGroup, idx) => {
+                // Highlight the original source segment in a different color
+                if(idx === 0) {
+                    ctx.strokeStyle = '#00ff00';
+                } else {
+                    ctx.strokeStyle = '#00ffff';
+                }
+                
+                ctx.beginPath();
+                lineGroup.forEach((p, i) => {
+                    if (i === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                });
+                ctx.stroke();
+            });
+
+            ctx.restore();
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('outputSdj').value;
+            navigator.clipboard.writeText(output).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.innerText;
+                btn.innerText = "COPIED TO CLIPBOARD!";
+                btn.style.background = "#fff";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "#00ff00";
+                }, 1500);
+            });
+        }
+
+        // Handle window resize for canvas
+        window.addEventListener('resize', generate);
+        
+        // Run on load
+        window.onload = generate;
+    </script>
+</body>
+</html>
