@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | DXF/PDF Compiler Q2-3 Spread</title>
+    <style>
+        :root { --cad-black: #121212; --cad-accent: #00ff00; }
+        body { margin: 0; padding: 0; background: #e5e7eb; color: var(--cad-black); font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .sheet { width: 11in; height: 8.5in; background: white; display: grid; grid-template-columns: 5.5in 5.5in; grid-template-rows: 8.5in; position: relative; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .crosshair-vert { position: absolute; top: 0; left: 5.5in; width: 1px; height: 8.5in; border-left: 1px dashed #aaa; z-index: 10; }
+        .quadrant { padding: 0.75in; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
+        h1, h2, h3, h4 { margin: 0; font-weight: bold; }
+        h1 { font-size: 20pt; border-bottom: 2px solid var(--cad-black); margin-bottom: 12px; padding-bottom: 4px; text-transform: uppercase; }
+        h2 { font-size: 13pt; margin-bottom: 8px; color: #444; margin-top: 15px; text-transform: uppercase; }
+        h4 { font-size: 11pt; margin-bottom: 5px; margin-top: 15px; text-transform: uppercase; color: var(--cad-black); }
+        p, li { font-size: 9.5pt; line-height: 1.5; margin-top: 0; }
+        ul { padding-left: 15px; margin-bottom: 15px; }
+        .code-block { background: #f4f4f4; border: 1px solid #ccc; padding: 8px; font-size: 8.5pt; font-weight: bold; margin: 10px 0; display: block; white-space: pre-wrap; word-break: break-all; }
+        @media print { @page { size: letter landscape; margin: 0; } body { background: none; } .sheet { box-shadow: none; border: none; } }
+    </style>
+</head>
+<body>
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        
+        <!-- QUADRANT 2: INSIDE LEFT -->
+        <div class="quadrant" style="border-right: 1px solid #eee;">
+            <h1>WALLY CAD COMPILER</h1>
+            <h2>LKA ENTERPRISE [V1.2]</h2>
+            <p>The Wally CAD Compiler is a dedicated translation engine designed to bridge the gap between internal parametric text matrices and industry-standard external files. It acts as the final export stage for geometries bound for physical manufacturing or architectural plotting.</p>
+            
+            <h4>Input Syntax: Parametric Text Matrix</h4>
+            <p>The compiler parses a specific human-readable, multi-line string format. Elements are declared with a strict <code>Wally [Entity]</code> prefix, and coordinates are separated by a forward slash <code>/</code>.</p>
+            <span class="code-block">Wally Line 0.5,0.5 / 3,1.5
+Wally Box 0,0 / 3.5,2
+Wally Circle 1.75,1 / 0.25</span>
+            <ul>
+                <li><strong>Line:</strong> <code>start_x,start_y / end_x,end_y</code></li>
+                <li><strong>Box:</strong> <code>origin_x,origin_y / width,height</code></li>
+                <li><strong>Circle:</strong> <code>center_x,center_y / radius</code></li>
+            </ul>
+        </div>
+
+        <!-- QUADRANT 3: INSIDE RIGHT -->
+        <div class="quadrant">
+            <h1>DUAL OUTPUT ENGINES</h1>
+            
+            <h4>Engine 1: DXF Machine Path</h4>
+            <p>The primary compiler translates the matrix into a universal Release 12 (R12) DXF plain-text schema, stripping away visual context in favor of pure CNC and CAD readability.</p>
+            <ul>
+                <li><strong>Primitive Decomposition:</strong> To ensure cross-compatibility with older machine protocols, parametric <code>Wally Box</code> entities are automatically mathematically decomposed into four discrete, endpoint-connected <code>LINE</code> vectors during compilation.</li>
+            </ul>
+
+            <h4>Engine 2: PDF Plotter</h4>
+            <p>The secondary engine leverages the jsPDF library to generate flat, 8.5" x 11" architectural plots for human review. It applies a standard drafting pen weight (0.01) and establishes strict 0.5" document margins.</p>
+            <ul>
+                <li><strong>Cartesian Y-Axis Inversion:</strong> PDF coordinates originate from the top-left (0,0), while WallyCAD mathematics originate from the bottom-left. The engine intercepts all Y-coordinates and executes a real-time Cartesian inversion: <br><code>y = pageHeight - marginY - coordinate</code>.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
