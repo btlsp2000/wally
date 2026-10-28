@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Trapezoid Generator Standalone</title>
+    <style>
+        body { 
+            background: #1a1a1a; 
+            color: #00ff00; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container { 
+            display: flex; 
+            gap: 20px; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            max-width: 1200px; 
+            width: 100%; 
+            flex-grow: 1;
+        }
+        .panel { 
+            background: #000; 
+            border: 1px solid #444; 
+            padding: 20px; 
+            width: 380px; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        .row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 12px; 
+            align-items: center; 
+            font-size: 12px;
+        }
+        .section-title {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #333;
+            margin: 15px 0 10px 0;
+            padding-bottom: 4px;
+            font-weight: bold;
+        }
+        input, select { 
+            background: #111; 
+            border: 1px solid #444; 
+            color: #00ff00; 
+            padding: 6px; 
+            width: 90px; 
+            font-family: inherit; 
+            text-align: right; 
+        }
+        input:focus, select:focus {
+            outline: 1px solid #00ff00;
+        }
+        textarea { 
+            width: 100%; 
+            background: #111; 
+            color: #00ff00; 
+            border: 1px solid #444; 
+            padding: 10px; 
+            margin-bottom: 10px; 
+            box-sizing: border-box; 
+            font-size: 11px; 
+            resize: vertical; 
+        }
+        button { 
+            background: #00ff00; 
+            color: #000; 
+            border: none; 
+            padding: 12px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+            margin-top: 10px; 
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        button:hover { 
+            background: #00cc00; 
+        }
+        canvas { 
+            background: #121212; 
+            border: 1px solid #444; 
+            flex-grow: 1; 
+            min-width: 400px; 
+            min-height: 400px; 
+        }
+        h2 { 
+            margin-top: 0; 
+            color: #fff; 
+            text-align: center; 
+            font-size: 16px; 
+            border-bottom: 1px solid #444; 
+            padding-bottom: 10px; 
+            letter-spacing: 1px;
+        }
+        .label { 
+            font-size: 10px; 
+            color: #aaa; 
+            margin-bottom: 4px; 
+            display: block; 
+            text-transform: uppercase; 
+        }
+        .disabled-input {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="panel">
+            <h2>WALLY TRAPEZOID ENGINE</h2>
+            
+            <div class="section-title">Global Origin (Bottom-Left)</div>
+            <div class="row">
+                <span>Vertex X (vx):</span>
+                <input type="number" id="pVx" value="0" step="1" oninput="generate()">
+            </div>
+            <div class="row">
+                <span>Vertex Y (vy):</span>
+                <input type="number" id="pVy" value="0" step="1" oninput="generate()">
+            </div>
+
+            <div class="section-title">Geometry Parameters (W1, W2, L)</div>
+            <div class="row">
+                <span title="Bottom Width">Base Width (W1):</span>
+                <input type="number" id="pW1" value="48" step="1" oninput="generate()">
+            </div>
+            <div class="row">
+                <span title="Top Width">Top Width (W2):</span>
+                <input type="number" id="pW2" value="24" step="1" oninput="generate()">
+            </div>
+            <div class="row">
+                <span title="Overall Height / Length">Height (L):</span>
+                <input type="number" id="pH" value="36" step="1" oninput="generate()">
+            </div>
+
+            <div class="section-title">Alignment & Output</div>
+            <div class="row">
+                <span>Alignment Mode:</span>
+                <select id="pAlign" onchange="toggleAlignment()">
+                    <option value="CENTER">Centered (Isosceles)</option>
+                    <option value="LEFT">Left-Aligned (Right Angle)</option>
+                    <option value="RIGHT">Right-Aligned</option>
+                    <option value="CUSTOM">Custom Offset</option>
+                </select>
+            </div>
+            <div class="row" id="rowOffset" style="opacity: 0.5;">
+                <span title="X-Shift of the Top Width">Top Offset (dx):</span>
+                <input type="number" id="pOffset" value="12" step="1" oninput="generate()" readonly>
+            </div>
+            <div class="row">
+                <span title="Thickness parameter for WALL entity">Wall Thickness (T):</span>
+                <input type="number" id="pThick" value="0" step="0.5" oninput="generate()">
+            </div>
+
+            <button onclick="copyToClipboard()" id="copyBtn">COPY FLATTENED SDJ</button>
+            
+            <span class="label" style="margin-top: 20px;">OUTPUT (1D STRING):</span>
+            <textarea id="outputSdj" rows="4" readonly placeholder="SDJ String will appear here..."></textarea>
+            
+            <div style="font-size: 9px; color: #666; text-align: center; margin-top: auto;">
+                SYS.MODULE // /TRAPEZOID V1
+            </div>
+        </div>
+        
+        <canvas id="preview"></canvas>
+    </div>
+
+    <script>
+        function toggleAlignment() {
+            const align = document.getElementById('pAlign').value;
+            const offsetInput = document.getElementById('pOffset');
+            const rowOffset = document.getElementById('rowOffset');
+            
+            if (align === 'CUSTOM') {
+                offsetInput.readOnly = false;
+                rowOffset.style.opacity = '1';
+            } else {
+                offsetInput.readOnly = true;
+                rowOffset.style.opacity = '0.5';
+            }
+            generate();
+        }
+
+        function generate() {
+            const vx = parseFloat(document.getElementById('pVx').value) || 0;
+            const vy = parseFloat(document.getElementById('pVy').value) || 0;
+            const w1 = parseFloat(document.getElementById('pW1').value) || 0;
+            const w2 = parseFloat(document.getElementById('pW2').value) || 0;
+            const h = parseFloat(document.getElementById('pH').value) || 0;
+            const align = document.getElementById('pAlign').value;
+            const thick = parseFloat(document.getElementById('pThick').value) || 0;
+            const offsetInput = document.getElementById('pOffset');
+            
+            let offset = 0;
+            
+            // Calculate offset based on mode
+            if (align === 'CENTER') {
+                offset = (w1 - w2) / 2;
+                offsetInput.value = offset;
+            } else if (align === 'LEFT') {
+                offset = 0;
+                offsetInput.value = offset;
+            } else if (align === 'RIGHT') {
+                offset = w1 - w2;
+                offsetInput.value = offset;
+            } else {
+                offset = parseFloat(offsetInput.value) || 0;
+            }
+
+            // Define the 4 corners of the trapezoid
+            const p1 = { x: vx, y: vy };
+            const p2 = { x: vx + w1, y: vy };
+            const p3 = { x: vx + offset + w2, y: vy + h };
+            const p4 = { x: vx + offset, y: vy + h };
+
+            // Determine Entity Type based on thickness
+            const entityType = thick > 0 ? 'WALL' : 'LINE';
+
+            // Generate 1D Pre-Flattened SDJ String
+            // We close the loop by returning to p1
+            const pts = [p1, p2, p3, p4, p1];
+            
+            let sdjString = `[${entityType}] `;
+            pts.forEach(p => {
+                sdjString += `${parseFloat(p.x.toFixed(4))} ${parseFloat(p.y.toFixed(4))} `;
+            });
+            sdjString += `T:${thick}`;
+            
+            document.getElementById('outputSdj').value = sdjString;
+
+            // Pipe to Auto-Scaling Canvas
+            drawPreview(pts, thick);
+        }
+
+        function drawPreview(pts, thick) {
+            const cvs = document.getElementById('preview');
+            // Responsive sizing
+            cvs.width = cvs.parentElement.clientWidth - 420; 
+            cvs.height = cvs.parentElement.clientHeight;
+            const ctx = cvs.getContext('2d');
+            
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            
+            if(pts.length === 0) return;
+
+            // Auto-scale logic
+            const pad = 80;
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            
+            pts.forEach(p => {
+                minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+                minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+            });
+            
+            // Account for wall thickness visual bleed
+            if (thick > 0) {
+                minX -= thick; maxX += thick;
+                minY -= thick; maxY += thick;
+            }
+
+            const w = maxX - minX || 1;
+            const h = maxY - minY || 1;
+            
+            const scaleX = (cvs.width - pad * 2) / w;
+            const scaleY = (cvs.height - pad * 2) / h;
+            const scale = Math.min(scaleX, scaleY);
+            
+            const cx = (minX + maxX) / 2;
+            const cy = (minY + maxY) / 2;
+
+            ctx.save();
+            ctx.translate(cvs.width / 2, cvs.height / 2);
+            ctx.scale(scale, -scale); // Flip Y to match Cartesian
+            ctx.translate(-cx, -cy);
+
+            // Draw Geometry
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = thick > 0 ? thick : (2 / scale);
+            // If thick, use a slightly different color to indicate WALL mass vs LINE
+            if (thick > 0) {
+                ctx.strokeStyle = '#00ff00';
+                ctx.lineJoin = 'miter';
+            }
+            
+            ctx.beginPath();
+            pts.forEach((p, i) => {
+                if (i === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+            });
+            ctx.stroke();
+
+            // Draw Nodes
+            ctx.fillStyle = '#ff00ff';
+            pts.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4 / scale, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.restore();
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('outputSdj').value;
+            navigator.clipboard.writeText(output).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.innerText;
+                btn.innerText = "COPIED TO CLIPBOARD!";
+                btn.style.background = "#fff";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "#00ff00";
+                }, 1500);
+            });
+        }
+
+        // Handle window resize for canvas
+        window.addEventListener('resize', generate);
+        
+        // Run on load
+        window.onload = generate;
+    </script>
+</body>
+</html>
