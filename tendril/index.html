@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tendril Generator</title>
+    <style>
+        /* Base Dark Mode Setup */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0b0c10;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+
+        /* Canvas Fills Screen */
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Floating UI Panel */
+        #ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(31, 40, 51, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(69, 162, 158, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            width: 300px;
+            color: #c5c6c7;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        #ui-panel h1 {
+            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+            color: #66fcf1;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #ui-panel p.subtitle {
+            margin: 0 0 20px 0;
+            font-size: 0.8rem;
+            color: #45a29e;
+        }
+
+        /* Control Groups */
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .control-group span {
+            color: #66fcf1;
+            font-family: monospace;
+        }
+
+        /* Range Sliders */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #66fcf1;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 8px rgba(102, 252, 241, 0.6);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #2b3a4a;
+            border-radius: 2px;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Rendering Canvas -->
+    <canvas id="tendrilCanvas"></canvas>
+
+    <!-- Floating Control Panel -->
+    <div id="ui-panel">
+        <h1>Tendril Generator</h1>
+        <p class="subtitle">Measured Randomness Demo</p>
+
+        <div class="control-group">
+            <label>Main Tendrils (Veins) <span id="valMain">12</span></label>
+            <input type="range" id="mainCount" min="0" max="30" value="12">
+        </div>
+        
+        <div class="control-group">
+            <label>Sparks (Nerves) <span id="valSparks">30</span></label>
+            <input type="range" id="sparkCount" min="0" max="100" value="30">
+        </div>
+
+        <div class="control-group">
+            <label>Pulse Speed <span id="valPulse">1.0</span></label>
+            <input type="range" id="pulseSpeed" min="0.1" max="5.0" step="0.1" value="1.0">
+        </div>
+
+        <div class="control-group">
+            <label>Wobble Amplitude <span id="valAmp">1.0</span></label>
+            <input type="range" id="amplitude" min="0" max="3.0" step="0.1" value="1.0">
+        </div>
+
+        <div class="control-group">
+            <label>Animation Speed <span id="valAnim">1.0</span></label>
+            <input type="range" id="animSpeed" min="0" max="3.0" step="0.1" value="1.0">
+        </div>
+    </div>
+
+    <script>
+        // Setup Canvas
+        const canvas = document.getElementById('tendrilCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height, centerX, centerY;
+        
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            centerX = width / 2;
+            centerY = height / 2;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Application State
+        const config = {
+            mainCount: 12,
+            sparkCount: 30,
+            pulseSpeed: 1.0,
+            amplitude: 1.0,
+            animSpeed: 1.0
+        };
+
+        // Time tracking
+        let T = 0;
+
+        // Bind UI Elements
+        const bindings = [
+            { id: 'mainCount', key: 'mainCount' },
+            { id: 'sparkCount', key: 'sparkCount' },
+            { id: 'pulseSpeed', key: 'pulseSpeed' },
+            { id: 'amplitude', key: 'amplitude' },
+            { id: 'animSpeed', key: 'animSpeed' }
+        ];
+
+        bindings.forEach(bind => {
+            const el = document.getElementById(bind.id);
+            const valDisplay = document.getElementById('val' + bind.id.charAt(0).toUpperCase() + bind.id.slice(1).replace('Count', ''));
+            
+            el.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                config[bind.key] = val;
+                
+                // Update text display (format floats neatly)
+                if(valDisplay) {
+                    valDisplay.innerText = Number.isInteger(val) ? val : val.toFixed(1);
+                }
+            });
+        });
+
+        // Drawing Logic
+        function drawTendril(angle, type, currentPulseRadius, maxDist) {
+            const steps = 100; // Resolution of the curve
+            let prevX = centerX + currentPulseRadius * Math.cos(angle);
+            let prevY = centerY + currentPulseRadius * Math.sin(angle);
+
+            for (let s = 1; s <= steps; s++) {
+                // t goes from 0 to maxDist
+                const t = (s / steps) * maxDist;
+                const normalizedT = s / steps; // 0.0 to 1.0
+                
+                let wobble = 0;
+                
+                // Math formulas translating the "measured randomness" concept
+                if (type === 'vein') {
+                    // Thick, slow, low frequency
+                    // t is scaled down slightly (t*0.05) so the sine waves aren't too tight mathematically
+                    wobble = config.amplitude * (
+                        0.1 * t * Math.sin(0.05 * t - 2 * T) + 
+                        0.05 * t * Math.sin(0.13 * t + 3 * T)
+                    );
+                } else if (type === 'spark') {
+                    // Thin, fast, high frequency
+                    wobble = config.amplitude * (
+                        0.05 * t * Math.sin(0.25 * t - 5 * T) + 
+                        0.02 * t * Math.sin(0.40 * t + 7 * T)
+                    );
+                }
+
+                // Vector math: Outward vector (cos/sin) + Perpendicular vector (-sin/cos)
+                const x = centerX + (currentPulseRadius + t) * Math.cos(angle) - wobble * Math.sin(angle);
+                const y = centerY + (currentPulseRadius + t) * Math.sin(angle) + wobble * Math.cos(angle);
+
+                // Draw the segment
+                ctx.beginPath();
+                ctx.moveTo(prevX, prevY);
+                ctx.lineTo(x, y);
+
+                // Styling & Tapering (Fade out and thin out towards the edges)
+                const decay = 1 - normalizedT; // 1 at center, 0 at edge
+                
+                if (type === 'vein') {
+                    ctx.lineWidth = 4 * decay;
+                    ctx.strokeStyle = `rgba(200, 210, 220, ${decay * 0.8})`;
+                } else {
+                    ctx.lineWidth = 1.5 * decay;
+                    ctx.strokeStyle = `rgba(255, 100, 50, ${decay * 0.6})`;
+                }
+                
+                ctx.stroke();
+
+                // Update previous point for next segment
+                prevX = x;
+                prevY = y;
+            }
+        }
+
+        function render() {
+            // 1. Clear Canvas (with a slight trail effect or solid clear)
+            ctx.fillStyle = '#0b0c10';
+            ctx.fillRect(0, 0, width, height);
+
+            // Advance Time
+            T += 0.02 * config.animSpeed;
+
+            // 2. Calculate the "Breathing" Source Radius
+            // Base radius 30 + amplitude variation based on time
+            const baseRadius = 40;
+            const pulseAmount = 10;
+            const currentPulseRadius = baseRadius + pulseAmount * Math.sin(config.pulseSpeed * T * 2);
+            
+            // Calculate max distance to edge of screen so tendrils reach outward
+            const maxDist = Math.max(width, height) * 0.6;
+
+            // 3. Draw Layer 1: Main Veins
+            for (let i = 0; i < config.mainCount; i++) {
+                const angle = (Math.PI * 2 * i) / Math.max(config.mainCount, 1);
+                drawTendril(angle, 'vein', currentPulseRadius, maxDist);
+            }
+
+            // 4. Draw Layer 2: Sparks
+            for (let i = 0; i < config.sparkCount; i++) {
+                // Offset angles slightly so they don't perfectly align with veins
+                const angle = ((Math.PI * 2 * i) / Math.max(config.sparkCount, 1)) + 0.1;
+                drawTendril(angle, 'spark', currentPulseRadius, maxDist);
+            }
+
+            // 5. Draw the Central Source
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, currentPulseRadius, 0, Math.PI * 2);
+            // Glowing effect for center
+            const gradient = ctx.createRadialGradient(centerX, centerY, currentPulseRadius * 0.2, centerX, centerY, currentPulseRadius);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            gradient.addColorStop(0.8, 'rgba(102, 252, 241, 0.8)');
+            gradient.addColorStop(1, 'rgba(69, 162, 158, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            // Loop
+            requestAnimationFrame(render);
+        }
+
+        // Start Animation Loop
+        render();
+    </script>
+</body>
+</html>
