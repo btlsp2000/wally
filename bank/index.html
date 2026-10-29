@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus of Pool (CofP)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0f1115;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        /* Range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 2px;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <!-- Interactive Canvas -->
+    <canvas id="poolCanvas"></canvas>
+
+    <!-- UI Overlay -->
+    <div class="absolute top-4 left-4 sm:top-6 sm:left-6 w-80 bg-[#1e293b]/90 backdrop-blur-md p-6 rounded-2xl border border-slate-700 shadow-2xl z-10 flex flex-col gap-4">
+        
+        <!-- Header -->
+        <div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">Calculus of Pool</h1>
+            <p class="text-xs text-blue-400 font-mono mt-1">CofP: Orthogonal Vector Modification</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+            <div class="flex justify-between mb-2">
+                <label class="text-sm text-slate-300 font-semibold">English (Spin)</label>
+                <span id="spinValue" class="text-sm font-mono text-blue-400">0</span>
+            </div>
+            <input type="range" id="englishSlider" min="-150" max="150" value="0" class="w-full">
+            <div class="flex justify-between mt-1 text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                <span>Left</span>
+                <span>Center</span>
+                <span>Right</span>
+            </div>
+        </div>
+
+        <!-- Math Breakdown -->
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 font-mono text-sm shadow-inner">
+            <div class="text-slate-400 text-xs mb-2 uppercase tracking-wide">Resultant Vector (V_out)</div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="text-cyan-400 font-bold">i (x-axis):</span>
+                <span id="iComponent" class="text-white">200</span>
+            </div>
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-magenta-400 font-bold text-[#e879f9]">j (y-axis):</span>
+                <span id="jComponent" class="text-white">300</span>
+            </div>
+            <div class="pt-2 border-t border-slate-700">
+                <span class="text-slate-500 text-xs">V_out = </span>
+                <span id="vectorEquation" class="text-green-400 font-bold">200i + 300j</span>
+            </div>
+        </div>
+
+        <!-- Concept Notes -->
+        <div class="text-xs text-slate-400 leading-relaxed space-y-2">
+            <p><strong>Note:</strong> The standard reflection is incidental. The key principle is how the spin dynamically alters the <span class="text-cyan-400">i vector</span> geometry upon rail contact.</p>
+            <p class="text-slate-500 italic bg-slate-800/30 p-2 rounded border border-slate-700/30">"V1 = 48i" (from sketch) illustrates a horizontal vector component, analogous to a 48-inch table width constraint driven purely along the x-axis.</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('poolCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('englishSlider');
+        
+        // UI Elements for Math updating
+        const valSpin = document.getElementById('spinValue');
+        const valI = document.getElementById('iComponent');
+        const valJ = document.getElementById('jComponent');
+        const valEq = document.getElementById('vectorEquation');
+
+        // Table parameters (Logical coordinates)
+        const tableWidth = 800;
+        const tableHeight = 400;
+        
+        // Ball and Target Positions
+        const cb = { x: 200, y: 300, radius: 12 };
+        const ob = { x: 600, y: 300, radius: 12 };
+        const railTarget = { x: 400, y: 0 }; // Top rail center
+
+        // Physics State
+        let english = 0; // The 'spin' value
+
+        // Setup Event Listener for slider
+        slider.addEventListener('input', (e) => {
+            english = parseInt(e.target.value);
+            valSpin.innerText = english > 0 ? `+${english}` : english;
+        });
+
+        // Handle Resizing and Centering
+        let scale = 1;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Calculate scale to fit table nicely in view
+            const scaleX = (canvas.width * 0.8) / tableWidth;
+            const scaleY = (canvas.height * 0.8) / tableHeight;
+            scale = Math.min(scaleX, scaleY);
+            
+            // Calculate offsets to center the table (shift right to accommodate UI on desktop)
+            const shiftRight = canvas.width > 768 ? 150 : 0; 
+            offsetX = (canvas.width - (tableWidth * scale)) / 2 + shiftRight;
+            offsetY = (canvas.height - (tableHeight * scale)) / 2;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Helper: Draw Arrow
+        function drawArrow(fromX, fromY, toX, toY, color, width=2) {
+            const headlen = 12; // length of head in pixels
+            const dx = toX - fromX;
+            const dy = toY - fromY;
+            const angle = Math.atan2(dy, dx);
+            
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.lineTo(toX, toY);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        // Helper: Draw Dashed Line
+        function drawDashedLine(x1, y1, x2, y2, color) {
+            ctx.beginPath();
+            ctx.setLineDash([10, 10]);
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.setLineDash([]); // reset
+        }
+
+        // Main Draw Loop
+        function draw() {
+            // Clear background
+            ctx.fillStyle = '#0f1115';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Apply transformations for centered logical drawing
+            ctx.save();
+            ctx.translate(offsetX, offsetY);
+            ctx.scale(scale, scale);
+
+            // 1. Draw Table
+            // Wood Rails
+            ctx.fillStyle = '#4a3320';
+            ctx.fillRect(-20, -20, tableWidth + 40, tableHeight + 40);
+            // Green Cloth
+            ctx.fillStyle = '#166534';
+            ctx.fillRect(0, 0, tableWidth, tableHeight);
+            
+            // Center diamond markers on rails (for reference)
+            ctx.fillStyle = '#cbd5e1';
+            ctx.beginPath(); ctx.arc(400, -10, 3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(400, tableHeight+10, 3, 0, Math.PI*2); ctx.fill();
+
+            // 2. Physics & Vectors Calculations
+            // V_in (Incident)
+            const vIn_i = railTarget.x - cb.x; // 200
+            const vIn_j = railTarget.y - cb.y; // -300
+
+            // V_out (Resultant)
+            // Base reflection: i stays same, j inverts
+            const vOut_i_base = vIn_i; 
+            const vOut_j = -vIn_j; // 300
+            
+            // Apply English (Spin alters the i component dynamically)
+            const vOut_i_final = vOut_i_base + english;
+            
+            // Update Math UI Panel
+            valI.innerText = vOut_i_final;
+            valJ.innerText = vOut_j;
+            valEq.innerText = `${vOut_i_final}i + ${vOut_j}j`;
+            valEq.className = `font-bold ${english !== 0 ? 'text-blue-400' : 'text-green-400'}`;
+
+            // Calculate final target point based on V_out
+            const finalPointX = railTarget.x + vOut_i_final;
+            const finalPointY = railTarget.y + vOut_j;
+
+            // 3. Draw Trajectories & Vectors
+            // Incident Path (CB to Rail)
+            drawDashedLine(cb.x, cb.y, railTarget.x, railTarget.y, 'rgba(255, 255, 255, 0.4)');
+            
+            // Resultant Path (Rail to End)
+            ctx.beginPath();
+            ctx.moveTo(railTarget.x, railTarget.y);
+            ctx.lineTo(finalPointX, finalPointY);
+            ctx.strokeStyle = english === 0 ? '#4ade80' : '#60a5fa'; // Green if base, Blue if spun
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Draw V_in Vector Arrow at point of impact
+            // Scale vector down purely for visual neatness near the rail
+            const visScale = 0.4;
+            drawArrow(railTarget.x - (vIn_i * visScale), railTarget.y - (vIn_j * visScale), railTarget.x, railTarget.y, '#facc15', 3);
+
+            // Draw V_out Resultant Vector Arrow at point of impact
+            drawArrow(railTarget.x, railTarget.y, railTarget.x + (vOut_i_final * visScale), railTarget.y + (vOut_j * visScale), '#f87171', 3);
+
+            // Draw Orthogonal Breakdown (i and j) for V_out
+            // i-component (x-axis) - Cyan
+            drawArrow(railTarget.x, railTarget.y, railTarget.x + (vOut_i_final * visScale), railTarget.y, '#22d3ee', 2);
+            // j-component (y-axis) - Magenta
+            drawArrow(railTarget.x + (vOut_i_final * visScale), railTarget.y, railTarget.x + (vOut_i_final * visScale), railTarget.y + (vOut_j * visScale), '#e879f9', 2);
+
+            // Labels for Vectors
+            ctx.font = '14px font-mono';
+            ctx.fillStyle = '#22d3ee';
+            ctx.fillText(`i = ${vOut_i_final}`, railTarget.x + (vOut_i_final * visScale)/2 - 20, railTarget.y - 10);
+            
+            ctx.fillStyle = '#e879f9';
+            ctx.fillText(`j = ${vOut_j}`, railTarget.x + (vOut_i_final * visScale) + 10, railTarget.y + (vOut_j * visScale)/2);
+
+            // 4. Draw Balls
+            // Object Ball (Red)
+            ctx.beginPath();
+            ctx.arc(ob.x, ob.y, ob.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ef4444'; // Red
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset
+            
+            // Label OB
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.font = '12px sans-serif';
+            ctx.fillText('OB', ob.x - 10, ob.y + 25);
+
+            // Cue Ball (White)
+            ctx.beginPath();
+            ctx.arc(cb.x, cb.y, cb.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset
+            
+            // Label CB
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.font = '12px sans-serif';
+            ctx.fillText('CB', cb.x - 10, cb.y + 25);
+            
+            // Draw Target Rail Impact Point
+            ctx.beginPath();
+            ctx.arc(railTarget.x, railTarget.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#fbbf24';
+            ctx.fill();
+
+            ctx.restore();
+            
+            // Loop
+            requestAnimationFrame(draw);
+        }
+
+        // Start Loop
+        draw();
+    </script>
+</body>
+</html>
