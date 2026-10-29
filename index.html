@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WALLY V1.0.14 | TEXT FEATURE ADDED</title>
+    <title>WALLY V1.0.17 | SDJ STRING PARSER & FLATTENER ADDED</title>
     <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
     <style>
         #catalogue-modal { display: none; position: absolute; top: 40px; left: 10px; background: #000; border: 1px solid var(--accent); padding: 15px; z-index: 2000; box-shadow: 2px 2px 10px rgba(0,0,0,0.8); width: 300px; }
-.catalogue-title { color: #fff; font-weight: bold; border-bottom: 1px solid #444; padding-bottom: 5px; margin-bottom: 10px; font-size: 14px; text-transform: uppercase; }
-.catalogue-item { margin-bottom: 15px; }
-.catalogue-item h4 { margin: 0 0 3px 0; color: var(--accent); font-size: 12px; }
-.catalogue-item p { margin: 0 0 5px 0; font-size: 10px; color: #aaa; }
-.catalogue-item button { width: 100%; text-align: left; padding: 5px; border-left: 2px solid var(--accent); }
+        .catalogue-title { color: #fff; font-weight: bold; border-bottom: 1px solid #444; padding-bottom: 5px; margin-bottom: 10px; font-size: 14px; text-transform: uppercase; }
+        .catalogue-item { margin-bottom: 15px; }
+        .catalogue-item h4 { margin: 0 0 3px 0; color: var(--accent); font-size: 12px; }
+        .catalogue-item p { margin: 0 0 5px 0; font-size: 10px; color: #aaa; }
+        .catalogue-item button { width: 100%; text-align: left; padding: 5px; border-left: 2px solid var(--accent); }
         :root { --bg: #222; --cad-bg: #121212; --cmd-bg: #333; --accent: #61afef; --text: #eee; --dim: #888; --sel: #98c379; --print: #e5c07b; }
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Consolas', monospace; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; }
         #toolbar { height: 40px; background: #2c2c2c; border-bottom: 1px solid #444; display: flex; align-items: center; padding: 0 10px; gap: 5px; flex-shrink: 0; z-index: 1000; position: relative; }
@@ -35,36 +35,31 @@
 <body>
     <div id="toolbar">
         <div id="catalogue-modal">
-    <div class="catalogue-title">STANDALONE CATALOGUE</div>
-    
-    <div class="catalogue-item">
-        <h4>ARC GENERATOR</h4>
-        <p>Radial sweeps & Tuple verification.</p>
-        <button onclick="window.open('arc-generator.html', '_blank')">LAUNCH MODULE</button>
-    </div>
-    
-    <div class="catalogue-item">
-        <h4>WALLY-DECK</h4>
-        <p>2D joist framing & DXF generation.</p>
-        <button onclick="window.open('wally-deck.html', '_blank')">LAUNCH MODULE</button>
-    </div>
-    
-    <div class="catalogue-item">
-        <h4>PERIMETER TRAVERSE</h4>
-        <p>Fencing bounds & takeoff calculation.</p>
-        <button onclick="window.open('traverse.html', '_blank')">LAUNCH MODULE</button>
-    </div>
-
-    <div class="catalogue-item">
-        <h4>SDJ CONVERTER</h4>
-        <p>Strip JSON bloat to raw matrices.</p>
-        <button onclick="window.open('json-converter.html', '_blank')">LAUNCH MODULE</button>
-    </div>
-    
-    <button onclick="document.getElementById('catalogue-modal').style.display='none'" style="width:100%; text-align:center; background:#222; border:1px solid #444; margin-top:5px;">CLOSE</button>
-</div>
-<div class="menu-btn" onclick="document.getElementById('catalogue-modal').style.display='block'">☰</div>
-        <span style="font-weight:bold; color:var(--accent); margin-right:10px;">WALLY v1.0.14</span>
+            <div class="catalogue-title">STANDALONE CATALOGUE</div>
+            <div class="catalogue-item">
+                <h4>ARC GENERATOR</h4>
+                <p>Radial sweeps & Tuple verification.</p>
+                <button onclick="window.open('arc-generator.html', '_blank')">LAUNCH MODULE</button>
+            </div>
+            <div class="catalogue-item">
+                <h4>WALLY-DECK</h4>
+                <p>2D joist framing & DXF generation.</p>
+                <button onclick="window.open('wally-deck.html', '_blank')">LAUNCH MODULE</button>
+            </div>
+            <div class="catalogue-item">
+                <h4>PERIMETER TRAVERSE</h4>
+                <p>Fencing bounds & takeoff calculation.</p>
+                <button onclick="window.open('traverse.html', '_blank')">LAUNCH MODULE</button>
+            </div>
+            <div class="catalogue-item">
+                <h4>SDJ CONVERTER</h4>
+                <p>Strip JSON bloat to raw matrices.</p>
+                <button onclick="window.open('json-converter.html', '_blank')">LAUNCH MODULE</button>
+            </div>
+            <button onclick="document.getElementById('catalogue-modal').style.display='none'" style="width:100%; text-align:center; background:#222; border:1px solid #444; margin-top:5px;">CLOSE</button>
+        </div>
+        <div class="menu-btn" onclick="document.getElementById('catalogue-modal').style.display='block'">☰</div>
+        <span style="font-weight:bold; color:var(--accent); margin-right:10px;">WALLY v1.0.17</span>
         <button onclick="fileNew()">NEW</button>
         <button onclick="fileSave()">SAVE</button>
         <button onclick="fileLoad()">LOAD</button>
@@ -78,12 +73,21 @@
         <button onclick="centerView()">ZOOM E</button>
         <button onclick="exec('HAL')">HAL VIEW</button>
         <button onclick="exec('WATERMARK')">WATERMARK</button>
+        <button onclick="exec('BORDER')">BORDER</button>
+        <button onclick="exportPDF()" style="background:#e5c07b; color:#000; font-weight:bold;">PRINT PDF</button>
     </div>
+    
     <div id="workspace">
         <div id="sidebar">
             <div class="panel">
-                <div class="panel-title" style="color:var(--print);">JSON PROTOCOL</div>
-                <div class="control-row"><button onclick="exportJSON()" style="flex:1;">EXPORT .WALLY</button><button onclick="importJSON()" style="flex:1;">IMPORT .WALLY</button></div>
+                <div class="panel-title" style="color:var(--print);">DATA PROTOCOL</div>
+                <div class="control-row">
+                    <button onclick="exportJSON()" style="flex:1;">EXPORT .WALLY</button>
+                    <button onclick="importJSON()" style="flex:1;">IMPORT .WALLY</button>
+                </div>
+                <div class="control-row">
+                    <button onclick="importSDJ()" style="flex:1; margin-top:5px; background:#10b981; color:#000; font-weight:bold;">PASTE SDJ STRING</button>
+                </div>
             </div>
             <div class="panel">
                 <div class="panel-title">PROPERTIES</div>
@@ -94,18 +98,22 @@
                         <option value="LINE">Line</option>
                         <option value="CIRCLE">Circle</option>
                         <option value="TEXT">Text</option>
-                        <option value="DIM">Dim</option>
+                        <option value="DIM">Dim (Aligned)</option>
+                        <option value="DIMH">Dim (Horizontal)</option>
+                        <option value="DIMV">Dim (Vertical)</option>
+                        <option value="SQFONT">SqFont</option>
                     </select>
                 </div>
                 <div class="control-row">
                     <span style="font-size:10px; color:#888; width: 40px;">Width</span>
-                    <input id="prop-thick" type="number" step="0.1" oninput="updateProp()" title="Width or Font Size">
+                    <input id="prop-thick" type="number" step="0.1" oninput="updateProp()" title="Width or Font Scale Multiplier">
                 </div>
                 <div class="control-row" id="row-txt" style="display: none;">
                     <span style="font-size:10px; color:#888; width: 40px;">String</span>
                     <input id="prop-txt" type="text" oninput="updateProp()">
                 </div>
                 <textarea id="prop-geo" style="height:200px; margin-top: 5px;" oninput="updateProp()" placeholder="X,Y coords..."></textarea>
+                <button onclick="exec('DELETE')" style="width:100%; margin-top:5px; background:#d32f2f; color:#fff; font-weight:bold;">DELETE SELECTED</button>
             </div>
             <div class="panel" style="flex-grow:1; display:flex; flex-direction:column;">
                 <div class="panel-title">ENTITIES</div>
@@ -114,68 +122,419 @@
         </div>
         <div id="canvas-area"><canvas id="canvas"></canvas></div>
     </div>
-    <div id="cmd-bar"><span id="cmd-prompt">COMMAND:</span><input id="cmd-input" type="text" autocomplete="off"><span id="cmd-history" style="color:#666; margin-left:10px;"></span></div>
+    
+    <div id="cmd-bar">
+        <span id="cmd-prompt">COMMAND:</span>
+        <input id="cmd-input" type="text" autocomplete="off" placeholder="Type command or paste [SDJ] string...">
+        <span id="cmd-history" style="color:#666; margin-left:10px;"></span>
+    </div>
     <input type="file" id="protocol-input" style="display:none" onchange="handleProtocol(this)">
 
 <script>
 let state = { ents: [], view: { x: 0, y: 0, scale: 5, panStart: null }, mouse: { worldX: 0, worldY: 0 }, osnap: null, selection: null, showWatermark: true };
-class M { constructor(x,y){this.x=x;this.y=y} add(v){return new M(this.x+v.x,this.y+v.y)} sub(v){return new M(this.x-v.x,this.y-v.y)} mul(s){return new M(this.x*s,this.y*s)} div(s){return new M(this.x/s,this.y/s)} cross(v){return (this.x*v.y)-(this.y*v.x)} dot(v){return (this.x*v.x)+(this.y*v.y)} mag(){return Math.sqrt(this.x**2+this.y**2)} norm(){const m=this.mag();return m===0?new M(0,0):this.div(m)} perp(){return new M(-this.y,this.x)} }
-function VIA(P1,v1,P2,v2,th){ const det=v1.cross(v2); if(Math.abs(det)<1e-9)return null; const t=(P2.sub(P1).x*v2.y-P2.sub(P1).y*v2.x)/det; const I=P1.add(v1.mul(t)); const mv=v1.mul(-1).add(v2).norm(); let sm=(th/2)/Math.sqrt(Math.max(0,1-v1.mul(-1).dot(mv)**2)); if(sm>th*5)sm=th*5; return {I, In:I.add(mv.mul(sm)), Out:I.sub(mv.mul(sm)), Turn:det>0?'L':'R'}; }
-function parseBlocks(txt) { let blocks = []; let current = []; txt.split('\n').forEach(l => { const p = l.trim().replace(/,/g, ' ').split(/\s+/); if (p.length >= 2) { let x=parseFloat(p[0]),y=parseFloat(p[1]); if(!isNaN(x)&&!isNaN(y)) current.push(new M(x,y)); } else if (current.length > 0) { blocks.push(current); current=[]; } }); if(current.length>0) blocks.push(current); return blocks; }
-function ComputeGeometry(pts, th) { if(pts.length<2)return null; const j=[]; for(let i=0;i<pts.length;i++){ let pp=i===0?null:pts[i-1], pn=i===pts.length-1?null:pts[i+1], vin, vout, res; if(pp) vin=pts[i].sub(pp).norm(); if(pn) vout=pn.sub(pts[i]).norm(); if(pp&&pn){ const v=VIA(pp,vin,pts[i],vout,th); if(v) res=v.Turn==='L'?{L:v.In,R:v.Out}:{L:v.Out,R:v.In}; else{const p=vin.perp(); res={L:pts[i].add(p.mul(th/2)),R:pts[i].sub(p.mul(th/2))}} } else if(!pp){const p=vout.perp(); res={L:pts[i].add(p.mul(th/2)),R:pts[i].sub(p.mul(th/2))}} else{const p=vin.perp(); res={L:pts[i].add(p.mul(th/2)),R:pts[i].sub(p.mul(th/2))}} j.push(res); } return {points:pts, joints:j}; }
+const DIM_FONT_SIZE = 12;
 
-window.onload=()=>{ resize(); window.addEventListener('resize',resize); const cvs=document.getElementById('canvas'); cvs.addEventListener('mousedown',onDown); window.addEventListener('mousemove',onMove); window.addEventListener('mouseup',onUp); cvs.addEventListener('wheel',onWheel); document.getElementById('cmd-input').addEventListener('keydown',e=>{if(e.key==='Enter'){exec(e.target.value);e.target.value='';}}); log("PROTOCOL V1.0.14 READY."); };
+class M { 
+    constructor(x,y){this.x=x;this.y=y} 
+    add(v){return new M(this.x+v.x,this.y+v.y)} 
+    sub(v){return new M(this.x-v.x,this.y-v.y)} 
+    mul(s){return new M(this.x*s,this.y*s)} 
+    div(s){return new M(this.x/s,this.y/s)} 
+    cross(v){return (this.x*v.y)-(this.y*v.x)} 
+    dot(v){return (this.x*v.x)+(this.y*v.y)} 
+    mag(){return Math.sqrt(this.x**2+this.y**2)} 
+    norm(){const m=this.mag();return m===0?new M(0,0):this.div(m)} 
+    perp(){return new M(-this.y,this.x)} 
+}
+
+function VIA(P1,v1,P2,v2,th){ 
+    const det=v1.cross(v2); 
+    if(Math.abs(det)<1e-9)return null; 
+    const t=(P2.sub(P1).x*v2.y-P2.sub(P1).y*v2.x)/det; 
+    const I=P1.add(v1.mul(t)); 
+    const mv=v1.mul(-1).add(v2).norm(); 
+    let sm=(th/2)/Math.sqrt(Math.max(0,1-v1.mul(-1).dot(mv)**2)); 
+    if(sm>th*5)sm=th*5; 
+    return {I, In:I.add(mv.mul(sm)), Out:I.sub(mv.mul(sm)), Turn:det>0?'L':'R'}; 
+}
+
+function parseBlocks(txt) { 
+    let blocks = []; let current = []; 
+    txt.split('\n').forEach(l => { 
+        const p = l.trim().replace(/,/g, ' ').split(/\s+/); 
+        if (p.length >= 2) { 
+            let x=parseFloat(p[0]),y=parseFloat(p[1]); 
+            if(!isNaN(x)&&!isNaN(y)) current.push(new M(x,y)); 
+        } else if (current.length > 0) { 
+            blocks.push(current); current=[]; 
+        } 
+    }); 
+    if(current.length>0) blocks.push(current); 
+    return blocks; 
+}
+
+function ComputeGeometry(pts, th) { 
+    if(pts.length<2)return null; 
+    const j=[]; 
+    for(let i=0;i<pts.length;i++){ 
+        let pp=i===0?null:pts[i-1], pn=i===pts.length-1?null:pts[i+1], vin, vout, res; 
+        if(pp) vin=pts[i].sub(pp).norm(); 
+        if(pn) vout=pn.sub(pts[i]).norm(); 
+        if(pp&&pn){ 
+            const v=VIA(pp,vin,pts[i],vout,th); 
+            if(v) res=v.Turn==='L'?{L:v.In,R:v.Out}:{L:v.Out,R:v.In}; 
+            else{const p=vin.perp(); res={L:pts[i].add(p.mul(th/2)),R:pts[i].sub(p.mul(th/2))}} 
+        } else if(!pp){const p=vout.perp(); res={L:pts[i].add(p.mul(th/2)),R:pts[i].sub(p.mul(th/2))}} 
+        else{const p=vin.perp(); res={L:pts[i].add(p.mul(th/2)),R:pts[i].sub(p.mul(th/2))}} 
+        j.push(res); 
+    } 
+    return {points:pts, joints:j}; 
+}
+
+function calculateAABB(ptsArray) {
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    ptsArray.forEach(p => {
+        minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+        minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+    });
+    return { minX, maxX, minY, maxY, w: maxX - minX, h: maxY - minY };
+}
+
+window.onload=()=>{ 
+    resize(); window.addEventListener('resize',resize); 
+    const cvs=document.getElementById('canvas'); 
+    cvs.addEventListener('mousedown',onDown); window.addEventListener('mousemove',onMove); 
+    window.addEventListener('mouseup',onUp); cvs.addEventListener('wheel',onWheel); 
+    
+    document.getElementById('cmd-input').addEventListener('keydown',e=>{
+        if(e.key==='Enter'){
+            if(e.target.value.trim().startsWith('[')) {
+                processSDJString(e.target.value);
+            } else {
+                exec(e.target.value);
+            }
+            e.target.value='';
+        }
+    });
+    
+    window.addEventListener('keydown', e => {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (state.selection) exec('DELETE');
+            }
+        }
+    });
+
+    log("PROTOCOL V1.0.17 READY."); 
+};
+
 function log(txt){document.getElementById('cmd-history').innerText=txt;}
-function exec(c){ 
-    const cmd=c.trim().toUpperCase(); 
-    if(cmd==='WALL')createEnt('WALL',"0,0\n20,0",5); 
-    else if(cmd==='LINE')createEnt('LINE',"0,0\n20,0",0); 
-    else if(cmd==='CIRCLE')createEnt('CIRCLE',"0,0",5); 
-    else if(cmd==='TEXT')createEnt('TEXT',"0,0",10,"SAMPLE TEXT"); 
-    else if(cmd==='DIM')createEnt('DIM',"0,0\n20,0",0);
-    else if(cmd==='HAL')document.body.classList.toggle('hal-mode'); 
+
+function exec(c){
+    const cmd=c.trim().toUpperCase();
+    if(cmd.startsWith('[')){ processSDJString(c); return; }
+
+    if(cmd==='WALL')createEnt('WALL',"0,0\n20,0",5);
+    else if(cmd==='LINE')createEnt('LINE',"0,0\n20,0",0);
+    else if(cmd==='CIRCLE')createEnt('CIRCLE',"0,0",5);
+    else if(cmd.startsWith('TEXT')) {
+        const rawParts = c.trim().split(' ');
+        if(rawParts.length === 1) {
+            createEnt('TEXT', "0,0", 1, "SAMPLE TEXT");
+            log("TEXT CREATED AT ORIGIN");
+        } else {
+            const mode = rawParts[1].toUpperCase();
+            const textStr = rawParts.slice(2).join(' ') || "ANNOTATION";
+            let x = 0, y = 0;
+
+            if (mode === 'R' || mode === 'RANDOM') {
+                const ext = getExtents();
+                x = (ext ? ext.mX : 0) + Math.random() * ((ext ? ext.MX : 100) - (ext ? ext.mX : 0));
+                y = (ext ? ext.mY : 0) + Math.random() * ((ext ? ext.MY : 100) - (ext ? ext.mY : 0));
+                createEnt('TEXT', `${x.toFixed(4)},${y.toFixed(4)}`, 1, textStr);
+            } 
+            else if (mode === 'S' || mode === 'SNAP') {
+                x = state.osnap ? state.osnap.x : state.mouse.worldX;
+                y = state.osnap ? state.osnap.y : state.osnap ? state.osnap.y : state.mouse.worldY;
+                createEnt('TEXT', `${x.toFixed(4)},${y.toFixed(4)}`, 1, textStr);
+            } 
+            else if (mode.includes(',')) {
+                const coords = mode.split(',');
+                x = parseFloat(coords[0]); y = parseFloat(coords[1]);
+                if(!isNaN(x) && !isNaN(y)) createEnt('TEXT', `${x},${y}`, 1, textStr);
+            } 
+        }
+    }
+    else if(cmd.startsWith('LABEL')) {
+        if (!state.selection) {
+            log("ERROR: NO ELEMENT SELECTED TO ANNOTATE");
+            return;
+        }
+        
+        const rawParts = c.trim().split(' ');
+        const textStr = rawParts.slice(1).join(' ') || "ANNOTATION";
+        
+        const blocks = parseBlocks(state.selection.geo);
+        const ptsArray = blocks.flat();
+        
+        if (ptsArray.length > 0) {
+            const aabb = calculateAABB(ptsArray);
+            const anchorX = aabb.minX;
+            const anchorY = aabb.maxY;
+            const offsetY = 4; 
+            
+            createEnt('TEXT', `${anchorX.toFixed(4)},${(anchorY + offsetY).toFixed(4)}`, 1, textStr);
+            log(`LABEL APPENDED AT UPPER-LEFT NODE`);
+        } else {
+            log("ERROR: ELEMENT HAS NO VALID NODES");
+        }
+    }
+    else if(cmd === 'DIMBORDER' || cmd === 'DB' || cmd === 'BORDER') {
+        const w = 110; 
+        const h = 85; 
+        const tbX = w - 40; 
+        const tbY = 15; 
+            
+        createWallyBox(0, 0, w, h, 1);
+        
+        createEnt('LINE', `${tbX},0\n${tbX},${tbY}\n${w},${tbY}`, 0);
+        createEnt('LINE', `${tbX},10\n${w},10`, 0);
+        createEnt('LINE', `${tbX},5\n${w},5`, 0);
+        createEnt('LINE', `${tbX+20},0\n${tbX+20},5`, 0);
+        
+        createEnt('TEXT', `${tbX+1.5},11.5`, 1.2, "PROJECT: ");
+        createEnt('TEXT', `${tbX+1.5},6.5`, 1.2, "CLIENT: ");
+        createEnt('TEXT', `${tbX+1.5},1.5`, 1.2, "DATE: 10/2026");
+        createEnt('TEXT', `${tbX+21.5},1.5`, 1.2, "DWN: BEI");
+        
+        centerView();
+        log("STANDARD TITLE BLOCK INSERTED");
+    }
+    else if(cmd === 'DIM' || cmd === 'DIMH' || cmd === 'DIMV' || cmd === 'DIM H' || cmd === 'DIM V') {
+        let dimType = 'DIM';
+        if (cmd.includes('H')) dimType = 'DIMH';
+        if (cmd.includes('V')) dimType = 'DIMV';
+        
+        if (state.selection && state.selection.type !== 'DIM' && state.selection.type !== 'TEXT') {
+            const blocks = parseBlocks(state.selection.geo);
+            const pts = blocks.flat();
+            if (pts.length >= 2) {
+                const aabb = calculateAABB(pts);
+                let geoStr = "";
+                let offset = 15;
+                
+                if (dimType === 'DIMV') {
+                    geoStr = `${aabb.minX},${aabb.minY}\n${aabb.minX},${aabb.maxY}`;
+                    offset = -20; 
+                } else if (dimType === 'DIMH') {
+                    geoStr = `${aabb.minX},${aabb.minY}\n${aabb.maxX},${aabb.minY}`;
+                    offset = -15; 
+                } else {
+                    const p1 = pts[0];
+                    const p2 = pts[pts.length - 1];
+                    geoStr = `${p1.x},${p1.y}\n${p2.x},${p2.y}`;
+                }
+                
+                createEnt(dimType, geoStr, offset);
+                log(`AUTO-${dimType} GENERATED FOR SELECTION`);
+                draw();
+                return; 
+            }
+        }
+        
+        createEnt(dimType, "0,0\n30,20", 15); 
+        log(`${dimType} TEMPLATE CREATED`);
+    }
+    else if(cmd === 'DELETE' || cmd === 'ERASE') {
+        if (state.selection) {
+            const type = state.selection.type;
+            state.ents = state.ents.filter(e => e !== state.selection);
+            selectEnt(null);
+            log(`DELETED ${type} ENTITY`);
+        } else {
+            log("ERROR: NO ENTITY SELECTED TO DELETE");
+        }
+    }
+    else if(cmd==='HAL')document.body.classList.toggle('hal-mode');
     else if(cmd==='WATERMARK') {
         state.showWatermark = !state.showWatermark;
         log(state.showWatermark ? "WATERMARK: ON" : "WATERMARK: OFF");
     }
-    draw(); 
+    else if(cmd.startsWith('BOX')) {
+        const parts = cmd.split(' ');
+        if(parts.length >= 4) {
+            const coords = parts[1].split(',');
+            const x = parseFloat(coords[0]); const y = parseFloat(coords[1]);
+            const w = parseFloat(parts[2]); const h = parseFloat(parts[3]);
+            const t = parts[4] ? parseFloat(parts[4]) : 0;
+            if(!isNaN(x) && !isNaN(y) && !isNaN(w) && !isNaN(h)) {
+                createWallyBox(x, y, w, h, t);
+                log(`BOX CREATED: ${w}x${h} AT ${x},${y}`);
+            }
+        }
+    }
+    draw();
 }
 
 function draw(){
-    const cvs=document.getElementById('canvas'); const ctx=cvs.getContext('2d'); ctx.fillStyle=document.body.classList.contains('hal-mode')?'#000':'#121212'; ctx.fillRect(0,0,cvs.width,cvs.height);
+    const cvs=document.getElementById('canvas'); const ctx=cvs.getContext('2d'); 
+    ctx.fillStyle=document.body.classList.contains('hal-mode')?'#000':'#121212'; 
+    ctx.fillRect(0,0,cvs.width,cvs.height);
+    
     ctx.save(); ctx.translate(state.view.x,state.view.y); ctx.scale(state.view.scale,-state.view.scale);
+    
     state.ents.forEach(ent=>{
-        const isSel=state.selection===ent; const col=isSel?'#98c379':(document.body.classList.contains('hal-mode')?'red':'#fff');
+        const isSel=state.selection===ent; 
+        const col=isSel?'#98c379':(document.body.classList.contains('hal-mode')?'red':'#00ff00');
+        
         const blocks = parseBlocks(ent.geo);
         blocks.forEach(pts => {
             if(!pts || pts.length === 0) return;
             
-            // Text Rendering (Y-Axis flipped back so it reads correctly)
             if(ent.type==='TEXT'){ 
+                const baseFontSize = 10;
+                const scaleMultiplier = ent.thick > 0 ? ent.thick : 1;
+                const fontSize = baseFontSize * scaleMultiplier;
+
                 ctx.fillStyle=col; 
-                ctx.font=`${ent.thick}px Consolas`; 
+                ctx.font=`${fontSize}px 'SquareFont', 'Courier New', monospace`;
+                
                 ctx.save();
                 ctx.translate(pts[0].x, pts[0].y);
                 ctx.scale(1, -1);
                 ctx.fillText(ent.text || "TEXT", 0, 0);
                 ctx.restore();
-                return; 
+            } 
+            else if(ent.type==='CIRCLE'){ 
+                ctx.strokeStyle=col; ctx.lineWidth=1/state.view.scale; 
+                ctx.beginPath(); ctx.arc(pts[0].x,pts[0].y,ent.thick,0,Math.PI*2); ctx.stroke();
+            } 
+            else if(ent.thick>0 && ent.type==='WALL'){
+                const geo=ComputeGeometry(pts,ent.thick); 
+                if(geo) {
+                    ctx.strokeStyle=col; ctx.lineWidth=1/state.view.scale;
+                    const dp=(a)=>{ctx.beginPath();a.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));ctx.stroke();};
+                    dp(geo.joints.map(j=>j.L)); dp(geo.joints.map(j=>j.R));
+                }
+            } 
+            else if(ent.type.startsWith('DIM')) {
+                if(pts.length >= 2) {
+                    const p1 = pts[0];
+                    const p2 = pts[1];
+                    const offsetDist = ent.thick !== 0 ? ent.thick : 15;
+                    const overshoot = 3;
+
+                    let dp1, dp2, ext1Start, ext1End, ext2Start, ext2End, angle, dist;
+
+                    if (ent.type === 'DIMV') {
+                        dist = Math.abs(p2.y - p1.y);
+                        const baseX = p1.x + offsetDist;
+                        
+                        dp1 = { x: baseX, y: p1.y };
+                        dp2 = { x: baseX, y: p2.y };
+                        
+                        ext1Start = { x: p1.x + Math.sign(offsetDist)*2, y: p1.y };
+                        ext1End   = { x: baseX + Math.sign(offsetDist)*overshoot, y: p1.y };
+                        ext2Start = { x: p2.x + Math.sign(offsetDist)*2, y: p2.y };
+                        ext2End   = { x: baseX + Math.sign(offsetDist)*overshoot, y: p2.y };
+
+                    } else if (ent.type === 'DIMH') {
+                        dist = Math.abs(p2.x - p1.x);
+                        const baseY = p1.y + offsetDist;
+                        
+                        dp1 = { x: p1.x, y: baseY };
+                        dp2 = { x: p2.x, y: baseY };
+                        
+                        ext1Start = { x: p1.x, y: p1.y + Math.sign(offsetDist)*2 };
+                        ext1End   = { x: p1.x, y: baseY + Math.sign(offsetDist)*overshoot };
+                        ext2Start = { x: p2.x, y: p2.y + Math.sign(offsetDist)*2 };
+                        ext2End   = { x: p2.x, y: baseY + Math.sign(offsetDist)*overshoot };
+
+                    } else {
+                        const dx = p2.x - p1.x;
+                        const dy = p2.y - p1.y;
+                        dist = Math.sqrt(dx*dx + dy*dy);
+                        const perpAngle = Math.atan2(dy, dx);
+                        const nx = -dy / dist;
+                        const ny = dx / dist;
+
+                        dp1 = { x: p1.x + nx * offsetDist, y: p1.y + ny * offsetDist };
+                        dp2 = { x: p2.x + nx * offsetDist, y: p2.y + ny * offsetDist };
+                        
+                        ext1Start = { x: p1.x + nx * 2, y: p1.y + ny * 2 };
+                        ext1End   = { x: dp1.x + nx * overshoot, y: dp1.y + ny * overshoot };
+                        ext2Start = { x: p2.x + nx * 2, y: p2.y + ny * 2 };
+                        ext2End   = { x: dp2.x + nx * overshoot, y: dp2.y + ny * overshoot };
+                    }
+                    
+                    ctx.strokeStyle = col; 
+                    ctx.lineWidth = 1 / state.view.scale;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(ext1Start.x, ext1Start.y); ctx.lineTo(ext1End.x, ext1End.y); 
+                    ctx.moveTo(ext2Start.x, ext2Start.y); ctx.lineTo(ext2End.x, ext2End.y); 
+                    
+                    const vAngle = Math.atan2(dp2.y - dp1.y, dp2.x - dp1.x); 
+                    const vx = Math.cos(vAngle) * overshoot;
+                    const vy = Math.sin(vAngle) * overshoot;
+                    ctx.moveTo(dp1.x - vx, dp1.y - vy);
+                    ctx.lineTo(dp2.x + vx, dp2.y + vy);
+                    ctx.stroke();
+                    
+                    const tickSize = 4;
+                    const tickAngle = vAngle + (Math.PI / 4); 
+                    const drawTick = (px, py) => {
+                        ctx.beginPath();
+                        ctx.moveTo(px - Math.cos(tickAngle)*tickSize, py - Math.sin(tickAngle)*tickSize);
+                        ctx.lineTo(px + Math.cos(tickAngle)*tickSize, py + Math.sin(tickAngle)*tickSize);
+                        ctx.stroke();
+                    };
+                    drawTick(dp1.x, dp1.y);
+                    drawTick(dp2.x, dp2.y);
+                    
+                    const dimText = ent.text ? ent.text : dist.toFixed(2); 
+                    ctx.save();
+                    ctx.translate((dp1.x + dp2.x) / 2, (dp1.y + dp2.y) / 2);
+                    
+                    let textAngle = vAngle;
+                    if (textAngle < -Math.PI/2 + 0.01 || textAngle > Math.PI/2 + 0.01) {
+                        textAngle += Math.PI;
+                    }
+                    
+                    ctx.rotate(textAngle);
+                    ctx.scale(1, -1); 
+                    
+                    ctx.fillStyle = col;
+                    ctx.font = `${DIM_FONT_SIZE}px 'Courier New', monospace`;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "bottom";
+                    ctx.fillText(dimText, 0, -2); 
+                    ctx.restore();
+                }
             }
-            
-            if(ent.type==='CIRCLE'){ ctx.strokeStyle=col; ctx.lineWidth=1/state.view.scale; ctx.beginPath(); ctx.arc(pts[0].x,pts[0].y,ent.thick,0,Math.PI*2); ctx.stroke(); return; }
-            if(ent.thick>0 && ent.type==='WALL'){
-                const geo=ComputeGeometry(pts,ent.thick); if(!geo)return; ctx.strokeStyle=col; ctx.lineWidth=1/state.view.scale;
-                const dp=(a)=>{ctx.beginPath();a.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));ctx.stroke();};
-                dp(geo.joints.map(j=>j.L)); dp(geo.joints.map(j=>j.R));
-            } else {
-                ctx.strokeStyle=col; ctx.lineWidth=1/state.view.scale; ctx.beginPath(); pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)); ctx.stroke();
+            else {
+                ctx.strokeStyle=col; ctx.lineWidth=1/state.view.scale; 
+                ctx.beginPath(); 
+                pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)); 
+                ctx.stroke();
+            }
+
+            if(isSel && ent.type !== 'TEXT' && ent.type !== 'CIRCLE') {
+                const aabb = calculateAABB(pts);
+                ctx.save();
+                ctx.strokeStyle = 'rgba(152, 195, 121, 0.4)'; 
+                ctx.lineWidth = 1 / state.view.scale;
+                ctx.setLineDash([4 / state.view.scale, 4 / state.view.scale]);
+                const pad = 2 / state.view.scale;
+                ctx.strokeRect(aabb.minX - pad, aabb.minY - pad, aabb.w + (pad * 2), aabb.h + (pad * 2));
+                ctx.restore();
             }
         });
     });
+    
     if(state.osnap){ ctx.strokeStyle='yellow'; ctx.lineWidth=2/state.view.scale; let s=6/state.view.scale; ctx.strokeRect(state.osnap.x-s/2,state.osnap.y-s/2,s,s); }
     ctx.restore();
 
-    // --- CONDITIONAL WATERMARK INJECTION ---
     if (state.showWatermark) {
         ctx.save();
         ctx.font = 'bold 24px Consolas, monospace'; 
@@ -198,17 +557,20 @@ function onMove(e){
     const r=cvsRect(); state.mouse.worldX=((e.clientX-r.left)-state.view.x)/state.view.scale; state.mouse.worldY=-((e.clientY-r.top)-state.view.y)/state.view.scale;
     state.osnap = null; state.ents.forEach(ent=>{ parseBlocks(ent.geo).forEach(pts=>pts.forEach(p=>{if(Math.hypot(p.x-state.mouse.worldX,p.y-state.mouse.worldY)<15/state.view.scale) state.osnap=p;})); });
     const tt=document.getElementById('nice-title')||document.body.appendChild(Object.assign(document.createElement('div'),{id:'nice-title'}));
-    
-    // Toggle tooltip coordinates between cursor location and node snapped location
-    tt.innerText = state.osnap 
-        ? `X:${state.osnap.x.toFixed(2)} Y:${state.osnap.y.toFixed(2)} (SNAP)` 
-        : `X:${state.mouse.worldX.toFixed(2)} Y:${state.mouse.worldY.toFixed(2)}`;
-        
+    tt.innerText = state.osnap ? `X:${state.osnap.x.toFixed(2)} Y:${state.osnap.y.toFixed(2)} (SNAP)` : `X:${state.mouse.worldX.toFixed(2)} Y:${state.mouse.worldY.toFixed(2)}`;
     tt.style.display=(e.target.id==='canvas'?'block':'none'); tt.style.left=(e.clientX+15)+'px'; tt.style.top=(e.clientY+15)+'px'; draw();
 }
-function onUp(){state.view.panStart=null;} function onWheel(e){state.view.scale*=e.deltaY<0?1.1:0.9;draw();}
+function onUp(){state.view.panStart=null;} 
+function onWheel(e){state.view.scale*=e.deltaY<0?1.1:0.9;draw();}
 function resize(){const c=document.getElementById('canvas'),p=document.getElementById('canvas-area');c.width=p.clientWidth;c.height=p.clientHeight;draw();}
 function cvsRect(){return document.getElementById('canvas').getBoundingClientRect();}
+
+function createWallyBox(startX, startY, width, height, thickness = 0) {
+    const p1 = `${startX},${startY}`; const p2 = `${startX + width},${startY}`;
+    const p3 = `${startX + width},${startY + height}`; const p4 = `${startX},${startY + height}`;
+    const geoString = `${p1}\n${p2}\n${p3}\n${p4}\n${p1}`;
+    createEnt(thickness > 0 ? 'WALL' : 'LINE', geoString, thickness);
+}
 
 function createEnt(type, geo, thick, text=''){ 
     const ent={id:Date.now(), type, geo, thick, text}; 
@@ -228,8 +590,7 @@ function selectEnt(e){
     } else {
         document.getElementById('row-txt').style.display = 'none';
     }
-    renderList(); 
-    draw(); 
+    renderList(); draw(); 
 }
 
 function updateProp(){ 
@@ -253,39 +614,117 @@ function renderList(){
     }); 
 }
 
-function getExtents(){ let mX=Infinity,MX=-Infinity,mY=Infinity,MY=-Infinity,v=false; state.ents.forEach(e=>{ parseBlocks(e.geo).forEach(pts=>pts.forEach(p=>{mX=Math.min(mX,p.x);MX=Math.max(MX,p.x);mY=Math.min(mY,p.y);MY=Math.max(MY,p.y);v=true;})); }); return v?{mX,MX,mY,MY,w:MX-mX||1,h:MY-mY||1,cx:(mX+MX)/2,cy:(mY+MY)/2}:null; }
-function centerView(){ const ext=getExtents(); if(!ext)return; const cvs=document.getElementById('canvas'); state.view.scale=Math.min((cvs.width-50)/ext.w,(cvs.height-50)/ext.h); state.view.x=(cvs.width/2)-(ext.cx*state.view.scale); state.view.y=(cvs.height/2)+(ext.cy*state.view.scale); draw(); }
+function getExtents(){ 
+    let mX=Infinity,MX=-Infinity,mY=Infinity,MY=-Infinity,v=false; 
+    state.ents.forEach(e=>{ parseBlocks(e.geo).forEach(pts=>pts.forEach(p=>{mX=Math.min(mX,p.x);MX=Math.max(MX,p.x);mY=Math.min(mY,p.y);MY=Math.max(MY,p.y);v=true;})); }); 
+    return v?{mX,MX,mY,MY,w:MX-mX||1,h:MY-mY||1,cx:(mX+MX)/2,cy:(mY+MY)/2}:null; 
+}
+function centerView(){ 
+    const ext=getExtents(); if(!ext)return; const cvs=document.getElementById('canvas'); 
+    state.view.scale=Math.min((cvs.width-50)/ext.w,(cvs.height-50)/ext.h); 
+    state.view.x=(cvs.width/2)-(ext.cx*state.view.scale); 
+    state.view.y=(cvs.height/2)+(ext.cy*state.view.scale); 
+    draw(); 
+}
 
-// ==========================================
-// PROTOCOL I/O (SAVE/LOAD/EXPORT)
-// ==========================================
 function fileSave(){ localStorage.setItem('wally_protocol', JSON.stringify(state.ents)); log("DWG SAVED TO CACHE"); }
-function fileLoad(){ const d=localStorage.getItem('wally_v12')||localStorage.getItem('wally_protocol'); if(d){ state.ents=JSON.parse(d); selectEnt(state.ents[0]); log("DWG LOADED FROM CACHE"); } }
+function fileLoad(){ const d=localStorage.getItem('wally_protocol'); if(d){ state.ents=JSON.parse(d); selectEnt(state.ents[0]); log("DWG LOADED FROM CACHE"); } }
 function fileNew(){ if(confirm("Clear Workspace?")){ state.ents=[]; selectEnt(null); draw(); } }
 
 function exportJSON() {
     const data = JSON.stringify(state.ents, null, 2);
     const blob = new Blob([data], {type: 'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'project_v14.wally';
-    a.click();
-    log("EXPORTED .WALLY FILE");
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'project_v17.wally'; a.click(); log("EXPORTED .WALLY FILE");
 }
-
+function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const cvs = document.getElementById('canvas');
+    const orientation = cvs.width > cvs.height ? 'l' : 'p';
+    const pdf = new jsPDF({ orientation: orientation, unit: 'px', format: [cvs.width, cvs.height] });
+    const imgData = cvs.toDataURL('image/png', 1.0);
+    pdf.addImage(imgData, 'PNG', 0, 0, cvs.width, cvs.height);
+    pdf.save('WallyCAD_Print.pdf');
+    log("PDF EXPORTED TO DOWNLOADS");
+}
 function importJSON() { document.getElementById('protocol-input').click(); }
 function handleProtocol(input) {
     const reader = new FileReader();
     reader.onload = (e) => {
-        try {
-            const data = JSON.parse(e.target.result);
-            state.ents = data;
-            selectEnt(state.ents[0]);
-            centerView();
-            log("IMPORTED .WALLY FILE");
-        } catch(err) { log("ERROR: INVALID JSON"); }
+        try { state.ents = JSON.parse(e.target.result); selectEnt(state.ents[0]); centerView(); log("IMPORTED .WALLY FILE"); } 
+        catch(err) { log("ERROR: INVALID JSON"); }
     };
     reader.readAsText(input.files[0]);
+}
+
+function importSDJ() {
+    const sdj = prompt("Paste Wally Space-Delimited JSON (SDJ) String here:");
+    if (sdj) processSDJString(sdj);
+}
+
+// === NEW FLATTENER LOGIC INTEGRATED ===
+function sanitizeInput(rawString) {
+    return rawString
+        .replace(/[\r\n\t]+/g, ' ') // Strip all carriage returns, newlines, and tabs
+        .replace(/\s{2,}/g, ' ')    // Collapse multiple consecutive spaces
+        .trim();                    // Trim ends
+}
+
+function processSDJString(sdjString) {
+    const cleanSdj = sanitizeInput(sdjString);
+    const parsed = parseWallyString(cleanSdj);
+    if (parsed.length > 0) {
+        parsed.forEach(p => {
+            let geoStr = "";
+            for(let i=0; i<p.coords.length; i+=2) {
+                if(p.coords[i] !== undefined && p.coords[i+1] !== undefined) {
+                    geoStr += `${p.coords[i]},${p.coords[i+1]}\n`;
+                }
+            }
+            createEnt(p.type, geoStr.trim(), p.thick, p.text);
+        });
+        centerView();
+        log(`IMPORTED ${parsed.length} SDJ ENTITIES`);
+        draw();
+    } else {
+        log("ERROR: NO ENTITIES PARSED");
+    }
+}
+
+function parseWallyString(sdjString) {
+    const tokenRegex = /"([^"]+)"|(\S+)/g;
+    let match; const tokens = [];
+    while ((match = tokenRegex.exec(sdjString)) !== null) { tokens.push(match[1] || match[2]); }
+    
+    const entities = []; let currentEntity = null;
+    
+    for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        
+        if (token.startsWith('[')) {
+            if (currentEntity && currentEntity.coords.length > 0) entities.push(currentEntity);
+        currentEntity = { type: token.replace(/\[|\]/g, ''), coords: [], thick: 0, text: "" };
+        } 
+        else if (token.startsWith('T:')) {
+            if (currentEntity) currentEntity.thick = parseFloat(token.substring(2));
+        } 
+        else if (currentEntity && currentEntity.type === 'TEXT' && isNaN(token)) {
+            currentEntity.text = token;
+        } 
+        else if (currentEntity) {
+            const parsedNum = parseFloat(token);
+            if (!isNaN(parsedNum)) {
+                currentEntity.coords.push(parsedNum);
+            } else {
+                if (currentEntity.coords.length > 0) {
+                    entities.push(currentEntity);
+                    currentEntity = { type: currentEntity.type, coords: [], thick: currentEntity.thick, text: "" };
+                }
+            }
+        }
+    }
+    if (currentEntity && currentEntity.coords.length > 0) entities.push(currentEntity);
+    return entities;
 }
 </script>
 </body>
