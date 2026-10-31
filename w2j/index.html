@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | JSON to .WALLY Converter</title>
+    <style>
+        body { 
+            background: #1a1a1a; 
+            color: #00ff00; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container { 
+            display: flex; 
+            flex-direction: column;
+            gap: 20px; 
+            max-width: 800px; 
+            width: 100%; 
+        }
+        .panel { 
+            background: #000; 
+            border: 1px solid #444; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        h2 { 
+            margin-top: 0; 
+            color: #fff; 
+            text-align: center; 
+            font-size: 16px; 
+            border-bottom: 1px solid #444; 
+            padding-bottom: 10px; 
+            letter-spacing: 1px;
+        }
+        textarea { 
+            width: 100%; 
+            background: #111; 
+            color: #00ff00; 
+            border: 1px solid #444; 
+            padding: 10px; 
+            margin-bottom: 10px; 
+            box-sizing: border-box; 
+            font-size: 11px; 
+            resize: vertical; 
+            font-family: inherit;
+        }
+        button { 
+            background: #00ff00; 
+            color: #000; 
+            border: none; 
+            padding: 12px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        button:hover { 
+            background: #00cc00; 
+        }
+        .label { 
+            font-size: 10px; 
+            color: #aaa; 
+            margin-bottom: 4px; 
+            display: block; 
+            text-transform: uppercase; 
+        }
+        .error-msg {
+            color: #ff3333;
+            font-size: 11px;
+            margin-top: 5px;
+            min-height: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="panel">
+            <h2>WALLYCAD PROTOCOL TRANSLATOR</h2>
+            
+            <span class="label">INPUT (JSON SCHEMA):</span>
+            <textarea id="inputJson" rows="15" placeholder='Paste JSON here... e.g.&#10;{&#10;  "elements": [&#10;    { "type": "line", "points": { "x1": 0, "y1": 0, "x2": 10, "y2": 10 } }&#10;  ]&#10;}'></textarea>
+            
+            <button onclick="convert()">CONVERT TO .WALLY (SDJ)</button>
+            <div id="errorLog" class="error-msg"></div>
+
+            <span class="label" style="margin-top: 15px;">OUTPUT (.WALLY 1D STRING):</span>
+            <textarea id="outputSdj" rows="8" readonly placeholder="Parsed SDJ output will appear here..."></textarea>
+            
+            <button onclick="copyToClipboard()" id="copyBtn" style="background: #444; color: #fff;">COPY FLATTENED SDJ</button>
+            
+            <div style="font-size: 9px; color: #666; text-align: center; margin-top: 20px;">
+                SYS.MODULE // /JSONTOWALLY V2 // LOCAL INSTANCE
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function convert() {
+            const inputEl = document.getElementById('inputJson');
+            const outputEl = document.getElementById('outputSdj');
+            const errorLog = document.getElementById('errorLog');
+            
+            outputEl.value = "";
+            errorLog.innerText = "";
+            
+            let data;
+            try {
+                data = JSON.parse(inputEl.value);
+            } catch (e) {
+                errorLog.innerText = "ERROR: Invalid JSON syntax. Check for missing quotes or commas.";
+                return;
+            }
+
+            if (!data.elements || !Array.isArray(data.elements)) {
+                errorLog.innerText = "ERROR: JSON must contain an 'elements' array.";
+                return;
+            }
+
+            let sdjString = "";
+
+            data.elements.forEach((el, index) => {
+                const type = el.type ? el.type.toLowerCase() : "";
+                
+                if (type === "line" && el.points) {
+                    sdjString += `[LINE] ${el.points.x1} ${el.points.y1} ${el.points.x2} ${el.points.y2} T:0 `;
+                } 
+                else if (type === "rectangle" && el.bounds) {
+                    // Convert rectangle to [WALL] for thickness protocol compatibility
+                    const b = el.bounds;
+                    sdjString += `[WALL] ${b.x} ${b.y} ${b.x + b.width} ${b.y} ${b.x + b.width} ${b.y + b.height} ${b.x} ${b.y + b.height} ${b.x} ${b.y} T:1 `;
+                }
+                else {
+                    console.warn(`Element at index ${index} skipped: Unrecognized type or missing coordinates.`);
+                }
+            });
+
+            if (sdjString.trim() === "") {
+                errorLog.innerText = "WARNING: JSON parsed, but no recognizable geometry (line/rectangle) was found.";
+            }
+
+            outputEl.value = sdjString.trim();
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('outputSdj').value;
+            if(!output) return;
+            
+            navigator.clipboard.writeText(output).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.innerText;
+                btn.innerText = "COPIED TO CLIPBOARD!";
+                btn.style.background = "#fff";
+                btn.style.color = "#000";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "#444";
+                    btn.style.color = "#fff";
+                }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
