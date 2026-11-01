@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Truss Analytics Q2-3 Spread</title>
+    <style>
+        :root { --cad-black: #121212; --cad-accent: #00ff00; }
+        body { margin: 0; padding: 0; background: #e5e7eb; color: var(--cad-black); font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .sheet { width: 11in; height: 8.5in; background: white; display: grid; grid-template-columns: 5.5in 5.5in; grid-template-rows: 8.5in; position: relative; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .crosshair-vert { position: absolute; top: 0; left: 5.5in; width: 1px; height: 8.5in; border-left: 1px dashed #aaa; z-index: 10; }
+        .quadrant { padding: 0.75in; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
+        h1, h2, h3, h4 { margin: 0; font-weight: bold; }
+        h1 { font-size: 18pt; border-bottom: 2px solid var(--cad-black); margin-bottom: 12px; padding-bottom: 4px; text-transform: uppercase; }
+        h2 { font-size: 12pt; margin-bottom: 8px; color: #444; margin-top: 15px; text-transform: uppercase; }
+        h4 { font-size: 10pt; margin-bottom: 5px; margin-top: 15px; text-transform: uppercase; color: var(--cad-black); }
+        p, li { font-size: 9pt; line-height: 1.5; margin-top: 0; }
+        ul { padding-left: 15px; margin-bottom: 15px; }
+        .code-block { background: #f4f4f4; border: 1px solid #ccc; padding: 10px; font-size: 9pt; font-weight: bold; margin: 10px 0; display: block; white-space: pre-wrap; word-break: break-all; color: #000; }
+        .footer-note { font-size: 8pt; color: #666; text-align: center; margin-top: auto; text-transform: uppercase; }
+        
+        @media print { @page { size: letter landscape; margin: 0; } body { background: none; } .sheet { box-shadow: none; border: none; } }
+    </style>
+</head>
+<body>
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        
+        <!-- QUADRANT 2: INSIDE LEFT (TRUSS PARAMETRICS) -->
+        <div class="quadrant" style="border-right: 1px solid #eee;">
+            <h1>/TRUSS ANALYTICS</h1>
+            <h2>v1.0.10 | "The Year of the Trailer"</h2>
+            <p>This module transitions WallyCAD from architectural elevation into dynamic structural engineering. The Truss Analytics standalone engine focuses on <strong>PTP (Point-To-Point) Logic</strong>, mathematically distributing load-bearing nodes across a specified span.</p>
+            
+            <h4>The QC Command Syntax</h4>
+            <p>Replacing traditional graphical UI inputs, the engine utilizes a high-speed command line syntax to instantly generate geometry:</p>
+            <div class="code-block">QC > T[SPAN]-[DEPTH]-[PANELS]</div>
+            <p><em>Example: <code>T7-1-6</code> renders a truss with a 7-foot span, 1-foot depth, divided into 6 equal panels.</em></p>
+
+            <h4>Geometric Distribution</h4>
+            <ul>
+                <li><strong>Panel Width:</strong> Calculated automatically as <code>Span / Panels</code>.</li>
+                <li><strong>Top Chord (T-Nodes):</strong> Placed incrementally at every panel width interval at the specified <code>Depth</code> (Y-axis).</li>
+                <li><strong>Bottom Chord (B-Nodes):</strong> Offset horizontally by exactly half a panel width (<code>i + 0.5</code>) and pinned to <code>Y: 0.000</code> to create the zigzag triangulation geometry.</li>
+            </ul>
+            
+            <div class="footer-note">SYS.DOC // QUADRANT 2 // PARAMETRIC LOGIC</div>
+        </div>
+
+        <!-- QUADRANT 3: INSIDE RIGHT (DATA & EXPORT) -->
+        <div class="quadrant">
+            <h1>DATA ARCHITECTURE</h1>
+            <h2>Node Extraction & Fabrication</h2>
+            <p>The visual canvas serves only as a secondary confirmation tool; the primary output of the `/TRUSS` engine is the mathematical coordinate data required for physical fabrication and welding.</p>
+
+            <h4>Coordinate Table Generation</h4>
+            <p>As the PTP logic evaluates the QC command, it iterates through a generation loop, dynamically building a node array. Each joint in the truss is assigned an absolute Cartesian coordinate mapped to 3 decimal places (e.g., <code>X: 3.500, Y: 1.000</code>) representing true feet.</p>
+
+            <h4>JSON Export Protocol</h4>
+            <p>To bridge the gap between WallyCAD and external engineering tools, the module bypasses standard SDJ strings in favor of a structured data export.</p>
+            <ul>
+                <li><strong>Export Format:</strong> Generates a localized <code>.json</code> payload containing the full <code>{id, x, y}</code> mapping for every structural point.</li>
+                <li><strong>Fabrication Use:</strong> This allows raw numerical layouts to be directly passed to CNC plasma tables, laser cutters, or shop floor ledgers for precision jigging.</li>
+            </ul>
+
+            <div class="footer-note">SYS.DOC // QUADRANT 3 // DATA PIPELINE</div>
+        </div>
+    </div>
+</body>
+</html>
