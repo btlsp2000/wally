@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Series Module</title>
+    <style>
+        body {
+            background-color: #121212;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .video-container {
+            position: relative;
+            width: 80%;
+            max-width: 960px;
+            /* 16:9 Aspect Ratio calculation */
+            padding-bottom: 45%; 
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="video-container">
+        <!-- 
+          1. The first ID (VIDEO_ID_1) goes immediately after /embed/
+          2. The remaining IDs go after ?playlist= separated by commas
+          3. &autoplay=1 (optional) starts the sequence automatically 
+        -->
+        <iframe 
+            src="https://www.youtube.com/embed/VIDEO_ID_1?playlist=VIDEO_ID_2,VIDEO_ID_3,VIDEO_ID_4&rel=0" 
+            title="Video Series" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+        </iframe>
+    </div>
+
+</body>
+</html>
