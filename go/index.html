@@ -3,102 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WallyCAD</title>
-    <style>
-        body { font-family: sans-serif; margin: 0; background-color: #f4f4f9; color: #333; }
-        #navbar { background-color: #222; color: #fff; padding: 10px 20px; }
-        #app-container { padding: 20px; }
-    </style>
-</head>
-<body>
-    <!-- Persistent UI Elements -->
-    <div id="navbar">
-        <span id="route-indicator">Initializing WallyCAD Routing...</span>
-    </div>
-
-    <!-- Dynamic Canvas / Workspace Container -->
-    <div id="app-container"></div> 
-
+    <title>WallyCAD - Loading</title>
     <script>
         /**
-         * 1. Entry Point
-         * Listens for initial load and browser back/forward buttons (popstate).
+         * 1. Index Entry Point
+         * This script runs immediately when /index.html is loaded.
          */
         document.addEventListener('DOMContentLoaded', () => {
-            window.addEventListener('popstate', handleLocation);
             determineRoute();
         });
 
         /**
          * 2. "ROUTE TO" Block & Side Loop
-         * Checks the current URL and stored preferences to figure out where to send the user.
+         * Evaluates conditions (like saved preferences or auth) before routing.
+         * The side loop [ ___ ] is represented here by the preference check.
          */
         function determineRoute() {
-            const currentPath = window.location.pathname;
+            // Example side-loop logic: Check if user has a saved version preference
             const savedVersion = localStorage.getItem('wallycad_version');
-            const defaultVersion = '/v17';
+            const latestVersion = '/v17'; 
             
-            // If user lands on the root domain, decide where to send them
-            let targetPath = (currentPath === '/' || currentPath === '/index.html') 
-                ? (savedVersion ? savedVersion : defaultVersion) 
-                : currentPath;
+            let targetPath = savedVersion ? savedVersion : latestVersion;
             
-            navigateTo(targetPath);
+            dispatchRoute(targetPath);
         }
 
         /**
-         * Updates the browser URL without reloading the page.
+         * 3. The Dispatcher (Blank rectangular node) & Version Branches
+         * Takes the determined path and branches into the specific directories.
          */
-        function navigateTo(path) {
-            window.history.pushState({}, "", path);
-            handleLocation();
-        }
+        function dispatchRoute(path) {
+            console.log(`Routing user to: ${path}`);
 
-        /**
-         * 3. Dispatcher & Branches (/v17, /v16)
-         * Renders the corresponding app version into the #app-container div.
-         */
-        function handleLocation() {
-            const path = window.location.pathname;
-            const container = document.getElementById('app-container');
-            const indicator = document.getElementById('route-indicator');
-            
-            console.log(`Dispatching to virtual route: ${path}`);
-            
             switch(path) {
                 case '/v17':
-                    indicator.innerText = "WallyCAD v17 (Latest)";
-                    container.innerHTML = `
-                        <h2>Welcome to WallyCAD v17</h2>
-                        <p>Loading v17 drawing canvas, continuous wall mitering, and native parabola solver...</p>
-                    `;
-                    // e.g., loadV17Modules();
+                    // Leftmost box: Redirects to the v17 application
+                    window.location.replace('/v17/'); 
                     break;
                 case '/v16':
-                    indicator.innerText = "WallyCAD v16 (Legacy)";
-                    container.innerHTML = `
-                        <h2>WallyCAD v16</h2>
-                        <p>Loading legacy workspace...</p>
-                    `;
-                    // e.g., loadV16Modules();
+                    // Middle box (Example legacy branch)
+                    window.location.replace('/v16/');
                     break;
                 case '/beta':
-                    indicator.innerText = "WallyCAD Beta";
-                    container.innerHTML = `
-                        <h2>Beta Environment</h2>
-                        <p>Testing experimental drafting tools...</p>
-                    `;
+                    // Rightmost box (Example beta branch)
+                    window.location.replace('/beta/');
                     break;
                 default:
-                    // Route Not Found - Fallback
-                    indicator.innerText = "Route Not Found";
-                    container.innerHTML = `
-                        <h2>404</h2>
-                        <p>Path ${path} not found. <button onclick="navigateTo('/v17')">Return to v17</button></p>
-                    `;
+                    // Fallback to the primary /v17 route
+                    window.location.replace('/v17/');
                     break;
             }
         }
     </script>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="loader">
+        <p>Routing to WallyCAD...</p>
+    </div>
 </body>
 </html>
