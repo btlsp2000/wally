@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD Array-Polar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc; /* Slate 50 */
+            margin: 0;
+            overflow: hidden; /* Prevent body scroll, let canvas handle layout */
+        }
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: #1e293b; /* Slate 800 */
+            border-radius: 0.5rem;
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col md:flex-row">
+
+    <!-- Sidebar -->
+    <aside class="w-full md:w-80 bg-slate-900 border-r border-slate-700 flex flex-col h-full shrink-0 z-10 shadow-xl">
+        <div class="p-6 flex-1 flex flex-col h-full">
+            <h1 class="text-2xl font-bold tracking-tight text-white mb-2">WallyCAD</h1>
+            <p class="text-xs text-slate-400 mb-6 uppercase tracking-wider font-semibold">/array-polar route</p>
+
+            <div class="mb-2 flex justify-between items-end">
+                <label for="coordinates" class="block text-sm font-medium text-slate-300">Coordinate Input (x,y)</label>
+                <span class="text-[10px] text-slate-500 bg-slate-800 px-2 py-1 rounded">Primary Element</span>
+            </div>
+            
+            <textarea id="coordinates" class="flex-1 w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm font-mono text-emerald-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none shadow-inner" spellcheck="false"></textarea>
+
+            <div class="mt-6 space-y-4">
+                <div class="text-xs text-slate-400 bg-slate-800/50 p-3 rounded border border-slate-700/50">
+                    <p class="mb-1"><strong>Matrix Logic:</strong></p>
+                    <p class="font-mono opacity-80">x' = x·cos(θ) - y·sin(θ)</p>
+                    <p class="font-mono opacity-80">y' = x·sin(θ) + y·cos(θ)</p>
+                </div>
+                
+                <button id="execute-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-lg shadow-lg shadow-indigo-500/30 transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+                    </svg>
+                    Execute Array (x4)
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Canvas Area -->
+    <main class="flex-1 p-4 md:p-6 bg-slate-950 flex flex-col min-h-[50vh]">
+        <div class="mb-4 flex justify-between items-center shrink-0">
+            <h2 class="text-lg font-medium text-slate-200">Model Canvas</h2>
+            <div class="flex gap-3 text-xs font-mono text-slate-400">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#ff00ff]"></span> Base (0°)</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#00ffff]"></span> 90°</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#ffff00]"></span> 180°</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#00ff00]"></span> 270°</span>
+            </div>
+        </div>
+        <div id="canvas-container" class="flex-1 relative rounded-lg border border-slate-700/50 overflow-hidden">
+            <canvas id="render-canvas"></canvas>
+        </div>
+    </main>
+
+    <script>
+        // Pre-filled coordinates for the "Rabbit" element
+        const defaultCoordinates = `-10,-10
+10,-10
+10,10
+-10,10
+-10,-10
+
+-10,10
+-30,30
+30,30
+10,10
+-10,10
+
+-30,30
+-30,60
+-10,30
+-30,30
+
+30,30
+30,60
+10,30
+30,30`;
+
+        const textarea = document.getElementById('coordinates');
+        textarea.value = defaultCoordinates;
+
+        const canvas = document.getElementById('render-canvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        // Colors for the 4 iterations
+        const arrayColors = ['#ff00ff', '#00ffff', '#ffff00', '#00ff00']; // Magenta, Cyan, Yellow, Green
+
+        function resizeCanvas() {
+            // Match internal resolution to actual CSS dimensions
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            draw();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Parser for WallyCAD comma-separated strings
+        function parseCoordinates(text) {
+            const polygons = [];
+            let currentPolygon = [];
+            const lines = text.split('\n');
+
+            for (let line of lines) {
+                line = line.trim();
+                
+                if (line === '') {
+                    // Empty line denotes end of a polygon block
+                    if (currentPolygon.length > 0) {
+                        polygons.push(currentPolygon);
+                        currentPolygon = [];
+                    }
+                    continue;
+                }
+
+                const parts = line.split(',');
+                if (parts.length >= 2) {
+                    const x = parseFloat(parts[0]);
+                    const y = parseFloat(parts[1]);
+                    if (!isNaN(x) && !isNaN(y)) {
+                        currentPolygon.push({ x, y });
+                    }
+                }
+            }
+            
+            // Push the last one if it didn't end with a newline
+            if (currentPolygon.length > 0) {
+                polygons.push(currentPolygon);
+            }
+
+            return polygons;
+        }
+
+        // Apply 2D Rotation Matrix
+        function rotatePoint(point, angleRadians) {
+            return {
+                x: point.x * Math.cos(angleRadians) - point.y * Math.sin(angleRadians),
+                y: point.x * Math.sin(angleRadians) + point.y * Math.cos(angleRadians)
+            };
+        }
+
+        function drawGrid(scale) {
+            ctx.save();
+            ctx.strokeStyle = '#334155'; // Slate 700
+            ctx.lineWidth = 1;
+            
+            // Calculate grid bounds
+            const w = canvas.width / 2 / scale;
+            const h = canvas.height / 2 / scale;
+
+            ctx.beginPath();
+            // 10-unit grid lines
+            for (let i = 0; i < w; i += 10) {
+                ctx.moveTo(i, -h); ctx.lineTo(i, h);
+                ctx.moveTo(-i, -h); ctx.lineTo(-i, h);
+            }
+            for (let i = 0; i < h; i += 10) {
+                ctx.moveTo(-w, i); ctx.lineTo(w, i);
+                ctx.moveTo(-w, -i); ctx.lineTo(w, -i);
+            }
+            ctx.stroke();
+
+            // Axes
+            ctx.strokeStyle = '#64748b'; // Slate 500
+            ctx.lineWidth = 2 / scale; // Keep visual width consistent despite scaling
+            ctx.beginPath();
+            ctx.moveTo(0, -h); ctx.lineTo(0, h);
+            ctx.moveTo(-w, 0); ctx.lineTo(w, 0);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Parse live input
+            const polygons = parseCoordinates(textarea.value);
+            if (polygons.length === 0) return;
+
+            ctx.save();
+
+            // Transform origin to center of canvas
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            
+            // Dynamic scaling based on canvas size (viewport handling)
+            // Flip Y-axis so positive Y goes UP like standard Cartesian CAD systems
+            const scale = Math.min(canvas.width, canvas.height) / 200; 
+            ctx.scale(scale, -scale); 
+
+            // Draw Background Grid
+            drawGrid(scale);
+
+            // Array Polar Logic (x4 loop)
+            for (let i = 0; i < 4; i++) {
+                const angleDeg = i * 90;
+                const angleRad = angleDeg * (Math.PI / 180);
+                
+                ctx.strokeStyle = arrayColors[i];
+                ctx.lineWidth = 2 / scale; // Keep stroke visually constant
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                for (const poly of polygons) {
+                    if (poly.length < 2) continue;
+
+                    ctx.beginPath();
+                    // Rotate and move to start point
+                    const startP = rotatePoint(poly[0], angleRad);
+                    ctx.moveTo(startP.x, startP.y);
+
+                    // Draw to subsequent points
+                    for (let j = 1; j < poly.length; j++) {
+                        const p = rotatePoint(poly[j], angleRad);
+                        ctx.lineTo(p.x, p.y);
+                    }
+                    ctx.stroke();
+                    
+                    // Add subtle fill for better visualization (low opacity)
+                    ctx.fillStyle = arrayColors[i] + '1A'; // 10% opacity hex
+                    ctx.fill();
+                }
+            }
+
+            ctx.restore();
+        }
+
+        // Event Listeners
+        document.getElementById('execute-btn').addEventListener('click', draw);
+        
+        // Initial setup
+        // Small delay ensures container size is computed by browser
+        setTimeout(resizeCanvas, 50); 
+    </script>
+</body>
+</html>
