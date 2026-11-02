@@ -86,9 +86,15 @@
         </div>
 
         <!-- Action Button -->
-        <button id="btnExecute" class="w-full bg-cad-green hover:bg-[#3d8c40] text-black font-bold uppercase tracking-widest py-3 rounded transition-colors active:scale-[0.98]">
+        <button id="btnExecute" class="w-full bg-cad-green hover:bg-[#3d8c40] text-black font-bold uppercase tracking-widest py-3 rounded transition-colors active:scale-[0.98] mb-6">
             Execute / Fan
         </button>
+
+        <!-- Output Data -->
+        <div class="flex-1 flex flex-col min-h-[150px]">
+            <label class="block text-xs uppercase text-gray-400 mb-2">Generated Output</label>
+            <textarea id="wallyOutput" readonly class="w-full flex-1 bg-[#121212] border border-[#333] rounded p-3 text-[10px] text-[#ff8c00] resize-none focus:border-[#4CAF50] outline-none leading-relaxed" placeholder="Fanned geometry will output here..."></textarea>
+        </div>
     </aside>
 
     <!-- Main Canvas -->
@@ -114,6 +120,7 @@
         const inPivotY = document.getElementById('paramPivotY');
         const inScale = document.getElementById('paramScale');
         const scaleValDisplay = document.getElementById('scaleValue');
+        const outputData = document.getElementById('wallyOutput');
         
         // Universal Parser for WallyCAD strings
         function parseWallyData(inputString) {
@@ -189,7 +196,12 @@
 
             // Parse Raw Data
             const geometry = parseWallyData(inputData.value);
-            if(geometry.length === 0) return;
+            if(geometry.length === 0) {
+                outputData.value = "";
+                return;
+            }
+
+            let generatedOutput = "";
 
             // Array Rotation Logic
             for (let i = 0; i < N; i++) {
@@ -205,12 +217,16 @@
                     if (layer.coordinates.length < 2) return;
 
                     ctx.beginPath();
+                    generatedOutput += layer.tag;
                     
                     layer.coordinates.forEach((node, index) => {
                         // Apply 2D Rotation Matrix around (pX, pY)
                         const rotatedX = (node.x - pX) * Math.cos(theta) - (node.y - pY) * Math.sin(theta) + pX;
                         const rotatedY = (node.x - pX) * Math.sin(theta) + (node.y - pY) * Math.cos(theta) + pY;
                         
+                        // Append to output string (Format to 4 decimal places, trimming trailing zeros)
+                        generatedOutput += ` ${parseFloat(rotatedX.toFixed(4))} ${parseFloat(rotatedY.toFixed(4))}`;
+
                         // Map to Screen Coordinates (Invert Y)
                         const screenX = originX + (rotatedX * scale);
                         const screenY = originY - (rotatedY * scale);
@@ -222,9 +238,14 @@
                         }
                     });
                     
+                    generatedOutput += "\n";
                     ctx.stroke();
                 });
+                generatedOutput += "\n";
             }
+            
+            // Set the output box text
+            outputData.value = generatedOutput.trim();
         }
 
         // Event Listeners
