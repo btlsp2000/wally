@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S2 Master Viewport | Q-2-3 Documentation</title>
+    <title>MIR Vector Mirror | Q-2-3 Documentation</title>
     <style>
         /* 11x8.5 Landscape Print Setting */
         @page { size: letter landscape; margin: 0; }
@@ -43,7 +43,7 @@
         .code-block {
             background-color: #1a1a1a;
             border: 1px solid #333;
-            border-left: 3px solid #00ff00;
+            border-left: 3px solid #f0f; /* Magenta accent matching the MIR UI */
             padding: 15px;
             font-size: 11px;
             color: #e0e0e0;
@@ -67,29 +67,21 @@
 <body>
 
     <div class="spread-container">
-        <!-- QUADRANT 2: ARCHITECTURE & UI -->
+        <!-- QUADRANT 2: ENGINE ARCHITECTURE -->
         <div class="quadrant q2">
-            <h1>S2 | Master Viewport</h1>
-            <p>System documentation for the dual-pane HTML layout module (S2). This interface provides a synchronized, side-by-side workspace optimized for iPad field consulting.</p>
+            <h1>MIR | Vector Mirror Engine</h1>
+            <p>System documentation for the S2-82 Vector Mirror module. This standalone engine mathematically reflects geometry coordinate blobs (V2) across a defined directional axis (V3) to rapidly generate symmetrical structural elements.</p>
             
-            <h2>Responsive Split-Pane Architecture</h2>
-            <p>The S2 environment utilizes a CSS Flexbox foundation to load distinct structural modules concurrently. The default state applies a <code>flex: 1</code> ratio for a precise 50/50 split across the viewport.</p>
+            <h2>Axis Definition (V3)</h2>
+            <p>The module establishes the plane of reflection by interpreting user input as a directional vector originating from (0,0). The UI allows discrete control over the X and Y components:</p>
             <ul>
-                <li><strong>Pane Left:</strong> Primary tool/drafting zone (Default: <code>/qc</code> QuickClick).</li>
-                <li><strong>Pane Right:</strong> Secondary tool/archive zone (Default: <code>/</code> WAL Engine).</li>
+                <li><strong>Horizontal Mirror:</strong> V3 = (1, 0). Reflects geometry over the X-axis plane.</li>
+                <li><strong>Vertical Mirror:</strong> V3 = (0, 1). Reflects geometry over the Y-axis plane.</li>
+                <li><strong>Arbitrary Angles:</strong> By inputting custom coordinates (e.g., 1, 1), the engine can mirror across diagonal planes like a 45-degree pitch.</li>
             </ul>
 
-            <h2>iPad Touch Optimization</h2>
-            <p>Mobile browsers aggressively auto-zoom when interacting with small form inputs. The S2 module intercepts this behavior directly via CSS constraints:</p>
-            <div class="code-block">/* iPad Touch Target Enforcement */
-button, select, input {
-    font-size: 16px; /* Minimum size stops iOS auto-zoom */
-    padding: 6px 10px;
-}
-#resizer {
-    width: 20px; /* Expanded hit area for finger drag */
-    user-select: none; /* Prevents text highlighting */
-}</div>
+            <h2>Coordinate Parsing</h2>
+            <p>The input processor ingests raw WallyCAD blobs via regex (<code>split(/\s+/)</code>) and iterates through the flat array in pairs, mapping every two sequential floats to a target Point (P).</p>
 
             <div class="footer">
                 <span>Q2 // WALLYCAD V1.0.17</span>
@@ -97,40 +89,31 @@ button, select, input {
             </div>
         </div>
 
-        <!-- QUADRANT 3: ROUTING & RESIZE LOGIC -->
+        <!-- QUADRANT 3: REFLECTION MATH -->
         <div class="quadrant q3">
-            <h1>Control Deck Logic</h1>
-            <p>Dynamic routing and custom URL parameters are executed natively without requiring page refreshes, maintaining tool states in the inactive pane.</p>
+            <h1>Core Reflection Logic</h1>
+            <p>The engine bypasses heavy matrix transformations by utilizing pure vector calculus to achieve the reflection.</p>
 
-            <h2>Execute Vector Protocol</h2>
-            <p>The <code>executeVector(side)</code> function extracts input from the control deck and enforces standard HTTP protocol for external links to prevent iframe directory parsing errors.</p>
-            <div class="code-block">let finalUrl = customUrl ? customUrl : presetUrl;
+            <h2>Unit Vector Normalization</h2>
+            <p>To accurately calculate the projection, V3 must be normalized into a Unit Vector (U) with a magnitude of 1. A default fail-safe resets to the X-axis if a zero-magnitude vector is entered.</p>
+            <div class="code-block">const mag = Math.sqrt(vx * vx + vy * vy);
+if (mag === 0) { vx = 1; vy = 0; } // Default to X-axis
+const ux = vx / mag;
+const uy = vy / mag;</div>
 
-// Enforce https:// for external domains
-if (customUrl && !customUrl.startsWith('http') 
-              && !customUrl.startsWith('/')) {
-    finalUrl = 'https://' + customUrl;
-}
-iframe.src = finalUrl;</div>
+            <h2>The Reflection Equation: P' = 2(P · U)U - P</h2>
+            <p>For each parsed point (px, py), the engine calculates the dot product against the unit vector. The mirrored coordinate (mx, my) is dynamically generated and truncated to four decimal places for clean V6 output.</p>
+            <div class="code-block">// Dot Product (P · U)
+const dot = px * ux + py * uy;
 
-            <h2>Dynamic Draggable Resizer</h2>
-            <p>Width calculations are processed continuously against the active viewport bounding rect. Event listeners track both standard mouse movements and passive touch gestures (<code>touchmove</code>) to guarantee responsive sizing in the field.</p>
-            <div class="code-block">function resize(e) {
-    if (!isResizing) return;
-    let clientX = e.type.includes('mouse') 
-                  ? e.clientX : e.touches[0].clientX;
-    let newLeftWidth = (clientX / viewport.getBoundingClientRect().width) * 100;
-    
-    // Hard limits to prevent pane collapse (10% / 90%)
-    if (newLeftWidth > 10 && newLeftWidth < 90) {
-        leftPane.style.width = `${newLeftWidth}%`;
-        leftPane.style.flex = 'none';
-        rightPane.style.flex = '1';
-    }
-}</div>
+// Reflection Vector calculation
+let mx = (2 * dot * ux - px).toFixed(4);
+let my = (2 * dot * uy - py).toFixed(4);
+
+result.push(`${mx} ${my}`);</div>
 
             <div class="footer">
-                <span>Q3 // S2 MODULE STANDALONE</span>
+                <span>Q3 // S2-82 MIRROR MODULE</span>
                 <span>PAGE 02</span>
             </div>
         </div>
