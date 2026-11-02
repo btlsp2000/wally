@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD - /s2 Tutorial for Jason</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc; /* Slate 50 */
+            margin: 0;
+            overflow: hidden; /* Lock to viewport */
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbar for sidebar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-row">
+
+    <!-- 20% Sidebar -->
+    <aside class="w-[20%] min-w-[300px] bg-slate-900 border-r border-slate-700 flex flex-col h-full shrink-0 z-10 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="p-5 border-b border-slate-700/50 bg-slate-800/50">
+            <h1 class="text-xl font-bold tracking-tight text-emerald-400">WallyCAD <span class="text-slate-400 font-light text-sm">/s2</span></h1>
+            <p class="text-xs text-slate-400 mt-1 uppercase tracking-wider font-semibold">Tutor Module: JASON</p>
+        </div>
+
+        <!-- Scrollable Tutorial Content -->
+        <div class="flex-1 overflow-y-auto p-5 space-y-6">
+            
+            <div class="space-y-2">
+                <h2 class="text-lg font-semibold text-white">Welcome, Jason.</h2>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    This is your sandbox for the <strong>/s2 Master Viewport</strong>. Before we dive into complex multi-section arrays, let's get you comfortable with the core engine drafting mechanics.
+                </p>
+            </div>
+
+            <!-- Step 1 -->
+            <div class="bg-slate-800/40 border border-slate-700 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="bg-emerald-500/20 text-emerald-400 text-xs font-bold w-5 h-5 rounded flex items-center justify-center">1</div>
+                    <h3 class="font-medium text-slate-200 text-sm">The Master Viewport</h3>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    The vast space to the right is the S2 Canvas. It is an infinite Cartesian plane. The origin <code class="bg-slate-950 px-1 py-0.5 rounded text-emerald-300">0,0</code> is dead center where the heavy axes cross.
+                </p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-slate-800/40 border border-slate-700 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="bg-emerald-500/20 text-emerald-400 text-xs font-bold w-5 h-5 rounded flex items-center justify-center">2</div>
+                    <h3 class="font-medium text-slate-200 text-sm">The Command Line</h3>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Below this panel is the command input. WallyCAD is driven by direct text inputs. This keeps drafting fast and precise. You will type coordinates here.
+                </p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-slate-800/40 border border-slate-700 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="bg-emerald-500/20 text-emerald-400 text-xs font-bold w-5 h-5 rounded flex items-center justify-center">3</div>
+                    <h3 class="font-medium text-slate-200 text-sm">Coordinate Entry</h3>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed mb-3">
+                    Let's draw. Type an X,Y coordinate pair and press <kbd class="bg-slate-700 px-1.5 py-0.5 rounded text-slate-200 text-[10px]">ENTER</kbd>. Try building a box by entering these one by one:
+                </p>
+                <ul class="text-xs font-mono text-emerald-300/80 space-y-1 bg-slate-900 p-2 rounded">
+                    <li>50,50</li>
+                    <li>100,50</li>
+                    <li>100,100</li>
+                    <li>50,100</li>
+                    <li>50,50</li>
+                </ul>
+                <p class="text-[10px] text-slate-500 mt-3 italic">Tip: Type 'clear' to reset.</p>
+            </div>
+
+        </div>
+
+        <!-- Command Line Area -->
+        <div class="p-4 border-t border-slate-700 bg-slate-950 shrink-0">
+            <label for="cmd-input" class="block text-xs font-mono text-slate-400 mb-1">Command:</label>
+            <div class="relative flex items-center">
+                <span class="absolute left-3 text-emerald-500 font-mono text-sm">></span>
+                <input type="text" id="cmd-input" autocomplete="off" spellcheck="false" 
+                       class="w-full bg-slate-900 border border-slate-700 rounded-md py-2 pl-7 pr-3 text-sm font-mono text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all placeholder-slate-600"
+                       placeholder="x,y">
+            </div>
+            
+            <!-- Output Log -->
+            <div id="cmd-log" class="mt-2 h-16 overflow-y-auto text-[10px] font-mono text-slate-500 space-y-1">
+                <div>System initialized. Waiting for input...</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 80% Canvas Area -->
+    <main class="w-[80%] flex-1 relative bg-[#0a0f1c] cursor-crosshair">
+        <canvas id="s2-canvas" class="block w-full h-full"></canvas>
+        
+        <!-- Live Coordinate Readout (Bottom Right) -->
+        <div id="coord-readout" class="absolute bottom-4 right-4 bg-slate-900/80 backdrop-blur border border-slate-700 px-3 py-1.5 rounded text-xs font-mono text-emerald-400 shadow-lg pointer-events-none">
+            0.00, 0.00
+        </div>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('s2-canvas');
+        const ctx = canvas.getContext('2d');
+        const cmdInput = document.getElementById('cmd-input');
+        const cmdLog = document.getElementById('cmd-log');
+        const coordReadout = document.getElementById('coord-readout');
+
+        // State
+        let points = [];
+        let scale = 1; // 1 unit = 1 pixel
+        const gridSize = 50;
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            draw();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function logMessage(msg, isError = false) {
+            const div = document.createElement('div');
+            div.textContent = msg;
+            if (isError) div.style.color = '#ef4444'; // Red-500
+            else div.style.color = '#10b981'; // Emerald-500
+            
+            cmdLog.appendChild(div);
+            cmdLog.scrollTop = cmdLog.scrollHeight;
+        }
+
+        // Convert Cartesian (CAD) coordinates to Canvas coordinates
+        // CAD: Origin at center, +Y goes UP
+        // Canvas: Origin at top-left, +Y goes DOWN
+        function toCanvas(x, y) {
+            return {
+                cx: (canvas.width / 2) + (x * scale),
+                cy: (canvas.height / 2) - (y * scale)
+            };
+        }
+
+        // Inverse mapping for mouse tracking
+        function toCartesian(cx, cy) {
+            return {
+                x: (cx - (canvas.width / 2)) / scale,
+                y: ((canvas.height / 2) - cy) / scale
+            };
+        }
+
+        function drawGrid() {
+            const w = canvas.width;
+            const h = canvas.height;
+            const originX = w / 2;
+            const originY = h / 2;
+
+            ctx.save();
+            ctx.lineWidth = 1;
+            
+            // Draw minor grid lines
+            ctx.strokeStyle = '#1e293b'; // Slate 800
+            ctx.beginPath();
+            
+            // Vertical lines
+            for (let x = originX % gridSize; x < w; x += gridSize) {
+                ctx.moveTo(x, 0); ctx.lineTo(x, h);
+            }
+            // Horizontal lines
+            for (let y = originY % gridSize; y < h; y += gridSize) {
+                ctx.moveTo(0, y); ctx.lineTo(w, y);
+            }
+            ctx.stroke();
+
+            // Draw Axes
+            ctx.strokeStyle = '#334155'; // Slate 700
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            // Y Axis
+            ctx.moveTo(originX, 0); ctx.lineTo(originX, h);
+            // X Axis
+            ctx.moveTo(0, originY); ctx.lineTo(w, originY);
+            ctx.stroke();
+
+            // Origin Marker
+            ctx.fillStyle = '#10b981'; // Emerald 500
+            ctx.beginPath();
+            ctx.arc(originX, originY, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawGeometry() {
+            if (points.length === 0) return;
+
+            ctx.save();
+            
+            // Draw lines
+            ctx.strokeStyle = '#06b6d4'; // Cyan 500
+            ctx.lineWidth = 2;
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            
+            points.forEach((p, index) => {
+                const { cx, cy } = toCanvas(p.x, p.y);
+                if (index === 0) {
+                    ctx.moveTo(cx, cy);
+                } else {
+                    ctx.lineTo(cx, cy);
+                }
+            });
+            ctx.stroke();
+
+            // Draw nodes/points
+            ctx.fillStyle = '#f8fafc';
+            points.forEach(p => {
+                const { cx, cy } = toCanvas(p.x, p.y);
+                ctx.beginPath();
+                ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.restore();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+            drawGeometry();
+        }
+
+        // Input Handling
+        cmdInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = cmdInput.value.trim().toLowerCase();
+                if (!val) return;
+                
+                cmdInput.value = '';
+
+                if (val === 'clear') {
+                    points = [];
+                    logMessage('Workspace cleared.');
+                    draw();
+                    return;
+                }
+
+                // Parse coordinates like "50, 50" or "-10,20.5"
+                const match = val.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+                
+                if (match) {
+                    const x = parseFloat(match[1]);
+                    const y = parseFloat(match[2]);
+                    points.push({ x, y });
+                    logMessage(`Added point: <${x}, ${y}>`);
+                    draw();
+                } else {
+                    logMessage(`Invalid command or coordinate format: "${val}"`, true);
+                }
+            }
+        });
+
+        // Mouse Tracker
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            // Calculate accurate mouse position regardless of canvas CSS scaling
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const cx = (e.clientX - rect.left) * scaleX;
+            const cy = (e.clientY - rect.top) * scaleY;
+            
+            const cartesian = toCartesian(cx, cy);
+            coordReadout.textContent = `${cartesian.x.toFixed(1)}, ${cartesian.y.toFixed(1)}`;
+        });
+
+        canvas.addEventListener('mouseout', () => {
+            coordReadout.textContent = '---, ---';
+        });
+
+        // Init
+        setTimeout(resizeCanvas, 50); // Delay for exact container dimensions
+        cmdInput.focus();
+    </script>
+</body>
+</html>
