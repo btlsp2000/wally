@@ -14,7 +14,7 @@
             overflow: hidden;
         }
         
-        /* Custom scrollbar for text area */
+        /* Custom scrollbar for text areas */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #121212; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -24,11 +24,12 @@
             background-color: #121212;
             border: 1px solid #333;
             color: #4CAF50;
-            padding: 4px 8px;
+            padding: 6px 8px;
             font-family: inherit;
             width: 100%;
-            border-radius: 2px;
+            border-radius: 4px;
             outline: none;
+            transition: border-color 0.2s;
         }
         input[type="number"]:focus {
             border-color: #4CAF50;
@@ -41,30 +42,31 @@
 <body class="flex h-screen w-screen">
 
     <!-- Sidebar -->
-    <aside class="w-[300px] shrink-0 bg-[#1e1e1e] border-r border-[#333] flex flex-col h-full shadow-xl z-10 p-5 overflow-y-auto">
+    <aside class="w-[320px] shrink-0 bg-[#1e1e1e] border-r border-[#333] flex flex-col h-full shadow-2xl z-10 p-5 overflow-y-auto">
         
         <!-- Header -->
-        <div class="mb-6 border-b border-[#333] pb-4">
+        <div class="mb-5 border-b border-[#333] pb-4 shrink-0">
             <h1 class="text-xl font-bold cad-green uppercase tracking-wide">WallyCAD | FAN</h1>
-            <p class="text-xs text-gray-500 mt-1 uppercase">Array-Polar // Matrix Engine</p>
+            <p class="text-[10px] text-gray-500 mt-1 uppercase">Array-Polar // Space Trailer Engine</p>
         </div>
 
         <!-- Input Data -->
-        <div class="mb-6 flex-1 flex flex-col min-h-[200px]">
-            <label class="block text-xs uppercase text-gray-400 mb-2">Geometric Vector Data</label>
-            <textarea id="wallyInput" class="w-full flex-1 bg-[#121212] border border-[#333] rounded p-3 text-xs cad-green resize-none focus:border-[#4CAF50] outline-none leading-relaxed" spellcheck="false">[LINE] -2 -4 2 -4 2 0 -2 0 -2 -4 [WALL] 0.0017 0.0042 -1.9982 0.0042 -3.9983 4.4742 0.0017 4.4743 -3.9983 4.4742 -3.9982 7.4742 0.0017 7.4742 -3.9982 7.4742 0.0017 9.1342 -1.1482 11.9042 -5.1483 10.2443 -3.9982 7.4742 -5.1483 10.2443 -5.3182 16.3042 -1.1482 11.9042 [LINE] -0.0017 0.0042 1.9982 0.0042 3.9983 4.4742 -0.0017 4.4743 3.9983 4.4742 3.9982 7.4742 -0.0017 7.4742 3.9982 7.4742 -0.0017 9.1342 1.1482 11.9042 5.1483 10.2443 3.9982 7.4742 5.1483 10.2443 5.3182 16.3042 1.1482 11.9042</textarea>
+        <div class="flex flex-col h-[25vh] mb-5 shrink-0">
+            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-2">Source Geometry (Tags & Coordinates)</label>
+            <textarea id="wallyInput" class="w-full flex-1 bg-[#121212] border border-[#333] rounded p-3 text-[11px] cad-green resize-none focus:border-[#4CAF50] outline-none leading-relaxed" spellcheck="false">[LINE] -2 0 2 0 4 4.4721 -4 4.4721 -2 0
+[WALL] -2 0 -2 -4 2 -4 2 0</textarea>
         </div>
 
         <!-- Settings Grid -->
-        <div class="space-y-4 mb-6">
-            <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-4 mb-5 shrink-0">
+            <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-[10px] uppercase text-gray-500 mb-1">Iterations (N)</label>
-                    <input type="number" id="paramN" value="4" min="1">
+                    <input type="number" id="paramN" value="7" min="1">
                 </div>
                 <div>
                     <label class="block text-[10px] uppercase text-gray-500 mb-1">Step Angle (°)</label>
-                    <input type="number" id="paramAngle" value="90">
+                    <input type="number" id="paramAngle" value="48.1884" step="0.0001">
                 </div>
                 <div>
                     <label class="block text-[10px] uppercase text-gray-500 mb-1">Pivot X (Pc)</label>
@@ -72,38 +74,39 @@
                 </div>
                 <div>
                     <label class="block text-[10px] uppercase text-gray-500 mb-1">Pivot Y (Pc)</label>
-                    <input type="number" id="paramPivotY" value="-4.47" step="0.01">
+                    <input type="number" id="paramPivotY" value="-4.4721" step="0.0001">
                 </div>
             </div>
             
             <div class="pt-2">
                 <div class="flex justify-between items-center mb-1">
                     <label class="text-[10px] uppercase text-gray-500">Viewport Scale</label>
-                    <span id="scaleValue" class="text-[10px] cad-green">15x</span>
+                    <span id="scaleValue" class="text-[10px] cad-green font-bold">20x</span>
                 </div>
-                <input type="range" id="paramScale" min="5" max="50" value="15" class="w-full accent-[#4CAF50]">
+                <input type="range" id="paramScale" min="5" max="60" value="20" class="w-full accent-[#4CAF50]">
             </div>
         </div>
 
         <!-- Action Button -->
-        <button id="btnExecute" class="w-full bg-cad-green hover:bg-[#3d8c40] text-black font-bold uppercase tracking-widest py-3 rounded transition-colors active:scale-[0.98] mb-6">
-            Execute / Fan
+        <button id="btnExecute" class="w-full bg-cad-green hover:bg-[#3d8c40] text-black font-bold uppercase text-sm tracking-widest py-3 rounded transition-all active:scale-[0.98] mb-5 shrink-0 shadow-lg">
+            Execute Array
         </button>
 
         <!-- Output Data -->
         <div class="flex-1 flex flex-col min-h-[150px]">
-            <label class="block text-xs uppercase text-gray-400 mb-2">Generated Output</label>
+            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-2">Trans-Rot Generated Output</label>
             <textarea id="wallyOutput" readonly class="w-full flex-1 bg-[#121212] border border-[#333] rounded p-3 text-[10px] text-[#ff8c00] resize-none focus:border-[#4CAF50] outline-none leading-relaxed" placeholder="Fanned geometry will output here..."></textarea>
         </div>
     </aside>
 
     <!-- Main Canvas -->
-    <main id="canvasContainer" class="flex-1 relative cursor-crosshair">
+    <main id="canvasContainer" class="flex-1 relative cursor-crosshair bg-[#0a0a0a]">
         <canvas id="cadCanvas" class="block w-full h-full"></canvas>
         
-        <!-- Live Coordinate Marker -->
-        <div class="absolute top-4 right-4 text-xs text-gray-500 bg-[#1e1e1e] px-3 py-1.5 rounded border border-[#333] shadow-lg pointer-events-none">
-            Origin (0,0) Offset: <span class="cad-green font-bold">Visible</span>
+        <!-- UI Overlay -->
+        <div class="absolute top-4 right-4 bg-[#1e1e1e] px-4 py-2 rounded border border-[#333] shadow-lg pointer-events-none text-right">
+            <div class="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Coordinate Viewport</div>
+            <div id="coordDisplay" class="text-xs font-bold cad-green">Origin Centered</div>
         </div>
     </main>
 
@@ -112,7 +115,7 @@
         const ctx = canvas.getContext('2d');
         const container = document.getElementById('canvasContainer');
 
-        // Inputs
+        // UI Elements
         const inputData = document.getElementById('wallyInput');
         const inN = document.getElementById('paramN');
         const inAngle = document.getElementById('paramAngle');
@@ -121,8 +124,14 @@
         const inScale = document.getElementById('paramScale');
         const scaleValDisplay = document.getElementById('scaleValue');
         const outputData = document.getElementById('wallyOutput');
+        const coordDisplay = document.getElementById('coordDisplay');
         
-        // Universal Parser for WallyCAD strings
+        let originX, originY;
+
+        /**
+         * Universal WallyCAD Parser
+         * Tokenizes spaces, commas, and handles geometric tags properly.
+         */
         function parseWallyData(inputString) {
             const tokens = inputString.trim().split(/[\s,]+/);
             const parsedGeometry = [];
@@ -135,7 +144,6 @@
                     currentSequence = { tag: token, coordinates: [] };
                     tempX = null;
                 } else {
-                    // Try parsing the token as a float. Ignores text like "T:0" inherently (isNaN).
                     const val = parseFloat(token);
                     if (!isNaN(val)) {
                         if (tempX === null) {
@@ -151,64 +159,59 @@
             return parsedGeometry;
         }
 
-        // Window resize handler
+        // Resize Canvas and Redraw
         function resize() {
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
+            // Set drawing origin (CAD 0,0) near the bottom-center for fanning upward
+            originX = canvas.width / 2;
+            originY = canvas.height * 0.70;
             draw();
         }
         window.addEventListener('resize', resize);
 
-        // Core Drawing Loop
+        // Core Drawing and Rotation Engine
         function draw() {
-            // Get Parameters
             const N = parseInt(inN.value) || 1;
             const stepAngleDeg = parseFloat(inAngle.value) || 0;
             const pX = parseFloat(inPivotX.value) || 0;
             const pY = parseFloat(inPivotY.value) || 0;
-            const scale = parseInt(inScale.value) || 15;
+            const scale = parseInt(inScale.value) || 20;
             
-            // Clear screen
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Define drawing origin (CAD 0,0). Move origin to the lower center of the screen
-            const originX = canvas.width / 2;
-            const originY = canvas.height * 0.75; 
-
-            // Draw Background Grid/Axes
+            // 1. Draw Cartesian Axes
             ctx.lineWidth = 1;
             ctx.strokeStyle = '#222';
             ctx.beginPath();
-            // Vertical axis
             ctx.moveTo(originX, 0); ctx.lineTo(originX, canvas.height);
-            // Horizontal axis
             ctx.moveTo(0, originY); ctx.lineTo(canvas.width, originY);
             ctx.stroke();
 
-            // Draw Pivot Point Marker
+            // 2. Draw Pivot Marker (Red)
             const pCanvasX = originX + (pX * scale);
-            const pCanvasY = originY - (pY * scale); // Y goes up in CAD, down in canvas
+            const pCanvasY = originY - (pY * scale); // CAD Y goes up, canvas Y goes down
             
-            ctx.fillStyle = '#ff3333';
+            ctx.fillStyle = '#ef4444'; // Tailwind Red-500
             ctx.beginPath();
             ctx.arc(pCanvasX, pCanvasY, 4, 0, Math.PI * 2);
             ctx.fill();
 
-            // Parse Raw Data
+            // Parse Raw Input Geometry
             const geometry = parseWallyData(inputData.value);
             if(geometry.length === 0) {
-                outputData.value = "";
+                outputData.value = "No valid coordinate geometry found.";
                 return;
             }
 
             let generatedOutput = "";
 
-            // Array Rotation Logic
+            // 3. Array Rotation Loop
             for (let i = 0; i < N; i++) {
                 const theta = i * (stepAngleDeg * Math.PI / 180);
                 
-                // Color configuration: Base element is Green, arrays are Orange
-                ctx.strokeStyle = (i === 0) ? '#4CAF50' : '#ff8c00'; // CAD Green : Orange
+                // Styling: Base element is CAD Green, arrays are Orange
+                ctx.strokeStyle = (i === 0) ? '#4CAF50' : '#ff8c00';
                 ctx.lineWidth = 2;
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
@@ -217,6 +220,7 @@
                     if (layer.coordinates.length < 2) return;
 
                     ctx.beginPath();
+                    // Start formatting output tag for this iteration
                     generatedOutput += layer.tag;
                     
                     layer.coordinates.forEach((node, index) => {
@@ -224,10 +228,10 @@
                         const rotatedX = (node.x - pX) * Math.cos(theta) - (node.y - pY) * Math.sin(theta) + pX;
                         const rotatedY = (node.x - pX) * Math.sin(theta) + (node.y - pY) * Math.cos(theta) + pY;
                         
-                        // Append to output string (Format to 4 decimal places, trimming trailing zeros)
-                        generatedOutput += ` ${parseFloat(rotatedX.toFixed(4))} ${parseFloat(rotatedY.toFixed(4))}`;
+                        // Append formatted (4-decimal) coordinates to output string
+                        generatedOutput += ` ${rotatedX.toFixed(4)} ${rotatedY.toFixed(4)}`;
 
-                        // Map to Screen Coordinates (Invert Y)
+                        // Map mathematically pure coordinates to Screen Canvas
                         const screenX = originX + (rotatedX * scale);
                         const screenY = originY - (rotatedY * scale);
 
@@ -241,12 +245,29 @@
                     generatedOutput += "\n";
                     ctx.stroke();
                 });
-                generatedOutput += "\n";
+                
+                if (i < N - 1) generatedOutput += "\n"; // Space out iterations
             }
             
-            // Set the output box text
+            // Push calculated values to UI
             outputData.value = generatedOutput.trim();
         }
+
+        // Live Coordinate Tracker
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            const scale = parseInt(inScale.value) || 20;
+            const cartesianX = (mouseX - originX) / scale;
+            const cartesianY = (originY - mouseY) / scale;
+            
+            coordDisplay.textContent = `X: ${cartesianX.toFixed(2)}, Y: ${cartesianY.toFixed(2)}`;
+        });
+        canvas.addEventListener('mouseout', () => {
+            coordDisplay.textContent = 'Origin Centered';
+        });
 
         // Event Listeners
         document.getElementById('btnExecute').addEventListener('click', draw);
@@ -255,8 +276,8 @@
             draw();
         });
 
-        // Init
-        setTimeout(resize, 50);
+        // Initialize application
+        setTimeout(resize, 100);
     </script>
 </body>
 </html>
