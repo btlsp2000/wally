@@ -3,259 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WallyCAD Array-Polar</title>
+    <title>WallyCAD | FAN Module</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* Slate 900 */
-            color: #f8fafc; /* Slate 50 */
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #121212;
+            color: #d4d4d4;
             margin: 0;
-            overflow: hidden; /* Prevent body scroll, let canvas handle layout */
+            overflow: hidden;
         }
-        #canvas-container {
-            position: relative;
+        
+        /* Custom scrollbar for text area */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #121212; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4CAF50; }
+
+        input[type="number"], input[type="range"] {
+            background-color: #121212;
+            border: 1px solid #333;
+            color: #4CAF50;
+            padding: 4px 8px;
+            font-family: inherit;
             width: 100%;
-            height: 100%;
+            border-radius: 2px;
+            outline: none;
         }
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            background-color: #1e293b; /* Slate 800 */
-            border-radius: 0.5rem;
-            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        input[type="number"]:focus {
+            border-color: #4CAF50;
         }
+        
+        .cad-green { color: #4CAF50; }
+        .bg-cad-green { background-color: #4CAF50; }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col md:flex-row">
+<body class="flex h-screen w-screen">
 
     <!-- Sidebar -->
-    <aside class="w-full md:w-80 bg-slate-900 border-r border-slate-700 flex flex-col h-full shrink-0 z-10 shadow-xl">
-        <div class="p-6 flex-1 flex flex-col h-full">
-            <h1 class="text-2xl font-bold tracking-tight text-white mb-2">WallyCAD</h1>
-            <p class="text-xs text-slate-400 mb-6 uppercase tracking-wider font-semibold">/array-polar route</p>
+    <aside class="w-[300px] shrink-0 bg-[#1e1e1e] border-r border-[#333] flex flex-col h-full shadow-xl z-10 p-5 overflow-y-auto">
+        
+        <!-- Header -->
+        <div class="mb-6 border-b border-[#333] pb-4">
+            <h1 class="text-xl font-bold cad-green uppercase tracking-wide">WallyCAD | FAN</h1>
+            <p class="text-xs text-gray-500 mt-1 uppercase">Array-Polar // Matrix Engine</p>
+        </div>
 
-            <div class="mb-2 flex justify-between items-end">
-                <label for="coordinates" class="block text-sm font-medium text-slate-300">Coordinate Input (x,y)</label>
-                <span class="text-[10px] text-slate-500 bg-slate-800 px-2 py-1 rounded">Primary Element</span>
+        <!-- Input Data -->
+        <div class="mb-6 flex-1 flex flex-col min-h-[200px]">
+            <label class="block text-xs uppercase text-gray-400 mb-2">Geometric Vector Data</label>
+            <textarea id="wallyInput" class="w-full flex-1 bg-[#121212] border border-[#333] rounded p-3 text-xs cad-green resize-none focus:border-[#4CAF50] outline-none leading-relaxed" spellcheck="false">[LINE] -2 -4 2 -4 2 0 -2 0 -2 -4 [WALL] 0.0017 0.0042 -1.9982 0.0042 -3.9983 4.4742 0.0017 4.4743 -3.9983 4.4742 -3.9982 7.4742 0.0017 7.4742 -3.9982 7.4742 0.0017 9.1342 -1.1482 11.9042 -5.1483 10.2443 -3.9982 7.4742 -5.1483 10.2443 -5.3182 16.3042 -1.1482 11.9042 [LINE] -0.0017 0.0042 1.9982 0.0042 3.9983 4.4742 -0.0017 4.4743 3.9983 4.4742 3.9982 7.4742 -0.0017 7.4742 3.9982 7.4742 -0.0017 9.1342 1.1482 11.9042 5.1483 10.2443 3.9982 7.4742 5.1483 10.2443 5.3182 16.3042 1.1482 11.9042</textarea>
+        </div>
+
+        <!-- Settings Grid -->
+        <div class="space-y-4 mb-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] uppercase text-gray-500 mb-1">Iterations (N)</label>
+                    <input type="number" id="paramN" value="4" min="1">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase text-gray-500 mb-1">Step Angle (°)</label>
+                    <input type="number" id="paramAngle" value="90">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase text-gray-500 mb-1">Pivot X (Pc)</label>
+                    <input type="number" id="paramPivotX" value="0" step="0.1">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase text-gray-500 mb-1">Pivot Y (Pc)</label>
+                    <input type="number" id="paramPivotY" value="-4.47" step="0.01">
+                </div>
             </div>
             
-            <textarea id="coordinates" class="flex-1 w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm font-mono text-emerald-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none shadow-inner" spellcheck="false"></textarea>
-
-            <div class="mt-6 space-y-4">
-                <div class="text-xs text-slate-400 bg-slate-800/50 p-3 rounded border border-slate-700/50">
-                    <p class="mb-1"><strong>Matrix Logic:</strong></p>
-                    <p class="font-mono opacity-80">x' = x·cos(θ) - y·sin(θ)</p>
-                    <p class="font-mono opacity-80">y' = x·sin(θ) + y·cos(θ)</p>
+            <div class="pt-2">
+                <div class="flex justify-between items-center mb-1">
+                    <label class="text-[10px] uppercase text-gray-500">Viewport Scale</label>
+                    <span id="scaleValue" class="text-[10px] cad-green">15x</span>
                 </div>
-                
-                <button id="execute-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-lg shadow-lg shadow-indigo-500/30 transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
-                    </svg>
-                    Execute Array (x4)
-                </button>
+                <input type="range" id="paramScale" min="5" max="50" value="15" class="w-full accent-[#4CAF50]">
             </div>
         </div>
+
+        <!-- Action Button -->
+        <button id="btnExecute" class="w-full bg-cad-green hover:bg-[#3d8c40] text-black font-bold uppercase tracking-widest py-3 rounded transition-colors active:scale-[0.98]">
+            Execute / Fan
+        </button>
     </aside>
 
-    <!-- Canvas Area -->
-    <main class="flex-1 p-4 md:p-6 bg-slate-950 flex flex-col min-h-[50vh]">
-        <div class="mb-4 flex justify-between items-center shrink-0">
-            <h2 class="text-lg font-medium text-slate-200">Model Canvas</h2>
-            <div class="flex gap-3 text-xs font-mono text-slate-400">
-                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#ff00ff]"></span> Base (0°)</span>
-                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#00ffff]"></span> 90°</span>
-                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#ffff00]"></span> 180°</span>
-                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#00ff00]"></span> 270°</span>
-            </div>
-        </div>
-        <div id="canvas-container" class="flex-1 relative rounded-lg border border-slate-700/50 overflow-hidden">
-            <canvas id="render-canvas"></canvas>
+    <!-- Main Canvas -->
+    <main id="canvasContainer" class="flex-1 relative cursor-crosshair">
+        <canvas id="cadCanvas" class="block w-full h-full"></canvas>
+        
+        <!-- Live Coordinate Marker -->
+        <div class="absolute top-4 right-4 text-xs text-gray-500 bg-[#1e1e1e] px-3 py-1.5 rounded border border-[#333] shadow-lg pointer-events-none">
+            Origin (0,0) Offset: <span class="cad-green font-bold">Visible</span>
         </div>
     </main>
 
     <script>
-        // Pre-filled coordinates for the "Rabbit" element
-        const defaultCoordinates = `-10,-10
-10,-10
-10,10
--10,10
--10,-10
-
--10,10
--30,30
-30,30
-10,10
--10,10
-
--30,30
--30,60
--10,30
--30,30
-
-30,30
-30,60
-10,30
-30,30`;
-
-        const textarea = document.getElementById('coordinates');
-        textarea.value = defaultCoordinates;
-
-        const canvas = document.getElementById('render-canvas');
+        const canvas = document.getElementById('cadCanvas');
         const ctx = canvas.getContext('2d');
-        const container = document.getElementById('canvas-container');
+        const container = document.getElementById('canvasContainer');
 
-        // Colors for the 4 iterations
-        const arrayColors = ['#ff00ff', '#00ffff', '#ffff00', '#00ff00']; // Magenta, Cyan, Yellow, Green
+        // Inputs
+        const inputData = document.getElementById('wallyInput');
+        const inN = document.getElementById('paramN');
+        const inAngle = document.getElementById('paramAngle');
+        const inPivotX = document.getElementById('paramPivotX');
+        const inPivotY = document.getElementById('paramPivotY');
+        const inScale = document.getElementById('paramScale');
+        const scaleValDisplay = document.getElementById('scaleValue');
+        
+        // Universal Parser for WallyCAD strings
+        function parseWallyData(inputString) {
+            const tokens = inputString.trim().split(/[\s,]+/);
+            const parsedGeometry = [];
+            let currentSequence = { tag: "[UNTAGGED]", coordinates: [] };
+            let tempX = null;
 
-        function resizeCanvas() {
-            // Match internal resolution to actual CSS dimensions
+            tokens.forEach(token => {
+                if (/^\[.*?\]$/.test(token)) {
+                    if (currentSequence.coordinates.length > 0) parsedGeometry.push(currentSequence);
+                    currentSequence = { tag: token, coordinates: [] };
+                    tempX = null;
+                } else {
+                    // Try parsing the token as a float. Ignores text like "T:0" inherently (isNaN).
+                    const val = parseFloat(token);
+                    if (!isNaN(val)) {
+                        if (tempX === null) {
+                            tempX = val;
+                        } else {
+                            currentSequence.coordinates.push({ x: tempX, y: val });
+                            tempX = null; 
+                        }
+                    }
+                }
+            });
+            if (currentSequence.coordinates.length > 0) parsedGeometry.push(currentSequence);
+            return parsedGeometry;
+        }
+
+        // Window resize handler
+        function resize() {
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
             draw();
         }
+        window.addEventListener('resize', resize);
 
-        window.addEventListener('resize', resizeCanvas);
-
-        // Parser for WallyCAD comma-separated strings
-        function parseCoordinates(text) {
-            const polygons = [];
-            let currentPolygon = [];
-            const lines = text.split('\n');
-
-            for (let line of lines) {
-                line = line.trim();
-                
-                if (line === '') {
-                    // Empty line denotes end of a polygon block
-                    if (currentPolygon.length > 0) {
-                        polygons.push(currentPolygon);
-                        currentPolygon = [];
-                    }
-                    continue;
-                }
-
-                const parts = line.split(',');
-                if (parts.length >= 2) {
-                    const x = parseFloat(parts[0]);
-                    const y = parseFloat(parts[1]);
-                    if (!isNaN(x) && !isNaN(y)) {
-                        currentPolygon.push({ x, y });
-                    }
-                }
-            }
-            
-            // Push the last one if it didn't end with a newline
-            if (currentPolygon.length > 0) {
-                polygons.push(currentPolygon);
-            }
-
-            return polygons;
-        }
-
-        // Apply 2D Rotation Matrix
-        function rotatePoint(point, angleRadians) {
-            return {
-                x: point.x * Math.cos(angleRadians) - point.y * Math.sin(angleRadians),
-                y: point.x * Math.sin(angleRadians) + point.y * Math.cos(angleRadians)
-            };
-        }
-
-        function drawGrid(scale) {
-            ctx.save();
-            ctx.strokeStyle = '#334155'; // Slate 700
-            ctx.lineWidth = 1;
-            
-            // Calculate grid bounds
-            const w = canvas.width / 2 / scale;
-            const h = canvas.height / 2 / scale;
-
-            ctx.beginPath();
-            // 10-unit grid lines
-            for (let i = 0; i < w; i += 10) {
-                ctx.moveTo(i, -h); ctx.lineTo(i, h);
-                ctx.moveTo(-i, -h); ctx.lineTo(-i, h);
-            }
-            for (let i = 0; i < h; i += 10) {
-                ctx.moveTo(-w, i); ctx.lineTo(w, i);
-                ctx.moveTo(-w, -i); ctx.lineTo(w, -i);
-            }
-            ctx.stroke();
-
-            // Axes
-            ctx.strokeStyle = '#64748b'; // Slate 500
-            ctx.lineWidth = 2 / scale; // Keep visual width consistent despite scaling
-            ctx.beginPath();
-            ctx.moveTo(0, -h); ctx.lineTo(0, h);
-            ctx.moveTo(-w, 0); ctx.lineTo(w, 0);
-            ctx.stroke();
-
-            ctx.restore();
-        }
-
+        // Core Drawing Loop
         function draw() {
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Parse live input
-            const polygons = parseCoordinates(textarea.value);
-            if (polygons.length === 0) return;
-
-            ctx.save();
-
-            // Transform origin to center of canvas
-            ctx.translate(canvas.width / 2, canvas.height / 2);
+            // Get Parameters
+            const N = parseInt(inN.value) || 1;
+            const stepAngleDeg = parseFloat(inAngle.value) || 0;
+            const pX = parseFloat(inPivotX.value) || 0;
+            const pY = parseFloat(inPivotY.value) || 0;
+            const scale = parseInt(inScale.value) || 15;
             
-            // Dynamic scaling based on canvas size (viewport handling)
-            // Flip Y-axis so positive Y goes UP like standard Cartesian CAD systems
-            const scale = Math.min(canvas.width, canvas.height) / 200; 
-            ctx.scale(scale, -scale); 
+            // Clear screen
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Define drawing origin (CAD 0,0). Move origin to the lower center of the screen
+            const originX = canvas.width / 2;
+            const originY = canvas.height * 0.75; 
 
-            // Draw Background Grid
-            drawGrid(scale);
+            // Draw Background Grid/Axes
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = '#222';
+            ctx.beginPath();
+            // Vertical axis
+            ctx.moveTo(originX, 0); ctx.lineTo(originX, canvas.height);
+            // Horizontal axis
+            ctx.moveTo(0, originY); ctx.lineTo(canvas.width, originY);
+            ctx.stroke();
 
-            // Array Polar Logic (x4 loop)
-            for (let i = 0; i < 4; i++) {
-                const angleDeg = i * 90;
-                const angleRad = angleDeg * (Math.PI / 180);
+            // Draw Pivot Point Marker
+            const pCanvasX = originX + (pX * scale);
+            const pCanvasY = originY - (pY * scale); // Y goes up in CAD, down in canvas
+            
+            ctx.fillStyle = '#ff3333';
+            ctx.beginPath();
+            ctx.arc(pCanvasX, pCanvasY, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Parse Raw Data
+            const geometry = parseWallyData(inputData.value);
+            if(geometry.length === 0) return;
+
+            // Array Rotation Logic
+            for (let i = 0; i < N; i++) {
+                const theta = i * (stepAngleDeg * Math.PI / 180);
                 
-                ctx.strokeStyle = arrayColors[i];
-                ctx.lineWidth = 2 / scale; // Keep stroke visually constant
+                // Color configuration: Base element is Green, arrays are Orange
+                ctx.strokeStyle = (i === 0) ? '#4CAF50' : '#ff8c00'; // CAD Green : Orange
+                ctx.lineWidth = 2;
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
 
-                for (const poly of polygons) {
-                    if (poly.length < 2) continue;
+                geometry.forEach(layer => {
+                    if (layer.coordinates.length < 2) return;
 
                     ctx.beginPath();
-                    // Rotate and move to start point
-                    const startP = rotatePoint(poly[0], angleRad);
-                    ctx.moveTo(startP.x, startP.y);
-
-                    // Draw to subsequent points
-                    for (let j = 1; j < poly.length; j++) {
-                        const p = rotatePoint(poly[j], angleRad);
-                        ctx.lineTo(p.x, p.y);
-                    }
-                    ctx.stroke();
                     
-                    // Add subtle fill for better visualization (low opacity)
-                    ctx.fillStyle = arrayColors[i] + '1A'; // 10% opacity hex
-                    ctx.fill();
-                }
-            }
+                    layer.coordinates.forEach((node, index) => {
+                        // Apply 2D Rotation Matrix around (pX, pY)
+                        const rotatedX = (node.x - pX) * Math.cos(theta) - (node.y - pY) * Math.sin(theta) + pX;
+                        const rotatedY = (node.x - pX) * Math.sin(theta) + (node.y - pY) * Math.cos(theta) + pY;
+                        
+                        // Map to Screen Coordinates (Invert Y)
+                        const screenX = originX + (rotatedX * scale);
+                        const screenY = originY - (rotatedY * scale);
 
-            ctx.restore();
+                        if (index === 0) {
+                            ctx.moveTo(screenX, screenY);
+                        } else {
+                            ctx.lineTo(screenX, screenY);
+                        }
+                    });
+                    
+                    ctx.stroke();
+                });
+            }
         }
 
         // Event Listeners
-        document.getElementById('execute-btn').addEventListener('click', draw);
-        
-        // Initial setup
-        // Small delay ensures container size is computed by browser
-        setTimeout(resizeCanvas, 50); 
+        document.getElementById('btnExecute').addEventListener('click', draw);
+        inScale.addEventListener('input', (e) => {
+            scaleValDisplay.textContent = e.target.value + 'x';
+            draw();
+        });
+
+        // Init
+        setTimeout(resize, 50);
     </script>
 </body>
 </html>
