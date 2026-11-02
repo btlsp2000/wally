@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DXF to Wally Decompiler | LKA Enterprise</title>
+    
+    <style>
+        /* WALLY ENGINE UI STYLES (MATCHED TO V1.2) */
+        body {
+            background-color: #e0e0e0;
+            font-family: 'Courier New', Courier, monospace;
+            color: #000;
+            margin: 0;
+            padding: 5%;
+            display: flex;
+            justify-content: center;
+        }
+        .master-block {
+            width: 100%;
+            max-width: 850px;
+            background: #fff;
+            border: 3px solid #000;
+            padding: 30px;
+            box-shadow: 8px 8px 0px #000;
+        }
+        header {
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .subtitle {
+            font-weight: bold;
+            color: #555;
+            margin-top: 5px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: #f4f4f4;
+            border: 2px solid #000;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: vertical;
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        button {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        button:hover {
+            background: #444;
+        }
+        .status-log {
+            margin-top: 25px;
+            border: 1px solid #000;
+            padding: 15px;
+            background: #fafafa;
+            font-size: 0.9em;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.85em;
+            font-weight: bold;
+            border-top: 2px solid #000;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="master-block">
+    <header>
+        <h1>WALLY CAD DECOMPILER</h1>
+        <div class="subtitle">REVERSE COMPILE: DXF (.dxf) TO WALLY MATRIX [V1.0]</div>
+    </header>
+
+    <div>
+        <label for="dxfInput"><strong>1. INPUT: RAW DXF TEXT</strong></label>
+        <textarea id="dxfInput" placeholder="Open a .dxf file in a text editor, copy everything, and paste it here..."></textarea>
+    </div>
+
+    <div class="controls">
+        <button onclick="decompileDXF()">REVERSE TO WALLY</button>
+        <span id="outputStatus" style="font-weight: bold; color: #555;">STATUS: STANDBY</span>
+    </div>
+
+    <div style="margin-top: 25px;">
+        <label for="wallyOutput"><strong>2. OUTPUT: WALLY PARAMETRIC PAYLOAD</strong></label>
+        <textarea id="wallyOutput" readonly placeholder="Translated Wally Elements will generate here..."></textarea>
+    </div>
+
+    <div class="status-log">
+        <strong>DECOMPILER LOGIC:</strong>
+        <ul style="margin-top: 10px; padding-left: 20px;">
+            <li>Ignores DXF header bloat and targets the <code>ENTITIES</code> section.</li>
+            <li>Extracts standard AutoCAD <code>LINE</code> data into <code>Wally Line X1,Y1 / X2,Y2</code>.</li>
+            <li>Extracts standard AutoCAD <code>CIRCLE</code> data into <code>Wally Circle X,Y / R</code>.</li>
+            <li>Strips away the commercial CAD software, returning geometry to pure text.</li>
+        </ul>
+    </div>
+
+    <footer>
+        WALLY CAD ENGINE // LKA ENTERPRISE // ROOM 113
+    </footer>
+</div>
+
+<script>
+    // ----------------------------------------------------
+    // THE REVERSE ENGINE: DXF TO WALLY (V1.0)
+    // ----------------------------------------------------
+    function decompileDXF() {
+        const dxf = document.getElementById('dxfInput').value.split('\n');
+        let wallyOutput = "";
+        let inEntities = false;
+        let entityCount = 0;
+
+        for (let i = 0; i < dxf.length; i++) {
+            let line = dxf[i].trim();
+            
+            // Isolate the ENTITIES section to ignore header data
+            if (line === "ENTITIES") inEntities = true;
+            if (line === "ENDSEC" && inEntities) inEntities = false;
+
+            // Extract LINE
+            if (inEntities && line === "LINE") {
+                let x1, y1, x2, y2;
+                for (let j = 1; j < 20 && (i+j) < dxf.length; j++) {
+                    let nextLine = dxf[i+j].trim();
+                    if (nextLine === "0") break; // Stop if we hit the next entity
+                    if (nextLine === "10") x1 = parseFloat(dxf[i+j+1].trim());
+                    if (nextLine === "20") y1 = parseFloat(dxf[i+j+1].trim());
+                    if (nextLine === "11") x2 = parseFloat(dxf[i+j+1].trim());
+                    if (nextLine === "21") y2 = parseFloat(dxf[i+j+1].trim());
+                }
+                if (x1 !== undefined && y1 !== undefined && x2 !== undefined && y2 !== undefined) {
+                    wallyOutput += `Wally Line ${x1},${y1} / ${x2},${y2}\n`;
+                    entityCount++;
+                }
+            }
+            
+            // Extract CIRCLE
+            if (inEntities && line === "CIRCLE") {
+                let cx, cy, r;
+                for (let j = 1; j < 20 && (i+j) < dxf.length; j++) {
+                    let nextLine = dxf[i+j].trim();
+                    if (nextLine === "0") break; // Stop if we hit the next entity
+                    if (nextLine === "10") cx = parseFloat(dxf[i+j+1].trim());
+                    if (nextLine === "20") cy = parseFloat(dxf[i+j+1].trim());
+                    if (nextLine === "40") r = parseFloat(dxf[i+j+1].trim());
+                }
+                if (cx !== undefined && cy !== undefined && r !== undefined) {
+                    wallyOutput += `Wally Circle ${cx},${cy} / ${r}\n`;
+                    entityCount++;
+                }
+            }
+        }
+
+        const statusEl = document.getElementById('outputStatus');
+        const outputBox = document.getElementById('wallyOutput');
+
+        if (entityCount > 0) {
+            outputBox.value = wallyOutput;
+            statusEl.innerText = `STATUS: SUCCESS (${entityCount} ENTITIES EXTRACTED)`;
+            statusEl.style.color = "#388e3c";
+        } else {
+            outputBox.value = "";
+            statusEl.innerText = "STATUS: ERROR (NO VALID DXF ENTITIES FOUND)";
+            statusEl.style.color = "#d32f2f";
+        }
+    }
+</script>
+
+</body>
+</html>
