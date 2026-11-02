@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S2 Master Viewport | Q-2-3 Documentation</title>
+    <style>
+        /* 11x8.5 Landscape Print Setting */
+        @page { size: letter landscape; margin: 0; }
+        body { 
+            background-color: #121212; 
+            color: #00ff00; 
+            font-family: 'Courier New', Courier, monospace; 
+            margin: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            height: 100vh;
+        }
+        /* The physical spread container (1056px x 816px roughly equals 11x8.5 at 96dpi) */
+        .spread-container {
+            display: flex;
+            width: 1056px;
+            height: 816px;
+            background-color: #000;
+            border: 1px solid #333;
+            box-shadow: 0 0 20px rgba(0,255,0,0.1);
+        }
+        /* Q-2 (Left Page) and Q-3 (Right Page) */
+        .quadrant {
+            flex: 1;
+            padding: 50px;
+            box-sizing: border-box;
+            position: relative;
+        }
+        .q2 { border-right: 1px dashed #444; } /* Fold line */
+        
+        h1 { color: #fff; font-size: 24px; border-bottom: 2px solid #00ff00; padding-bottom: 10px; margin-top: 0; text-transform: uppercase; }
+        h2 { color: #4CAF50; font-size: 16px; margin-top: 30px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        p, li { color: #aaa; font-size: 13px; line-height: 1.6; }
+        ul { padding-left: 20px; }
+        
+        .code-block {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-left: 3px solid #00ff00;
+            padding: 15px;
+            font-size: 11px;
+            color: #e0e0e0;
+            overflow-x: hidden;
+            white-space: pre-wrap;
+            margin-top: 15px;
+        }
+        .footer {
+            position: absolute;
+            bottom: 50px;
+            left: 50px;
+            right: 50px;
+            display: flex;
+            justify-content: space-between;
+            color: #555;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="spread-container">
+        <!-- QUADRANT 2: ARCHITECTURE & UI -->
+        <div class="quadrant q2">
+            <h1>S2 | Master Viewport</h1>
+            <p>System documentation for the dual-pane HTML layout module (S2). This interface provides a synchronized, side-by-side workspace optimized for iPad field consulting.</p>
+            
+            <h2>Responsive Split-Pane Architecture</h2>
+            <p>The S2 environment utilizes a CSS Flexbox foundation to load distinct structural modules concurrently. The default state applies a <code>flex: 1</code> ratio for a precise 50/50 split across the viewport.</p>
+            <ul>
+                <li><strong>Pane Left:</strong> Primary tool/drafting zone (Default: <code>/qc</code> QuickClick).</li>
+                <li><strong>Pane Right:</strong> Secondary tool/archive zone (Default: <code>/</code> WAL Engine).</li>
+            </ul>
+
+            <h2>iPad Touch Optimization</h2>
+            <p>Mobile browsers aggressively auto-zoom when interacting with small form inputs. The S2 module intercepts this behavior directly via CSS constraints:</p>
+            <div class="code-block">/* iPad Touch Target Enforcement */
+button, select, input {
+    font-size: 16px; /* Minimum size stops iOS auto-zoom */
+    padding: 6px 10px;
+}
+#resizer {
+    width: 20px; /* Expanded hit area for finger drag */
+    user-select: none; /* Prevents text highlighting */
+}</div>
+
+            <div class="footer">
+                <span>Q2 // WALLYCAD V1.0.17</span>
+                <span>PAGE 01</span>
+            </div>
+        </div>
+
+        <!-- QUADRANT 3: ROUTING & RESIZE LOGIC -->
+        <div class="quadrant q3">
+            <h1>Control Deck Logic</h1>
+            <p>Dynamic routing and custom URL parameters are executed natively without requiring page refreshes, maintaining tool states in the inactive pane.</p>
+
+            <h2>Execute Vector Protocol</h2>
+            <p>The <code>executeVector(side)</code> function extracts input from the control deck and enforces standard HTTP protocol for external links to prevent iframe directory parsing errors.</p>
+            <div class="code-block">let finalUrl = customUrl ? customUrl : presetUrl;
+
+// Enforce https:// for external domains
+if (customUrl && !customUrl.startsWith('http') 
+              && !customUrl.startsWith('/')) {
+    finalUrl = 'https://' + customUrl;
+}
+iframe.src = finalUrl;</div>
+
+            <h2>Dynamic Draggable Resizer</h2>
+            <p>Width calculations are processed continuously against the active viewport bounding rect. Event listeners track both standard mouse movements and passive touch gestures (<code>touchmove</code>) to guarantee responsive sizing in the field.</p>
+            <div class="code-block">function resize(e) {
+    if (!isResizing) return;
+    let clientX = e.type.includes('mouse') 
+                  ? e.clientX : e.touches[0].clientX;
+    let newLeftWidth = (clientX / viewport.getBoundingClientRect().width) * 100;
+    
+    // Hard limits to prevent pane collapse (10% / 90%)
+    if (newLeftWidth > 10 && newLeftWidth < 90) {
+        leftPane.style.width = `${newLeftWidth}%`;
+        leftPane.style.flex = 'none';
+        rightPane.style.flex = '1';
+    }
+}</div>
+
+            <div class="footer">
+                <span>Q3 // S2 MODULE STANDALONE</span>
+                <span>PAGE 02</span>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
