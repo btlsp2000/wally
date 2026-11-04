@@ -134,19 +134,32 @@
 let state = { ents: [], view: { x: 0, y: 0, scale: 5, panStart: null }, mouse: { worldX: 0, worldY: 0 }, osnap: null, selection: null, showWatermark: true };
 const DIM_FONT_SIZE = 12;
 
-canvas.addEventListener('click', function(event) {
-    // 1. Reference the variables already calculated by your v17 mousemove snap function
-    // (Replace 'v17SnapX' and 'v17SnapY' with the actual variable names from your code)
-    let cartX = v17SnapX; 
-    let cartY = v17SnapY;
-
-    // 2. Format into the standard Universal Parser string
-    const clipboardString = `${cartX.toFixed(4)} ${cartY.toFixed(4)}`;
-
-    // 3. Execute copy to clipboard
-    navigator.clipboard.writeText(clipboardString).then(() => {
-        console.log("Copied from v17 Snap: " + clipboardString);
-    });
+window.addEventListener('keydown', e => {        
+    // Standard delete/backspace logic
+    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {            
+        if (e.key === 'Delete' || e.key === 'Backspace') {                
+            if (state.selection) exec('DELETE');            
+        }
+        
+        // --- SNAP TO CLIPBOARD LOGIC ---
+        if (e.key.toLowerCase() === 'c') {
+            
+            // Pulling directly from your active v17 snap readout variables
+            let cartX = v17SnapX; 
+            let cartY = v17SnapY;
+            
+            // Format into standard space-delimited string
+            const clipboardString = `${cartX.toFixed(4)} ${cartY.toFixed(4)}`;
+            
+            // Execute copy
+            navigator.clipboard.writeText(clipboardString).then(() => {
+                log(`COPIED TO CLIPBOARD: ${clipboardString}`);
+            }).catch(err => {
+                console.error("Clipboard copy failed.", err);
+                log("ERROR: CLIPBOARD COPY FAILED");
+            });
+        }
+    }    
 });
     
 class M { 
