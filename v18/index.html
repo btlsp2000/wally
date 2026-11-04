@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>    
+    <meta charset="UTF-8">    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    
+    <title>WALLY V1.0.17 | SDJ STRING PARSER & FLATTENER ADDED</title>    
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>    
+    <style>        
+        #catalogue-modal { display: none; position: absolute; top: 40px; left: 10px; background: #000; border: 1px solid var(--accent); padding: 15px; z-index: 2000; box-shadow: 2px 2px 10px rgba(0,0,0,0.8); width: 300px; }        
+        .catalogue-title { color: #fff; font-weight: bold; border-bottom: 1px solid #444; padding-bottom: 5px; margin-bottom: 10px; font-size: 14px; text-transform: uppercase; }        
+        .catalogue-item { margin-bottom: 15px; }        
+        .catalogue-item h4 { margin: 0 0 3px 0; color: var(--accent); font-size: 12px; }        
+        .catalogue-item p { margin: 0 0 5px 0; font-size: 10px; color: #aaa; }        
+        .catalogue-item button { width: 100%; text-align: left; padding: 5px; border-left: 2px solid var(--accent); }        
+        :root { --bg: #222; --cad-bg: #121212; --cmd-bg: #333; --accent: #61afef; --text: #eee; --dim: #888; --sel: #98c379; --print: #e5c07b; }        
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Consolas', monospace; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; }        
+        #toolbar { height: 40px; background: #2c2c2c; border-bottom: 1px solid #444; display: flex; align-items: center; padding: 0 10px; gap: 5px; flex-shrink: 0; z-index: 1000; position: relative; }        
+        .menu-btn { cursor: pointer; color: var(--accent); font-size: 20px; font-weight: bold; padding: 0 5px; }        
+        #workspace { flex-grow: 1; display: flex; position: relative; overflow: hidden; }        
+        #sidebar { width: 260px; background: #252526; border-right: 1px solid #444; display: flex; flex-direction: column; z-index: 2; overflow-y: auto; }        
+        #canvas-area { flex-grow: 1; position: relative; background: var(--cad-bg); cursor: crosshair; }        
+        #cmd-bar { height: 30px; background: var(--cmd-bg); border-top: 1px solid #555; display: flex; align-items: center; padding: 0 5px; font-size: 12px; flex-shrink: 0; }        
+        button { background: #444; border: 1px solid #555; color: #ddd; padding: 4px 8px; font-family: inherit; font-size: 11px; cursor: pointer; transition: 0.2s; }        
+        button:hover { background: #555; border-color: var(--accent); }        
+        .panel { padding: 10px; border-bottom: 1px solid #333; }        
+        .panel-title { font-size: 11px; font-weight: bold; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }        
+        input, select, textarea { background: #111; border: 1px solid #444; color: var(--accent); padding: 4px; font-family: inherit; font-size: 11px; width: 100%; box-sizing: border-box; }        
+        .control-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; gap: 5px; }        
+        .list-row { padding: 4px; cursor: pointer; font-size: 11px; border-bottom: 1px solid #333; }        
+        .list-row:hover { background: #333; }        
+        .list-row.selected { background: #333; color: var(--sel); border-left: 2px solid var(--sel); }        
+        #nice-title { position: fixed; background: #1e1e1e; color: var(--accent); border: 1px solid #444; padding: 5px 8px; font-family: monospace; font-size: 11px; font-weight: bold; pointer-events: none; z-index: 10000; display: none; box-shadow: 2px 2px 5px rgba(0,0,0,0.8); }    
+    </style>
+</head>
+<body>    
+    <div id="toolbar">        
+        <div id="catalogue-modal">            
+            <div class="catalogue-title">STANDALONE CATALOGUE</div>            
+            <div class="catalogue-item">                
+                <h4>ARC GENERATOR</h4>                
+                <p>Radial sweeps & Tuple verification.</p>                
+                <button onclick="window.open('arc-generator.html', '_blank')">LAUNCH MODULE</button>            
+            </div>            
+            <div class="catalogue-item">                
+                <h4>WALLY-DECK</h4>                
+                <p>2D joist framing & DXF generation.</p>                
+                <button onclick="window.open('wally-deck.html', '_blank')">LAUNCH MODULE</button>            
+            </div>            
+            <div class="catalogue-item">                
+                <h4>PERIMETER TRAVERSE</h4>                
+                <p>Fencing bounds & takeoff calculation.</p>                
+                <button onclick="window.open('traverse.html', '_blank')">LAUNCH MODULE</button>            
+            </div>            
+            <div class="catalogue-item">                
+                <h4>SDJ CONVERTER</h4>                
+                <p>Strip JSON bloat to raw matrices.</p>                
+                <button onclick="window.open('json-converter.html', '_blank')">LAUNCH MODULE</button>            
+            </div>            
+            <button onclick="document.getElementById('catalogue-modal').style.display='none'" style="width:100%; text-align:center; background:#222; border:1px solid #444; margin-top:5px;">CLOSE</button>        
+        </div>        
+        <div class="menu-btn" onclick="document.getElementById('catalogue-modal').style.display='block'">☰</div>        
+        <span style="font-weight:bold; color:var(--accent); margin-right:10px;">WALLY v1.0.17</span>        
+        <button onclick="fileNew()">NEW</button>        
+        <button onclick="fileSave()">SAVE</button>        
+        <button onclick="fileLoad()">LOAD</button>        
+        <span style="width:1px; height:20px; background:#444; margin:0 5px;"></span>        
+        <button onclick="exec('WALL')">WALL</button>        
+        <button onclick="exec('LINE')">LINE</button>        
+        <button onclick="exec('CIRCLE')">CIRCLE</button>        
+        <button onclick="exec('TEXT')">TEXT</button>        
+        <button onclick="exec('DIM')">DIM</button>        
+        <span style="width:1px; height:20px; background:#444; margin:0 5px;"></span>        
+        <button onclick="centerView()">ZOOM E</button>        
+        <button onclick="exec('HAL')">HAL VIEW</button>        
+        <button onclick="exec('WATERMARK')">WATERMARK</button>        
+        <button onclick="exec('BORDER')">BORDER</button>        
+        <button onclick="exportPDF()" style="background:#e5c07b; color:#000; font-weight:bold;">PRINT PDF</button>    
+    </div>        
+    
+    <div id="workspace">        
+        <div id="sidebar">            
+            <div class="panel">                
+                <div class="panel-title" style="color:var(--print);">DATA PROTOCOL</div>                
+                <div class="control-row">                    
+                    <button onclick="exportJSON()" style="flex:1;">EXPORT .WALLY</button>                    
+                    <button onclick="importJSON()" style="flex:1;">IMPORT .WALLY</button>                
+                </div>                
+                <div class="control-row">                    
+                    <button onclick="importSDJ()" style="flex:1; margin-top:5px; background:#10b981; color:#000; font-weight:bold;">PASTE SDJ STRING</button>                
+                </div>            
+            </div>            
+            <div class="panel">                
+                <div class="panel-title">PROPERTIES</div>                
+                <div class="control-row">                    
+                    <span style="font-size:10px; color:#888; width: 40px;">Type</span>                    
+                    <select id="prop-type" onchange="updateProp()">                        
+                        <option value="WALL">Wall</option>                        
+                        <option value="LINE">Line</option>                        
+                        <option value="CIRCLE">Circle</option>                        
+                        <option value="TEXT">Text</option>                        
+                        <option value="DIM">Dim (Aligned)</option>                        
+                        <option value="DIMH">Dim (Horizontal)</option>                        
+                        <option value="DIMV">Dim (Vertical)</option>                        
+                        <option value="SQFONT">SqFont</option>                    
+                    </select>                
+                </div>                
+                <div class="control-row">                    
+                    <span style="font-size:10px; color:#888; width: 40px;">Width</span>                    
+                    <input id="prop-thick" type="number" step="0.1" oninput="updateProp()" title="Width or Font Scale Multiplier">                
+                </div>                
+                <div class="control-row" id="row-txt" style="display: none;">                    
+                    <span style="font-size:10px; color:#888; width: 40px;">String</span>                    
+                    <input id="prop-txt" type="text" oninput="updateProp()">                
+                </div>                
+                <textarea id="prop-geo" style="height:200px; margin-top: 5px;" oninput="updateProp()" placeholder="X,Y coords..."></textarea>                
+                <button onclick="exec('DELETE')" style="width:100%; margin-top:5px; background:#d32f2f; color:#fff; font-weight:bold;">DELETE SELECTED</button>            
+            </div>            
+            <div class="panel" style="flex-
