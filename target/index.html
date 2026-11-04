@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WallyCAD /target - Parametric Generator</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --panel: #1e1e1e;
+      --text: #e0e0e0;
+      --accent: #38bdf8;
+      --node: #f43f5e;
+      --border: #333;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .sidebar {
+      width: 320px;
+      background-color: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    .main-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      color: var(--accent);
+    }
+    .control-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+    input[type="number"] {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px;
+      width: 60px;
+      font-family: monospace;
+      text-align: right;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    canvas {
+      background: #000;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .data-output {
+      width: 100%;
+      height: 150px;
+      background: var(--bg);
+      color: #a1a1aa;
+      border: 1px solid var(--border);
+      padding: 10px;
+      margin-top: auto;
+      font-family: monospace;
+      font-size: 0.8rem;
+      resize: none;
+      box-sizing: border-box;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2>/target Parameters</h2>
+    
+    <div class="control-group">
+      <label>Base Radius (R) <input type="number" id="valR" value="120"></label>
+      <input type="range" id="R" min="50" max="250" value="120">
+    </div>
+
+    <div class="control-group">
+      <label>Node Radius (r) <input type="number" id="valr" value="18"></label>
+      <input type="range" id="r" min="5" max="50" value="18">
+    </div>
+
+    <div class="control-group">
+      <label>Axis Overshoot (ext) <input type="number" id="valext" value="30"></label>
+      <input type="range" id="ext" min="0" max="100" value="30">
+    </div>
+
+    <div class="control-group checkbox-group">
+      <input type="checkbox" id="showInscribed" checked>
+      <label for="showInscribed" style="margin:0;">Show Inscribed Circle</label>
+    </div>
+
+    <button class="btn" onclick="copyJSON()">Copy JSON Data</button>
+
+    <h2 style="margin-top: 20px; font-size: 1rem;">Matrix Output</h2>
+    <textarea id="jsonOut" class="data-output" readonly></textarea>
+  </div>
+
+  <div class="main-view">
+    <canvas id="wallyCanvas" width="600" height="600"></canvas>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('wallyCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // UI Elements
+    const inputs = ['R', 'r', 'ext'].map(id => document.getElementById(id));
+    const numInputs = ['valR', 'valr', 'valext'].map(id => document.getElementById(id));
+    const showInscribed = document.getElementById('showInscribed');
+    const jsonOut = document.getElementById('jsonOut');
+
+    // Sync sliders and number inputs
+    inputs.forEach((input, i) => {
+      input.addEventListener('input', () => {
+        numInputs[i].value = input.value;
+        draw();
+      });
+      numInputs[i].addEventListener('input', () => {
+        input.value = numInputs[i].value;
+        draw();
+      });
+    });
+    
+    showInscribed.addEventListener('change', draw);
+
+    function generateMatrix(R, r, ext, inscribed) {
+      // Local coordinates based around (0,0) for pure WallyCAD data ingestion
+      let data = {
+        type: "WallyTarget",
+        parameters: { R, r, ext },
+        lines: [
+          // Square Bounds [x1, y1, x2, y2]
+          [-R, -R, R, -R], // Bottom
+          [R, -R, R, R],   // Right
+          [R, R, -R, R],   // Top
+          [-R, R, -R, -R], // Left
+          // Crosshairs
+          [-R - ext, 0, R + ext, 0], // H-axis
+          [0, -R - ext, 0, R + ext]  // V-axis
+        ],
+        circles: [
+          { id: "center", cx: 0, cy: 0, r: r },
+          { id: "top", cx: 0, cy: R, r: r },
+          { id: "bottom", cx: 0, cy: -R, r: r },
+          { id: "left", cx: -R, cy: 0, r: r },
+          { id: "right", cx: R, cy: 0, r: r }
+        ]
+      };
+
+      if (inscribed) {
+        data.circles.unshift({ id: "inscribed", cx: 0, cy: 0, r: R });
+      }
+
+      return data;
+    }
+
+    function draw() {
+      const pR = parseFloat(inputs[0].value);
+      const pr = parseFloat(inputs[1].value);
+      const pExt = parseFloat(inputs[2].value);
+      const doInscribed = showInscribed.checked;
+
+      // Update JSON Textarea
+      const matrix = generateMatrix(pR, pr, pExt, doInscribed);
+      jsonOut.value = JSON.stringify(matrix, null, 2);
+
+      // Render on Canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+
+      // 1. Grid/Axes Lines
+      ctx.strokeStyle = '#52525b';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx - pR - pExt, cy); ctx.lineTo(cx + pR + pExt, cy);
+      ctx.moveTo(cx, cy - pR - pExt); ctx.lineTo(cx, cy + pR + pExt);
+      ctx.stroke();
+
+      // 2. Square Boundary
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cx - pR, cy - pR, pR * 2, pR * 2);
+
+      // 3. Inscribed Circle (Optional)
+      if (doInscribed) {
+        ctx.strokeStyle = '#a1a1aa';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.arc(cx, cy, pR, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // 4. Target Nodes
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.2)';
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2;
+
+      const nodes = [
+        [cx, cy],
+        [cx, cy - pR],
+        [cx, cy + pR],
+        [cx - pR, cy],
+        [cx + pR, cy]
+      ];
+
+      nodes.forEach(([nx, ny]) => {
+        ctx.beginPath();
+        ctx.arc(nx, ny, pr, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Mini center crosshair for nodes
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(nx - 4, ny); ctx.lineTo(nx + 4, ny);
+        ctx.moveTo(nx, ny - 4); ctx.lineTo(nx, ny + 4);
+        ctx.stroke();
+        ctx.lineWidth = 2; // Restore for next circle
+      });
+    }
+
+    function copyJSON() {
+      jsonOut.select();
+      document.execCommand('copy');
+      alert('JSON copied to clipboard!');
+    }
+
+    // Initial render
+    draw();
+  </script>
+</body>
+</html>
