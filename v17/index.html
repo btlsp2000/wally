@@ -134,6 +134,21 @@
 let state = { ents: [], view: { x: 0, y: 0, scale: 5, panStart: null }, mouse: { worldX: 0, worldY: 0 }, osnap: null, selection: null, showWatermark: true };
 const DIM_FONT_SIZE = 12;
 
+canvas.addEventListener('click', function(event) {
+    // 1. Reference the variables already calculated by your v17 mousemove snap function
+    // (Replace 'v17SnapX' and 'v17SnapY' with the actual variable names from your code)
+    let cartX = v17SnapX; 
+    let cartY = v17SnapY;
+
+    // 2. Format into the standard Universal Parser string
+    const clipboardString = `${cartX.toFixed(4)} ${cartY.toFixed(4)}`;
+
+    // 3. Execute copy to clipboard
+    navigator.clipboard.writeText(clipboardString).then(() => {
+        console.log("Copied from v17 Snap: " + clipboardString);
+    });
+});
+    
 class M { 
     constructor(x,y){this.x=x;this.y=y} 
     add(v){return new M(this.x+v.x,this.y+v.y)} 
