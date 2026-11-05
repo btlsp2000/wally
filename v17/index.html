@@ -374,6 +374,13 @@ function exec(c){
         createEnt(dimType, "0,0\n30,20", 15); 
         log(`${dimType} TEMPLATE CREATED`);
     }
+    // --- MEASURE (DIST) COMMAND ---
+    else if(cmd === 'DIST') {
+        state.isMeasuring = true;
+        state.measureStart = null;
+        log("MEASURE: CLICK FIRST SNAP POINT");
+        return;
+    }
     else if(cmd === 'DELETE' || cmd === 'ERASE') {
         if (state.selection) {
             const type = state.selection.type;
@@ -404,7 +411,7 @@ function exec(c){
     }
     draw();
 }
-
+    
 function draw(){
     const cvs=document.getElementById('canvas'); const ctx=cvs.getContext('2d'); 
     ctx.fillStyle=document.body.classList.contains('hal-mode')?'#000':'#121212'; 
