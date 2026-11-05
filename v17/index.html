@@ -563,10 +563,15 @@ function draw(){
                 ctx.setLineDash([4 / state.view.scale, 4 / state.view.scale]);
                 const pad = 2 / state.view.scale;
                 ctx.strokeRect(aabb.minX - pad, aabb.minY - pad, aabb.w + (pad * 2), aabb.h + (pad * 2));
-                // --- DRAW MEASURE RUBBER-BAND ---
+                ctx.restore();
+            }
+        });
+    });
+    
+    // --- DRAW MEASURE RUBBER-BAND (MOVED OUTSIDE ENTITY LOOP) ---
     if (state.isMeasuring && state.measureStart) {
         const curPt = state.osnap ? state.osnap : {x: state.mouse.worldX, y: state.mouse.worldY};
-        ctx.strokeStyle = '#00ffff'; // Cyan colored line
+        ctx.strokeStyle = '#00ffff'; 
         ctx.lineWidth = 1 / state.view.scale;
         ctx.setLineDash([4 / state.view.scale, 4 / state.view.scale]);
         
@@ -574,13 +579,9 @@ function draw(){
         ctx.moveTo(state.measureStart.x, state.measureStart.y);
         ctx.lineTo(curPt.x, curPt.y);
         ctx.stroke();
-        ctx.setLineDash([]); // Reset dash for next draws
+        ctx.setLineDash([]); 
     }
-                ctx.restore();
-            }
-        });
-    });
-    
+
     if(state.osnap){ ctx.strokeStyle='yellow'; ctx.lineWidth=2/state.view.scale; let s=6/state.view.scale; ctx.strokeRect(state.osnap.x-s/2,state.osnap.y-s/2,s,s); }
     ctx.restore();
 
