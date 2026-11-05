@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WallyCAD | Pentagram Generator</title>
+    <style>
+        :root {
+            --cad-bg: #121212;
+            --panel-bg: #1e1e1e;
+            --accent: #00ff00;
+            --text-main: #eeeeee;
+            --text-dim: #aaaaaa;
+            --border: #444444;
+            --highlight: #61afef;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--cad-bg);
+            color: var(--text-main);
+            font-family: 'Consolas', 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+        .header h2 { margin: 0; color: #fff; letter-spacing: 2px; font-size: 20px; }
+        .header p { margin: 5px 0 0 0; color: var(--highlight); font-size: 11px; text-transform: uppercase; }
+        
+        .container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+        
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+        
+        .controls-panel {
+            flex: 0 0 250px;
+        }
+        
+        .preview-panel {
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+            background-color: #0a0a0a;
+            position: relative;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            background-color: #111;
+            color: var(--accent);
+            border: 1px solid var(--border);
+            padding: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .output-group {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 100px;
+            background-color: #000;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 10px;
+            font-family: inherit;
+            font-size: 11px;
+            resize: none;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: var(--accent);
+            color: #000;
+            border: none;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover { background-color: #388E3C; }
+        
+        canvas {
+            border: 1px dashed #333;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .node-marker {
+            position: absolute;
+            color: #ff9800;
+            font-size: 10px;
+            pointer-events: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .controls-panel { flex: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>WALLY PENTAGRAM</h2>
+        <p>Continuous Node Generator</p>
+    </div>
+
+    <div class="container">
+        <!-- CONTROLS -->
+        <div class="panel controls-panel">
+            <div class="input-group">
+                <label>CENTER X</label>
+                <input type="number" id="cx" value="0" step="1" oninput="generate()">
+            </div>
+            <div class="input-group">
+                <label>CENTER Y</label>
+                <input type="number" id="cy" value="0" step="1" oninput="generate()">
+            </div>
+            <div class="input-group">
+                <label>OUTER RADIUS</label>
+                <input type="number" id="r" value="50" step="1" oninput="generate()">
+            </div>
+            <div class="input-group">
+                <label>ROTATION (DEG)</label>
+                <input type="number" id="rot" value="0" step="1" oninput="generate()">
+            </div>
+            
+            <div class="output-group">
+                <label style="font-size: 11px; color: var(--text-dim); font-weight: bold;">SDJ OUTPUT</label>
+                <textarea id="sdj-output" readonly></textarea>
+                <button id="copy-btn" onclick="copySDJ()">COPY TO CLIPBOARD</button>
+            </div>
+        </div>
+
+        <!-- PREVIEW -->
+        <div class="panel preview-panel">
+            <canvas id="preview-canvas" width="400" height="400"></canvas>
+        </div>
+    </div>
+
+    <script>
+        window.onload = () => {
+            generate();
+        };
+
+        function generate() {
+            const cx = parseFloat(document.getElementById('cx').value) || 0;
+            const cy = parseFloat(document.getElementById('cy').value) || 0;
+            const r = parseFloat(document.getElementById('r').value) || 50;
+            const rotDeg = parseFloat(document.getElementById('rot').value) || 0;
+            
+            // Base angle: pointing straight up is Pi/2 (90 degrees)
+            const baseAngle = (Math.PI / 2) + (rotDeg * Math.PI / 180);
+            
+            // 1. Calculate the 5 outer nodes (the orange dots)
+            const nodes = [];
+            for(let i = 0; i < 5; i++) {
+                // 72 degrees between each point (2 * Pi / 5)
+                const theta = baseAngle + (i * 2 * Math.PI / 5);
+                nodes.push({
+                    x: cx + r * Math.cos(theta),
+                    y: cy + r * Math.sin(theta)
+                });
+            }
+            
+            // 2. Sequence them for a continuous pentagram line
+            // Connection order: 0 -> 2 -> 4 -> 1 -> 3 -> 0
+            const order = [0, 2, 4, 1, 3, 0];
+            const seqCoords = [];
+            
+            order.forEach(idx => {
+                seqCoords.push(nodes[idx].x.toFixed(4).replace(/\.?0+$/, ''));
+                seqCoords.push(nodes[idx].y.toFixed(4).replace(/\.?0+$/, ''));
+            });
+            
+            // 3. Format SDJ String
+            const sdjString = `[LINE] ${seqCoords.join(' ')}`;
+            document.getElementById('sdj-output').value = sdjString;
+            
+            // 4. Draw Preview
+            drawPreview(nodes, order);
+        }
+
+        function drawPreview(nodes, order) {
+            const cvs = document.getElementById('preview-canvas');
+            const ctx = cvs.getContext('2d');
+            
+            // Clear canvas
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, cvs.width, cvs.height);
+            
+            // Set up local coordinate system (center of canvas is 0,0)
+            ctx.save();
+            ctx.translate(cvs.width / 2, cvs.height / 2);
+            
+            // Auto-scale to fit canvas based on the requested radius
+            const r = parseFloat(document.getElementById('r').value) || 50;
+            const scale = (cvs.width / 2 - 20) / (r === 0 ? 1 : Math.abs(r));
+            ctx.scale(scale, -scale); // Invert Y to match Cartesian math
+            
+            // Calculate center offset so the drawing centers visually regardless of cx,cy inputs
+            const cx = parseFloat(document.getElementById('cx').value) || 0;
+            const cy = parseFloat(document.getElementById('cy').value) || 0;
+            ctx.translate(-cx, -cy);
+
+            // Draw bounding circle (faint)
+            ctx.strokeStyle = '#333333';
+            ctx.lineWidth = 1 / scale;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Draw the Pentagram line
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 2 / scale;
+            ctx.beginPath();
+            order.forEach((idx, step) => {
+                const pt = nodes[idx];
+                if (step === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.stroke();
+            
+            // Draw the orange nodes
+            ctx.fillStyle = '#ff9800';
+            nodes.forEach(pt => {
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 4 / scale, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.restore();
+        }
+
+        function copySDJ() {
+            const txt = document.getElementById('sdj-output').value;
+            const btn = document.getElementById('copy-btn');
+            navigator.clipboard.writeText(txt).then(() => {
+                btn.innerText = "COPIED!";
+                btn.style.backgroundColor = "#fff";
+                setTimeout(() => {
+                    btn.innerText = "COPY TO CLIPBOARD";
+                    btn.style.backgroundColor = "var(--accent)";
+                }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
