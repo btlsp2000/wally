@@ -563,6 +563,19 @@ function draw(){
                 ctx.setLineDash([4 / state.view.scale, 4 / state.view.scale]);
                 const pad = 2 / state.view.scale;
                 ctx.strokeRect(aabb.minX - pad, aabb.minY - pad, aabb.w + (pad * 2), aabb.h + (pad * 2));
+                // --- DRAW MEASURE RUBBER-BAND ---
+    if (state.isMeasuring && state.measureStart) {
+        const curPt = state.osnap ? state.osnap : {x: state.mouse.worldX, y: state.mouse.worldY};
+        ctx.strokeStyle = '#00ffff'; // Cyan colored line
+        ctx.lineWidth = 1 / state.view.scale;
+        ctx.setLineDash([4 / state.view.scale, 4 / state.view.scale]);
+        
+        ctx.beginPath();
+        ctx.moveTo(state.measureStart.x, state.measureStart.y);
+        ctx.lineTo(curPt.x, curPt.y);
+        ctx.stroke();
+        ctx.setLineDash([]); // Reset dash for next draws
+    }
                 ctx.restore();
             }
         });
@@ -582,12 +595,34 @@ function draw(){
     }
 }
 
-function onDown(e){
-    if(e.button===1||e.button===2||(e.button===0&&e.altKey)){ state.view.panStart={x:e.clientX,y:e.clientY,vx:state.view.x,vy:state.view.y}; }
-    else if(e.button===0){ const r=cvsRect(); const mx=((e.clientX-r.left)-state.view.x)/state.view.scale; const my=-((e.clientY-r.top)-state.view.y)/state.view.scale;
-        const hit=state.ents.find(ent=>parseBlocks(ent.geo).some(pts=>pts.some(p=>Math.hypot(p.x-mx,p.y-my)<2))); selectEnt(hit);
+function onDown(e){    
+    if(e.button===1||e.button===2||(e.button===0&&e.altKey)){ 
+        state.view.panStart={x:e.clientX,y:e.clientY,vx:state.view.x,vy:state.view.y}; 
+    }    
+    else if(e.button===0){ 
+        // --- NEW MEASURE LOGIC ---
+        if (state.isMeasuring) {
+            // Grab the active snap point (or raw mouse if not snapped)
+            const pt = state.osnap ? {x: state.osnap.x, y: state.osnap.y} : {x: state.mouse.worldX, y: state.mouse.worldY};
+            
+            if (!state.measureStart) {
+                state.measureStart = pt;
+                log(`MEASURE P1: ${pt.x.toFixed(2)}, ${pt.y.toFixed(2)} - CLICK SECOND POINT`);
+            } else {
+                const dist = Math.hypot(pt.x - state.measureStart.x, pt.y - state.measureStart.y);
+                log(`DISTANCE: ${dist.toFixed(4)}`);
+                state.isMeasuring = false;
+                state.measureStart = null;
+            }
+            return; // Exit so we don't accidentally select an entity
+        }
+
+        // Standard Selection Logic
+        const r=cvsRect(); const mx=((e.clientX-r.left)-state.view.x)/state.view.scale; const my=-((e.clientY-r.top)-state.view.y)/state.view.scale;        
+        const hit=state.ents.find(ent=>parseBlocks(ent.geo).some(pts=>pts.some(p=>Math.hypot(p.x-mx,p.y-my)<2))); selectEnt(hit);    
     }
 }
+    
 function onMove(e){
     if(state.view.panStart){ state.view.x=state.view.panStart.vx+(e.clientX-state.view.panStart.x); state.view.y=state.view.panStart.vy+(e.clientY-state.view.panStart.y); draw(); return; }
     const r=cvsRect(); state.mouse.worldX=((e.clientX-r.left)-state.view.x)/state.view.scale; state.mouse.worldY=-((e.clientY-r.top)-state.view.y)/state.view.scale;
