@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WallyCAD | Universal Translation Matrix</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #121212;
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .header h2 { margin: 0; color: #fff; letter-spacing: 2px; }
+        .header p { margin: 5px 0 0 0; color: #888; font-size: 12px; }
+        
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+        
+        .matrix-node {
+            background-color: #1a1a1a;
+            border: 1px solid #4CAF50;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .node-header {
+            background-color: #2d2d2d;
+            padding: 8px 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #4CAF50;
+        }
+        
+        .copy-btn {
+            background-color: #4CAF50;
+            color: #000;
+            border: none;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+        .copy-btn:active { background-color: #388E3C; }
+        
+        textarea {
+            flex: 1;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            border: none;
+            padding: 15px;
+            font-family: inherit;
+            font-size: 13px;
+            resize: none;
+            outline: none;
+        }
+        textarea:focus { box-shadow: inset 0 0 10px rgba(76, 175, 80, 0.2); }
+        
+        /* Error Flash */
+        .error-flash { border-color: #f44336 !important; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>UNIVERSAL TRANSLATION MATRIX</h2>
+        <p>TUPLES ⇄ SDJ ⇄ JSON ⇄ .WALLY</p>
+    </div>
+
+    <div class="matrix-grid">
+        <!-- NODE 1: TUPLES -->
+        <div class="matrix-node" id="node-tuples">
+            <div class="node-header">
+                <span>RAW TUPLES (X Y)</span>
+                <button class="copy-btn" onclick="copyToClipboard('txt-tuples')">COPY</button>
+            </div>
+            <textarea id="txt-tuples" placeholder="0 0&#10;10 0&#10;10 10" oninput="translateFrom('tuples')"></textarea>
+        </div>
+
+        <!-- NODE 2: SDJ -->
+        <div class="matrix-node" id="node-sdj">
+            <div class="node-header">
+                <span>SDJ (QuickClick String)</span>
+                <button class="copy-btn" onclick="copyToClipboard('txt-sdj')">COPY</button>
+            </div>
+            <textarea id="txt-sdj" placeholder="[LINE] 0 0 10 0 10 10" oninput="translateFrom('sdj')"></textarea>
+        </div>
+
+        <!-- NODE 3: JSON -->
+        <div class="matrix-node" id="node-json">
+            <div class="node-header">
+                <span>CANVAS JSON (Engine State)</span>
+                <button class="copy-btn" onclick="copyToClipboard('txt-json')">COPY</button>
+            </div>
+            <textarea id="txt-json" placeholder='[{"type":"LINE","coords":[0,0,10,0,10,10]}]' oninput="translateFrom('json')"></textarea>
+        </div>
+
+        <!-- NODE 4: .WALLY -->
+        <div class="matrix-node" id="node-wally">
+            <div class="node-header">
+                <span>.WALLY (Root File Format)</span>
+                <button class="copy-btn" onclick="copyToClipboard('txt-wally')">COPY</button>
+            </div>
+            <textarea id="txt-wally" placeholder="[LINE]&#10;0.0000 0.0000&#10;10.0000 0.0000&#10;10.0000 10.0000" oninput="translateFrom('wally')"></textarea>
+        </div>
+    </div>
+
+    <script>
+        // --- MASTER DATA STRUCTURE (AST) ---
+        // Internal representation: [ { type: "LINE", coords: [x1, y1, x2, y2...] }, ... ]
+        
+        function translateFrom(source) {
+            const val = document.getElementById(`txt-${source}`).value.trim();
+            if (!val) { clearAll(); return; }
+
+            let ast = [];
+            try {
+                if (source === 'tuples') ast = parseTuples(val);
+                if (source === 'sdj') ast = parseSDJ(val);
+                if (source === 'json') ast = parseJSON(val);
+                if (source === 'wally') ast = parseSDJ(val); // .WALLY uses identical token parsing to SDJ
+                
+                document.getElementById(`node-${source}`).classList.remove('error-flash');
+            } catch (e) {
+                document.getElementById(`node-${source}`).classList.add('error-flash');
+                return;
+            }
+
+            // Distribute to the other 3 nodes
+            if (source !== 'tuples') document.getElementById('txt-tuples').value = generateTuples(ast);
+            if (source !== 'sdj') document.getElementById('txt-sdj').value = generateSDJ(ast);
+            if (source !== 'json') document.getElementById('txt-json').value = generateJSON(ast);
+            if (source !== 'wally') document.getElementById('txt-wally').value = generateWally(ast);
+        }
+
+        // --- INGESTION PARSERS ---
+
+        function parseTuples(txt) {
+            // Assumes raw tuples are a single continuous [LINE] for conversion
+            const tokens = txt.trim().split(/[\s,]+/);
+            let coords = [];
+            tokens.forEach(t => {
+                let n = parseFloat(t);
+                if (!isNaN(n)) coords.push(n);
+            });
+            return [{ type: "LINE", coords: coords, thick: 0, text: "" }];
+        }
+
+        function parseSDJ(txt) {
+            // Reusing the Universal Parser regex logic from v1.0.17
+            const tokenRegex = /"([^"]+)"|(\S+)/g;
+            let match; const tokens = [];
+            while ((match = tokenRegex.exec(txt)) !== null) { tokens.push(match[1] || match[2]); }
+            
+            const entities = []; let currentEntity = null;
+            
+            for (let i = 0; i < tokens.length; i++) {
+                const token = tokens[i];
+                if (token.startsWith('[')) {
+                    if (currentEntity && currentEntity.coords.length > 0) entities.push(currentEntity);
+                    currentEntity = { type: token.replace(/\[|\]/g, ''), coords: [], thick: 0, text: "" };
+                } 
+                else if (token.startsWith('T:')) {
+                    if (currentEntity) currentEntity.thick = parseFloat(token.substring(2));
+                } 
+                else if (currentEntity && currentEntity.type === 'TEXT' && isNaN(token)) {
+                    currentEntity.text = token;
+                } 
+                else if (currentEntity) {
+                    const parsedNum = parseFloat(token);
+                    if (!isNaN(parsedNum)) currentEntity.coords.push(parsedNum);
+                } else {
+                    // Fallback if no tag was provided (defaults to LINE)
+                    currentEntity = { type: "LINE", coords: [parseFloat(token)], thick: 0, text: "" };
+                }
+            }
+            if (currentEntity && currentEntity.coords.length > 0) entities.push(currentEntity);
+            return entities;
+        }
+
+        function parseJSON(txt) {
+            return JSON.parse(txt);
+        }
+
+        // --- OUTBOUND GENERATORS ---
+
+        function generateTuples(ast) {
+            let out = "";
+            ast.forEach(ent => {
+                for (let i = 0; i < ent.coords.length; i += 2) {
+                    if (ent.coords[i] !== undefined && ent.coords[i+1] !== undefined) {
+                        out += `${ent.coords[i].toFixed(4)} ${ent.coords[i+1].toFixed(4)}\n`;
+                    }
+                }
+                out += "\n"; // Blank line between entities
+            });
+            return out.trim();
+        }
+
+        function generateSDJ(ast) {
+            let out = "";
+            ast.forEach(ent => {
+                out += `[${ent.type}] `;
+                if (ent.thick) out += `T:${ent.thick} `;
+                if (ent.text) out += `"${ent.text}" `;
+                out += ent.coords.map(c => c.toFixed(4).replace(/\.0000$/, '')).join(" ");
+                out += " ";
+            });
+            return out.trim();
+        }
+
+        function generateJSON(ast) {
+            return JSON.stringify(ast, null, 2);
+        }
+
+        function generateWally(ast) {
+            // Formatted vertically for human-readable archival storage
+            let out = "";
+            ast.forEach(ent => {
+                out += `[${ent.type}]\n`;
+                for (let i = 0; i < ent.coords.length; i += 2) {
+                    if (ent.coords[i] !== undefined && ent.coords[i+1] !== undefined) {
+                        out += `${ent.coords[i].toFixed(4)} ${ent.coords[i+1].toFixed(4)}\n`;
+                    }
+                }
+                out += "\n";
+            });
+            return out.trim();
+        }
+
+        // --- UTILITIES ---
+        
+        function clearAll() {
+            document.getElementById('txt-tuples').value = "";
+            document.getElementById('txt-sdj').value = "";
+            document.getElementById('txt-json').value = "";
+            document.getElementById('txt-wally').value = "";
+        }
+
+        function copyToClipboard(id) {
+            const txt = document.getElementById(id).value;
+            navigator.clipboard.writeText(txt).then(() => {
+                const btn = document.querySelector(`#${id}`).previousElementSibling.querySelector('button');
+                const orig = btn.innerText;
+                btn.innerText = "COPIED!";
+                setTimeout(() => btn.innerText = orig, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
