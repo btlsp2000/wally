@@ -601,7 +601,7 @@ function onDown(e){
         state.view.panStart={x:e.clientX,y:e.clientY,vx:state.view.x,vy:state.view.y}; 
     }    
     else if(e.button===0){ 
-        // --- NEW MEASURE LOGIC ---
+        // --- NEW MEASURE LOGIC WITH AUTO-COPY ---
         if (state.isMeasuring) {
             // Grab the active snap point (or raw mouse if not snapped)
             const pt = state.osnap ? {x: state.osnap.x, y: state.osnap.y} : {x: state.mouse.worldX, y: state.mouse.worldY};
@@ -611,7 +611,16 @@ function onDown(e){
                 log(`MEASURE P1: ${pt.x.toFixed(2)}, ${pt.y.toFixed(2)} - CLICK SECOND POINT`);
             } else {
                 const dist = Math.hypot(pt.x - state.measureStart.x, pt.y - state.measureStart.y);
-                log(`DISTANCE: ${dist.toFixed(4)}`);
+                const distString = dist.toFixed(4);
+                
+                // Auto-copy to clipboard
+                navigator.clipboard.writeText(distString).then(() => {
+                    log(`DISTANCE: ${distString} (COPIED)`);
+                }).catch(err => {
+                    console.error("Clipboard copy failed.", err);
+                    log(`DISTANCE: ${distString} (COPY FAILED)`);
+                });
+                
                 state.isMeasuring = false;
                 state.measureStart = null;
             }
