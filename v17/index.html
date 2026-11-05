@@ -131,7 +131,7 @@
     <input type="file" id="protocol-input" style="display:none" onchange="handleProtocol(this)">
 
 <script>
-let state = { ents: [], view: { x: 0, y: 0, scale: 5, panStart: null }, mouse: { worldX: 0, worldY: 0 }, osnap: null, selection: null, showWatermark: true };
+let state = { ents: [], view: { x: 0, y: 0, scale: 5, panStart: null }, mouse: { worldX: 0, worldY: 0 }, osnap: null, selection: null, showWatermark: true, isMeasuring: false, measureStart: null };
 const DIM_FONT_SIZE = 12;
 
 window.addEventListener('keydown', e => {        
