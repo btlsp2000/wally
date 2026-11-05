@@ -140,13 +140,11 @@
         </div>
     </div>
 
-    <div id="viewport">
-        <iframe id="pane-left" class="pane" src="/qc"></iframe>
-        
-        <div id="resizer"></div>
-        
-        <iframe id="pane-right" class="pane" src="/"></iframe>
-    </div>
+<div id="viewport">
+    <iframe id="pane-left" class="pane" src="/qc" allow="clipboard-read; clipboard-write; downloads"></iframe>
+    <div id="resizer"></div>
+    <iframe id="pane-right" class="pane" src="/" allow="clipboard-read; clipboard-write; downloads"></iframe>
+</div>
 
     <script>
         // --- 1. URL ROUTING LOGIC ---
