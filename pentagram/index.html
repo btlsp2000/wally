@@ -179,82 +179,85 @@
             generate();
         };
 
-        function generate() {
+function generate() {
             const cx = parseFloat(document.getElementById('cx').value) || 0;
             const cy = parseFloat(document.getElementById('cy').value) || 0;
-            const r = parseFloat(document.getElementById('r').value) || 50;
+            const rOuter = parseFloat(document.getElementById('r').value) || 50;
             const rotDeg = parseFloat(document.getElementById('rot').value) || 0;
+            
+            // Mathematically perfect inner radius for a 5-point star: sin(18)/sin(54)
+            const rInner = rOuter * (Math.sin(18 * Math.PI / 180) / Math.sin(54 * Math.PI / 180));
             
             // Base angle: pointing straight up is Pi/2 (90 degrees)
             const baseAngle = (Math.PI / 2) + (rotDeg * Math.PI / 180);
             
-            // 1. Calculate the 5 outer nodes (the orange dots)
             const nodes = [];
-            for(let i = 0; i < 5; i++) {
-                // 72 degrees between each point (2 * Pi / 5)
-                const theta = baseAngle + (i * 2 * Math.PI / 5);
-                nodes.push({
-                    x: cx + r * Math.cos(theta),
-                    y: cy + r * Math.sin(theta)
-                });
-            }
-            
-            // 2. Sequence them for a continuous pentagram line
-            // Connection order: 0 -> 2 -> 4 -> 1 -> 3 -> 0
-            const order = [0, 2, 4, 1, 3, 0];
             const seqCoords = [];
             
-            order.forEach(idx => {
-                seqCoords.push(nodes[idx].x.toFixed(4).replace(/\.?0+$/, ''));
-                seqCoords.push(nodes[idx].y.toFixed(4).replace(/\.?0+$/, ''));
-            });
+            // Calculate the 10 sequential perimeter nodes
+            for(let i = 0; i < 10; i++) {
+                // 36 degrees between each alternating point (Pi / 5)
+                const theta = baseAngle + (i * Math.PI / 5);
+                
+                // Even indices (0,2,4...) are outer peaks; Odd indices (1,3,5...) are inner valleys
+                const r = (i % 2 === 0) ? rOuter : rInner; 
+                
+                const x = cx + r * Math.cos(theta);
+                const y = cy + r * Math.sin(theta);
+                
+                nodes.push({x, y});
+                seqCoords.push(x.toFixed(4).replace(/\.?0+$/, ''));
+                seqCoords.push(y.toFixed(4).replace(/\.?0+$/, ''));
+            }
             
-            // 3. Format SDJ String
+            // Close the loop back to Node 1
+            seqCoords.push(nodes[0].x.toFixed(4).replace(/\.?0+$/, ''));
+            seqCoords.push(nodes[0].y.toFixed(4).replace(/\.?0+$/, ''));
+            
+            // Format SDJ String
             const sdjString = `[LINE] ${seqCoords.join(' ')}`;
             document.getElementById('sdj-output').value = sdjString;
             
-            // 4. Draw Preview
-            drawPreview(nodes, order);
+            // Draw Preview
+            drawPreview(nodes, rOuter, rInner);
         }
 
-        function drawPreview(nodes, order) {
+        function drawPreview(nodes, rOuter, rInner) {
             const cvs = document.getElementById('preview-canvas');
             const ctx = cvs.getContext('2d');
             
-            // Clear canvas
             ctx.fillStyle = '#0a0a0a';
             ctx.fillRect(0, 0, cvs.width, cvs.height);
             
-            // Set up local coordinate system (center of canvas is 0,0)
             ctx.save();
             ctx.translate(cvs.width / 2, cvs.height / 2);
             
-            // Auto-scale to fit canvas based on the requested radius
-            const r = parseFloat(document.getElementById('r').value) || 50;
-            const scale = (cvs.width / 2 - 20) / (r === 0 ? 1 : Math.abs(r));
-            ctx.scale(scale, -scale); // Invert Y to match Cartesian math
+            const scale = (cvs.width / 2 - 20) / (rOuter === 0 ? 1 : Math.abs(rOuter));
+            ctx.scale(scale, -scale); 
             
-            // Calculate center offset so the drawing centers visually regardless of cx,cy inputs
             const cx = parseFloat(document.getElementById('cx').value) || 0;
             const cy = parseFloat(document.getElementById('cy').value) || 0;
             ctx.translate(-cx, -cy);
 
-            // Draw bounding circle (faint)
+            // Draw bounding circles (faint)
             ctx.strokeStyle = '#333333';
             ctx.lineWidth = 1 / scale;
             ctx.beginPath();
-            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.arc(cx, cy, rOuter, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(cx, cy, rInner, 0, Math.PI * 2);
             ctx.stroke();
 
-            // Draw the Pentagram line
+            // Draw the Pentagram outline
             ctx.strokeStyle = '#00ff00';
             ctx.lineWidth = 2 / scale;
             ctx.beginPath();
-            order.forEach((idx, step) => {
-                const pt = nodes[idx];
+            nodes.forEach((pt, step) => {
                 if (step === 0) ctx.moveTo(pt.x, pt.y);
                 else ctx.lineTo(pt.x, pt.y);
             });
+            ctx.lineTo(nodes[0].x, nodes[0].y); // Close loop
             ctx.stroke();
             
             // Draw the orange nodes
