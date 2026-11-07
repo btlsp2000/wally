@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Standalone Circle Set Engine (/cset)</title>
+    <style>
+        :root {
+            --cad-black: #0e1117;
+            --cad-panel: #161b22;
+            --cad-border: #30363d;
+            --cad-green: #00ff66;
+            --cad-text: #c9d1d9;
+            --cad-text-muted: #8b949e;
+            --cad-accent: #38bdf8;
+            --cad-amber: #e3b341;
+            --cad-canvas: #06090e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--cad-black);
+            color: var(--cad-text);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Control Matrix */
+        .sidebar {
+            width: 360px;
+            background: var(--cad-panel);
+            border-right: 1px solid var(--cad-border);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 14px;
+            z-index: 10;
+        }
+
+        .header-tag {
+            font-size: 10px;
+            background: var(--cad-border);
+            color: var(--cad-green);
+            padding: 3px 6px;
+            align-self: flex-start;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 16px;
+            color: #fff;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--cad-green);
+            padding-bottom: 6px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 10px;
+            color: var(--cad-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: #0d1117;
+            border: 1px solid var(--cad-border);
+            color: #fff;
+            padding: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            resize: none;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: var(--cad-accent);
+        }
+
+        .row-params {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        input[type="number"], select {
+            background: #0d1117;
+            border: 1px solid var(--cad-border);
+            color: #fff;
+            padding: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            outline: none;
+        }
+
+        .btn-matrix {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        button {
+            background: #21262d;
+            border: 1px solid var(--cad-border);
+            color: #fff;
+            padding: 8px 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.15s ease;
+        }
+
+        button:hover {
+            background: var(--cad-border);
+            color: var(--cad-green);
+            border-color: var(--cad-green);
+        }
+
+        button.primary {
+            background: var(--cad-green);
+            color: #000;
+            border-color: var(--cad-green);
+            grid-column: span 2;
+        }
+
+        button.primary:hover {
+            background: #00cc52;
+            color: #000;
+        }
+
+        .output-box {
+            background: #06090e;
+            border: 1px solid var(--cad-border);
+            padding: 8px;
+            font-size: 10px;
+            color: var(--cad-green);
+            word-break: break-all;
+            height: 90px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .stats-tray {
+            margin-top: auto;
+            border-top: 1px solid var(--cad-border);
+            padding-top: 8px;
+            font-size: 10px;
+            color: var(--cad-text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Viewport Canvas */
+        .workspace {
+            flex-grow: 1;
+            position: relative;
+            background: var(--cad-canvas);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hud-overlay {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(22, 27, 34, 0.85);
+            border: 1px solid var(--cad-border);
+            padding: 10px 14px;
+            font-size: 10px;
+            color: var(--cad-accent);
+            pointer-events: none;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CONTROL PANEL -->
+    <div class="sidebar">
+        <div class="header-tag">WALLYCAD S2-STANDALONE</div>
+        <h1>CIRCLE SET ENGINE</h1>
+
+        <div class="input-group">
+            <label>Tuple / Coordinate Input</label>
+            <textarea id="rawInput" placeholder="(15, 20) (35, 45) (60, 20)&#10;(25, 60) (75, 55)&#10;or 15 20, 35 45..."></textarea>
+        </div>
+
+        <div class="row-params">
+            <div class="input-group">
+                <label>Radius (Width)</label>
+                <input type="number" id="paramRadius" value="1.125" step="0.125" min="0.001">
+            </div>
+            <div class="input-group">
+                <label>Thickness (T:)</label>
+                <input type="number" id="paramThick" value="0" step="1" min="0">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Quick Radius Presets</label>
+            <select id="presetSelect">
+                <option value="1.125">1.125" (Regulation Ball: 2.25" Dia)</option>
+                <option value="1.75">1.750" (3.5" Pipe / Column)</option>
+                <option value="3.0">3.000" (6" Pier Footing)</option>
+                <option value="6.0">6.000" (12" Sonotube)</option>
+                <option value="0.5">0.500" (1" Rebar / Pin)</option>
+            </select>
+        </div>
+
+        <div class="btn-matrix">
+            <button class="primary" id="btnCompile">Compile &amp; Plot Set</button>
+            <button id="btnSample">Load Sample</button>
+            <button id="btnClear">Clear</button>
+            <button id="btnCopy" style="grid-column: span 2;">Copy 1D SDJ String</button>
+        </div>
+
+        <div class="input-group" style="margin-top: 5px;">
+            <label>1D SDJ Token Stream</label>
+            <div class="output-box" id="sdjStream">// 1D string will output here...</div>
+        </div>
+
+        <div class="stats-tray">
+            <span id="statCount">COUNT: 0 CIRCLES</span>
+            <span id="statExtents">BOUNDS: 0 x 0</span>
+        </div>
+    </div>
+
+    <!-- WORKSPACE CANVAS -->
+    <div class="workspace">
+        <canvas id="cadCanvas"></canvas>
+        <div class="hud-overlay" id="hudCoords">ORIGIN: (0,0) | SCALE: 1.0x</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('cadCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const rawInput = document.getElementById('rawInput');
+        const paramRadius = document.getElementById('paramRadius');
+        const paramThick = document.getElementById('paramThick');
+        const presetSelect = document.getElementById('presetSelect');
+        const sdjStream = document.getElementById('sdjStream');
+        const statCount = document.getElementById('statCount');
+        const statExtents = document.getElementById('statExtents');
+        const hudCoords = document.getElementById('hudCoords');
+
+        let circleNodes = [];
+        let viewBounds = { minX: 0, maxX: 100, minY: 0, maxY: 100 };
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            drawWorkspace();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        presetSelect.addEventListener('change', () => {
+            paramRadius.value = presetSelect.value;
+            compileCircleSet();
+        });
+
+        // Tuple Regex Sanitizer & Parser
+        function parseTuples(raw) {
+            const clean = raw
+                .replace(/[()\[\]{}]/g, ' ')
+                .replace(/,/g, ' ')
+                .replace(/[\r\n\t]+/g, ' ')
+                .replace(/\s{2,}/g, ' ')
+                .trim();
+
+            if (!clean) return [];
+
+            const tokens = clean.split(' ').filter(t => t.length > 0 && !isNaN(t));
+            const points = [];
+
+            for (let i = 0; i < tokens.length; i += 2) {
+                if (tokens[i + 1] !== undefined) {
+                    points.push({
+                        x: parseFloat(tokens[i]),
+                        y: parseFloat(tokens[i + 1])
+                    });
+                }
+            }
+            return points;
+        }
+
+        function compileCircleSet() {
+            const points = parseTuples(rawInput.value);
+            const radius = parseFloat(paramRadius.value) || 1.125;
+            const thick = parseFloat(paramThick.value) || 0;
+
+            circleNodes = points.map((p, idx) => ({
+                id: idx + 1,
+                x: p.x,
+                y: p.y,
+                r: radius,
+                thick: thick
+            }));
+
+            // Build 1D Continuous Space-Delimited JSON (SDJ) String
+            if (circleNodes.length > 0) {
+                const sdjTokens = circleNodes.map(c => 
+                    `[CIRCLE] ${c.x.toFixed(3)} ${c.y.toFixed(3)} ${c.r.toFixed(3)} T:${c.thick}`
+                );
+                const out1D = sdjTokens.join(' ');
+                sdjStream.innerText = out1D;
+
+                // Compute bounding extents
+                let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+                circleNodes.forEach(c => {
+                    if (c.x - c.r < minX) minX = c.x - c.r;
+                    if (c.x + c.r > maxX) maxX = c.x + c.r;
+                    if (c.y - c.r < minY) minY = c.y - c.r;
+                    if (c.y + c.r > maxY) maxY = c.y + c.r;
+                });
+
+                viewBounds = { minX, maxX, minY, maxY };
+                statCount.innerText = `COUNT: ${circleNodes.length} NODES`;
+                statExtents.innerText = `SPAN: ${(maxX - minX).toFixed(2)} x ${(maxY - minY).toFixed(2)}`;
+            } else {
+                sdjStream.innerText = "// No valid tuples parsed";
+                statCount.innerText = "COUNT: 0 CIRCLES";
+                statExtents.innerText = "BOUNDS: 0 x 0";
+                viewBounds = { minX: 0, maxX: 100, minY: 0, maxY: 100 };
+            }
+
+            drawWorkspace();
+        }
+
+        function drawWorkspace() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Subtle Background Grid
+            ctx.strokeStyle = '#161b22';
+            ctx.lineWidth = 1;
+            const step = 40;
+            for (let x = 0; x < canvas.width; x += step) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += step) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            if (circleNodes.length === 0) return;
+
+            // Viewport Auto-fit calculation (Bottom-Left origin Cartesian)
+            const margin = 80;
+            const spanX = Math.max(viewBounds.maxX - viewBounds.minX, 10);
+            const spanY = Math.max(viewBounds.maxY - viewBounds.minY, 10);
+
+            const scaleX = (canvas.width - margin * 2) / spanX;
+            const scaleY = (canvas.height - margin * 2) / spanY;
+            const scale = Math.min(scaleX, scaleY);
+
+            function toScreenX(x) {
+                return margin + (x - viewBounds.minX) * scale;
+            }
+            function toScreenY(y) {
+                // Invert Y for Cartesian coordinates
+                return canvas.height - (margin + (y - viewBounds.minY) * scale);
+            }
+
+            hudCoords.innerText = `BOUNDS: [${viewBounds.minX.toFixed(1)}, ${viewBounds.minY.toFixed(1)}] to [${viewBounds.maxX.toFixed(1)}, ${viewBounds.maxY.toFixed(1)}] | SCALE: ${scale.toFixed(2)}px/unit`;
+
+            // Draw Bounding Box extents
+            ctx.strokeStyle = '#30363d';
+            ctx.setLineDash([4, 4]);
+            const bX = toScreenX(viewBounds.minX);
+            const bY = toScreenY(viewBounds.maxY);
+            const bW = (viewBounds.maxX - viewBounds.minX) * scale;
+            const bH = (viewBounds.maxY - viewBounds.minY) * scale;
+            ctx.strokeRect(bX, bY, bW, bH);
+            ctx.setLineDash([]);
+
+            // Draw Each Circle Node
+            circleNodes.forEach(c => {
+                const sx = toScreenX(c.x);
+                const sy = toScreenY(c.y);
+                const sr = c.r * scale;
+
+                // Perimeter
+                ctx.beginPath();
+                ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 255, 102, 0.08)';
+                ctx.fill();
+                ctx.strokeStyle = '#00ff66';
+                ctx.lineWidth = c.thick > 0 ? Math.max(c.thick * scale * 0.1, 1.5) : 1.5;
+                ctx.stroke();
+
+                // Center Origin Crosshair
+                const cross = 4;
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(sx - cross, sy); ctx.lineTo(sx + cross, sy);
+                ctx.moveTo(sx, sy - cross); ctx.lineTo(sx, sy + cross);
+                ctx.stroke();
+
+                // Coordinate Annotation Tag
+                ctx.fillStyle = '#8b949e';
+                ctx.font = '9px monospace';
+                ctx.fillText(`(${c.x.toFixed(1)}, ${c.y.toFixed(1)})`, sx + 6, sy - 6);
+            });
+        }
+
+        // Action Handlers
+        document.getElementById('btnCompile').addEventListener('click', compileCircleSet);
+
+        document.getElementById('btnSample').addEventListener('click', () => {
+            rawInput.value = "(18.5, 24.0) (32.0, 48.5)\n(54.2, 12.0) (70.0, 36.8)\n(85.5, 62.1) (42.0, 30.0)";
+            paramRadius.value = "1.125";
+            compileCircleSet();
+        });
+
+        document.getElementById('btnClear').addEventListener('click', () => {
+            rawInput.value = "";
+            compileCircleSet();
+        });
+
+        document.getElementById('btnCopy').addEventListener('click', () => {
+            const text = sdjStream.innerText;
+            if (text && !text.startsWith("//")) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const original = document.getElementById('btnCopy').innerText;
+                    document.getElementById('btnCopy').innerText = "COPIED TO CLIPBOARD!";
+                    setTimeout(() => {
+                        document.getElementById('btnCopy').innerText = original;
+                    }, 1500);
+                });
+            }
+        });
+
+        // Initialize with default sample
+        document.getElementById('btnSample').click();
+        resizeCanvas();
+    </script>
+</body>
+</html>
