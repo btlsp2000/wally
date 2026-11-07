@@ -15,13 +15,14 @@
             color: #333;
         }
         #sidebar {
-            width: 250px;
+            width: 260px;
             background-color: #e2e8f0;
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
             gap: 15px;
+            box-sizing: border-box;
         }
         #canvas-container {
             flex-grow: 1;
@@ -56,17 +57,33 @@
         .btn-red:hover { background-color: #742a2a; }
         .btn-blue { background-color: #2b6cb0; }
         .btn-blue:hover { background-color: #2c5282; }
+        .btn-green { background-color: #2f855a; }
+        .btn-green:hover { background-color: #22543d; }
+        .btn-purple { background-color: #6b46c1; }
+        .btn-purple:hover { background-color: #553c9e; }
         input[type="number"] {
             padding: 8px;
             border: 1px solid #cbd5e0;
             font-family: inherit;
             text-align: center;
         }
-        h2 { font-size: 1.2rem; text-transform: uppercase; margin-top: 0; border-bottom: 2px solid #a0aec0; padding-bottom: 5px; }
+        h2 { 
+            font-size: 1.2rem; 
+            text-transform: uppercase; 
+            margin-top: 0; 
+            border-bottom: 2px solid #a0aec0; 
+            padding-bottom: 5px; 
+        }
+        #status-msg {
+            font-size: 0.8rem;
+            color: #2f855a;
+            min-height: 1.2em;
+            text-align: center;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-
     <!-- Left Sidebar: The UI Parser -->
     <div id="sidebar">
         <h2>/SHOTS</h2>
@@ -75,16 +92,21 @@
             <button onclick="executeBreak(15)">BREAK (FULL RACK)</button>
         </div>
 
-        <div class="qc-control" style="margin-top: 15px;">
+        <div class="qc-control" style="margin-top: 10px;">
             <label for="n-balls">SCATTER [N] BALLS:</label>
             <input type="number" id="n-balls" value="3" min="1" max="15">
             <button onclick="scatterCustom()">SCATTER CUSTOM</button>
         </div>
 
         <!-- The I/O Extraction Module -->
-        <div class="qc-control" style="margin-top: 15px;">
-            <button onclick="outputTuples()" class="btn-blue">OUTPUT TUPLES</button>
+        <div class="qc-control" style="margin-top: 15px; border-top: 1px dashed #a0aec0; padding-top: 15px;">
+            <button onclick="outputTuples()" class="btn-blue">VIEW TUPLES</button>
+            <button onclick="copyTuples()" class="btn-purple" style="margin-top: 4px;">COPY TO CLIPBOARD</button>
+            <button onclick="downloadTuples('txt')" class="btn-green" style="margin-top: 4px;">SAVE TUPLES (.TXT)</button>
+            <button onclick="downloadTuples('json')" class="btn-green" style="margin-top: 4px;">SAVE TUPLES (.JSON)</button>
         </div>
+
+        <div id="status-msg"></div>
 
         <div class="qc-control" style="margin-top: auto;">
             <button onclick="clearTable()" class="btn-red">CLEAR TABLE</button>
@@ -105,6 +127,14 @@
         const tableLength = 400;
         const ballRadius = 12; // Radius in pixels
         let balls = []; // The dynamic variables
+
+        function showStatus(text) {
+            const el = document.getElementById('status-msg');
+            el.textContent = text;
+            setTimeout(() => {
+                if (el.textContent === text) el.textContent = '';
+            }, 2500);
+        }
 
         // Center-anchor translation (0,0 is center of table)
         function renderWallyCAD() {
@@ -210,18 +240,80 @@
         function clearTable() {
             balls = [];
             renderWallyCAD();
+            showStatus("Table cleared");
         }
 
-        // The Data Extraction Module
+        function getTupleString() {
+            return balls.map(b => `${b.id} ${Math.round(b.x)} ${Math.round(b.y)}`).join('\n');
+        }
+
+        // The Data Extraction Modules
         function outputTuples() {
             if (balls.length === 0) {
                 alert("Table is empty. No tuples to output.");
                 return;
             }
-            // Generates whitespace-delimited tuples mapping exactly to your WallyCAD I/O
-            const tuples = balls.map(b => `${b.id} ${Math.round(b.x)} ${Math.round(b.y)}`).join('\n');
+            const tuples = getTupleString();
             console.log(tuples);
             alert("Coordinate Tuples:\n\n" + tuples);
+        }
+
+        async function copyTuples() {
+            if (balls.length === 0) {
+                alert("Table is empty. No tuples to copy.");
+                return;
+            }
+            const tuples = getTupleString();
+            try {
+                await navigator.clipboard.writeText(tuples);
+                showStatus("Copied to clipboard!");
+            } catch (err) {
+                // Fallback for non-secure contexts
+                const textarea = document.createElement('textarea');
+                textarea.value = tuples;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showStatus("Copied to clipboard!");
+            }
+        }
+
+        function downloadTuples(format = 'txt') {
+            if (balls.length === 0) {
+                alert("Table is empty. No tuples to save.");
+                return;
+            }
+
+            let fileContent = '';
+            let fileName = `wallycad_tuples_${Date.now()}`;
+            let mimeType = 'text/plain';
+
+            if (format === 'json') {
+                const jsonPayload = balls.map(b => ({
+                    id: b.id,
+                    x: Math.round(b.x),
+                    y: Math.round(b.y)
+                }));
+                fileContent = JSON.stringify(jsonPayload, null, 2);
+                fileName += '.json';
+                mimeType = 'application/json';
+            } else {
+                fileContent = getTupleString();
+                fileName += '.txt';
+            }
+
+            const blob = new Blob([fileContent], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus(`Saved ${fileName}`);
         }
 
         // Initial render on load
