@@ -698,58 +698,62 @@
         </div>
     </div>
 
-    <!-- SPREAD 7: VECTOR MIRROR (DARK THEME) -->
-    <div class="sheet theme-dark">
+<!-- SPREAD 7: VECTOR MIRROR (/MIR) -->
+    <div class="sheet">
         <div class="crosshair-vert"></div>
         
         <!-- Q2: MIR ARCHITECTURE -->
         <div class="quadrant left-pane">
-            <h1>MIR | VECTOR MIRROR ENGINE</h1>
-            <p>System documentation for the S2-82 Vector Mirror module. This standalone engine mathematically reflects geometry coordinate blobs (V2) across a defined directional axis (V3) to rapidly generate symmetrical structural elements.</p>
+            <div class="sheet-badge">WallyCAD S2-82 Module v1.0.17</div>
+            <h1>VECTOR MIRROR (/MIR)</h1>
+            <p>System documentation for the S2-82 Vector Mirror engine. This standalone module mathematically reflects geometry coordinate blobs across a defined directional axis vector (V3) to rapidly generate symmetrical structural elements.</p>
             
-            <h2>Axis Definition (V3)</h2>
+            <h2>1. Axis Definition (V3)</h2>
             <p>The module establishes the plane of reflection by interpreting user input as a directional vector originating from (0,0):</p>
             <ul>
-                <li><strong>Horizontal Mirror:</strong> V3 = (1, 0). Reflects geometry over the X-axis plane.</li>
-                <li><strong>Vertical Mirror:</strong> V3 = (0, 1). Reflects geometry over the Y-axis plane.</li>
-                <li><strong>Arbitrary Angles:</strong> Custom coordinates (e.g. 1, 1) mirror across diagonal planes like a 45° roof pitch.</li>
+                <li><strong>Horizontal Mirror:</strong> V3 = (1, 0). Reflects geometry across the X-axis plane.</li>
+                <li><strong>Vertical Mirror:</strong> V3 = (0, 1). Reflects geometry across the Y-axis plane.</li>
+                <li><strong>Arbitrary Pitch:</strong> Custom coordinates (e.g. 1, 1) mirror across diagonal planes like a 45° gable roof or rafter line.</li>
             </ul>
 
-            <h2>Coordinate Parsing</h2>
-            <p>The processor ingests raw blobs via regex (<code>split(/\s+/)</code>) and iterates through the flat array in pairs, mapping every two sequential floats to a target Point (P).</p>
+            <h2>2. Coordinate Parsing</h2>
+            <p>The input processor ingests raw WallyCAD blobs via regex (<code>split(/\s+/)</code>) and iterates through the flat array in pairs, mapping every two sequential floats to a target Point (P).</p>
 
             <div class="footer-nav">
-                <span>Q2 // WALLYCAD V1.0.17</span>
-                <span>PAGE 01</span>
+                <span>Spread 07 // S2-82 Engine</span>
+                <span>Q2 // /mir</span>
             </div>
         </div>
 
         <!-- Q3: REFLECTION MATH -->
         <div class="quadrant">
-            <h1>Core Reflection Logic</h1>
-            <p>The engine bypasses heavy matrix transformations by utilizing pure vector calculus to achieve real-time reflection.</p>
+            <div class="sheet-badge right">Vector Calculus</div>
+            <h1>REFLECTION MATH</h1>
+            <p>The engine bypasses heavy transformation matrices by utilizing pure vector projection to achieve zero-latency geometric reflection.</p>
 
-            <h2>Unit Vector Normalization</h2>
-            <p>V3 is normalized into a Unit Vector (U) with magnitude 1. A default fail-safe resets to the X-axis if a zero vector is entered.</p>
-            <div class="code-block">const mag = Math.sqrt(vx * vx + vy * vy);
+            <h4>Unit Vector Normalization</h4>
+            <p>V3 is normalized into a Unit Vector (U) with magnitude 1. A fail-safe defaults to the X-axis if a zero-magnitude vector is entered.</p>
+            
+            <span class="code-block">const mag = Math.sqrt(vx * vx + vy * vy);
 if (mag === 0) { vx = 1; vy = 0; }
 const ux = vx / mag;
-const uy = vy / mag;</div>
+const uy = vy / mag;</span>
 
-            <h2>The Reflection Equation: P' = 2(P · U)U - P</h2>
+            <h4>The Reflection Equation: P' = 2(P · U)U - P</h4>
             <p>For each parsed point (px, py), the engine calculates the dot product against the unit vector, producing mirrored coordinates rounded to 4 decimals.</p>
-            <div class="code-block">// Dot Product (P · U)
+            
+            <span class="code-block">// Dot Product (P · U)
 const dot = px * ux + py * uy;
 
 // Reflection Vector calculation
 let mx = (2 * dot * ux - px).toFixed(4);
 let my = (2 * dot * uy - py).toFixed(4);
 
-result.push(`${mx} ${my}`);</div>
+result.push(`${mx} ${my}`);</span>
 
             <div class="footer-nav">
-                <span>Q3 // S2-82 MIRROR MODULE</span>
-                <span>PAGE 02</span>
+                <span>Spread 07 // Calculus</span>
+                <span>Q3 // Reflection</span>
             </div>
         </div>
     </div>
