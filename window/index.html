@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Space Trailer Window Generator</title>
+    <style>
+        :root {
+            --cad-black: #0e1117;
+            --cad-panel: #161b22;
+            --cad-border: #30363d;
+            --cad-green: #00ff66;
+            --cad-orange: #ff7700;
+            --cad-text: #c9d1d9;
+            --cad-text-muted: #8b949e;
+            --cad-accent: #38bdf8;
+            --cad-canvas: #06090e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--cad-black);
+            color: var(--cad-text);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 370px;
+            background: var(--cad-panel);
+            border-right: 1px solid var(--cad-border);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 12px;
+            z-index: 10;
+            overflow-y: auto;
+        }
+
+        .header-tag {
+            font-size: 10px;
+            background: var(--cad-border);
+            color: var(--cad-green);
+            padding: 3px 6px;
+            align-self: flex-start;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 15px;
+            color: #fff;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--cad-green);
+            padding-bottom: 6px;
+        }
+
+        .param-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        label {
+            font-size: 10px;
+            color: var(--cad-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        input[type="number"], select {
+            background: #0d1117;
+            border: 1px solid var(--cad-border);
+            color: #fff;
+            padding: 6px 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--cad-accent);
+        }
+
+        .node-matrix-list {
+            background: #080b0f;
+            border: 1px solid var(--cad-border);
+            padding: 8px;
+            font-size: 9.5pt;
+            color: var(--cad-text-muted);
+            line-height: 1.4;
+            max-height: 110px;
+            overflow-y: auto;
+        }
+
+        .node-matrix-list span.orange {
+            color: var(--cad-orange);
+            font-weight: bold;
+        }
+
+        button {
+            background: #21262d;
+            border: 1px solid var(--cad-border);
+            color: #fff;
+            padding: 8px 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.15s ease;
+        }
+
+        button:hover {
+            background: var(--cad-border);
+            color: var(--cad-green);
+            border-color: var(--cad-green);
+        }
+
+        button.primary {
+            background: var(--cad-green);
+            color: #000;
+            border-color: var(--cad-green);
+            width: 100%;
+        }
+
+        button.primary:hover {
+            background: #00cc52;
+            color: #000;
+        }
+
+        .output-box {
+            background: #06090e;
+            border: 1px solid var(--cad-border);
+            padding: 8px;
+            font-size: 9.5px;
+            color: var(--cad-green);
+            word-break: break-all;
+            height: 95px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .workspace {
+            flex-grow: 1;
+            position: relative;
+            background: var(--cad-canvas);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hud-overlay {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(22, 27, 34, 0.9);
+            border: 1px solid var(--cad-border);
+            padding: 10px 14px;
+            font-size: 10px;
+            color: var(--cad-accent);
+            pointer-events: none;
+            letter-spacing: 1px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="header-tag">MICRO-CAMPER S2-GEOMETRY</div>
+        <h1>SPACE TRAILER WINDOW</h1>
+
+        <div class="param-grid">
+            <div class="input-group">
+                <label>Aperture Height (H)</label>
+                <input type="number" id="inpHeight" value="36.0" step="1.0" min="6.0">
+            </div>
+            <div class="input-group">
+                <label>Aperture Span (W)</label>
+                <input type="number" id="inpWidth" value="64.0" step="1.0" min="6.0">
+            </div>
+        </div>
+
+        <div class="param-grid">
+            <div class="input-group">
+                <label>Frame Margin (X)</label>
+                <input type="number" id="inpFrameMarginX" value="8.0" step="1.0">
+            </div>
+            <div class="input-group">
+                <label>Frame Margin (Y)</label>
+                <input type="number" id="inpFrameMarginY" value="6.0" step="1.0">
+            </div>
+        </div>
+
+        <div class="param-grid">
+            <div class="input-group">
+                <label>Wall / Frame Thick (T:)</label>
+                <input type="number" id="inpThick" value="2.0" step="0.5" min="0">
+            </div>
+            <div class="input-group">
+                <label>Origin (X, Y)</label>
+                <input type="text" id="inpOrigin" value="0, 0" style="background:#0d1117; border:1px solid var(--cad-border); color:#fff; padding:6px; font-size:11px;">
+            </div>
+        </div>
+
+        <button class="primary" id="btnUpdate">Solve Geometry &amp; Replot</button>
+
+        <div class="input-group">
+            <label>Key Coordinate Nodes (Orange Dots)</label>
+            <div class="node-matrix-list" id="nodeList">
+                <!-- Computed nodes -->
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>1D SDJ Token Stream</label>
+            <div class="output-box" id="sdjStream">// Continuous 1D SDJ string...</div>
+        </div>
+
+        <button id="btnCopy">Copy 1D SDJ Stream</button>
+    </div>
+
+    <div class="workspace">
+        <canvas id="cadCanvas"></canvas>
+        <div class="hud-overlay" id="hudInfo">
+            WINDOW: 64.0" x 36.0" (3'-0" H)<br>
+            ARC RADIUS (R): 47.11"
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('cadCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const inpHeight = document.getElementById('inpHeight');
+        const inpWidth = document.getElementById('inpWidth');
+        const inpMarginX = document.getElementById('inpFrameMarginX');
+        const inpMarginY = document.getElementById('inpFrameMarginY');
+        const inpThick = document.getElementById('inpThick');
+        const inpOrigin = document.getElementById('inpOrigin');
+
+        const nodeList = document.getElementById('nodeList');
+        const sdjStream = document.getElementById('sdjStream');
+        const hudInfo = document.getElementById('hudInfo');
+        const btnUpdate = document.getElementById('btnUpdate');
+        const btnCopy = document.getElementById('btnCopy');
+
+        let solved = null;
+
+        function resize() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            draw();
+        }
+        window.addEventListener('resize', resize);
+
+        function solve() {
+            const H = parseFloat(inpHeight.value) || 36.0; // 3'-0"
+            const W = parseFloat(inpWidth.value) || 64.0;
+            const mx = parseFloat(inpMarginX.value) || 8.0;
+            const my = parseFloat(inpMarginY.value) || 6.0;
+            const thick = parseFloat(inpThick.value) || 2.0;
+
+            let ox = 0, oy = 0;
+            const origParts = inpOrigin.value.split(',');
+            if (origParts.length === 2) {
+                ox = parseFloat(origParts[0].trim()) || 0;
+                oy = parseFloat(origParts[1].trim()) || 0;
+            }
+
+            const halfW = W / 2;
+            const halfH = H / 2;
+
+            // Circular arc radius passing through (-halfW, 0), (halfW, 0), and (0, halfH):
+            // R = (halfW^2 + halfH^2) / (2 * halfH)
+            const R = (halfW * halfW + halfH * halfH) / (2 * halfH);
+            const centerOffsetY = R - halfH;
+
+            // Arc center points (Lower arc center is ABOVE origin, Upper arc center is BELOW origin)
+            const topArcCenter = { x: ox, y: oy - centerOffsetY };
+            const botArcCenter = { x: ox, y: oy + centerOffsetY };
+
+            // Angular sweeps for canvas rendering
+            const startAngleTop = Math.asin(halfW / R); 
+
+            // Key Points from Sketch (The Orange Nodes)
+            const nodes = [
+                { id: "ORIGIN", x: ox, y: oy, desc: "Window Center (0,0)" },
+                { id: "APEX_TOP", x: ox, y: oy + halfH, desc: "Upper Arc Apex (+H/2)" },
+                { id: "APEX_BOT", x: ox, y: oy - halfH, desc: "Lower Arc Apex (-H/2)" },
+                { id: "CUSP_LEFT", x: ox - halfW, y: oy, desc: "Left Focal Cusp (-W/2)" },
+                { id: "CUSP_RIGHT", x: ox + halfW, y: oy, desc: "Right Focal Cusp (+W/2)" },
+                
+                // Outer Bounding Frame Corners
+                { id: "FRAME_TL", x: ox - halfW - mx, y: oy + halfH + my, desc: "Frame Top-Left" },
+                { id: "FRAME_TR", x: ox + halfW + mx, y: oy + halfH + my, desc: "Frame Top-Right" },
+                { id: "FRAME_BL", x: ox - halfW - mx, y: oy - halfH - my, desc: "Frame Bottom-Left" },
+                { id: "FRAME_BR", x: ox + halfW + mx, y: oy - halfH - my, desc: "Frame Bottom-Right" }
+            ];
+
+            // Build SDJ Continuous 1D String
+            // Uses standard WallyCAD tokens: [BOX], [LINE], [ARC], [CIRCLE]
+            const frameW = W + mx * 2;
+            const frameH = H + my * 2;
+            const boxX = ox - frameW / 2;
+            const boxY = oy - frameH / 2;
+
+            // Approximate segmented arcs for polyline/wall injection or dedicated tokens:
+            const steps = 16;
+            const topArcPts = [];
+            const botArcPts = [];
+            for (let i = 0; i <= steps; i++) {
+                const t = -Math.PI / 2 + (Math.PI * i) / steps; // -PI/2 to PI/2
+                const px = ox - halfW + (W * i) / steps;
+                // Solve y on circle: (x - cx)^2 + (y - cy)^2 = R^2
+                const dx = px - ox;
+                const dy = Math.sqrt(Math.max(0, R * R - dx * dx));
+                const yTop = (oy - centerOffsetY) + dy;
+                const yBot = (oy + centerOffsetY) - dy;
+                topArcPts.push(`${px.toFixed(2)} ${yTop.toFixed(2)}`);
+                botArcPts.push(`${px.toFixed(2)} ${yBot.toFixed(2)}`);
+            }
+
+            const sdj = [
+                `[BOX] ${boxX.toFixed(2)} ${boxY.toFixed(2)} ${frameW.toFixed(2)} ${frameH.toFixed(2)} T:${thick}`,
+                `[LINE] ${(ox - frameW/2).toFixed(2)} ${oy.toFixed(2)} ${(ox + frameW/2).toFixed(2)} ${oy.toFixed(2)} T:0`,
+                `[LINE] ${ox.toFixed(2)} ${(oy - frameH/2).toFixed(2)} ${ox.toFixed(2)} ${(oy + frameH/2).toFixed(2)} T:0`,
+                `[WALL] ${topArcPts.join(' ')} T:${thick}`,
+                `[WALL] ${botArcPts.join(' ')} T:${thick}`
+            ].join(' ');
+
+            solved = {
+                H, W, mx, my, thick, ox, oy, halfW, halfH, R, centerOffsetY,
+                frameW, frameH, nodes, sdj
+            };
+
+            // Update UI Sidebar
+            nodeList.innerHTML = nodes.map(n => 
+                `<div><span class="orange">●</span> <strong>${n.id}</strong>: (${n.x.toFixed(1)}, ${n.y.toFixed(1)})</div>`
+            ).join('');
+
+            sdjStream.innerText = sdj;
+            hudInfo.innerHTML = `APERTURE: ${W.toFixed(1)}" W x ${H.toFixed(1)}" H (3'-0")<br>ARC RADIUS: ${R.toFixed(2)}"<br>FRAME: ${frameW.toFixed(1)}" x ${frameH.toFixed(1)}"`;
+
+            draw();
+        }
+
+        function draw() {
+            if (!solved) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const margin = 80;
+            const spanX = solved.frameW + 20;
+            const spanY = solved.frameH + 20;
+            const scale = Math.min((canvas.width - margin * 2) / spanX, (canvas.height - margin * 2) / spanY);
+
+            function sx(x) { return canvas.width / 2 + (x - solved.ox) * scale; }
+            function sy(y) { return canvas.height / 2 - (y - solved.oy) * scale; }
+
+            // Grid lines
+            ctx.strokeStyle = '#161b22';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 40) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            // 1. Draw Rectangular Window Frame Box
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            const bx = sx(solved.ox - solved.frameW / 2);
+            const by = sy(solved.oy + solved.frameH / 2);
+            const bw = solved.frameW * scale;
+            const bh = solved.frameH * scale;
+            ctx.strokeRect(bx, by, bw, bh);
+
+            // 2. Draw Construction Centerlines
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([6, 4]);
+            // Horizontal Centerline
+            ctx.beginPath();
+            ctx.moveTo(sx(solved.ox - solved.frameW / 2 - 10), sy(solved.oy));
+            ctx.lineTo(sx(solved.ox + solved.frameW / 2 + 10), sy(solved.oy));
+            ctx.stroke();
+            // Vertical Centerline
+            ctx.beginPath();
+            ctx.moveTo(sx(solved.ox), sy(solved.oy - solved.frameH / 2 - 10));
+            ctx.lineTo(sx(solved.ox), sy(solved.oy + solved.frameH / 2 + 10));
+            ctx.stroke();
+
+            // Tangent alignment horizontal rails from sketch
+            ctx.beginPath();
+            ctx.moveTo(bx, sy(solved.oy + solved.halfH));
+            ctx.lineTo(bx + bw, sy(solved.oy + solved.halfH));
+            ctx.moveTo(bx, sy(solved.oy - solved.halfH));
+            ctx.lineTo(bx + bw, sy(solved.oy - solved.halfH));
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 3. Draw The Vesica Piscis Arcs (Top & Bottom)
+            ctx.save();
+            ctx.strokeStyle = '#00ff66';
+            ctx.lineWidth = Math.max(solved.thick * scale * 0.4, 2.5);
+
+            // Top Arc (Center is below origin)
+            const topCy = sy(solved.oy - solved.centerOffsetY);
+            const topRadius = solved.R * scale;
+            const topAng = Math.atan2(solved.halfH + solved.centerOffsetY, solved.halfW);
+            ctx.beginPath();
+            ctx.arc(sx(solved.ox), topCy, topRadius, -Math.PI / 2 - (Math.PI / 2 - topAng), -Math.PI / 2 + (Math.PI / 2 - topAng));
+            ctx.stroke();
+
+            // Bottom Arc (Center is above origin)
+            const botCy = sy(solved.oy + solved.centerOffsetY);
+            const botRadius = solved.R * scale;
+            ctx.beginPath();
+            ctx.arc(sx(solved.ox), botCy, botRadius, Math.PI / 2 - (Math.PI / 2 - topAng), Math.PI / 2 + (Math.PI / 2 - topAng));
+            ctx.stroke();
+
+            // Arc fill glass effect
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.08)';
+            ctx.beginPath();
+            ctx.arc(sx(solved.ox), topCy, topRadius, -Math.PI / 2 - (Math.PI / 2 - topAng), -Math.PI / 2 + (Math.PI / 2 - topAng));
+            ctx.arc(sx(solved.ox), botCy, botRadius, Math.PI / 2 - (Math.PI / 2 - topAng), Math.PI / 2 + (Math.PI / 2 - topAng));
+            ctx.fill();
+            ctx.restore();
+
+            // 4. Dimension Ticks: 3'-0" Height Callout
+            ctx.strokeStyle = '#38bdf8';
+            ctx.fillStyle = '#38bdf8';
+            ctx.lineWidth = 1.2;
+            const dimX = sx(solved.ox - solved.frameW / 2) - 30;
+            const dimY1 = sy(solved.oy + solved.halfH);
+            const dimY2 = sy(solved.oy - solved.halfH);
+
+            ctx.beginPath();
+            ctx.moveTo(dimX, dimY1); ctx.lineTo(dimX, dimY2);
+            ctx.moveTo(dimX - 6, dimY1); ctx.lineTo(dimX + 6, dimY1);
+            ctx.moveTo(dimX - 6, dimY2); ctx.lineTo(dimX + 6, dimY2);
+            ctx.stroke();
+
+            ctx.font = 'bold 11px monospace';
+            ctx.save();
+            ctx.translate(dimX - 12, (dimY1 + dimY2) / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText("3'-0\" (36\")", 0, 0);
+            ctx.restore();
+
+            // 5. Draw Key Reference Nodes (Orange Dots from Sketch)
+            solved.nodes.forEach(n => {
+                const px = sx(n.x);
+                const py = sy(n.y);
+
+                ctx.beginPath();
+                ctx.arc(px, py, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#ff7700';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            });
+        }
+
+        btnUpdate.addEventListener('click', solve);
+
+        btnCopy.addEventListener('click', () => {
+            if (solved && solved.sdj) {
+                navigator.clipboard.writeText(solved.sdj).then(() => {
+                    const prev = btnCopy.innerText;
+                    btnCopy.innerText = "COPIED 1D SDJ TO CLIPBOARD!";
+                    setTimeout(() => btnCopy.innerText = prev, 1500);
+                });
+            }
+        });
+
+        [inpHeight, inpWidth, inpMarginX, inpMarginY, inpThick].forEach(el => {
+            el.addEventListener('input', solve);
+        });
+
+        solve();
+        resize();
+    </script>
+</body>
+</html>
