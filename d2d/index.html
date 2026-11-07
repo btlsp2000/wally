@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WallyCAD | Complete Hardcopy Manual & D2D Cover Wrap</title>
+    <style>
+        :root {
+            --cad-black: #121212;
+            --cad-accent: #00ff00;
+            --cad-muted: #555555;
+            --cad-border: #cccccc;
+            --cad-bg-light: #f4f4f4;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: 11in 8.5in landscape;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px 0;
+            background: #d1d5db;
+            color: var(--cad-black);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        /* 11in x 8.5in Landscape Sheet Spread */
+        .sheet {
+            width: 11in;
+            height: 8.5in;
+            background: #ffffff;
+            display: grid;
+            grid-template-columns: 5.5in 5.5in;
+            grid-template-rows: 8.5in;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            page-break-after: always;
+            break-after: page;
+            overflow: hidden;
+        }
+
+        /* Center Crease / Spine Fold Guide */
+        .crosshair-vert {
+            position: absolute;
+            top: 0;
+            left: 5.5in;
+            width: 1px;
+            height: 8.5in;
+            border-left: 1px dashed #aaa;
+            z-index: 10;
+        }
+
+        /* Quadrant / Half-Sheet Pane */
+        .quadrant {
+            padding: 0.75in;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quadrant.left-pane {
+            border-right: 1px solid #eee;
+        }
+
+        /* Cover Wrap Specifics */
+        .spine-divider {
+            position: absolute;
+            top: 0;
+            left: 5.5in;
+            width: 2px;
+            height: 8.5in;
+            border-left: 2px dashed #999;
+            z-index: 20;
+        }
+
+        .spine-tag {
+            position: absolute;
+            bottom: 20px;
+            left: 5.5in;
+            transform: translateX(-50%);
+            background: var(--cad-black);
+            color: #fff;
+            font-size: 8pt;
+            font-weight: bold;
+            padding: 2px 6px;
+            letter-spacing: 1px;
+            z-index: 25;
+        }
+
+        .back-cover {
+            padding: 0.75in;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        .back-content h2 {
+            font-size: 14pt;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--cad-black);
+            padding-bottom: 4px;
+            margin-top: 0;
+        }
+
+        .d2d-insert-box {
+            border: 2px solid var(--cad-black);
+            background: #fafafa;
+            padding: 16px;
+            width: 90%;
+            margin-bottom: 20px;
+        }
+
+        .d2d-insert-box h3 {
+            margin: 0 0 6px 0;
+            font-size: 11pt;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .d2d-insert-box p {
+            margin: 0;
+            font-size: 8.5pt;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .front-cover {
+            padding: 0.6in 0.6in 0.5in 0.6in;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .cover-image-frame {
+            width: 100%;
+            height: 5.4in;
+            border: 2px solid var(--cad-black);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fbfbfb;
+            box-sizing: border-box;
+        }
+
+        .corner-tick {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #aaa;
+        }
+        .top-left { top: -8px; left: -8px; border-right: none; border-bottom: none; }
+        .top-right { top: -8px; right: -8px; border-left: none; border-bottom: none; }
+        .bot-left { bottom: -8px; left: -8px; border-right: none; border-top: none; }
+        .bot-right { bottom: -8px; right: -8px; border-left: none; border-top: none; }
+
+        .cross-x {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .cover-placeholder-label {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid var(--cad-black);
+            padding: 8px 16px;
+            font-size: 11pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            z-index: 5;
+            text-align: center;
+        }
+
+        .lower-cover-matrix {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            margin-top: 10px;
+        }
+
+        .qr-placeholder-box {
+            width: 1.1in;
+            height: 1.1in;
+            border: 2px solid var(--cad-black);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            position: relative;
+        }
+
+        .qr-placeholder-box svg {
+            width: 75%;
+            height: 75%;
+        }
+
+        .qr-label {
+            font-size: 7pt;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        /* Dark Theme Variant (MIR Module) */
+        .sheet.theme-dark {
+            background-color: #000000;
+            color: var(--cad-accent);
+        }
+
+        .sheet.theme-dark .crosshair-vert {
+            border-left-color: #333333;
+        }
+
+        .sheet.theme-dark .quadrant.left-pane {
+            border-right: 1px dashed #333333;
+        }
+
+        .sheet.theme-dark h1 {
+            color: #ffffff;
+            border-bottom-color: var(--cad-accent);
+        }
+
+        .sheet.theme-dark h2 {
+            color: #4caf50;
+            border-bottom: 1px solid #222222;
+            padding-bottom: 4px;
+        }
+
+        .sheet.theme-dark p, 
+        .sheet.theme-dark li {
+            color: #aaaaaa;
+        }
+
+        .sheet.theme-dark .code-block {
+            background-color: #161616;
+            color: #e0e0e0;
+            border: 1px solid #333333;
+            border-left: 3px solid #ff00ff;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            margin: 0;
+            font-weight: bold;
+        }
+
+        h1 {
+            font-size: 20pt;
+            border-bottom: 2px solid var(--cad-black);
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            font-size: 13pt;
+            margin-bottom: 8px;
+            color: #444444;
+            margin-top: 14px;
+            text-transform: uppercase;
+        }
+
+        h4 {
+            font-size: 10.5pt;
+            margin-bottom: 5px;
+            margin-top: 14px;
+            text-transform: uppercase;
+            color: var(--cad-black);
+        }
+
+        p, li {
+            font-size: 9.5pt;
+            line-height: 1.5;
+            margin-top: 0;
+        }
+
+        ul {
+            padding-left: 18px;
+            margin-bottom: 12px;
+        }
+
+        /* Code & Command Blocks */
+        .code-block {
+            background: var(--cad-bg-light);
+            border: 1px solid var(--cad-border);
+            padding: 8px 10px;
+            font-size: 8.5pt;
+            font-weight: bold;
+            margin: 10px 0;
+            display: block;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .inline-cmd {
+            background: var(--cad-black);
+            color: #ffffff;
+            padding: 2px 4px;
+            font-size: 8.5pt;
+        }
+
+        /* Badges & Footers */
+        .sheet-badge {
+            font-size: 8.5pt;
+            background: var(--cad-black);
+            color: #ffffff;
+            padding: 3px 8px;
+            margin-bottom: 16px;
+            display: inline-block;
+            align-self: flex-start;
+        }
+
+        .sheet-badge.right {
+            align-self: flex-end;
+        }
+
+        .footer-nav {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            font-size: 8.5pt;
+            text-transform: uppercase;
+            color: var(--cad-muted);
+            border-top: 1px solid #eeeeee;
+            padding-top: 8px;
+        }
+
+        .sheet.theme-dark .footer-nav {
+            border-top-color: #222222;
+            color: #555555;
+        }
+
+        /* Funnel Diagram */
+        .funnel-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 25px;
+            gap: 15px;
+        }
+
+        .funnel-label {
+            font-weight: bold;
+            font-size: 11pt;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .funnel-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .funnel-stage {
+            border: 1px solid #333333;
+            padding: 6px 12px;
+            text-align: center;
+            background: #f8fafc;
+            font-size: 9pt;
+            margin-bottom: 4px;
+        }
+
+        .funnel-arrow {
+            font-size: 12pt;
+            margin-bottom: 4px;
+            line-height: 1;
+        }
+
+        .funnel-final {
+            text-align: center;
+            font-weight: bold;
+            font-size: 10pt;
+            border-bottom: 2px solid var(--cad-black);
+            padding-bottom: 4px;
+        }
+
+        /* SVG Engine Display */
+        .svg-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .svg-container svg {
+            width: 100%;
+            height: auto;
+            max-height: 100%;
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+                display: block;
+            }
+            .sheet {
+                box-shadow: none;
+                border: none;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SHEET 0: D2D HARDCOPY COVER WRAP -->
+    <div class="sheet">
+        <div class="spine-divider"></div>
+        <div class="spine-tag">SPINE</div>
+
+        <!-- BACK COVER (LEFT) -->
+        <div class="back-cover">
+            <div class="back-content">
+                <h2>WALLYCAD MANUAL</h2>
+                <p>Vector drafting, space-delimited JSON (SDJ) protocols, parametric tooling, and zero-latency browser rendering.</p>
+                <p style="font-size: 8.5pt; color: #555;">
+                    Engineered for iPad touch interfaces and high-speed CAD workstation plotting. Contains full Q-2-3 module spreads and terminal instruction sets.
+                </p>
+            </div>
+
+            <div class="d2d-insert-box">
+                <h3>INSERT @ D2D</h3>
+                <p>Draft2Digital Print-On-Demand barcode &amp; inventory placement zone. Maintain 0.5" clear margin on all perimeter edges.</p>
+                <div style="font-size: 7.5pt; color: #888; margin-top: 8px;">
+                    FORMAT: 11" x 8.5" LANDSCAPE HARDCOPY WRAP
+                </div>
+            </div>
+        </div>
+
+        <!-- FRONT COVER (RIGHT) -->
+        <div class="front-cover">
+            <div class="cover-image-frame">
+                <div class="corner-tick top-left"></div>
+                <div class="corner-tick top-right"></div>
+                <div class="corner-tick bot-left"></div>
+                <div class="corner-tick bot-right"></div>
+
+                <svg class="cross-x">
+                    <line x1="0" y1="0" x2="100%" y2="100%" stroke="#e2e8f0" stroke-width="1.5" />
+                    <line x1="100%" y1="0" x2="0" y2="100%" stroke="#e2e8f0" stroke-width="1.5" />
+                </svg>
+
+                <div class="cover-placeholder-label">
+                    COVER PG IMAGE<br>
+                    <span style="font-size: 8pt; font-weight: normal; color: #666; letter-spacing: 0;">
+                        [ Drop Front Title Art / Screenshot Here ]
+                    </span>
+                </div>
+            </div>
+
+            <div class="lower-cover-matrix">
+                <div style="font-size: 8.5pt; text-transform: uppercase; line-height: 1.4; color: #444;">
+                    <strong>WallyCAD v1.0.17</strong><br>
+                    DIM &amp; Vector Manual<br>
+                    Barstow Bill Tonnesen
+                </div>
+
+                <div class="qr-placeholder-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                    </svg>
+                    <span class="qr-label">QR CODE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET 1: MANUAL OVERVIEW & CORE COMMANDS -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant left-pane">
+            <div class="sheet-badge">WallyCAD QuickStart Q1-2 v1.0.144</div>
+            <h1>WORKSPACE LAYOUT</h1>
+            <p>Visual overview of the v1.0 engine interface, core toolbars, and HUD elements.</p>
+            <div class="svg-container" style="flex-grow: 1; margin-top: 10px;">
+                <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <style>
+                            .ui-bg { fill: #161b22; }
+                            .ui-panel { fill: #1e293b; }
+                            .ui-canvas { fill: #070a0e; }
+                            .ui-text { fill: #38bdf8; font-family: monospace; font-size: 8px; font-weight: bold; }
+                            .ui-muted { fill: #94a3b8; font-family: monospace; font-size: 7px; }
+                            .ui-btn { fill: #334155; rx: 2px; }
+                            .ui-geo { fill: none; stroke: #3fb950; stroke-width: 1.5; stroke-linejoin: bevel; }
+                            .ui-axis { fill: none; stroke: #334155; stroke-width: 1; }
+                            .call-box { fill: #fff; stroke: #ef4444; stroke-width: 1.5; }
+                            .call-text { fill: #ef4444; font-family: sans-serif; font-size: 8px; font-weight: bold; }
+                            .call-sub { fill: #111; font-family: sans-serif; font-size: 7px; }
+                            .call-line { fill: none; stroke: #ef4444; stroke-width: 1.2; }
+                        </style>
+                    </defs>
+                    <g transform="translate(40, 45)">
+                        <rect width="360" height="220" class="ui-bg" stroke="#333" stroke-width="2"/>
+                        <rect width="360" height="20" class="ui-panel" />
+                        <text x="10" y="14" class="ui-text" style="font-size:9px;">≡ WALLY v1.0.144</text>
+                        <rect x="95" y="4" width="25" height="12" class="ui-btn"/><text x="99" y="12" class="ui-text">NEW</text>
+                        <rect x="125" y="4" width="25" height="12" class="ui-btn"/><text x="127" y="12" class="ui-text">SAVE</text>
+                        <rect x="155" y="3" width="140" height="14" fill="none" stroke="#ef4444" stroke-width="1.5" />
+                        <rect x="157" y="4" width="25" height="12" class="ui-btn"/><text x="160" y="12" class="ui-text">LINE</text>
+                        <rect x="187" y="4" width="25" height="12" class="ui-btn" style="fill:#38bdf8;"/><text x="190" y="12" class="ui-text" style="fill:#000;">WALL</text>
+                        <rect x="217" y="4" width="35" height="12" class="ui-btn"/><text x="220" y="12" class="ui-text">CIRCLE</text>
+                        <rect x="257" y="4" width="30" height="12" class="ui-btn"/><text x="261" y="12" class="ui-text">STAIR</text>
+                        
+                        <rect y="20" width="90" height="180" class="ui-bg" />
+                        <text x="5" y="33" class="ui-muted" style="letter-spacing:1px;">IRON PROTOCOL</text>
+                        <rect x="5" y="38" width="38" height="12" class="ui-btn"/><text x="7" y="46" class="ui-text" style="font-size:5px;">EXP WALLY</text>
+                        <rect x="47" y="38" width="38" height="12" class="ui-btn"/><text x="49" y="46" class="ui-text" style="font-size:5px;">IMP WALLY</text>
+                        
+                        <text x="5" y="62" class="ui-text">PROPERTIES</text>
+                        <rect x="5" y="66" width="80" height="74" class="ui-canvas" stroke="#334155" />
+                        <text x="8" y="76" class="ui-text" style="fill:#fbbf24;">TYPE: WALL</text>
+                        <text x="8" y="86" class="ui-muted">0,0</text>
+                        <text x="8" y="94" class="ui-muted">120,0</text>
+                        <text x="8" y="102" class="ui-muted">120,96</text>
+                        <text x="8" y="110" class="ui-muted">0,96</text>
+                        <text x="8" y="118" class="ui-muted">0,0</text>
+                        
+                        <text x="5" y="152" class="ui-text">ENTITIES</text>
+                        <rect x="5" y="156" width="80" height="15" class="ui-panel" />
+                        <text x="8" y="166" class="ui-text" style="fill:#3fb950;">WALL [5]</text>
+                        
+                        <rect x="90" y="20" width="270" height="180" class="ui-canvas" />
+                        <line x1="100" y1="160" x2="350" y2="160" class="ui-axis" />
+                        <line x1="130" y1="30" x2="130" y2="190" class="ui-axis" />
+                        
+                        <g transform="translate(130, 80)">
+                            <rect x="0" y="0" width="140" height="80" class="ui-geo" />
+                            <polyline points="0,0 70,-40 140,0" class="ui-geo" />
+                            <line x1="-10" y1="80" x2="150" y2="80" class="ui-geo" />
+                            <rect x="20" y="15" width="25" height="25" class="ui-geo" />
+                            <rect x="55" y="15" width="25" height="25" class="ui-geo" />
+                            <rect x="20" y="45" width="25" height="25" class="ui-geo" />
+                            <rect x="55" y="45" width="25" height="25" class="ui-geo" />
+                            <rect x="95" y="15" width="25" height="25" class="ui-geo" />
+                            <rect x="95" y="45" width="25" height="25" class="ui-geo" />
+                        </g>
+                        
+                        <rect x="90" y="200" width="270" height="20" class="ui-panel" stroke="#3fb950" stroke-width="1"/>
+                        <text x="95" y="213" class="ui-text" style="fill:#fbbf24;">COMMAND > _</text>
+                        <text x="290" y="213" class="ui-muted">X:120 Y:96</text>
+                    </g>
+                    
+                    <rect x="60" y="3" width="150" height="28" class="call-box" />
+                    <text x="65" y="15" class="call-text">TOOLBAR: Activation</text>
+                    <text x="65" y="24" class="call-sub">Quick action buttons</text>
+                    <path d="M 135,31 L 135,40 L 235,40 L 235,47" class="call-line" />
+                    
+                    <rect x="10" y="278" width="140" height="28" class="call-box" />
+                    <text x="15" y="290" class="call-text">SIDEBAR: Inspector</text>
+                    <text x="15" y="299" class="call-sub">Entities &amp; properties</text>
+                    <path d="M 80,278 L 80,255 L 65,255 L 65,225" class="call-line" />
+                    
+                    <rect x="260" y="278" width="150" height="28" class="call-box" />
+                    <text x="265" y="290" class="call-text">CLI: Terminal Input</text>
+                    <text x="265" y="299" class="call-sub">Direct text parsing</text>
+                    <path d="M 335,278 L 335,268" class="call-line" />
+                </svg>
+            </div>
+            <div class="footer-nav">
+                <span>Spread 01 // Overview</span>
+                <span>WALLYCAD.COM</span>
+            </div>
+        </div>
+
+        <div class="quadrant">
+            <div class="sheet-badge right">Syntax Reference</div>
+            <h1>CORE COMMANDS</h1>
+            <p>Direct shorthand keyboard and terminal activation commands.</p>
+            <ul style="font-size: 8.5pt; line-height: 1.45;">
+                <li><strong>LINE</strong> : Spawns a standard 0-thickness geometric path.</li>
+                <li><strong>WALL</strong> : Spawns a thickened polyline structure with mitering.</li>
+                <li><strong>CIRCLE</strong> : Spawns a circle. Width = Radius, Depth = Tube Wall.</li>
+                <li><strong>DIM</strong> : Spawns an aligned dimension measurement tool.</li>
+                <li><strong>TEXT</strong> : Spawns a text annotation or parametric label.</li>
+                <li><strong>STAIR</strong> : Spawns a parametric stair tread and riser array.</li>
+                <li><strong>X,Y</strong> : Appends absolute coordinates (e.g. <code>15,25</code>) to the path.</li>
+                <li><strong>ERASE</strong> : Deletes the active entity (or press <kbd>DEL</kbd>).</li>
+                <li><strong>ZOOM E</strong> : Zoom Extents. Recalculates canvas to fit all vectors.</li>
+                <li><strong>DXF</strong> : Compiles visible layers into AutoCAD R12 format.</li>
+                <li><strong>HAL</strong> : Toggles high-contrast presentation mode.</li>
+                <li><strong>SCRIPT</strong> : Runs macro batch generator from a <code>.dat</code> file.</li>
+            </ul>
+            <div class="footer-nav">
+                <span>Spread 01 // Commands</span>
+                <span>Page 02</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET 2: BORDER & TITLE BLOCK ENGINE -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant left-pane">
+            <div class="sheet-badge">WallyCAD DIM Engine Q2-3 Spread v1.0.17</div>
+            <h1>BORDER / TITLE BLOCK</h1>
+            <p>The engine supports a dedicated command to automatically insert a standard architectural border and title block, simplifying layout prep.</p>
+            
+            <h2>1. Standard Size Bounding</h2>
+            <ul>
+                <li>Typing <span class="inline-cmd">BORDER</span> (or <span class="inline-cmd">DB</span> / <span class="inline-cmd">DIMBORDER</span>) generates a 110x85 landscape sheet border at the 0,0 origin, scaling it to accommodate typical small-scale architectural layouts.</li>
+            </ul>
+            
+            <h2>2. Automated Title Block</h2>
+            <ul>
+                <li>The command places a 40x15 block in the bottom-right corner, pre-configured with PROJECT:, CLIENT:, DATE: 10/2026, and DWN: BEI fields, eliminating manual line drafting.</li>
+            </ul>
+
+            <h2>3. Intelligent Layout Scaling</h2>
+            <ul>
+                <li>Recalculates bounds instantly upon execution, triggering <span class="inline-cmd">centerView()</span> extents so you can populate details without manual view panning.</li>
+            </ul>
+
+            <div class="footer-nav">
+                <span>--cad-accent: #00ff00</span>
+                <span>Courier New</span>
+            </div>
+        </div>
+
+        <div class="quadrant">
+            <div class="sheet-badge right">--cad-black: #121212</div>
+            <h1>SDJ SYNTAX</h1>
+            <p>Deploying borders via SDJ requires specific command inputs or direct coordinates.</p>
+            
+            <h2>1. The CLI BORDER Command</h2>
+            <ul>
+                <li>Typing <span class="inline-cmd">BORDER</span> into the terminal invokes <code>createWallyBox(0,0,110,85,1)</code> and maps out internal borders and text entries automatically.</li>
+            </ul>
+            
+            <span class="code-block">[BORDER] X1 Y1 X2 Y2</span>
+            <ul>
+                <li>A default 110x85 layout template, featuring the major outer border and divided text compartments.</li>
+            </ul>
+
+            <span class="code-block">[BORDER] 0 0 110 85 T:1</span>
+            <ul>
+                <li>Draws a standard landscape sheet with a 1-unit line thickness.</li>
+            </ul>
+
+            <h2>2. Editing Labels</h2>
+            <ul>
+                <li>To override title block metadata, select the generated text entities on-screen and use the Properties sidebar to customize client names, project IDs, and draft dates.</li>
+            </ul>
+
+            <div class="footer-nav">
+                <span>Spread 02 // Border Engine</span>
+                <span>WALLYCAD.COM/V17</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET 3: CORE INPUT & DATA FUNNEL -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant left-pane">
+            <h1>CORE INPUT PROTOCOL</h1>
+            <p>The v1.0.17 engine utilizes an aggressive space-delimited tokenizer designed for high-speed HTML5 canvas rendering. All vector data enters the engine through the "PASTE SDJ STRING" panel located in the Data Protocol sidebar.</p>
+            
+            <h2>The RegEx Gatekeeper</h2>
+            <p>To protect the parser from failing on invisible formatting characters, the input panel routes all pasted data through a native JavaScript Regular Expression sanitization function.</p>
+            
+            <span class="code-block">.replace(/[\r\n\t]+/g, ' ')
+.replace(/\s{2,}/g, ' ')
+.trim()</span>
+
+            <p>This gatekeeper instantly strips carriage returns, line breaks, and tabs, flattening multi-line text into the pure 1-dimensional string required by the tokenizer. This allows users to paste raw columns directly from Excel or Google Sheets without breaking the canvas rendering loop.</p>
+            
+            <h2>Entity Tagging Requirement</h2>
+            <p>The tokenizer sweeps left-to-right looking for valid floats. Naked coordinates will be dropped unless they are prefaced by a valid WallyCAD entity tag (e.g., <code>[WALL]</code>, <code>[LINE]</code>, <code>[CIRCLE]</code>) which tells the engine which active array to push the subsequent vector nodes into.</p>
+            
+            <div class="footer-nav">
+                <span>Spread 03 // Sanitization</span>
+                <span>Q2 // Input Gate</span>
+            </div>
+        </div>
+
+        <div class="quadrant">
+            <h1>THE DATA FUNNEL</h1>
+            <p>External data steps down through three distinct tiers of formatting complexity before hitting the canvas.</p>
+            
+            <h4>Tier 1: Heavyweight JSON</h4>
+            <p>Standard JavaScript Object Arrays (e.g., <code>[{"type":"line","x1":0...}]</code>). Universal for web APIs, but bloated with syntax. <strong>Cannot be pasted directly into the core engine.</strong> Must be routed through the <code>/jsontowally</code> Data Converter or standalone Flattener module first.</p>
+
+            <h4>Tier 2: Multi-Line SDJ</h4>
+            <p>Human-readable Space-Delimited JSON blocks. Contains no JSON keys or brackets, but retains line breaks for notebook readability.</p>
+            <span class="code-block">[LINE] 10 90 90 90 T:0
+[LINE] 10 95 90 95 T:0</span>
+            <p><strong>Supported Natively.</strong> The RegEx Gatekeeper intercepts these line breaks upon paste and sanitizes them into Tier 3 automatically.</p>
+
+            <h4>Tier 3: The 1D Continuous String</h4>
+            <p>The absolute bottom of the funnel and the engine's native language. A single uninterrupted text stream separated only by single spaces.</p>
+            <span class="code-block">[LINE] 10 90 90 90 T:0 [LINE] 10 95 90 95 T:0</span>
+            <p>This format achieves zero-latency parsing, allowing the core to instantly render thousands of vectors without halting the browser thread.</p>
+
+            <div class="footer-nav">
+                <span>Spread 03 // Architecture</span>
+                <span>Q3 // Funnel</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET 4: DATA FORMAT CONTRAST -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant left-pane">
+            <h1>DATA FORMAT CONTRAST</h1>
+            <h2>THE WALLY SPECIFICATION</h2>
+            
+            <p style="font-size: 10.5pt; margin-top: 10px; margin-bottom: 20px; line-height: 1.6;">
+                <strong>.WALLY IS THE PREFERRED DATA FORMAT. IT PARSES ELEMENTS BY PARAMETERS WHEREAS ALTERNATIVES CARRY BLOAT.</strong>
+            </p>
+            
+            <h2>WALLY (.WALLY)</h2>
+            <ul style="font-size: 10pt; line-height: 1.6;">
+                <li>Uses condensed polymorphic string structure.</li>
+                <li>Parses elements strictly by contextual parameters (vx, vy, Xmin, Xmax, Scale, T:thick).</li>
+                <li>Eliminates redundant variable names and object wrappers.</li>
+                <li>Yields zero-latency continuous 1D execution streams.</li>
+            </ul>
+
+            <div class="footer-nav">
+                <span>Spread 04 // Polymorphism</span>
+                <span>Q2 // Specs</span>
+            </div>
+        </div>
+
+        <div class="quadrant">
+            <h1>ALTERNATIVE FORMATS</h1>
+            <h2>THE JSON / DXF CONTRAST</h2>
+            
+            <ul style="font-size: 9.5pt; line-height: 1.5;">
+                <li><strong>JSON Object Arrays</strong> are universal but carry heavy overhead (repetitive keys, quotes, brackets).</li>
+                <li><strong>Multi-Line SDJ</strong> contains carriage returns, newlines, and tabs that require regex sanitization.</li>
+                <li><strong>DXF/SVG</strong> are complex CAD/vector schemas that require external compiler engines.</li>
+            </ul>
+
+            <div class="funnel-container">
+                <div class="funnel-label">DATA<br>FUNNEL</div>
+                <div class="funnel-flow">
+                    <div class="funnel-stage" style="width: 220px;">HEAVYWEIGHT (JSON)</div>
+                    <div class="funnel-arrow">&darr;</div>
+                    <div class="funnel-stage" style="width: 170px;">INTERMEDIATE (SDJ)</div>
+                    <div class="funnel-arrow">&darr;</div>
+                    <div class="funnel-final" style="width: 260px;">1D CONTINUOUS STRING (.WALLY)</div>
+                </div>
+            </div>
+
+            <div class="footer-nav">
+                <span>Spread 04 // Funnel Contrast</span>
+                <span>Q3 // Pipeline</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET 5: DIM ENGINE MODES & SYNTAX -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant left-pane">
+            <div class="sheet-badge">DIM Engine Q2-3 Spread v1.0.17</div>
+            <h1>THE 3 DIM MODES</h1>
+            <p>The engine supports three dimension types to accurately document architectural layouts.</p>
+            
+            <h2>1. [DIM] - Aligned</h2>
+            <p>The standard dimension. The measurement string runs parallel to the angle between Point 1 and Point 2. Used for diagonals and angled walls.</p>
+            
+            <h2>2. [DIMH] - Horizontal</h2>
+            <p>Locks measurement strictly to the X-Axis. Even if P1 and P2 are at different heights, the engine calculates only the horizontal distance.</p>
+
+            <h2>3. [DIMV] - Vertical</h2>
+            <p>Locks measurement strictly to the Y-Axis. Text is automatically rotated 90 degrees to read bottom-to-top.</p>
+
+            <h4>Smart Auto-Dimensioning</h4>
+            <p>Select any object before typing <code>DIM</code>, <code>DIMH</code>, or <code>DIMV</code>. The engine bypasses manual coordinates, reads extents, and wraps a scaled dimension string automatically.</p>
+
+            <div class="footer-nav">
+                <span>Spread 05 // DIM Modes</span>
+                <span>Q2 // Parametrics</span>
+            </div>
+        </div>
+
+        <div class="quadrant">
+            <div class="sheet-badge right">SDJ Dimensioning</div>
+            <h1>SDJ SYNTAX</h1>
+            <p>The core schema for dimensioning relies on the <code>T:</code> parameter to define the offset distance.</p>
+            
+            <span class="code-block">[TYPE] X1 Y1 X2 Y2 T:OFFSET "TEXT"</span>
+
+            <h4>The T: Offset Parameter</h4>
+            <p>Unlike Walls or Lines where <code>T:</code> controls thickness, in a DIM entity <code>T:</code> dictates how far to pull the dimension line away from the baseline nodes.</p>
+            <ul>
+                <li><code>T:15</code> throws the line 15 units outward.</li>
+                <li><code>T:-20</code> throws the line 20 units in the opposite direction.</li>
+            </ul>
+
+            <h4>Command Line Examples</h4>
+            <span class="code-block">[DIMV] 0 0 0 108 T:-20</span>
+            <p>Measures the vertical height of a 108-unit wall, placing the dimension string 20 units to the left.</p>
+
+            <span class="code-block">[DIMH] 0 0 192 0 T:15 "16'-0\""</span>
+            <p>Measures a 192-unit span, offsets it 15 units, and overrides numeric display with custom architectural text.</p>
+
+            <div class="footer-nav">
+                <span>Spread 05 // DIM Syntax</span>
+                <span>Q3 // Offsets</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET 6: DATA CONVERSION & TYPES -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant left-pane">
+            <h1>DATA CONVERSION</h1>
+            <h2>INTERNAL VS. STANDALONE</h2>
+            <p>A core architectural decision in the WallyCAD ecosystem dictates where the heavy lifting of data sanitization and vector processing takes place.</p>
+            
+            <h4>Inside Core Engine</h4>
+            <p>When raw, unformatted text or multi-line macros are pasted directly into the v1.0.17 Studio dashboard, the core engine's internal RegEx Gatekeeper must fire:</p>
+            <ul>
+                <li>Scrubbing tabs and carriage returns.</li>
+                <li>Executing Vector Intersection Algorithms (VIA) for wall mitering in real-time.</li>
+                <li>Parsing raw notebook fractions into floating-point decimals.</li>
+            </ul>
+
+            <h4>Standalone Modules</h4>
+            <p>Generators like <code>/parabola</code>, <code>/shutters</code>, and <code>/array-polar</code> act as external preprocessing servers. By the time data leaves a standalone module, it is already calculated, rounded to 4 decimals, and flattened.</p>
+            <p><strong>The Advantage:</strong> Bypassing core engine parsing yields absolute zero-latency rendering when the resulting 1D string hits the canvas.</p>
+
+            <div class="footer-nav">
+                <span>Spread 06 // Preprocessing</span>
+                <span>Q2 // Modules</span>
+            </div>
+        </div>
+
+        <div class="quadrant">
+            <h1>DATA TYPES</h1>
+            <h2>JSON VS. .WALLY</h2>
+            <p>WallyCAD supports multiple schemas, though the native format remains vastly superior for computational rendering speed.</p>
+            
+            <h4>1. JSON (Object Notation)</h4>
+            <span class="code-block">[
+  {"type": "line", "x1": 0, "y1": 0, "x2": 10, "y2": 10, "thick": 0}
+]</span>
+            <ul>
+                <li>Universal standard for web APIs and database storage.</li>
+                <li>Highly legible for traditional software development.</li>
+                <li><strong>Drawback:</strong> Contains massive syntactical overhead. Quotes, commas, and repetitive keys bloat file sizes and tax the rendering loop.</li>
+            </ul>
+
+            <h4>2. .WALLY (Space-Delimited JSON)</h4>
+            <span class="code-block">[LINE] 0 0 10 10 T:0</span>
+            <ul>
+                <li>A condensed, polymorphic string structure.</li>
+                <li>Parses contextually based entirely on parameter sequence.</li>
+                <li><strong>Advantage:</strong> Eliminates all redundant variables, providing the ultra-lightweight 1D stream required for WallyCAD's high-speed tokenizer.</li>
+            </ul>
+
+            <div class="footer-nav">
+                <span>Spread 06 // Schemas</span>
+                <span>Q3 // Comparison</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET 7: VECTOR MIRROR (DARK THEME) -->
+    <div class="sheet theme-dark">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant left-pane">
+            <h1>MIR | VECTOR MIRROR ENGINE</h1>
+            <p>System documentation for the S2-82 Vector Mirror module. This standalone engine mathematically reflects geometry coordinate blobs (V2) across a defined directional axis (V3) to rapidly generate symmetrical structural elements.</p>
+            
+            <h2>Axis Definition (V3)</h2>
+            <p>The module establishes the plane of reflection by interpreting user input as a directional vector originating from (0,0):</p>
+            <ul>
+                <li><strong>Horizontal Mirror:</strong> V3 = (1, 0). Reflects geometry over the X-axis plane.</li>
+                <li><strong>Vertical Mirror:</strong> V3 = (0, 1). Reflects geometry over the Y-axis plane.</li>
+                <li><strong>Arbitrary Angles:</strong> Custom coordinates (e.g. 1, 1) mirror across diagonal planes like a 45° roof pitch.</li>
+            </ul>
+
+            <h2>Coordinate Parsing</h2>
+            <p>The processor ingests raw blobs via regex (<code>split(/\s+/)</code>) and iterates through the flat array in pairs, mapping every two sequential floats to a target Point (P).</p>
+
+            <div class="footer-nav">
+                <span>Q2 // WALLYCAD V1.0.17</span>
+                <span>PAGE 01</span>
+            </div>
+        </div>
+
+        <div class="quadrant">
+            <h1>Core Reflection Logic</h1>
+            <p>The engine bypasses heavy matrix transformations by utilizing pure vector calculus to achieve real-time reflection.</p>
+
+            <h2>Unit Vector Normalization</h2>
+            <p>V3 is normalized into a Unit Vector (U) with magnitude 1. A default fail-safe resets to the X-axis if a zero vector is entered.</p>
+            <div class="code-block">const mag = Math.sqrt(vx * vx + vy * vy);
+if (mag === 0) { vx = 1; vy = 0; }
+const ux = vx / mag;
+const uy = vy / mag;</div>
+
+            <h2>The Reflection Equation: P' = 2(P · U)U - P</h2>
+            <p>For each parsed point (px, py), the engine calculates the dot product against the unit vector, producing mirrored coordinates rounded to 4 decimals.</p>
+            <div class="code-block">// Dot Product (P · U)
+const dot = px * ux + py * uy;
+
+// Reflection Vector calculation
+let mx = (2 * dot * ux - px).toFixed(4);
+let my = (2 * dot * uy - py).toFixed(4);
+
+result.push(`${mx} ${my}`);</div>
+
+            <div class="footer-nav">
+                <span>Q3 // S2-82 MIRROR MODULE</span>
+                <span>PAGE 02</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET 8: FOOTPRINT OFFSET (/OFFSET2) -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant left-pane">
+            <h1>FOOTPRINT OFFSET (/OFFSET2)</h1>
+            <p>The Footprint Offset Generator is a specialized architectural module. It calculates the outward-expanded baseline required to render a physical [WALL] entity around an exact interior room loop without shrinking the square footage.</p>
+            
+            <h2>1. Winding Detection</h2>
+            <p>Calculates polygon area to determine if coordinates are Clockwise or Counter-Clockwise. This guarantees the offset always pushes outward, eliminating manual coordinate guesswork.</p>
+            
+            <h2>2. Baseline Halving</h2>
+            <p>WallyCAD walls render equally on both sides of a coordinate baseline. The module automatically divides wall thickness by two to calculate the mathematically perfect center node matrix.</p>
+
+            <h2>3. Path Closure Validation</h2>
+            <p>If fed an open path, the data parser intercepts it and appends the first coordinate to the end of the array, forcing a closed geometric loop suitable for architectural structures.</p>
+
+            <div class="footer-nav">
+                <span>Spread 08 // Footprints</span>
+                <span>Q2 // /OFFSET2</span>
+            </div>
+        </div>
+
+        <div class="quadrant">
+            <h1>SDJ GENERATION</h1>
+            <p>Unlike the general-purpose /offset tool, /offset2 operates purely on text matrices without a visual canvas, streamlining the structural drafting workflow.</p>
+            
+            <span class="code-block">[WALL] X1 Y1 X2 Y2 ... Xn Yn T:6</span>
+
+            <h4>Hardcoded Entity Formatting</h4>
+            <p>The module forces the output string to generate a <code>[WALL]</code> entity and automatically appends your exact wall thickness to the tail of the Space-Delimited JSON string (e.g., <code>T:6</code>).</p>
+
+            <h4>Determinant Intersection Math</h4>
+            <p>Instead of the core Vector Intersection Algorithm (VIA), the Footprint engine uses a lightweight determinant-based intersection formula specifically tailored to resolve angles and corner pinches in closed architectural loops.</p>
+
+            <div class="footer-nav">
+                <span>Spread 08 // SDJ Output</span>
+                <span>Q3 // Determinants</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET 9: PERIMETER MAPPER (/PMAPPER) -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant left-pane">
+            <h1>PMAPPER MODULE</h1>
+            <p>The Perimeter Hub (/pmapper) is a specialized standalone module designed to translate geographical coordinates (Latitude/Longitude) into planar Cartesian geometry for WallyCAD preview and export.</p>
+            
+            <h2>Canvas Translation Engine</h2>
+            <p>The core rendering function applies a direct mathematical translation to plot spherical coordinates onto a 2D HTML5 canvas, shifting the origin to keep the US West Coast in frame:</p>
+            
+            <span class="code-block">let y = canvas.height - ((Lat - 31) * 40);
+let x = (Long + 125) * 40;</span>
+
+            <p>This isolates geographical polygons—such as the borders of Washington, Oregon, or California—and scales them for immediate visual verification before they are committed to an SDJ string.</p>
+            
+            <h2>Dynamic State Library</h2>
+            <p>The left pane sidebar dynamically builds a clickable library based on an internal JSON object (<code>Perimeters</code>). Clicking any card instantly recalculates bounds and renders the closed loop on the preview canvas.</p>
+
+            <div class="footer-nav">
+                <span>Spread 09 // Geo Traversal</span>
+                <span>Q2 // /pmapper</span>
+            </div>
+        </div>
+
+        <div class="quadrant">
+            <h1>QC COMMAND LINE</h1>
+            <p>The /pmapper module features an integrated QuickClick (QC) command line interface anchored to the bottom of the viewport, enabling rapid data entry and execution without touching a mouse.</p>
+            
+            <h4>The ADD Syntax</h4>
+            <p>Users can inject new geographical boundaries directly into the active session memory by typing into the QC CLI. The command follows a strict tokenized syntax:</p>
+            <span class="code-block">ADD [NAME] [LAT1] [LON1] [LAT2] [LON2]...</span>
+            <p>Example: <code>ADD NEVADA 42.0 -114.0 42.0 -120.0...</code></p>
+            <p>Pressing Enter will parse the string, push the new entity into the <code>Perimeters</code> library, rebuild the sidebar, and instantly render the new state.</p>
+
+            <h4>Global QC Hotkeys</h4>
+            <p>When the CLI input box is not focused, the module listens for global keystrokes to execute macro commands:</p>
+            <ul>
+                <li><strong>[ 4 ]</strong> : Instantly renders the Four Corners geometry.</li>
+                <li><strong>[ C ]</strong> : Clears the canvas and deselects the active state.</li>
+                <li><strong>[ G ]</strong> : Pipes active state raw coordinate data out for G-Coder formatting.</li>
+            </ul>
+
+            <div class="footer-nav">
+                <span>Spread 09 // CLI &amp; Hotkeys</span>
+                <span>Q3 // QuickClick</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET 10: TRUSS ANALYTICS -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant left-pane">
+            <h1>/TRUSS ANALYTICS</h1>
+            <h2>v1.0.10 | "The Year of the Trailer"</h2>
+            <p>This module transitions WallyCAD from architectural elevation into dynamic structural engineering. The Truss Analytics standalone engine focuses on <strong>PTP (Point-To-Point) Logic</strong>, mathematically distributing load-bearing nodes across a specified span.</p>
+            
+            <h4>The QC Command Syntax</h4>
+            <p>Replacing traditional graphical UI inputs, the engine utilizes a high-speed command line syntax to instantly generate geometry:</p>
+            <div class="code-block">QC > T[SPAN]-[DEPTH]-[PANELS]</div>
+            <p><em>Example: <code>T7-1-6</code> renders a truss with a 7-foot span, 1-foot depth, divided into 6 equal panels.</em></p>
+
+            <h4>Geometric Distribution</h4>
+            <ul>
+                <li><strong>Panel Width:</strong> Calculated automatically as <code>Span / Panels</code>.</li>
+                <li><strong>Top Chord (T-Nodes):</strong> Placed incrementally at every panel width interval at the specified <code>Depth</code> (Y-axis).</li>
+                <li><strong>Bottom Chord (B-Nodes):</strong> Offset horizontally by exactly half a panel width (<code>i + 0.5</code>) and pinned to <code>Y: 0.000</code> to create zigzag triangulation geometry.</li>
+            </ul>
+            
+            <div class="footer-nav">
+                <span>SYS.DOC // QUADRANT 2</span>
+                <span>PARAMETRIC LOGIC</span>
+            </div>
+        </div>
+
+        <div class="quadrant">
+            <h1>DATA ARCHITECTURE</h1>
+            <h2>Node Extraction & Fabrication</h2>
+            <p>The visual canvas serves only as a secondary confirmation tool; the primary output of the <code>/TRUSS</code> engine is the mathematical coordinate data required for physical fabrication and welding.</p>
+
+            <h4>Coordinate Table Generation</h4>
+            <p>As the PTP logic evaluates the QC command, it iterates through a generation loop, dynamically building a node array. Each joint in the truss is assigned an absolute Cartesian coordinate mapped to 3 decimal places (e.g., <code>X: 3.500, Y: 1.000</code>) representing true feet.</p>
+
+            <h4>JSON Export Protocol</h4>
+            <p>To bridge the gap between WallyCAD and external engineering tools, the module bypasses standard SDJ strings in favor of a structured data export.</p>
+            <ul>
+                <li><strong>Export Format:</strong> Generates a localized <code>.json</code> payload containing the full <code>{id, x, y}</code> mapping for every structural point.</li>
+                <li><strong>Fabrication Use:</strong> Allows raw numerical layouts to be directly passed to CNC plasma tables, laser cutters, or shop floor ledgers for precision jigging.</li>
+            </ul>
+
+            <div class="footer-nav">
+                <span>SYS.DOC // QUADRANT 3</span>
+                <span>DATA PIPELINE</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET 11: DXF / PDF COMPILER -->
+    <div class="sheet">
+        <div class="crosshair-vert"></div>
+        <div class="quadrant left-pane">
+            <h1>WALLY CAD COMPILER</h1>
+            <h2>LKA ENTERPRISE [V1.2]</h2>
+            <p>The Wally CAD Compiler is a dedicated translation engine designed to bridge the gap between internal parametric text matrices and industry-standard external files. It acts as the final export stage for geometries bound for physical manufacturing or architectural plotting.</p>
+            
+            <h4>Input Syntax: Parametric Text Matrix</h4>
+            <p>The compiler parses a specific human-readable, multi-line string format. Elements are declared with a strict <code>Wally [Entity]</code> prefix, and coordinates are separated by a forward slash <code>/</code>.</p>
+            <span class="code-block">Wally Line 0.5,0.5 / 3,1.5
+Wally Box 0,0 / 3.5,2
+Wally Circle 1.75,1 / 0.25</span>
+            <ul>
+                <li><strong>Line:</strong> <code>start_x,start_y / end_x,end_y</code></li>
+                <li><strong>Box:</strong> <code>origin_x,origin_y / width,height</code></li>
+                <li><strong>Circle:</strong> <code>center_x,center_y / radius</code></li>
+            </ul>
+
+            <div class="footer-nav">
+                <span>Spread 11 // Compiler Core</span>
+                <span>Q2 // Matrix Parser</span>
+            </div>
+        </div>
+
+        <div class="quadrant">
+            <h1>DUAL OUTPUT ENGINES</h1>
+            
+            <h4>Engine 1: DXF Machine Path</h4>
+            <p>The primary compiler translates the matrix into a universal Release 12 (R12) DXF plain-text schema, stripping away visual context in favor of pure CNC and CAD readability.</p>
+            <ul>
+                <li><strong>Primitive Decomposition:</strong> To ensure cross-compatibility with older machine protocols, parametric <code>Wally Box</code> entities are automatically decomposed into four discrete, endpoint-connected <code>LINE</code> vectors during compilation.</li>
+            </ul>
+
+            <h4>Engine 2: PDF Plotter</h4>
+            <p>The secondary engine leverages the jsPDF library to generate flat, 8.5" x 11" architectural plots for human review. It applies a standard drafting pen weight (0.01) and establishes strict 0.5" document margins.</p>
+            <ul>
+                <li><strong>Cartesian Y-Axis Inversion:</strong> PDF coordinates originate from top-left (0,0), while WallyCAD mathematics originate from bottom-left. The engine intercepts all Y-coordinates and executes real-time inversion: <br><code>y = pageHeight - marginY - coordinate</code>.</li>
+            </ul>
+
+            <div class="footer-nav">
+                <span>Spread 11 // Export Pipelines</span>
+                <span>Q3 // DXF &amp; PDF</span>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
