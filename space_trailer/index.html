@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPACE_TRAILER V1 - Engineering Visualizer</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts for Technical Drafting Aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .font-mono-cad {
+      font-family: 'Fira Code', monospace;
+    }
+    /* Custom scrollbars for the code & technical inspector */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0d131f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    /* Blueprint subtle vignette */
+    .blueprint-grid {
+      background-color: #080c14;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.05) 0%, transparent 80%),
+        linear-gradient(to right, rgba(30, 41, 59, 0.45) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 41, 59, 0.45) 1px, transparent 1px),
+        linear-gradient(to right, rgba(56, 189, 248, 0.12) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.12) 1px, transparent 1px);
+      background-size: 100% 100%, 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-black">
+
+  <!-- Header & Status Bar -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur px-4 py-3 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-30">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 rounded-lg bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-mono-cad font-bold text-sm shadow-[0_0_12px_rgba(6,182,212,0.25)]">
+        ST1
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-bold tracking-wider text-slate-100 uppercase font-mono-cad">SPACE_TRAILER V1</h1>
+          <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">MUSHROOM POP-TOP</span>
+        </div>
+        <p class="text-xs text-slate-400 font-mono-cad">48"x48" BASE • TRANSIT / CAMP EXPEDITION RUNNER</p>
+      </div>
+    </div>
+
+    <!-- Quick Stat Chips -->
+    <div class="flex items-center gap-2 font-mono-cad text-xs">
+      <div class="bg-slate-800/80 border border-slate-700/60 rounded-md px-2.5 py-1 text-slate-300">
+        <span class="text-slate-500">DECK:</span> 4'-0" SQ
+      </div>
+      <div class="bg-slate-800/80 border border-slate-700/60 rounded-md px-2.5 py-1 text-slate-300">
+        <span class="text-slate-500">AXLE:</span> SINGLE 3500#
+      </div>
+      <div id="statusBadge" class="bg-cyan-950/80 border border-cyan-500/40 rounded-md px-2.5 py-1 text-cyan-400 font-semibold transition-all">
+        MODE: TOW (STOWED)
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Viewport and Side Inspector Layout -->
+  <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+
+    <!-- CAD Canvas Container -->
+    <main class="flex-1 flex flex-col relative h-[540px] lg:h-auto min-h-[460px] overflow-hidden">
+      <!-- Toolbar Overlay -->
+      <div class="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+        
+        <!-- View Projection Switcher -->
+        <div class="pointer-events-auto bg-slate-900/90 backdrop-blur border border-slate-700/80 rounded-lg p-1 flex gap-1 shadow-xl">
+          <button id="viewPlanBtn" class="px-3 py-1.5 rounded-md text-xs font-mono-cad font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800">
+            [1] PLAN VIEW
+          </button>
+          <button id="viewElevBtn" class="px-3 py-1.5 rounded-md text-xs font-mono-cad font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800">
+            [2] SIDE ELEV
+          </button>
+          <button id="viewAxonBtn" class="px-3 py-1.5 rounded-md text-xs font-mono-cad font-semibold bg-cyan-600 text-white shadow-md">
+            [3] AXONOMETRIC 3D
+          </button>
+        </div>
+
+        <!-- Overlays & Quick Toggles -->
+        <div class="pointer-events-auto flex items-center gap-2 bg-slate-900/90 backdrop-blur border border-slate-700/80 rounded-lg px-2 py-1 shadow-xl">
+          <label class="flex items-center gap-2 cursor-pointer text-xs font-mono-cad text-slate-300 select-none px-2 py-1 hover:text-white">
+            <input type="checkbox" id="toggleDims" checked class="rounded bg-slate-800 border-slate-600 text-cyan-500 focus:ring-0">
+            <span>DIMENSIONS</span>
+          </label>
+          <div class="h-4 w-px bg-slate-700"></div>
+          <button id="resetCameraBtn" class="px-2 py-1 text-xs font-mono-cad text-slate-400 hover:text-cyan-300 rounded hover:bg-slate-800 transition">
+            RESET CAM
+          </button>
+        </div>
+      </div>
+
+      <!-- Canvas Area -->
+      <div id="canvasWrapper" class="flex-1 w-full h-full relative blueprint-grid cursor-grab active:cursor-grabbing">
+        <canvas id="cadCanvas" class="w-full h-full block"></canvas>
+        <div id="dragHint" class="absolute bottom-3 left-4 text-[11px] font-mono-cad text-slate-500 pointer-events-none bg-slate-900/70 px-2 py-1 rounded border border-slate-800/80">
+          • Left Click + Drag to Rotate / Pan • Scroll to Zoom
+        </div>
+        <div id="heightReadout" class="absolute bottom-3 right-4 text-[12px] font-mono-cad text-cyan-400 pointer-events-none bg-slate-900/80 px-2.5 py-1.5 rounded border border-cyan-500/30 font-bold">
+          TOTAL HEIGHT: 60.0"
+        </div>
+      </div>
+    </main>
+
+    <!-- Side Control Panel & WallyCAD Inspector -->
+    <aside class="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-slate-800 bg-slate-900/95 flex flex-col z-20 overflow-y-auto max-h-[550px] lg:max-h-none">
+      
+      <!-- Pop-Top Articulation Control Section -->
+      <section class="p-4 border-b border-slate-800">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+            <h2 class="text-xs uppercase font-bold font-mono-cad tracking-wider text-slate-200">Mushroom Articulation</h2>
+          </div>
+          <span id="liftPercentText" class="text-xs font-mono-cad text-cyan-400 font-semibold">0% (0.0")</span>
+        </div>
+
+        <!-- Slider -->
+        <div class="space-y-2">
+          <div class="flex justify-between text-[11px] font-mono-cad text-slate-400">
+            <span>STOWED (TOW)</span>
+            <span>+26.0" (CAMP)</span>
+          </div>
+          <input 
+            type="range" 
+            id="roofSlider" 
+            min="0" 
+            max="100" 
+            value="0" 
+            class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400 focus:outline-none"
+          >
+        </div>
+
+        <!-- Quick Articulation Presets -->
+        <div class="grid grid-cols-2 gap-2 mt-3">
+          <button id="btnTowPreset" class="py-2 px-3 text-xs font-mono-cad rounded-md bg-slate-800 border border-slate-700 hover:bg-slate-700/80 text-cyan-300 transition flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+            TOW MODE
+          </button>
+          <button id="btnCampPreset" class="py-2 px-3 text-xs font-mono-cad rounded-md bg-slate-800 border border-slate-700 hover:bg-slate-700/80 text-amber-400 transition flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+            CAMP POP-TOP
+          </button>
+        </div>
+
+        <!-- Metric Details -->
+        <div class="mt-4 grid grid-cols-2 gap-2 text-[11px] font-mono-cad">
+          <div class="bg-slate-950/70 p-2 rounded border border-slate-800">
+            <span class="text-slate-500 block">ENCLOSURE SILL</span>
+            <span class="text-slate-200 font-semibold">48.0" [1219mm]</span>
+          </div>
+          <div class="bg-slate-950/70 p-2 rounded border border-slate-800">
+            <span class="text-slate-500 block">DEPLOYED HEADROOM</span>
+            <span id="headroomStat" class="text-cyan-400 font-semibold">60.0" [5'-0"]</span>
+          </div>
+          <div class="bg-slate-950/70 p-2 rounded border border-slate-800">
+            <span class="text-slate-500 block">LIFT STRUTS</span>
+            <span class="text-slate-200 font-semibold">4x Corner Gas 120N</span>
+          </div>
+          <div class="bg-slate-950/70 p-2 rounded border border-slate-800">
+            <span class="text-slate-500 block">WALL MEMBRANE</span>
+            <span id="canvasStatusStat" class="text-slate-400 font-semibold">Collapsed / Bifold</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- WallyCAD / Vector Code Inspector Tabs -->
+      <section class="flex-1 flex flex-col p-4 min-h-[220px]">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+          <div class="flex items-center space-x-2">
+            <button id="tabWallyCAD" class="text-xs font-mono-cad font-bold text-cyan-400 border-b-2 border-cyan-400 pb-1">
+              WallyCAD SDJ
+            </button>
+            <button id="tabTuples" class="text-xs font-mono-cad font-medium text-slate-400 hover:text-slate-200 border-b-2 border-transparent pb-1">
+              TUPLES (XYZ)
+            </button>
+          </div>
+          <button id="copyCodeBtn" class="text-[11px] font-mono-cad text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800 border border-slate-700/80 transition flex items-center gap-1">
+            <span>COPY</span>
+          </button>
+        </div>
+
+        <div class="relative flex-1 bg-slate-950 rounded-lg border border-slate-800 p-3 overflow-hidden flex flex-col">
+          <pre id="codeOutput" class="text-[11px] font-mono-cad text-cyan-200/90 overflow-auto flex-1 leading-relaxed selection:bg-cyan-900"></pre>
+        </div>
+
+        <!-- Copy Feedback toast -->
+        <div id="copyToast" class="hidden mt-2 text-center text-[11px] font-mono-cad text-cyan-400 bg-cyan-950/90 border border-cyan-500/40 rounded py-1">
+          ✓ Copied vector payload to clipboard
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- Vector & CAD Engine Script -->
+  <script>
+    // State machine
+    const state = {
+      viewMode: 'axon', // 'plan', 'elev', 'axon'
+      roofExtension: 0, // 0 to 26 inches
+      showDimensions: true,
+      activeTab: 'wallycad',
+      // Camera Controls
+      cam: {
+        rotX: -0.45,
+        rotY: 0.65,
+        zoom: 2.7,
+        panX: 0,
+        panY: 20,
+        isDragging: false,
+        lastX: 0,
+        lastY: 0
+      }
+    };
+
+    // DOM Elements
+    const canvas = document.getElementById('cadCanvas');
+    const ctx = canvas.getContext('2d');
+    const slider = document.getElementById('roofSlider');
+    const liftPercentText = document.getElementById('liftPercentText');
+    const heightReadout = document.getElementById('heightReadout');
+    const headroomStat = document.getElementById('headroomStat');
+    const canvasStatusStat = document.getElementById('canvasStatusStat');
+    const statusBadge = document.getElementById('statusBadge');
+    const codeOutput = document.getElementById('codeOutput');
+    const copyBtn = document.getElementById('copyCodeBtn');
+    const copyToast = document.getElementById('copyToast');
+
+    const viewPlanBtn = document.getElementById('viewPlanBtn');
+    const viewElevBtn = document.getElementById('viewElevBtn');
+    const viewAxonBtn = document.getElementById('viewAxonBtn');
+    const toggleDims = document.getElementById('toggleDims');
+    const resetCamBtn = document.getElementById('resetCameraBtn');
+    const btnTowPreset = document.getElementById('btnTowPreset');
+    const btnCampPreset = document.getElementById('btnCampPreset');
+    const tabWallyCAD = document.getElementById('tabWallyCAD');
+    const tabTuples = document.getElementById('tabTuples');
+
+    // Model Geometry Constants (Inches)
+    const DECK_W = 48; // -24 to +24 (X)
+    const DECK_L = 48; // -24 to +24 (Y)
+    const BOX_H = 48;  // Z=0 to Z=48
+    const TONGUE_L = 30; // Y=+24 to +54
+    const AXLE_TRACK = 54;
+    const WHEEL_RADIUS = 10;
+    const WHEEL_WIDTH = 4;
+    const ROOF_PEAK = 12; // Base cap height
+
+    // Resize Canvas dynamically
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      render();
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    // 3D Matrix & Projection Math
+    function project(x, y, z, width, height) {
+      if (state.viewMode === 'plan') {
+        // Orthographic top-down: X is horizontal, Y is inverted vertical
+        const scale = 2.4 * (state.cam.zoom / 2.7);
+        return {
+          x: width / 2 + state.cam.panX + x * scale,
+          y: height / 2 + state.cam.panY - y * scale
+        };
+      } else if (state.viewMode === 'elev') {
+        // Orthographic side elevation: Y is lateral, Z is vertical
+        const scale = 2.4 * (state.cam.zoom / 2.7);
+        return {
+          x: width / 2 + state.cam.panX + y * scale,
+          y: height / 2 + state.cam.panY + 110 - z * scale
+        };
+      } else {
+        // Isometric / Axonometric perspective with rotation
+        const cosY = Math.cos(state.cam.rotY);
+        const sinY = Math.sin(state.cam.rotY);
+        const cosX = Math.cos(state.cam.rotX);
+        const sinX = Math.sin(state.cam.rotX);
+
+        // Rotate around Z first (horizontal orbit)
+        const x1 = x * cosY - y * sinY;
+        const y1 = x * sinY + y * cosY;
+        const z1 = z;
+
+        // Rotate pitch (rotX)
+        const y2 = y1 * cosX - z1 * sinX;
+        const z2 = y1 * sinX + z1 * cosX;
+
+        const scale = state.cam.zoom;
+        return {
+          x: width / 2 + state.cam.panX + x1 * scale,
+          y: height / 2 + state.cam.panY - (z2 * scale)
+        };
+      }
+    }
+
+    // Drawing Helpers
+    function drawLine3D(p1, p2, style = '#38bdf8', lineWidth = 1.5, dash = []) {
+      const rect = canvas.getBoundingClientRect();
+      const sp1 = project(p1[0], p1[1], p1[2], rect.width, rect.height);
+      const sp2 = project(p2[0], p2[1], p2[2], rect.width, rect.height);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.setLineDash(dash);
+      ctx.strokeStyle = style;
+      ctx.lineWidth = lineWidth;
+      ctx.moveTo(sp1.x, sp1.y);
+      ctx.lineTo(sp2.x, sp2.y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawPoly3D(pts, stroke = '#38bdf8', fill = null, lineWidth = 1.5) {
+      if (pts.length < 2) return;
+      const rect = canvas.getBoundingClientRect();
+      ctx.save();
+      ctx.beginPath();
+      const first = project(pts[0][0], pts[0][1], pts[0][2], rect.width, rect.height);
+      ctx.moveTo(first.x, first.y);
+      for (let i = 1; i < pts.length; i++) {
+        const p = project(pts[i][0], pts[i][1], pts[i][2], rect.width, rect.height);
+        ctx.lineTo(p.x, p.y);
+      }
+      ctx.closePath();
+      if (fill) {
+        ctx.fillStyle = fill;
+        ctx.fill();
+      }
+      if (stroke) {
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawDimension3D(p1, p2, label, offset = [0, 0, 0], color = '#f59e0b') {
+      if (!state.showDimensions) return;
+      const rect = canvas.getBoundingClientRect();
+      const o1 = [p1[0] + offset[0], p1[1] + offset[1], p1[2] + offset[2]];
+      const o2 = [p2[0] + offset[0], p2[1] + offset[1], p2[2] + offset[2]];
+
+      const sp1 = project(o1[0], o1[1], o1[2], rect.width, rect.height);
+      const sp2 = project(o2[0], o2[1], o2[2], rect.width, rect.height);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 3]);
+      // Projection tick arms
+      const op1 = project(p1[0], p1[1], p1[2], rect.width, rect.height);
+      const op2 = project(p2[0], p2[1], p2[2], rect.width, rect.height);
+      ctx.moveTo(op1.x, op1.y);
+      ctx.lineTo(sp1.x, sp1.y);
+      ctx.moveTo(op2.x, op2.y);
+      ctx.lineTo(sp2.x, sp2.y);
+      ctx.stroke();
+
+      // Main Dim Line
+      ctx.beginPath();
+      ctx.setLineDash([]);
+      ctx.moveTo(sp1.x, sp1.y);
+      ctx.lineTo(sp2.x, sp2.y);
+      ctx.stroke();
+
+      // Arrowheads / Ticks
+      const midX = (sp1.x + sp2.x) / 2;
+      const midY = (sp1.y + sp2.y) / 2;
+
+      // Label
+      ctx.font = '10px "Fira Code", monospace';
+      ctx.fillStyle = color;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      const txtWidth = ctx.measureText(label).width;
+      ctx.fillStyle = 'rgba(8, 12, 20, 0.85)';
+      ctx.fillRect(midX - txtWidth / 2 - 3, midY - 6, txtWidth + 6, 12);
+      ctx.fillStyle = color;
+      ctx.fillText(label, midX, midY);
+      ctx.restore();
+    }
+
+    // Main CAD Render Routine
+    function render() {
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const zLift = state.roofExtension;
+      const totalH = 48 + 12 + zLift;
+
+      // --- 1. CHASSIS / RUNNING GEAR ---
+      // Axle Beam
+      drawLine3D([-AXLE_TRACK / 2, 0, -4], [AXLE_TRACK / 2, 0, -4], '#94a3b8', 2);
+      
+      // Wheels / Tires (Left & Right Boxes / Profiles)
+      const wheelOffsets = [-AXLE_TRACK / 2 - WHEEL_WIDTH / 2, AXLE_TRACK / 2 + WHEEL_WIDTH / 2];
+      wheelOffsets.forEach(wx => {
+        // Outer wheel box representation
+        const halfT = WHEEL_WIDTH / 2;
+        const wy = WHEEL_RADIUS;
+        const wz = WHEEL_RADIUS;
+        drawPoly3D([
+          [wx - halfT, -wy, -4],
+          [wx + halfT, -wy, -4],
+          [wx + halfT, wy, -4],
+          [wx - halfT, wy, -4]
+        ], '#64748b', 'rgba(30, 41, 59, 0.4)', 1.5);
+
+        // Wheel side profile rim
+        drawLine3D([wx, -wy, -4], [wx, 0, -4 + wz], '#06b6d4', 1.2);
+        drawLine3D([wx, 0, -4 + wz], [wx, wy, -4], '#06b6d4', 1.2);
+        drawLine3D([wx, wy, -4], [wx, 0, -4 - wz], '#06b6d4', 1.2);
+        drawLine3D([wx, 0, -4 - wz], [wx, -wy, -4], '#06b6d4', 1.2);
+      });
+
+      // A-Frame Tongue (+Y forward)
+      drawLine3D([-24, 24, 0], [0, 54, 0], '#38bdf8', 2);
+      drawLine3D([24, 24, 0], [0, 54, 0], '#38bdf8', 2);
+      // Coupler Ball
+      drawPoly3D([[-2, 54, 0], [2, 54, 0], [2, 58, 0], [-2, 58, 0]], '#f59e0b', 'rgba(245, 158, 11, 0.3)', 1.5);
+
+      // Chassis Deck Sub-frame (Z = 0)
+      drawPoly3D([
+        [-24, -24, 0],
+        [24, -24, 0],
+        [24, 24, 0],
+        [-24, 24, 0]
+      ], '#0284c7', 'rgba(2, 132, 199, 0.15)', 2);
+
+      // --- 2. LOWER FIXED ENCLOSURE (48" Cube Body) ---
+      // Vertical Uprights
+      drawLine3D([-24, -24, 0], [-24, -24, 48], '#0ea5e9', 1.8);
+      drawLine3D([24, -24, 0], [24, -24, 48], '#0ea5e9', 1.8);
+      drawLine3D([24, 24, 0], [24, 24, 48], '#0ea5e9', 1.8);
+      drawLine3D([-24, 24, 0], [-24, 24, 48], '#0ea5e9', 1.8);
+
+      // Upper Perimeter Sill Ring (Z = 48)
+      drawPoly3D([
+        [-24, -24, 48],
+        [24, -24, 48],
+        [24, 24, 48],
+        [-24, 24, 48]
+      ], '#38bdf8', 'rgba(14, 165, 233, 0.08)', 1.8);
+
+      // Body Wall Diagonal Cross Bracing (Architectural Vector Styling)
+      drawLine3D([-24, -24, 0], [-24, 24, 48], '#0284c7', 0.8, [4, 4]);
+      drawLine3D([24, -24, 0], [24, 24, 48], '#0284c7', 0.8, [4, 4]);
+
+      // --- 3. MUSHROOM POP-TOP ARTICULATION ---
+      const roofBaseZ = 48 + zLift;
+      const roofApexZ = roofBaseZ + ROOF_PEAK;
+
+      if (zLift > 1) {
+        // Deployed Telescoping Corner Struts
+        const strutCorners = [
+          [-23, -23], [23, -23], [23, 23], [-23, 23]
+        ];
+        strutCorners.forEach(sc => {
+          drawLine3D([sc[0], sc[1], 48], [sc[0], sc[1], roofBaseZ], '#f59e0b', 2);
+        });
+
+        // Bellows / Weather Canvas Walls (Semi-Transparent Amber/Cyan Tint)
+        const canvasWalls = [
+          [[-24, -24, 48], [24, -24, 48], [24, -24, roofBaseZ], [-24, -24, roofBaseZ]], // Rear
+          [[24, -24, 48], [24, 24, 48], [24, 24, roofBaseZ], [24, -24, roofBaseZ]],     // Right
+          [[24, 24, 48], [-24, 24, 48], [-24, 24, roofBaseZ], [24, 24, roofBaseZ]],     // Front
+          [[-24, 24, 48], [-24, -24, 48], [-24, -24, roofBaseZ], [-24, 24, roofBaseZ]]  // Left
+        ];
+        canvasWalls.forEach(wall => {
+          drawPoly3D(wall, 'rgba(245, 158, 11, 0.4)', 'rgba(245, 158, 11, 0.12)', 1);
+        });
+
+        // Canvas Horizontal Ribs / Bellow Folds
+        const ribZ = 48 + zLift * 0.5;
+        drawPoly3D([
+          [-24, -24, ribZ], [24, -24, ribZ], [24, 24, ribZ], [-24, 24, ribZ]
+        ], 'rgba(245, 158, 11, 0.6)', null, 1, [2, 2]);
+      }
+
+      // Hip-Framed Roof Cap (The Mushroom Cap)
+      // Base rim
+      drawPoly3D([
+        [-25, -25, roofBaseZ],
+        [25, -25, roofBaseZ],
+        [25, 25, roofBaseZ],
+        [-25, 25, roofBaseZ]
+      ], '#f8fafc', 'rgba(255, 255, 255, 0.15)', 2);
+
+      // 4-Way Hip Rafters converging to Apex [0, 0, roofApexZ]
+      const apex = [0, 0, roofApexZ];
+      drawLine3D([-25, -25, roofBaseZ], apex, '#f8fafc', 2);
+      drawLine3D([25, -25, roofBaseZ], apex, '#f8fafc', 2);
+      drawLine3D([25, 25, roofBaseZ], apex, '#f8fafc', 2);
+      drawLine3D([-25, 25, roofBaseZ], apex, '#f8fafc', 2);
+
+      // Center Kinglet Cap point
+      const pApex = project(apex[0], apex[1], apex[2], w, h);
+      ctx.beginPath();
+      ctx.arc(pApex.x, pApex.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fill();
+
+      // --- 4. DIMENSION CALLOUTS ---
+      if (state.showDimensions) {
+        // Deck Width (X)
+        drawDimension3D([-24, -24, 0], [24, -24, 0], '4\'-0" [48"]', [0, -8, 0], '#38bdf8');
+        // Deck Length (Y)
+        drawDimension3D([24, -24, 0], [24, 24, 0], '4\'-0" [48"]', [8, 0, 0], '#38bdf8');
+        // Tongue Drawbar
+        drawDimension3D([0, 24, 0], [0, 54, 0], '30" DRAWBAR', [12, 0, 0], '#94a3b8');
+        // Fixed Lower Enclosure Height
+        drawDimension3D([-24, -24, 0], [-24, -24, 48], 'BOX: 48"', [-8, 0, 0], '#0ea5e9');
+
+        // Articulation Height (if lifted)
+        if (zLift > 2) {
+          drawDimension3D([-24, 24, 48], [-24, 24, roofBaseZ], `+${zLift.toFixed(1)}" POP-TOP`, [-8, 0, 0], '#f59e0b');
+        }
+
+        // Apex Total Height
+        drawDimension3D([25, 25, 0], [25, 25, roofApexZ], `TOTAL HT: ${totalH.toFixed(0)}"`, [12, 0, 0], '#34d399');
+      }
+
+      // Update UI Text Readouts
+      heightReadout.textContent = `TOTAL HEIGHT: ${totalH.toFixed(1)}"`;
+      headroomStat.textContent = `${totalH.toFixed(1)}" [${(totalH / 12).toFixed(1)}']`;
+    }
+
+    // Interactive Camera Controls
+    canvas.addEventListener('mousedown', (e) => {
+      if (state.viewMode !== 'axon') return;
+      state.cam.isDragging = true;
+      state.cam.lastX = e.clientX;
+      state.cam.lastY = e.clientY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!state.cam.isDragging) return;
+      const dx = e.clientX - state.cam.lastX;
+      const dy = e.clientY - state.cam.lastY;
+
+      state.cam.rotY += dx * 0.008;
+      state.cam.rotX = Math.max(-1.4, Math.min(1.4, state.cam.rotX + dy * 0.008));
+
+      state.cam.lastX = e.clientX;
+      state.cam.lastY = e.clientY;
+      render();
+    });
+
+    window.addEventListener('mouseup', () => {
+      state.cam.isDragging = false;
+    });
+
+    // Touch Support for mobile manipulation
+    canvas.addEventListener('touchstart', (e) => {
+      if (state.viewMode !== 'axon') return;
+      if (e.touches.length === 1) {
+        state.cam.isDragging = true;
+        state.cam.lastX = e.touches[0].clientX;
+        state.cam.lastY = e.touches[0].clientY;
+      }
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!state.cam.isDragging || e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - state.cam.lastX;
+      const dy = e.touches[0].clientY - state.cam.lastY;
+
+      state.cam.rotY += dx * 0.01;
+      state.cam.rotX = Math.max(-1.4, Math.min(1.4, state.cam.rotX + dy * 0.01));
+
+      state.cam.lastX = e.touches[0].clientX;
+      state.cam.lastY = e.touches[0].clientY;
+      render();
+    });
+
+    window.addEventListener('touchend', () => {
+      state.cam.isDragging = false;
+    });
+
+    // Zoom via Wheel
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY > 0 ? 0.92 : 1.08;
+      state.cam.zoom = Math.max(1.0, Math.min(6.5, state.cam.zoom * zoomFactor));
+      render();
+    }, { passive: false });
+
+    // Slider Articulation Event
+    slider.addEventListener('input', (e) => {
+      const pct = parseFloat(e.target.value);
+      state.roofExtension = (pct / 100) * 26.0; // Max 26" lift
+      updateModeVisuals(pct);
+      render();
+      updateCodeOutput();
+    });
+
+    function updateModeVisuals(pct) {
+      const inches = ((pct / 100) * 26.0).toFixed(1);
+      liftPercentText.textContent = `${Math.round(pct)}% (+${inches}")`;
+
+      if (pct < 5) {
+        statusBadge.textContent = 'MODE: TOW (STOWED)';
+        statusBadge.className = 'bg-cyan-950/80 border border-cyan-500/40 rounded-md px-2.5 py-1 text-cyan-400 font-semibold';
+        canvasStatusStat.textContent = 'Collapsed / Bifold';
+        canvasStatusStat.className = 'text-slate-400 font-semibold';
+      } else if (pct > 95) {
+        statusBadge.textContent = 'MODE: FULL CAMP';
+        statusBadge.className = 'bg-amber-950/80 border border-amber-500/50 rounded-md px-2.5 py-1 text-amber-400 font-semibold';
+        canvasStatusStat.textContent = 'Full Tension';
+        canvasStatusStat.className = 'text-amber-400 font-semibold';
+      } else {
+        statusBadge.textContent = 'MODE: TRANSIT LIFT';
+        statusBadge.className = 'bg-slate-800 border border-cyan-400/40 rounded-md px-2.5 py-1 text-slate-200 font-semibold';
+        canvasStatusStat.textContent = 'Articulating';
+        canvasStatusStat.className = 'text-cyan-300 font-semibold';
+      }
+    }
+
+    // Presets
+    btnTowPreset.addEventListener('click', () => {
+      animateSliderTo(0);
+    });
+
+    btnCampPreset.addEventListener('click', () => {
+      animateSliderTo(100);
+    });
+
+    function animateSliderTo(targetVal) {
+      let currentVal = parseFloat(slider.value);
+      const step = (targetVal - currentVal) / 10;
+      let count = 0;
+      const interval = setInterval(() => {
+        currentVal += step;
+        count++;
+        if (count >= 10) {
+          currentVal = targetVal;
+          clearInterval(interval);
+        }
+        slider.value = currentVal;
+        state.roofExtension = (currentVal / 100) * 26.0;
+        updateModeVisuals(currentVal);
+        render();
+        updateCodeOutput();
+      }, 18);
+    }
+
+    // View Projection Toggles
+    function setActiveViewButton(activeBtn) {
+      [viewPlanBtn, viewElevBtn, viewAxonBtn].forEach(b => {
+        b.className = 'px-3 py-1.5 rounded-md text-xs font-mono-cad font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800';
+      });
+      activeBtn.className = 'px-3 py-1.5 rounded-md text-xs font-mono-cad font-semibold bg-cyan-600 text-white shadow-md';
+    }
+
+    viewPlanBtn.addEventListener('click', () => {
+      state.viewMode = 'plan';
+      state.cam.panX = 0;
+      state.cam.panY = 20;
+      setActiveViewButton(viewPlanBtn);
+      document.getElementById('dragHint').textContent = '• Orthographic Plan View (Top-Down X/Y) • Scroll to Zoom';
+      render();
+    });
+
+    viewElevBtn.addEventListener('click', () => {
+      state.viewMode = 'elev';
+      state.cam.panX = 0;
+      state.cam.panY = 0;
+      setActiveViewButton(viewElevBtn);
+      document.getElementById('dragHint').textContent = '• Orthographic Side Elevation (Lateral Y/Z) • Scroll to Zoom';
+      render();
+    });
+
+    viewAxonBtn.addEventListener('click', () => {
+      state.viewMode = 'axon';
+      setActiveViewButton(viewAxonBtn);
+      document.getElementById('dragHint').textContent = '• Left Click + Drag to Rotate / Pan • Scroll to Zoom';
+      render();
+    });
+
+    // Dim Toggle
+    toggleDims.addEventListener('change', (e) => {
+      state.showDimensions = e.target.checked;
+      render();
+    });
+
+    // Reset Camera
+    resetCamBtn.addEventListener('click', () => {
+      state.cam.rotX = -0.45;
+      state.cam.rotY = 0.65;
+      state.cam.zoom = 2.7;
+      state.cam.panX = 0;
+      state.cam.panY = 20;
+      render();
+    });
+
+    // Code Inspector Tabs
+    tabWallyCAD.addEventListener('click', () => {
+      state.activeTab = 'wallycad';
+      tabWallyCAD.className = 'text-xs font-mono-cad font-bold text-cyan-400 border-b-2 border-cyan-400 pb-1';
+      tabTuples.className = 'text-xs font-mono-cad font-medium text-slate-400 hover:text-slate-200 border-b-2 border-transparent pb-1';
+      updateCodeOutput();
+    });
+
+    tabTuples.addEventListener('click', () => {
+      state.activeTab = 'tuples';
+      tabTuples.className = 'text-xs font-mono-cad font-bold text-cyan-400 border-b-2 border-cyan-400 pb-1';
+      tabWallyCAD.className = 'text-xs font-mono-cad font-medium text-slate-400 hover:text-slate-200 border-b-2 border-transparent pb-1';
+      updateCodeOutput();
+    });
+
+    // Copy Button Handler
+    copyBtn.addEventListener('click', () => {
+      const textToCopy = codeOutput.textContent;
+      // Fallback command exec
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        copyToast.classList.remove('hidden');
+        setTimeout(() => copyToast.classList.add('hidden'), 2200);
+      } catch (err) {
+        console.error('Copy failed', err);
+      }
+      document.body.removeChild(textArea);
+    });
+
+    // Update Output Vector Code
+    function updateCodeOutput() {
+      const zLift = state.roofExtension;
+      const roofBase = 48 + zLift;
+      const roofApex = roofBase + 12;
+
+      if (state.activeTab === 'wallycad') {
+        codeOutput.textContent = 
+`// ==========================================
+// WALLYCAD SDJ SPECIFICATION: SPACE_TRAILER V1
+// DECK: 48x48" | ARTICULATION: +${zLift.toFixed(1)}"
+// ==========================================
+
+[ENTITY: CHASSIS_PLAN]
+POLYLINE LAYER="CHASSIS" COLOR="#0284c7"
+  -24.00 -24.00
+   24.00 -24.00
+   24.00  24.00
+  -24.00  24.00
+  -24.00 -24.00
+
+[ENTITY: A_FRAME_TONGUE]
+POLYLINE LAYER="DRAWBAR" COLOR="#38bdf8"
+  -24.00  24.00
+    0.00  54.00
+   24.00  24.00
+
+[ENTITY: LOWER_BOX_SILL]
+POLYLINE LAYER="BODY_48" COLOR="#0ea5e9"
+  -24.00 -24.00  48.00
+   24.00 -24.00  48.00
+   24.00  24.00  48.00
+  -24.00  24.00  48.00
+  -24.00 -24.00  48.00
+
+[ENTITY: MUSHROOM_CAP_PERIMETER]
+POLYLINE LAYER="ROOF_CAP" COLOR="#f8fafc"
+  -25.00 -25.00  ${roofBase.toFixed(2)}
+   25.00 -25.00  ${roofBase.toFixed(2)}
+   25.00  25.00  ${roofBase.toFixed(2)}
+  -25.00  25.00  ${roofBase.toFixed(2)}
+  -25.00 -25.00  ${roofBase.toFixed(2)}
+
+[ENTITY: HIP_RAFTER_CONVERGENCE]
+LINE FROM=-25.0,-25.0,${roofBase.toFixed(1)} TO=0.0,0.0,${roofApex.toFixed(1)}
+LINE FROM= 25.0,-25.0,${roofBase.toFixed(1)} TO=0.0,0.0,${roofApex.toFixed(1)}
+LINE FROM= 25.0, 25.0,${roofBase.toFixed(1)} TO=0.0,0.0,${roofApex.toFixed(1)}
+LINE FROM=-25.0, 25.0,${roofBase.toFixed(1)} TO=0.0,0.0,${roofApex.toFixed(1)}
+
+[STATE: EXTENSION_METRICS]
+LIFT_STROKE_INCH  = ${zLift.toFixed(2)}
+TOTAL_APEX_HEIGHT = ${roofApex.toFixed(2)}`;
+      } else {
+        // Raw Whitespace-Delimited Tuples
+        codeOutput.textContent = 
+`# SPACE_TRAILER V1 - 3D VERTEX TUPLES (X Y Z)
+# UNITS: INCHES | ORIGIN (0,0,0) AT CHASSIS CENTER
+
+# --- BED DECK CORNERS ---
+-24.0000  -24.0000    0.0000
+ 24.0000  -24.0000    0.0000
+ 24.0000   24.0000    0.0000
+-24.0000   24.0000    0.0000
+
+# --- TONGUE APEX & COUPLER ---
+  0.0000   54.0000    0.0000
+  0.0000   58.0000    0.0000
+
+# --- FIXED LOWER BOX CORNERS (SILL) ---
+-24.0000  -24.0000   48.0000
+ 24.0000  -24.0000   48.0000
+ 24.0000   24.0000   48.0000
+-24.0000   24.0000   48.0000
+
+# --- MUSHROOM POP-TOP EAVES ---
+-25.0000  -25.0000   ${roofBase.toFixed(4)}
+ 25.0000  -25.0000   ${roofBase.toFixed(4)}
+ 25.0000   25.0000   ${roofBase.toFixed(4)}
+-25.0000   25.0000   ${roofBase.toFixed(4)}
+
+# --- ROOF APEX KINGLET ---
+  0.0000    0.0000   ${roofApex.toFixed(4)}
+
+# --- RUNNING GEAR (LEFT/RIGHT HUBS) ---
+-27.0000    0.0000   -4.0000
+ 27.0000    0.0000   -4.0000`;
+      }
+    }
+
+    // Initial boot
+    window.onload = function () {
+      resizeCanvas();
+      updateCodeOutput();
+    };
+  </script>
+</body>
+</html>
