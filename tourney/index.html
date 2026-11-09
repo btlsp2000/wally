@@ -26,7 +26,6 @@
     .font-display {
       font-family: 'Chakra Petch', sans-serif;
     }
-    /* Pool Felt Texture Overlay */
     .felt-pattern {
       background-color: #061e16;
       background-image: 
@@ -34,42 +33,15 @@
         linear-gradient(to bottom, rgba(5, 23, 17, 0.95), rgba(4, 15, 11, 0.98));
       background-size: 16px 16px, 100% 100%;
     }
-    /* Custom Scrollbars */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #090e17;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #1e293b;
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #334155;
-    }
-    .bracket-line {
-      position: absolute;
-      background-color: #334155;
-      z-index: 1;
-    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #090e17; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
     @media print {
-      body {
-        background-color: white !important;
-        color: black !important;
-      }
-      .no-print {
-        display: none !important;
-      }
-      .print-only {
-        display: block !important;
-      }
-      .card-surface {
-        background-color: white !important;
-        border-color: #cbd5e1 !important;
-        color: black !important;
-      }
+      body { background-color: white !important; color: black !important; }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .card-surface { background-color: white !important; border-color: #cbd5e1 !important; color: black !important; }
     }
   </style>
 </head>
@@ -78,7 +50,6 @@
   <!-- TOP BAR & DIRECTOR STATUS -->
   <header class="border-b border-emerald-950/80 bg-slate-950/90 backdrop-blur sticky top-0 z-40 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-lg">
     <div class="flex items-center gap-3">
-      <!-- 8-Ball Icon -->
       <div class="w-9 h-9 rounded-full bg-black border-2 border-slate-600 flex items-center justify-center shadow-inner relative flex-shrink-0">
         <div class="w-4 h-4 rounded-full bg-white flex items-center justify-center font-display font-bold text-[10px] text-black">8</div>
       </div>
@@ -103,12 +74,16 @@
     <div class="flex items-center gap-2 flex-wrap">
       <button id="btnAutoAssign" title="Auto-assign ready matches to vacant tables" class="px-3 py-1.5 rounded-lg text-xs font-mono-cad font-semibold bg-emerald-600 hover:bg-emerald-500 text-slate-950 flex items-center gap-1.5 shadow transition">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-        AUTO-DISPATCH TABLES
+        AUTO-DISPATCH
       </button>
 
       <button id="btnAnnounceNext" title="Voice Announce Next Queued Match" class="px-3 py-1.5 rounded-lg text-xs font-mono-cad font-semibold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 transition">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
-        ANNOUNCE QUEUE
+        ANNOUNCE
+      </button>
+
+      <button id="btnTopReset" title="Reset current bracket and scores" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad text-amber-400 hover:text-white bg-slate-900 border border-amber-500/40 transition">
+        RESET RACKS
       </button>
 
       <button id="btnPrint" onclick="window.print()" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad text-slate-400 hover:text-white bg-slate-900 border border-slate-700 transition">
@@ -145,7 +120,6 @@
 
     <!-- TAB 1: BRACKET & MATCHES -->
     <section id="tab-bracket" class="tab-content space-y-6">
-      <!-- Quick Status Summary Strip -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
           <div>
@@ -197,14 +171,13 @@
           </div>
         </div>
 
-        <!-- Dynamic Bracket Container -->
         <div id="bracketView" class="min-w-[820px] py-4 flex gap-8 items-stretch relative">
           <!-- Rounds generated dynamically -->
         </div>
       </div>
     </section>
 
-    <!-- TAB 2: TABLE MANAGER (DISPATCH BOARD) -->
+    <!-- TAB 2: TABLE MANAGER -->
     <section id="tab-tables" class="tab-content hidden space-y-6">
       <div class="flex items-center justify-between">
         <div>
@@ -216,20 +189,16 @@
         </button>
       </div>
 
-      <!-- Station Cards Grid -->
       <div id="tableGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Tables generated via JS -->
       </div>
 
-      <!-- On Deck Queue -->
       <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4">
         <h3 class="font-display font-bold text-sm text-slate-200 uppercase mb-3 flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-amber-400"></span>
           Matches On Deck (Waiting for Open Table)
         </h3>
-        <div id="onDeckList" class="space-y-2 font-mono-cad text-xs">
-          <!-- Rendered dynamically -->
-        </div>
+        <div id="onDeckList" class="space-y-2 font-mono-cad text-xs"></div>
       </div>
     </section>
 
@@ -251,7 +220,6 @@
           </div>
         </div>
 
-        <!-- Add Player Form -->
         <form id="addPlayerForm" class="flex gap-2 max-w-md mb-6">
           <input 
             type="text" 
@@ -265,7 +233,6 @@
           </button>
         </form>
 
-        <!-- Roster List Table -->
         <div class="overflow-x-auto">
           <table class="w-full text-left font-mono-cad text-xs border border-slate-800 rounded-lg overflow-hidden">
             <thead class="bg-slate-950 text-slate-400 border-b border-slate-800">
@@ -276,14 +243,12 @@
                 <th class="py-2.5 px-3 text-right">ACTIONS</th>
               </tr>
             </thead>
-            <tbody id="rosterTableBody" class="divide-y divide-slate-800/60 bg-slate-900/40">
-              <!-- Rendered via JS -->
-            </tbody>
+            <tbody id="rosterTableBody" class="divide-y divide-slate-800/60 bg-slate-900/40"></tbody>
           </table>
         </div>
 
         <div class="mt-4 flex items-center justify-between text-xs font-mono-cad text-slate-500">
-          <span>* Modifying the roster requires regenerating the active bracket.</span>
+          <span>Modifying the roster requires regenerating the active bracket.</span>
           <button id="btnRebuildBracket" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs font-mono-cad transition shadow">
             REBUILD TOURNAMENT BRACKET
           </button>
@@ -310,9 +275,7 @@
                 <th class="py-2.5 px-3 text-right">STATUS</th>
               </tr>
             </thead>
-            <tbody id="standingsTableBody" class="divide-y divide-slate-800/60 bg-slate-900/40">
-              <!-- Rendered dynamically -->
-            </tbody>
+            <tbody id="standingsTableBody" class="divide-y divide-slate-800/60 bg-slate-900/40"></tbody>
           </table>
         </div>
       </div>
@@ -362,7 +325,6 @@
             <label class="block text-slate-300 mb-1">FORMAT</label>
             <select id="cfgFormat" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-emerald-500">
               <option value="single_elim" selected>Single Elimination Knockout</option>
-              <option value="round_robin">Round Robin Flight (Coming Soon)</option>
             </select>
           </div>
 
@@ -377,14 +339,11 @@
         </form>
       </div>
     </section>
-
   </main>
 
   <!-- MATCH DETAIL & LIVE SCORE MODAL -->
   <div id="matchModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl card-surface">
-      
-      <!-- Modal Header -->
       <div class="bg-slate-950 px-5 py-3 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span id="modalMatchId" class="font-display font-bold text-amber-400 text-sm">MATCH #1</span>
@@ -393,9 +352,7 @@
         <button id="modalCloseBtn" class="text-slate-400 hover:text-white font-mono-cad text-lg">&times;</button>
       </div>
 
-      <!-- Modal Body Scoreboard -->
       <div class="p-6 space-y-6">
-        <!-- Station & Race Badge -->
         <div class="flex items-center justify-between text-xs font-mono-cad text-slate-400">
           <div>
             TABLE: 
@@ -406,7 +363,7 @@
           <div class="text-emerald-400 font-bold" id="modalRaceLength">RACE TO 2</div>
         </div>
 
-        <!-- Competitor 1 Row -->
+        <!-- Competitor 1 -->
         <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-4 flex items-center justify-between gap-4">
           <div class="flex-1">
             <span class="text-[10px] font-mono-cad text-slate-500 block">PLAYER 1</span>
@@ -419,7 +376,7 @@
           </div>
         </div>
 
-        <!-- Competitor 2 Row -->
+        <!-- Competitor 2 -->
         <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-4 flex items-center justify-between gap-4">
           <div class="flex-1">
             <span class="text-[10px] font-mono-cad text-slate-500 block">PLAYER 2</span>
@@ -432,7 +389,6 @@
           </div>
         </div>
 
-        <!-- Quick Winner Actions -->
         <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs font-mono-cad">
           <button id="btnAnnounceThisMatch" class="text-amber-400 hover:text-amber-300 flex items-center gap-1.5 py-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
@@ -442,21 +398,15 @@
         </div>
       </div>
 
-      <!-- Modal Footer -->
       <div class="bg-slate-950 px-5 py-3 border-t border-slate-800 flex justify-end gap-2">
         <button id="modalDoneBtn" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-mono-cad font-bold text-xs rounded-lg transition">
           CONFIRM & UPDATE
         </button>
       </div>
-
     </div>
   </div>
 
-  <!-- INLINE JS TOURNAMENT APPLICATION LOGIC -->
   <script>
-    // ----------------------------------------------------
-    // TOURNAMENT APPLICATION STATE & DATA MODEL
-    // ----------------------------------------------------
     const DEFAULT_ROSTER = [
       "Bill Tonnesen",
       "Alvin",
@@ -474,20 +424,19 @@
       raceTo: 2,
       format: "single_elim",
       players: [...DEFAULT_ROSTER],
-      tables: [], // Array of table states: { id: 1, matchId: null, startTime: null }
-      matches: [] // Array of match objects
+      tables: [],
+      matches: []
     };
 
     let activeModalMatchId = null;
 
-    // Load or initialize state
     function loadState() {
       const saved = localStorage.getItem("heritage_pool_tourney");
       if (saved) {
         try {
           tournament = JSON.parse(saved);
         } catch(e) {
-          console.error("Error reading saved tournament", e);
+          console.error("Error loading tournament", e);
           initTables();
           buildSingleElimBracket();
         }
@@ -513,7 +462,6 @@
       }
     }
 
-    // Bracket Generation for Single Elimination (Power of 2 support)
     function buildSingleElimBracket() {
       const numPlayers = tournament.players.length;
       let bracketSize = 1;
@@ -524,11 +472,8 @@
 
       const numRounds = Math.log2(bracketSize);
       tournament.matches = [];
-
       let matchCounter = 1;
 
-      // Seed mapping
-      // Standard bracket pairing for 8 players: (1 vs 8), (4 vs 5), (2 vs 7), (3 vs 6)
       const pairings8 = [
         [0, 7], // 1 vs 8
         [3, 4], // 4 vs 5
@@ -536,7 +481,6 @@
         [2, 5]  // 3 vs 6
       ];
 
-      // Round 1 matches
       const round1Count = bracketSize / 2;
       for (let i = 0; i < round1Count; i++) {
         let p1 = null;
@@ -558,26 +502,26 @@
           p2: p2,
           score1: 0,
           score2: 0,
-          status: (p1 === 'BYE' || p2 === 'BYE') ? 'complete' : 'scheduled', // 'scheduled', 'on_table', 'complete'
+          status: 'scheduled',
           tableId: null,
           winner: null,
           nextMatchId: null,
-          nextSlot: null // 1 or 2
+          nextSlot: null
         };
 
-        // Handle auto bye advancement
         if (p1 !== 'BYE' && p2 === 'BYE') {
           match.winner = p1;
           match.score1 = tournament.raceTo;
+          match.status = 'complete';
         } else if (p2 !== 'BYE' && p1 === 'BYE') {
           match.winner = p2;
           match.score2 = tournament.raceTo;
+          match.status = 'complete';
         }
 
         tournament.matches.push(match);
       }
 
-      // Subsequent rounds
       let prevRoundMatches = tournament.matches.filter(m => m.round === 1);
       for (let r = 2; r <= numRounds; r++) {
         const thisRoundCount = prevRoundMatches.length / 2;
@@ -613,7 +557,6 @@
         prevRoundMatches = currentRoundMatches;
       }
 
-      // Clear any stale table assignments
       initTables();
     }
 
@@ -624,9 +567,6 @@
       return `ROUND ${round}`;
     }
 
-    // ----------------------------------------------------
-    // SPEECH SYNTHESIS / DIRECTOR ANNOUNCER
-    // ----------------------------------------------------
     function speakCallout(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -644,15 +584,10 @@
       speakCallout(msg);
     }
 
-    // ----------------------------------------------------
-    // TABLE DISPATCH ENGINE
-    // ----------------------------------------------------
     function autoDispatchTables() {
-      // Find open tables
       const openTables = tournament.tables.filter(t => t.matchId === null);
       if (openTables.length === 0) return;
 
-      // Find ready scheduled matches without tables
       const readyMatches = tournament.matches.filter(m => 
         m.status === 'scheduled' && 
         m.p1 && m.p2 && 
@@ -694,9 +629,6 @@
       }
     }
 
-    // ----------------------------------------------------
-    // UI RENDERING ROUTINES
-    // ----------------------------------------------------
     function updateUI() {
       document.getElementById('topbarTitle').textContent = tournament.title;
       document.getElementById('formatBadge').textContent = `RACE TO ${tournament.raceTo} • ${tournament.format.toUpperCase().replace('_', ' ')}`;
@@ -709,11 +641,9 @@
       renderStats();
     }
 
-    // Render Tab 1: Bracket
     function renderBracket() {
       const container = document.getElementById('bracketView');
       container.innerHTML = '';
-
       if (tournament.matches.length === 0) return;
 
       const roundsMap = {};
@@ -723,7 +653,6 @@
       });
 
       const roundNumbers = Object.keys(roundsMap).map(Number).sort((a,b) => a - b);
-
       roundNumbers.forEach(roundNum => {
         const matchesInRound = roundsMap[roundNum];
         const roundCol = document.createElement('div');
@@ -761,8 +690,6 @@
               <span class="text-slate-400 font-bold">MATCH #${m.id}</span>
               ${badgeStatus}
             </div>
-
-            <!-- Player 1 -->
             <div class="flex items-center justify-between py-1.5 px-2 rounded-lg ${isP1Win ? 'bg-emerald-950/70 border border-emerald-500/40' : 'bg-slate-900/60'} mb-1">
               <span class="text-xs font-semibold ${isP1Win ? 'text-emerald-300 font-bold' : (m.p1 ? 'text-slate-200' : 'text-slate-500')} truncate">
                 ${m.p1 || '<span class="italic text-slate-600">Awaiting winner</span>'}
@@ -771,8 +698,6 @@
                 ${m.score1}
               </span>
             </div>
-
-            <!-- Player 2 -->
             <div class="flex items-center justify-between py-1.5 px-2 rounded-lg ${isP2Win ? 'bg-emerald-950/70 border border-emerald-500/40' : 'bg-slate-900/60'}">
               <span class="text-xs font-semibold ${isP2Win ? 'text-emerald-300 font-bold' : (m.p2 ? 'text-slate-200' : 'text-slate-500')} truncate">
                 ${m.p2 || '<span class="italic text-slate-600">Awaiting winner</span>'}
@@ -782,7 +707,6 @@
               </span>
             </div>
           `;
-
           matchWrap.appendChild(card);
         });
 
@@ -791,7 +715,6 @@
       });
     }
 
-    // Render Tab 2: Table Manager
     function renderTables() {
       const grid = document.getElementById('tableGrid');
       grid.innerHTML = '';
@@ -801,7 +724,6 @@
         const card = document.createElement('div');
 
         if (match) {
-          // Table in use
           card.className = "bg-slate-900/95 border-2 border-amber-500/80 rounded-2xl p-4 shadow-xl flex flex-col justify-between";
           card.innerHTML = `
             <div>
@@ -814,7 +736,6 @@
                   IN PLAY
                 </span>
               </div>
-
               <div class="mt-3">
                 <span class="text-[10px] font-mono-cad text-slate-500 uppercase">${match.roundName} • MATCH #${match.id}</span>
                 <div class="mt-2 space-y-2">
@@ -829,7 +750,6 @@
                 </div>
               </div>
             </div>
-
             <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-2 mt-4">
               <button onclick="openMatchModal(${match.id})" class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-mono-cad font-bold text-[11px] rounded transition">
                 SCORE RACKS
@@ -840,7 +760,6 @@
             </div>
           `;
         } else {
-          // Open Table
           card.className = "bg-slate-900/60 border border-dashed border-emerald-500/30 rounded-2xl p-4 flex flex-col justify-between";
           card.innerHTML = `
             <div>
@@ -857,7 +776,6 @@
                 Felt cleared • Ready for next match
               </div>
             </div>
-
             <div class="pt-3 border-t border-slate-800/60">
               <button onclick="autoDispatchTables()" class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-mono-cad font-semibold text-[11px] rounded border border-emerald-500/20 transition">
                 DISPATCH NEXT UP
@@ -868,7 +786,6 @@
         grid.appendChild(card);
       });
 
-      // Render On-Deck list
       const onDeck = tournament.matches.filter(m => 
         m.status === 'scheduled' && 
         m.p1 && m.p2 && 
@@ -905,7 +822,6 @@
       }
     }
 
-    // Render Tab 3: Roster
     function renderRoster() {
       const tbody = document.getElementById('rosterTableBody');
       tbody.innerHTML = '';
@@ -918,21 +834,17 @@
           <td class="py-2.5 px-3 font-semibold text-white">${player}</td>
           <td class="py-2.5 px-3 text-slate-400">Registered</td>
           <td class="py-2.5 px-3 text-right">
-            <button onclick="removePlayer(${idx})" class="text-slate-500 hover:text-red-400 transition" title="Remove player">
-              ✕
-            </button>
+            <button onclick="removePlayer(${idx})" class="text-slate-500 hover:text-red-400 transition" title="Remove player">✕</button>
           </td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    // Render Tab 4: Standings
     function renderStandings() {
       const tbody = document.getElementById('standingsTableBody');
       tbody.innerHTML = '';
 
-      // Tally wins, losses, rack differential
       const stats = {};
       tournament.players.forEach(p => {
         stats[p] = { wins: 0, losses: 0, pf: 0, pa: 0, diff: 0, isEliminated: false };
@@ -961,7 +873,6 @@
         }
       });
 
-      // Calculate diff and sort
       const sorted = Object.keys(stats).map(name => {
         stats[name].diff = stats[name].pf - stats[name].pa;
         return { name, ...stats[name] };
@@ -990,7 +901,6 @@
       });
     }
 
-    // Render quick stat chips
     function renderStats() {
       const total = tournament.matches.length;
       const completed = tournament.matches.filter(m => m.status === 'complete').length;
@@ -1000,7 +910,6 @@
       document.getElementById('statCompletedMatches').textContent = completed;
       document.getElementById('statLiveMatches').textContent = live;
 
-      // Find champion if final match complete
       const finalMatch = tournament.matches[tournament.matches.length - 1];
       if (finalMatch && finalMatch.status === 'complete' && finalMatch.winner) {
         document.getElementById('statChampion').textContent = finalMatch.winner;
@@ -1009,9 +918,6 @@
       }
     }
 
-    // ----------------------------------------------------
-    // MATCH SCORING MODAL
-    // ----------------------------------------------------
     function openMatchModal(matchId) {
       activeModalMatchId = matchId;
       const match = tournament.matches.find(m => m.id === matchId);
@@ -1025,7 +931,6 @@
       document.getElementById('modalP2Score').textContent = match.score2;
       document.getElementById('modalRaceLength').textContent = `RACE TO ${tournament.raceTo}`;
 
-      // Populate Table Selector
       const tableSelect = document.getElementById('modalTableSelect');
       tableSelect.innerHTML = '<option value="unassigned">-- Unassigned --</option>';
       tournament.tables.forEach(t => {
@@ -1063,7 +968,6 @@
       activeModalMatchId = null;
     }
 
-    // Modal Score Adjustment Events
     document.getElementById('btnP1IncScore').addEventListener('click', () => {
       if (!activeModalMatchId) return;
       const match = tournament.matches.find(m => m.id === activeModalMatchId);
@@ -1111,7 +1015,6 @@
 
       const chosenTable = document.getElementById('modalTableSelect').value;
 
-      // Handle table switch or assign
       if (chosenTable === 'unassigned') {
         if (match.tableId) {
           const prevTable = tournament.tables.find(t => t.id === match.tableId);
@@ -1121,7 +1024,6 @@
         }
       } else {
         const tableNum = parseInt(chosenTable);
-        // Free old table if changed
         if (match.tableId && match.tableId !== tableNum) {
           const prevTable = tournament.tables.find(t => t.id === match.tableId);
           if (prevTable) { prevTable.matchId = null; prevTable.startTime = null; }
@@ -1135,7 +1037,7 @@
         }
       }
 
-      // Check win completion
+      const previousWinner = match.winner;
       if (match.score1 >= tournament.raceTo) {
         match.winner = match.p1;
         match.status = 'complete';
@@ -1149,7 +1051,6 @@
         }
       }
 
-      // If complete, free the table and advance winner to next bracket slot
       if (match.status === 'complete') {
         if (match.tableId) {
           const t = tournament.tables.find(tbl => tbl.id === match.tableId);
@@ -1157,12 +1058,19 @@
           match.tableId = null;
         }
 
-        // Advance to nextMatchId
         if (match.nextMatchId) {
           const nextMatch = tournament.matches.find(m => m.id === match.nextMatchId);
           if (nextMatch) {
             if (match.nextSlot === 1) nextMatch.p1 = match.winner;
             if (match.nextSlot === 2) nextMatch.p2 = match.winner;
+          }
+        }
+      } else if (previousWinner && !match.winner) {
+        if (match.nextMatchId) {
+          const nextMatch = tournament.matches.find(m => m.id === match.nextMatchId);
+          if (nextMatch) {
+            if (match.nextSlot === 1) nextMatch.p1 = null;
+            if (match.nextSlot === 2) nextMatch.p2 = null;
           }
         }
       }
@@ -1179,9 +1087,6 @@
       if (match) announceMatchCallout(match);
     });
 
-    // ----------------------------------------------------
-    // ROSTER & TOURNAMENT CONFIG ACTIONS
-    // ----------------------------------------------------
     document.getElementById('addPlayerForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const input = document.getElementById('newPlayerName');
@@ -1194,7 +1099,7 @@
     });
 
     function removePlayer(index) {
-      if (confirm(`Remove ${tournament.players[index]} from roster? This will require rebuilding the bracket.`)) {
+      if (confirm(`Remove ${tournament.players[index]} from roster? Rebuild bracket to apply.`)) {
         tournament.players.splice(index, 1);
         saveState();
       }
@@ -1214,27 +1119,31 @@
     });
 
     document.getElementById('btnRebuildBracket').addEventListener('click', () => {
-      if (confirm("Rebuilding the bracket will reset all current scores and table assignments. Proceed?")) {
+      if (confirm("Rebuilding the bracket will reset all active scores and table allocations. Proceed?")) {
         buildSingleElimBracket();
         saveState();
       }
     });
 
-    // Setup Form Apply
+    document.getElementById('btnTopReset').addEventListener('click', () => {
+      if (confirm("Reset active racks, clear all tables, and restart the bracket?")) {
+        buildSingleElimBracket();
+        saveState();
+      }
+    });
+
     document.getElementById('setupForm').addEventListener('submit', (e) => {
       e.preventDefault();
       tournament.title = document.getElementById('cfgTitle').value.trim();
       tournament.tableCount = parseInt(document.getElementById('cfgTableCount').value);
       tournament.raceTo = parseInt(document.getElementById('cfgRaceTo').value);
-      tournament.format = document.getElementById('cfgFormat').value;
-
       initTables();
       saveState();
       alert("Settings updated!");
     });
 
     document.getElementById('btnResetAll').addEventListener('click', () => {
-      if (confirm("Reset everything back to fresh Heritage Park 8-Ball default?")) {
+      if (confirm("Perform full reset back to Heritage Park 8-Ball defaults?")) {
         localStorage.removeItem("heritage_pool_tourney");
         tournament.title = "Heritage Park 8-Ball Tournament - Nov 13, 2026";
         tournament.tableCount = 4;
@@ -1247,7 +1156,6 @@
       }
     });
 
-    // Global Announce Button
     document.getElementById('btnAnnounceNext').addEventListener('click', () => {
       const nextMatch = tournament.matches.find(m => m.status === 'scheduled' && m.p1 && m.p2 && m.p1 !== 'BYE');
       if (nextMatch) {
@@ -1260,7 +1168,6 @@
     document.getElementById('btnAutoAssign').addEventListener('click', autoDispatchTables);
     document.getElementById('btnQuickDispatchAll').addEventListener('click', autoDispatchTables);
 
-    // JSON Export
     document.getElementById('btnExportJson').addEventListener('click', () => {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tournament, null, 2));
       const dlAnchor = document.createElement('a');
@@ -1269,7 +1176,6 @@
       dlAnchor.click();
     });
 
-    // Tab Navigation Switcher
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
@@ -1292,13 +1198,11 @@
       });
     });
 
-    // Live Clock in Director Bar
     setInterval(() => {
       const now = new Date();
       document.getElementById('directorClock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }, 1000);
 
-    // Initialize application on load
     window.onload = function() {
       loadState();
       updateUI();
