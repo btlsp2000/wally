@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WallyCAD | Tourney Standalone Q2-3 Spread</title>
+  <title>WallyCAD | Tourney Double-Elimination Q2-3 Spread</title>
   <style>
     :root {
       --cad-black: #121212;
       --cad-accent: #00ff00;
       --felt-green: #0a4d34;
+      --purple-accent: #7c3aed;
+      --gold-accent: #d97706;
     }
     body {
       margin: 0;
@@ -42,7 +44,7 @@
       z-index: 10;
     }
     .quadrant {
-      padding: 0.75in;
+      padding: 0.65in 0.75in;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -53,46 +55,57 @@
       font-weight: bold;
     }
     h1 {
-      font-size: 19pt;
+      font-size: 18pt;
       border-bottom: 2px solid var(--cad-black);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       padding-bottom: 4px;
       text-transform: uppercase;
     }
     h2 {
-      font-size: 12pt;
-      margin-bottom: 8px;
+      font-size: 11.5pt;
+      margin-bottom: 6px;
       color: #333;
-      margin-top: 14px;
+      margin-top: 12px;
       text-transform: uppercase;
     }
     h4 {
-      font-size: 10pt;
-      margin-bottom: 4px;
-      margin-top: 12px;
+      font-size: 9.5pt;
+      margin-bottom: 3px;
+      margin-top: 10px;
       text-transform: uppercase;
       color: var(--cad-black);
     }
     p, li {
-      font-size: 9pt;
-      line-height: 1.45;
+      font-size: 8.5pt;
+      line-height: 1.42;
       margin-top: 0;
     }
     ul {
-      padding-left: 15px;
-      margin-bottom: 10px;
+      padding-left: 14px;
+      margin-bottom: 8px;
     }
     .code-block {
       background: #f4f4f4;
       border: 1px solid #ccc;
-      padding: 6px 8px;
-      font-size: 8pt;
+      padding: 5px 7px;
+      font-size: 7.5pt;
       font-weight: bold;
-      margin: 8px 0;
+      margin: 6px 0;
       display: block;
       white-space: pre-wrap;
       word-break: break-all;
     }
+    .badge {
+      display: inline-block;
+      font-size: 7.5pt;
+      padding: 1px 4px;
+      border-radius: 2px;
+      font-weight: bold;
+      color: white;
+    }
+    .badge-win { background-color: var(--felt-green); }
+    .badge-lose { background-color: var(--purple-accent); }
+    .badge-final { background-color: var(--gold-accent); }
     @media print {
       @page {
         size: letter landscape;
@@ -115,38 +128,49 @@
 
   <!-- QUADRANT 2: INSIDE LEFT -->
   <div class="quadrant" style="border-right: 1px solid #eee;">
-    <h1>TOURNEY UI & DISPATCH</h1>
-    <p>The <code>wallycad.com/tourney</code> standalone web runtime provides automated single-elimination bracket resolution, real-time table dispatching, and room voice synthesis for cue sports tournaments.</p>
+    <h1>DOUBLE-ELIM DISPATCH</h1>
+    <p>The <code>wallycad.com/tourney</code> director automates full 8-player double-elimination bracket routing, 4-table dispatching, and voice announcements for competitive 8-ball flights.</p>
 
-    <h2>Dispatch Architecture</h2>
+    <h2>Dual-Bracket Routing Topology</h2>
     <ul>
-      <li><strong>Binary Knockout Tree:</strong> Pure deterministic 2<sup>N</sup> bracket pairing (Seeds 1v8, 4v5, 2v7, 3v6). Downstream nodes automatically accept winners with complete BYE auto-advancement.</li>
-      <li><strong>Station Matrix:</strong> Configurable table bank (Tables 1–4 standard). Live status tags distinguish between OPEN stations and active IN PLAY racks.</li>
-      <li><strong>On-Deck Buffer:</strong> Matches with confirmed opponents queue immediately. Hitting <em>AUTO-DISPATCH</em> assigns ready matches into open tables sequentially.</li>
-      <li><strong>Voice Callout Engine:</strong> Uses browser speech synthesis to announce matches across the pool room (e.g., <em>"Quarterfinals match on Table 1. Bill Tonnesen vs Alvin. Race to 2."</em>).</li>
+      <li><span class="badge badge-win">UPPER BRACKET</span> <strong>Winners:</strong> 3-round binary elimination (Matches 1–6, 11). Round 1 losers drop immediately into Losers Round 1 (M7, M8); Semifinal losers cross-drop into Losers Quarterfinals (M9, M10).</li>
+      <li><span class="badge badge-lose">LOWER BRACKET</span> <strong>Losers:</strong> 4-round survival flight (Matches 7–10, 12, 13). Second loss results in permanent elimination.</li>
+      <li><span class="badge badge-final">FINALS</span> <strong>Grand Finals & Reset:</strong> Match 14 pits Winners Champ vs Losers Champ. If the Losers Champ wins, Match 15 (True Finals) activates dynamically to decide the title.</li>
     </ul>
 
-    <h2>Scoring & Standings Logic</h2>
-    <p>Matches track individual game racks up to the designated target race length. Completed results feed directly into live leaderboard standings calculating match W-L, racks for (PF), racks against (PA), and net differential.</p>
+    <h2>Station Dispatch Engine</h2>
+    <p>Tables 1–4 are updated asynchronously. The <code>autoDispatchTables()</code> routine scans for ready matches (opponent slots populated in either bracket), moves them to open stations, starts match timers, and calls players to the felt.</p>
+
+    <h2>Live Standings & Differentials</h2>
+    <p>Every match score tallies points for (PF) and against (PA). Standings continuously display win-loss ratios and net rack differential, flagging active statuses: <em>Undefeated</em>, <em>1 Loss (Alive)</em>, or <em>Eliminated</em>.</p>
   </div>
 
   <!-- QUADRANT 3: INSIDE RIGHT -->
   <div class="quadrant">
-    <h1>DATA PIPELINE & EXPORT</h1>
-    <p>The controller executes 100% client-side with zero build steps, persisting the operational state directly to <code>localStorage</code>.</p>
+    <h1>DATA PIPELINE & RE-RACK</h1>
+    <p>Built as a standalone, client-side controller saving direct to <code>localStorage['heritage_pool_tourney_de']</code> without external database dependencies.</p>
 
-    <h4>State Payload Structure</h4>
-    <p>Tournament parameters, table allocations, and match nodes serialize into a clean JSON structure:</p>
-    <span class="code-block">{"title":"Heritage Park 8-Ball","raceTo":2,"tables":[{"id":1,"matchId":3}],"matches":[...]}</span>
+    <h4>Deterministic Match Nodes</h4>
+    <p>Matches carry explicit forward and drop vector pointers for instant $O(1)$ state propagation upon score confirmation:</p>
+    <span class="code-block">{ id:1, winNext:5, winSlot:1, loseNext:7, loseSlot:1 }
+{ id:11, winNext:14, winSlot:1, loseNext:13, loseSlot:2 }</span>
 
-    <h4>Zero-Latency Dispatch</h4>
-    <p>Assigning a table or confirming a match winner executes in <code>O(1)</code> time, advancing the player to the next round slot and freeing the station immediately without page reloads.</p>
+    <h4>True Finals Activation Vector</h4>
+    <p>Match 15 remains inactive until Match 14 completes:</p>
+    <span class="code-block">if (match.id === 14 && match.winner === match.p2) {
+  m15.active = true; m15.status = 'scheduled';
+}</span>
 
-    <h4>Top-Bar Direct Controls</h4>
-    <p>The director console features top-level controls for quick operations: <strong>AUTO-DISPATCH</strong>, <strong>ANNOUNCE</strong>, <strong>RESET RACKS</strong> (clears tables and re-seeds active roster), <strong>PRINT</strong> (clean landscape scoresheet), and <strong>EXPORT</strong> (timestamped JSON backup).</p>
+    <h4>Direct Header Controls</h4>
+    <ul>
+      <li><strong>AUTO-DISPATCH:</strong> Assigns pending bracket matches to free tables.</li>
+      <li><strong>ANNOUNCE:</strong> Triggers browser speech synthesizer match callouts.</li>
+      <li><strong>RESET RACKS:</strong> Immediate one-click dialog to wipe scores, clear tables, and re-rack the active roster into Round 1.</li>
+      <li><strong>EXPORT:</strong> Downloads full timestamped JSON tournament trees.</li>
+    </ul>
 
-    <h4>Roster Persistence & Presets</h4>
-    <p>Preloaded with the Heritage Park regular flight (Bill Tonnesen, Alvin, Art, Ken, Rick, Vince, Dave, Alan) with one-click seed randomization, custom walk-in player registration, and full factory resets.</p>
+    <h4>Roster Persistence & Heritage 8</h4>
+    <p>Standardized seed layout: 1 vs 8, 4 vs 5, 2 vs 7, 3 vs 6. Features instant seed shuffling, custom additions, and preset restoration for the Heritage Park regular flight (Bill Tonnesen, Alvin, Art, Ken, Rick, Vince, Dave, Alan).</p>
   </div>
 </div>
 
