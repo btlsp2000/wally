@@ -7,8 +7,8 @@
   <style>
     :root {
       --cad-black: #121212;
+      --cad-accent: #00ff00;
       --felt-green: #0a4d34;
-      --felt-accent: #10b981;
     }
     body {
       margin: 0;
@@ -120,33 +120,33 @@
 
     <h2>Dispatch Architecture</h2>
     <ul>
-      <li><strong>Bracket Generation:</strong> Deterministic binary knockout tree ($2^N$ grid). Auto-seeds the field (1 vs 8, 4 vs 5, 2 vs 7, 3 vs 6) with automatic bye advancement.</li>
-      <li><strong>Table Matrix (1–4):</strong> Real-time station occupancy monitoring. Tracks active matches, table availability, and match elapsed timers.</li>
-      <li><strong>On-Deck Queue:</strong> Linear buffer queuing completed bracket pairings and feeding them into open stations via <em>AUTO-DISPATCH</em>.</li>
-      <li><strong>Speech Synthesis:</strong> Native browser PA announcer calling matches to stations (e.g., <em>"Quarterfinals on Table 1. Race to 2."</em>).</li>
+      <li><strong>Binary Knockout Tree:</strong> Pure deterministic 2<sup>N</sup> bracket pairing (Seeds 1v8, 4v5, 2v7, 3v6). Downstream nodes automatically accept winners with complete BYE auto-advancement.</li>
+      <li><strong>Station Matrix:</strong> Configurable table bank (Tables 1–4 standard). Live status tags distinguish between OPEN stations and active IN PLAY racks.</li>
+      <li><strong>On-Deck Buffer:</strong> Matches with confirmed opponents queue immediately. Hitting <em>AUTO-DISPATCH</em> assigns ready matches into open tables sequentially.</li>
+      <li><strong>Voice Callout Engine:</strong> Uses browser speech synthesis to announce matches across the pool room (e.g., <em>"Quarterfinals match on Table 1. Bill Tonnesen vs Alvin. Race to 2."</em>).</li>
     </ul>
 
     <h2>Scoring & Standings Logic</h2>
-    <p>The state engine continuously records rack differentials (PF/PA) and match records across all completed games, maintaining an active room leaderboard alongside the elimination bracket.</p>
+    <p>Matches track individual game racks up to the designated target race length. Completed results feed directly into live leaderboard standings calculating match W-L, racks for (PF), racks against (PA), and net differential.</p>
   </div>
 
   <!-- QUADRANT 3: INSIDE RIGHT -->
   <div class="quadrant">
     <h1>DATA PIPELINE & EXPORT</h1>
-    <p>The tournament controller functions entirely client-side, persisting state to <code>localStorage</code> while integrating with the core WallyCAD command structure.</p>
+    <p>The controller executes 100% client-side with zero build steps, persisting the operational state directly to <code>localStorage</code>.</p>
 
     <h4>State Payload Structure</h4>
-    <p>Tournament parameters, table allocations, and match progressions serialize into a flat JSON state array:</p>
+    <p>Tournament parameters, table allocations, and match nodes serialize into a clean JSON structure:</p>
     <span class="code-block">{"title":"Heritage Park 8-Ball","raceTo":2,"tables":[{"id":1,"matchId":3}],"matches":[...]}</span>
 
     <h4>Zero-Latency Dispatch</h4>
-    <p>Station assignments and score updates resolve in <code>O(1)</code> time. When a match concludes, the station is instantly marked open and the winning player advances up the binary bracket tree without full-page re-renders.</p>
+    <p>Assigning a table or confirming a match winner executes in <code>O(1)</code> time, advancing the player to the next round slot and freeing the station immediately without page reloads.</p>
 
-    <h4>WallyCAD Integration</h4>
-    <p>Match results and rack differentials can be exported directly via the <code>EXPORT</code> controller or converted into vector layout tables for inclusion in broadsheet issues and <em>Route 2</em> tournament dispatches.</p>
+    <h4>Top-Bar Direct Controls</h4>
+    <p>The director console features top-level controls for quick operations: <strong>AUTO-DISPATCH</strong>, <strong>ANNOUNCE</strong>, <strong>RESET RACKS</strong> (clears tables and re-seeds active roster), <strong>PRINT</strong> (clean landscape scoresheet), and <strong>EXPORT</strong> (timestamped JSON backup).</p>
 
-    <h4>Roster Persistence</h4>
-    <p>Preloaded with Heritage Park pool hall regulars (Bill Tonnesen, Alvin, Art, Ken, Rick, Vince, Dave, Alan) with instant random seed shuffling and walk-in entry support.</p>
+    <h4>Roster Persistence & Presets</h4>
+    <p>Preloaded with the Heritage Park regular flight (Bill Tonnesen, Alvin, Art, Ken, Rick, Vince, Dave, Alan) with one-click seed randomization, custom walk-in player registration, and full factory resets.</p>
   </div>
 </div>
 
