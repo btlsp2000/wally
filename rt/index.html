@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WallyCAD | Right Triangle & Trapezoid /trap Q2-3 Spread</title>
+<style>
+  :root { --cad-black: #121212; --cad-accent: #00ff00; }
+  body { margin: 0; padding: 0; background: #e5e7eb; color: var(--cad-black); font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  .sheet { width: 11in; height: 8.5in; background: white; display: grid; grid-template-columns: 5.5in 5.5in; grid-template-rows: 8.5in; position: relative; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+  .crosshair-vert { position: absolute; top: 0; left: 5.5in; width: 1px; height: 8.5in; border-left: 1px dashed #aaa; z-index: 10; }
+  .quadrant { padding: 0.65in; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
+  h1, h2 { margin: 0; font-weight: bold; }
+  h1 { font-size: 20pt; border-bottom: 2px solid var(--cad-black); margin-bottom: 10px; padding-bottom: 4px; text-transform: uppercase; }
+  h2 { font-size: 12pt; margin-bottom: 6px; color: #333; margin-top: 12px; text-transform: uppercase; }
+  p, li { font-size: 9pt; line-height: 1.45; margin-top: 0; }
+  ul { padding-left: 14px; margin-bottom: 8px; }
+  .code-block { background: var(--cad-black); color: white; border: 1px solid #ccc; padding: 6px 8px; font-size: 8pt; font-weight: bold; margin: 6px 0; display: block; white-space: pre-wrap; word-break: break-all; }
+  .inline-cmd { background: var(--cad-black); color: white; padding: 1px 4px; font-size: 8.5pt; }
+  .formula-box { background: #f8fafc; border-left: 3px solid var(--cad-black); padding: 5px 8px; margin: 5px 0; font-size: 8.2pt; font-weight: bold; }
+  @media print { @page { size: letter landscape; margin: 0; } body { background: none; } .sheet { box-shadow: none; border: none; } }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="crosshair-vert"></div>
+
+  <!-- QUADRANT 2: INSIDE LEFT -->
+  <div class="quadrant" style="border-right: 1px solid #eee;">
+    <div style="font-size: 8.5pt; background: var(--cad-black); color: white; padding: 3px 6px; margin-bottom: 12px; display: inline-block;">
+      WallyCAD Geometry Engine | Q2-3 Spread v1.0.19
+    </div>
+    
+    <h1>RIGHT TRIANGLE WITH /TRAPEZOID</h1>
+    <p>The <span class="inline-cmd">/trap</span> module decomposes an orthogonal right triangle into a smaller similar right triangle and a complementary right trapezoid along either Cartesian axis.</p>
+
+    <h2>1. Primary Datum &amp; Nodes</h2>
+    <ul>
+      <li><strong>Datum Node (0,0):</strong> The 90&deg; right-angle vertex at the top-left corner.</li>
+      <li><strong>Horizontal Base (B):</strong> Extends rightward along the X-axis to (B, 0).</li>
+      <li><strong>Vertical Leg (H):</strong> Drops plumb along the negative Y-axis to (0, -H).</li>
+      <li><strong>Hypotenuse:</strong> Vector connecting (0, -H) to (B, 0) with slope m = H/B.</li>
+    </ul>
+
+    <h2>2. Partition Derivations</h2>
+    <div class="formula-box">
+      Vertical Cut (0 &lt; x &lt; B):<br>
+      Trapezoid Bases: b1 = H, &nbsp; b2 = H &middot; (1 - x/B)<br>
+      Trapezoid Area: A_trap = x &middot; (b1 + b2) / 2<br><br>
+      Horizontal Cut (0 &lt; y &lt; H):<br>
+      Trapezoid Bases: a1 = B, &nbsp; a2 = B &middot; (1 - y/H)<br>
+      Trapezoid Area: A_trap = y &middot; (a1 + a2) / 2
+    </div>
+
+    <div style="margin-top: auto; display: flex; justify-content: space-between; font-size: 8.5pt;">
+      <span>--cad-accent: #00ff00</span>
+      <span>QUADRANT 2: LEFT SPREAD</span>
+    </div>
+  </div>
+
+  <!-- QUADRANT 3: INSIDE RIGHT -->
+  <div class="quadrant">
+    <div style="font-size: 8.5pt; background: var(--cad-black); color: white; padding: 3px 6px; margin-bottom: 12px; align-self: flex-end;">
+      ENTITY: [TRI_TRAP]
+    </div>
+
+    <h1>SDJ SYNTAX &amp; CLI</h1>
+    <p>The entity can be invoked directly from the CLI or parsed through the space-delimited SDJ tokenizer pipeline.</p>
+
+    <h2>1. The CLI /trap Command</h2>
+    <span class="code-block">/trap X0 Y0 B H [cut_offset] [cut_axis]</span>
+    <ul>
+      <li><span class="inline-cmd">X0 Y0</span> : Right-angle datum coordinate (default: 0 0)</li>
+      <li><span class="inline-cmd">B H</span> : Horizontal base width and vertical leg height</li>
+      <li><span class="inline-cmd">cut_offset</span> : Linear distance of partition cut from datum</li>
+      <li><span class="inline-cmd">cut_axis</span> : Axis of cut line (<span class="inline-cmd">V</span> for vertical, <span class="inline-cmd">H</span> for horizontal)</li>
+    </ul>
+
+    <h2>2. SDJ Token Stream Output</h2>
+    <span class="code-block">[LINE] 0 0 120 0 0 -100 0 0 [LINE] 40 0 40 -66.6667</span>
+    <p>In this example (B=120, H=100 with vertical cut at x=40), the engine defines the closed right triangle and immediately adds the internal dividing partition as an editable line node.</p>
+
+    <h2>3. Sub-Polygon Extraction</h2>
+    <p>Using <span class="inline-cmd">/explode</span> separates the figure into two independent closed entities:</p>
+    <ul>
+      <li><strong>Trapezoid:</strong> <span class="inline-cmd">[LINE] 0 0 40 0 40 -66.67 0 -100 0 0</span></li>
+      <li><strong>Remainder Triangle:</strong> <span class="inline-cmd">[LINE] 40 0 120 0 40 -66.67 40 0</span></li>
+    </ul>
+
+    <div style="margin-top: auto; text-align: right; font-size: 8.5pt; font-weight: bold;">
+      WALLYCAD.COM/V19 &bull; QUADRANT 3: RIGHT SPREAD
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
