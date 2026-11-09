@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WallyCAD | Tourney Standalone Q2-3 Spread</title>
+  <style>
+    :root {
+      --cad-black: #121212;
+      --felt-green: #0a4d34;
+      --felt-accent: #10b981;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #e5e7eb;
+      color: var(--cad-black);
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .sheet {
+      width: 11in;
+      height: 8.5in;
+      background: white;
+      display: grid;
+      grid-template-columns: 5.5in 5.5in;
+      grid-template-rows: 8.5in;
+      position: relative;
+      box-sizing: border-box;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .crosshair-vert {
+      position: absolute;
+      top: 0;
+      left: 5.5in;
+      width: 1px;
+      height: 8.5in;
+      border-left: 1px dashed #aaa;
+      z-index: 10;
+    }
+    .quadrant {
+      padding: 0.75in;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    h1, h2, h3, h4 {
+      margin: 0;
+      font-weight: bold;
+    }
+    h1 {
+      font-size: 19pt;
+      border-bottom: 2px solid var(--cad-black);
+      margin-bottom: 12px;
+      padding-bottom: 4px;
+      text-transform: uppercase;
+    }
+    h2 {
+      font-size: 12pt;
+      margin-bottom: 8px;
+      color: #333;
+      margin-top: 14px;
+      text-transform: uppercase;
+    }
+    h4 {
+      font-size: 10pt;
+      margin-bottom: 4px;
+      margin-top: 12px;
+      text-transform: uppercase;
+      color: var(--cad-black);
+    }
+    p, li {
+      font-size: 9pt;
+      line-height: 1.45;
+      margin-top: 0;
+    }
+    ul {
+      padding-left: 15px;
+      margin-bottom: 10px;
+    }
+    .code-block {
+      background: #f4f4f4;
+      border: 1px solid #ccc;
+      padding: 6px 8px;
+      font-size: 8pt;
+      font-weight: bold;
+      margin: 8px 0;
+      display: block;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    @media print {
+      @page {
+        size: letter landscape;
+        margin: 0;
+      }
+      body {
+        background: none;
+      }
+      .sheet {
+        box-shadow: none;
+        border: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="crosshair-vert"></div>
+
+  <!-- QUADRANT 2: INSIDE LEFT -->
+  <div class="quadrant" style="border-right: 1px solid #eee;">
+    <h1>TOURNEY UI & DISPATCH</h1>
+    <p>The <code>wallycad.com/tourney</code> standalone web runtime provides automated single-elimination bracket resolution, real-time table dispatching, and room voice synthesis for cue sports tournaments.</p>
+
+    <h2>Dispatch Architecture</h2>
+    <ul>
+      <li><strong>Bracket Generation:</strong> Deterministic binary knockout tree ($2^N$ grid). Auto-seeds the field (1 vs 8, 4 vs 5, 2 vs 7, 3 vs 6) with automatic bye advancement.</li>
+      <li><strong>Table Matrix (1–4):</strong> Real-time station occupancy monitoring. Tracks active matches, table availability, and match elapsed timers.</li>
+      <li><strong>On-Deck Queue:</strong> Linear buffer queuing completed bracket pairings and feeding them into open stations via <em>AUTO-DISPATCH</em>.</li>
+      <li><strong>Speech Synthesis:</strong> Native browser PA announcer calling matches to stations (e.g., <em>"Quarterfinals on Table 1. Race to 2."</em>).</li>
+    </ul>
+
+    <h2>Scoring & Standings Logic</h2>
+    <p>The state engine continuously records rack differentials (PF/PA) and match records across all completed games, maintaining an active room leaderboard alongside the elimination bracket.</p>
+  </div>
+
+  <!-- QUADRANT 3: INSIDE RIGHT -->
+  <div class="quadrant">
+    <h1>DATA PIPELINE & EXPORT</h1>
+    <p>The tournament controller functions entirely client-side, persisting state to <code>localStorage</code> while integrating with the core WallyCAD command structure.</p>
+
+    <h4>State Payload Structure</h4>
+    <p>Tournament parameters, table allocations, and match progressions serialize into a flat JSON state array:</p>
+    <span class="code-block">{"title":"Heritage Park 8-Ball","raceTo":2,"tables":[{"id":1,"matchId":3}],"matches":[...]}</span>
+
+    <h4>Zero-Latency Dispatch</h4>
+    <p>Station assignments and score updates resolve in <code>O(1)</code> time. When a match concludes, the station is instantly marked open and the winning player advances up the binary bracket tree without full-page re-renders.</p>
+
+    <h4>WallyCAD Integration</h4>
+    <p>Match results and rack differentials can be exported directly via the <code>EXPORT</code> controller or converted into vector layout tables for inclusion in broadsheet issues and <em>Route 2</em> tournament dispatches.</p>
+
+    <h4>Roster Persistence</h4>
+    <p>Preloaded with Heritage Park pool hall regulars (Bill Tonnesen, Alvin, Art, Ken, Rick, Vince, Dave, Alan) with instant random seed shuffling and walk-in entry support.</p>
+  </div>
+</div>
+
+</body>
+</html>
