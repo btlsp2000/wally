@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WallyCAD - /space_trailer [Spread q2-3]</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono-cad { font-family: 'Fira Code', monospace; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #080c14; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    .blueprint-grid {
+      background-color: #05080f;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.06) 0%, transparent 80%),
+        linear-gradient(to right, rgba(30, 41, 59, 0.5) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 41, 59, 0.5) 1px, transparent 1px),
+        linear-gradient(to right, rgba(6, 182, 212, 0.14) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(6, 182, 212, 0.14) 1px, transparent 1px);
+      background-size: 100% 100%, 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-black">
+
+  <!-- MASTHEAD BAR -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur px-5 py-3 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-lg bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-mono-cad font-bold text-sm shadow-[0_0_14px_rgba(6,182,212,0.3)]">
+        ST
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-sm md:text-base font-bold tracking-wider text-slate-100 uppercase font-mono-cad">SPACE_TRAILER : SPREAD Q2-3</h1>
+          <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">WALLYCAD KINEMATICS</span>
+        </div>
+        <p class="text-xs text-slate-400 font-mono-cad">48"×48" MODULAR EXPEDITION UNIT • 26" MUSHROOM POP-TOP EXTENSION</p>
+      </div>
+    </div>
+
+    <!-- QUICK TELEMETRY CHIPS -->
+    <div class="flex items-center gap-2 font-mono-cad text-xs">
+      <div class="bg-slate-800/80 border border-slate-700/60 rounded px-2.5 py-1 text-slate-300">
+        <span class="text-slate-500">DECK:</span> 48.0" SQ
+      </div>
+      <div class="bg-slate-800/80 border border-slate-700/60 rounded px-2.5 py-1 text-slate-300">
+        <span class="text-slate-500">HITCH REACH:</span> +30.0" (Y:54.0)
+      </div>
+      <div id="statusBadge" class="bg-cyan-950/90 border border-cyan-500/40 rounded px-2.5 py-1 text-cyan-400 font-semibold transition-all">
+        MODE: TOW (STOWED)
+      </div>
+    </div>
+  </header>
+
+  <!-- WORKSPACE BODY (CANVAS VIEWPORT + FOLIO SIDEBAR) -->
+  <main class="flex-1 flex flex-col xl:flex-row overflow-hidden relative">
+
+    <!-- CANVAS VIEWPORT & INTERACTIVE HUD -->
+    <section class="flex-1 flex flex-col relative h-[560px] xl:h-auto min-h-[500px] overflow-hidden">
+      
+      <!-- TOOLBAR OVERLAY -->
+      <div class="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+        <!-- PROJECTION SELECTOR -->
+        <div class="pointer-events-auto bg-slate-9
