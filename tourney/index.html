@@ -1027,4 +1027,175 @@
 
         // 1. Advance Winner
         if (match.winNext) {
-          const wMatch = tournament.matches.
+          const wMatch = tournament.matches.find(m => m.id === match.winNext);
+          if (wMatch) {
+            if (match.winSlot === 1) wMatch.p1 = match.winner;
+            if (match.winSlot === 2) wMatch.p2 = match.winner;
+          }
+        }
+
+        // 2. Drop Loser to Losers Bracket
+        if (match.loseNext) {
+          const lMatch = tournament.matches.find(m => m.id === match.loseNext);
+          if (lMatch) {
+            if (match.loseSlot === 1) lMatch.p1 = match.loser;
+            if (match.loseSlot === 2) lMatch.p2 = match.loser;
+          }
+        }
+
+        // 3. Grand Finals Logic (Match 14 & 15)
+        if (match.id === 14) {
+          const m15 = tournament.matches.find(m => m.id === 15);
+          // If Losers Champion (p2) beats Winners Champion (p1), trigger Match 15 (True Finals)
+          if (match.winner === match.p2) {
+            m15.active = true;
+            m15.p1 = match.p1;
+            m15.p2 = match.p2;
+            m15.status = 'scheduled';
+            speakCallout("Losers champion forced a bracket reset. True finals match scheduled!");
+          } else {
+            m15.active = false;
+            m15.status = 'complete';
+          }
+        }
+      }
+
+      closeModal();
+      saveState();
+    });
+
+    document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+
+    document.getElementById('btnAnnounceThisMatch').addEventListener('click', () => {
+      if (!activeModalMatchId) return;
+      const match = tournament.matches.find(m => m.id === activeModalMatchId);
+      if (match) announceMatchCallout(match);
+    });
+
+    document.getElementById('addPlayerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('newPlayerName');
+      const name = input.value.trim();
+      if (name) {
+        tournament.players.push(name);
+        input.value = '';
+        saveState();
+      }
+    });
+
+    function removePlayer(index) {
+      if (confirm(`Remove ${tournament.players[index]} from roster? Rebuild bracket to apply.`)) {
+        tournament.players.splice(index, 1);
+        saveState();
+      }
+    }
+
+    document.getElementById('btnShuffleSeeds').addEventListener('click', () => {
+      for (let i = tournament.players.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tournament.players[i], tournament.players[j]] = [tournament.players[j], tournament.players[i]];
+      }
+      saveState();
+    });
+
+    document.getElementById('btnLoadHeritagePreset').addEventListener('click', () => {
+      tournament.players = [...DEFAULT_ROSTER];
+      saveState();
+    });
+
+    document.getElementById('btnRebuildBracket').addEventListener('click', () => {
+      if (confirm("Rebuilding the bracket will reset all active scores and table allocations. Proceed?")) {
+        buildDoubleElimBracket();
+        saveState();
+      }
+    });
+
+    document.getElementById('btnTopReset').addEventListener('click', () => {
+      if (confirm("Reset active racks, clear all tables, and restart the double elimination bracket?")) {
+        buildDoubleElimBracket();
+        saveState();
+      }
+    });
+
+    document.getElementById('setupForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      tournament.title = document.getElementById('cfgTitle').value.trim();
+      tournament.tableCount = parseInt(document.getElementById('cfgTableCount').value);
+      tournament.raceTo = parseInt(document.getElementById('cfgRaceTo').value);
+      initTables();
+      saveState();
+      alert("Settings updated!");
+    });
+
+    document.getElementById('btnResetAll').addEventListener('click', () => {
+      if (confirm("Perform full reset back to Heritage Park Double Elimination defaults?")) {
+        localStorage.removeItem("heritage_pool_tourney_de");
+        tournament.title = "Heritage Park 8-Ball Tournament - Nov 13, 2026";
+        tournament.tableCount = 4;
+        tournament.raceTo = 2;
+        tournament.players = [...DEFAULT_ROSTER];
+        initTables();
+        buildDoubleElimBracket();
+        saveState();
+      }
+    });
+
+    document.getElementById('btnAnnounceNext').addEventListener('click', () => {
+      const nextMatch = tournament.matches.find(m => 
+        (m.status === 'scheduled' || !m.status) && 
+        m.p1 && m.p2 && 
+        m.p1 !== 'BYE' &&
+        (m.id !== 15 || m.active)
+      );
+      if (nextMatch) {
+        announceMatchCallout(nextMatch);
+      } else {
+        speakCallout("No matches currently waiting in the dispatch queue.");
+      }
+    });
+
+    document.getElementById('btnAutoAssign').addEventListener('click', autoDispatchTables);
+    document.getElementById('btnQuickDispatchAll').addEventListener('click', autoDispatchTables);
+
+    document.getElementById('btnExportJson').addEventListener('click', () => {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tournament, null, 2));
+      const dlAnchor = document.createElement('a');
+      dlAnchor.setAttribute("href", dataStr);
+      dlAnchor.setAttribute("download", `tournament_double_elim_${Date.now()}.json`);
+      dlAnchor.click();
+    });
+
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetTab = btn.getAttribute('data-tab');
+
+        tabButtons.forEach(b => {
+          b.className = 'tab-btn px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200';
+        });
+        btn.className = 'tab-btn px-3 py-1.5 rounded-md font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30';
+
+        tabContents.forEach(c => {
+          if (c.id === targetTab) {
+            c.classList.remove('hidden');
+          } else {
+            c.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById('directorClock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }, 1000);
+
+    window.onload = function() {
+      loadState();
+      updateUI();
+    };
+  </script>
+</body>
+</html>
