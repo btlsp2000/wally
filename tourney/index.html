@@ -33,12 +33,118 @@
     ::-webkit-scrollbar-track { background: #090e17; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #334155; }
-    @media print {
-      body { background-color: white !important; color: black !important; }
-      .no-print { display: none !important; }
-      .print-only { display: block !important; }
-      .card-surface { background-color: white !important; border-color: #cbd5e1 !important; color: black !important; }
-    }
+@media print {
+  @page {
+    /* 11" x 17" Tabloid in Landscape orientation */
+    size: 17in 11in;
+    margin: 0.35in 0.4in;
+  }
+
+  body {
+    background-color: white !important;
+    color: black !important;
+    width: 16.2in !important;
+    height: 10.3in !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide app chrome, director bar, nav tabs, setup forms, and modal dialogs */
+  header, nav, #tab-tables, #tab-roster, #tab-standings, #tab-setup, 
+  #newFieldModal, #matchModal, .no-print {
+    display: none !important;
+  }
+
+  /* Force tab-bracket to be fully visible regardless of active UI tab */
+  #tab-bracket {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Compact the status cards into a tight top summary line */
+  #tab-bracket > div.grid {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-bottom: 0.15in !important;
+    gap: 0.2in !important;
+  }
+  #tab-bracket > div.grid > div {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    flex: 1 !important;
+  }
+  #tab-bracket > div.grid div[id^="stat"] {
+    color: #0f172a !important;
+    font-size: 12pt !important;
+  }
+
+  /* Bracket containers: fit across 17" width without horizontal scrollbars */
+  .felt-pattern {
+    background: none !important;
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    padding: 6px 10px !important;
+    margin-bottom: 0.12in !important;
+    overflow: visible !important;
+  }
+
+  #winnersBracketView, #losersBracketView, #finalsBracketView {
+    min-width: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    gap: 8px !important;
+    overflow: visible !important;
+  }
+
+  /* Individual Match Card formatting for 11x17 high-density layout */
+  #winnersBracketView > div, 
+  #losersBracketView > div {
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
+
+  .card-surface, 
+  #winnersBracketView .cursor-pointer, 
+  #losersBracketView .cursor-pointer, 
+  #finalsBracketView .cursor-pointer {
+    background: white !important;
+    border: 1px solid #94a3b8 !important;
+    color: black !important;
+    box-shadow: none !important;
+    padding: 3px 5px !important;
+    border-radius: 4px !important;
+    min-width: 0 !important;
+    margin-bottom: 3px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Score and player typography adjustments */
+  .cursor-pointer span, 
+  .cursor-pointer div {
+    color: #0f172a !important;
+    font-size: 8pt !important;
+    line-height: 1.15 !important;
+  }
+
+  /* Section and round titles */
+  h2 {
+    font-size: 10pt !important;
+    color: #0f172a !important;
+  }
+  .font-display {
+    font-size: 7.5pt !important;
+  }
+}
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-black">
