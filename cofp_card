@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Calculus of Pool - 2.83 x 8.5 Card Strip</title>
+<style>
+  @page {
+    size: letter portrait;
+    margin: 0.25in;
+  }
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    color: #111;
+    background: #e5e5e5;
+  }
+  /* The exact 2.83" x 8.5" Cardstock Strip */
+  .strip {
+    width: 2.83in;
+    height: 8.5in;
+    background: #fff;
+    border: 1px dashed #666;
+    padding: 0.2in 0.18in;
+    margin: 10px auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+  @media print {
+    body { background: none; }
+    .strip { margin: 0; border: 1px solid #ccc; page-break-inside: avoid; }
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    border-bottom: 1.5px solid #000;
+    padding-bottom: 3px;
+  }
+  .title {
+    font-size: 11pt;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin: 0;
+  }
+  .sub {
+    font-size: 6.5pt;
+    font-style: italic;
+    color: #333;
+    margin-top: 2px;
+  }
+  .meta {
+    font-size: 5.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-top: 2px;
+    color: #555;
+  }
+
+  /* Text Blocks */
+  .tweek-text {
+    font-size: 6.2pt;
+    line-height: 1.25;
+    text-align: justify;
+    margin: 4px 0;
+  }
+  .bullets {
+    margin: 2px 0 2px 10px;
+    padding: 0;
+    font-size: 5.8pt;
+    line-height: 1.2;
+  }
+  .bullets li {
+    margin-bottom: 2px;
+  }
+
+  /* Picture Boxes */
+  .pic-box {
+    width: 100%;
+    height: 1.55in;
+    border: 1px solid #222;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4px;
+    position: relative;
+  }
+  .pic-box img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .pic-label {
+    font-size: 6pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #444;
+    line-height: 1.2;
+  }
+
+  /* Footer & QR Section */
+  .footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #000;
+    padding-top: 4px;
+    margin-top: 2px;
+  }
+  .links {
+    font-size: 5.6pt;
+    line-height: 1.3;
+    flex: 1;
+    padding-right: 4px;
+  }
+  .links strong {
+    font-size: 6pt;
+    color: #000;
+  }
+  .qr-box {
+    width: 0.72in;
+    height: 0.72in;
+    border: 1px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7pt;
+    font-weight: bold;
+    background: #fff;
+    flex-shrink: 0;
+  }
+  .qr-box img {
+    width: 100%;
+    height: 100%;
+  }
+  .tagline {
+    font-size: 5pt;
+    font-style: italic;
+    text-align: center;
+    color: #444;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="strip">
+    <!-- Top Header -->
+    <div class="header">
+      <div class="title">Calculus of Pool</div>
+      <div class="sub">Below the Slate &bull; Subsurface Mechanics</div>
+      <div class="meta">Bill Tonnesen &bull; D2D ($28) &bull; wallycad.com</div>
+    </div>
+
+    <!-- Tweek Paragraph -->
+    <div class="tweek-text">
+      Shot-making is a trivial baseline—a clerical toll paid to stay at the table. The master calculates the living table: dynamic rail compression, collision throw, and deterministic terminal address.
+    </div>
+
+    <!-- PIC 1: Cut vs Bank -->
+    <div class="pic-box">
+      <!-- Replace with: <img src="cut_vs_bank.png" alt="Vector Diagram"> -->
+      <div class="pic-label">
+        [ PIC 1: CONTACT GEOMETRY ]<br>
+        Honest Cut Vector &bull; Dynamic Cushion Zone
+      </div>
+    </div>
+
+    <!-- Mid Bullets -->
+    <ul class="bullets">
+      <li><strong>The Honest Cut:</strong> Closed, flat-plane solution.</li>
+      <li><strong>The Dynamic Bank:</strong> Rail compliance &amp; gearing spin.</li>
+      <li><strong>LKA Engine:</strong> Last Known Address cue ball control.</li>
+    </ul>
+
+    <!-- PIC 2: Tangible Cue / Mini Table -->
+    <div class="pic-box">
+      <!-- Replace with: <img src="cue_foldout.png" alt="Fold-out Mini Table"> -->
+      <div class="pic-label">
+        [ PIC 2: MINI-TABLE &amp; CUE ]<br>
+        Cardstock Fold-Out + Roll-to-Form Scale Stylus
+      </div>
+    </div>
+
+    <!-- Footer Row: Links + QR -->
+    <div class="footer-row">
+      <div class="links">
+        <strong>Engine:</strong> wallycad.com/cofp<br>
+        <strong>Simple GUI:</strong> wallycad.com/ltutcws<br>
+        <strong>Format:</strong> Mini-Table + Rolled Cue
+      </div>
+      <div class="qr-box">
+        <!-- Replace with real QR image: <img src="qr-cofp.png"> -->
+        QR
+      </div>
+    </div>
+    <div class="tagline">&ldquo;You're playing the balls, Rick. You haven't looked at the table yet.&rdquo;</div>
+  </div>
+
+</body>
+</html>
