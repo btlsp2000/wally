@@ -78,6 +78,10 @@
         ANNOUNCE
       </button>
 
+      <button id="btnOpenNewFieldModal" title="Instantiate a completely new player roster" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad font-bold text-cyan-400 hover:text-white bg-slate-900 border border-cyan-500/40 transition">
+        + NEW FIELD
+      </button>
+
       <button id="btnTopReset" title="Reset bracket, clear tables, and re-rack" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad text-amber-400 hover:text-white bg-slate-900 border border-amber-500/40 transition">
         RESET RACKS
       </button>
@@ -114,7 +118,7 @@
   <!-- MAIN VIEWPORT CONTAINER -->
   <main class="flex-1 p-4 lg:p-6 overflow-y-auto max-w-7xl mx-auto w-full">
 
-    <!-- TAB 1: BRACKETS (WINNERS + LOSERS + FINALS) -->
+    <!-- TAB 1: BRACKETS -->
     <section id="tab-bracket" class="tab-content space-y-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
@@ -213,9 +217,12 @@
         <div class="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-800">
           <div>
             <h2 class="font-display font-bold text-xl text-white">Player Roster Management</h2>
-            <p class="text-xs font-mono-cad text-slate-400">Regulars, seeds, and walk-in players</p>
+            <p class="text-xs font-mono-cad text-slate-400">Configure, randomize, or instantiate completely new field</p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <button id="btnTriggerNewFieldFromTab" class="px-3 py-1.5 text-xs font-mono-cad font-bold rounded bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/40 transition">
+              ⚡ INSTANTIATE NEW FIELD
+            </button>
             <button id="btnShuffleSeeds" class="px-3 py-1.5 text-xs font-mono-cad font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
               🎲 RANDOMIZE SEEDS
             </button>
@@ -225,6 +232,7 @@
           </div>
         </div>
 
+        <!-- Add Single Player Form -->
         <form id="addPlayerForm" class="flex gap-2 max-w-md mb-6">
           <input 
             type="text" 
@@ -253,7 +261,7 @@
         </div>
 
         <div class="mt-4 flex items-center justify-between text-xs font-mono-cad text-slate-500">
-          <span>Modifying the roster requires rebuilding the double elimination bracket.</span>
+          <span>Modifying the roster re-seeds and rebuilds the tournament bracket.</span>
           <button id="btnRebuildBracket" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs font-mono-cad transition shadow">
             REBUILD TOURNAMENT BRACKET
           </button>
@@ -337,6 +345,50 @@
       </div>
     </section>
   </main>
+
+  <!-- MODAL: INSTANTIATE NEW FIELD -->
+  <div id="newFieldModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-cyan-500/50 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl card-surface">
+      <div class="bg-slate-950 px-5 py-3 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+          <span class="font-display font-bold text-cyan-300 text-sm uppercase">Instantiate New Player Field</span>
+        </div>
+        <button id="btnCloseNewFieldModal" class="text-slate-400 hover:text-white font-mono-cad text-lg">&times;</button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <p class="text-xs font-mono-cad text-slate-300">
+          Enter up to 8 new players (one name per line or separated by commas). This will clear all existing match scores, re-rack the double-elimination bracket, and start a fresh tournament.
+        </p>
+
+        <div>
+          <textarea 
+            id="bulkPlayerInput" 
+            rows="8" 
+            placeholder="Player 1&#10;Player 2&#10;Player 3&#10;Player 4&#10;Player 5&#10;Player 6&#10;Player 7&#10;Player 8"
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-cyan-200 font-mono-cad focus:outline-none focus:border-cyan-400"
+          ></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <button id="btnFillPlaceholders" class="text-[11px] font-mono-cad text-slate-400 hover:text-cyan-300 underline">
+            Generate 8 Generic Placeholders
+          </button>
+          <span class="text-[11px] font-mono-cad text-slate-500" id="bulkCounter">0 players entered</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-950 px-5 py-3 border-t border-slate-800 flex justify-end gap-2">
+        <button id="btnCancelNewField" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono-cad text-xs rounded-lg transition">
+          CANCEL
+        </button>
+        <button id="btnCommitNewField" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-mono-cad font-bold text-xs rounded-lg transition shadow">
+          INSTANTIATE FIELD & RE-RACK
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- MATCH DETAIL & LIVE SCORE MODAL -->
   <div id="matchModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -795,7 +847,7 @@
         tr.innerHTML = `
           <td class="py-2.5 px-3 font-bold text-emerald-400">#${idx + 1}</td>
           <td class="py-2.5 px-3 font-semibold text-white">${player}</td>
-          <td class="py-2.5 px-3 text-slate-400">Registered</td>
+          <td class="py-2.5 px-3 text-slate-400">Active Seed</td>
           <td class="py-2.5 px-3 text-right">
             <button onclick="removePlayer(${idx})" class="text-slate-500 hover:text-red-400 transition" title="Remove player">✕</button>
           </td>
@@ -972,14 +1024,12 @@
       }
     });
 
-    // Score confirmation & Double-Elim Routing
     document.getElementById('modalDoneBtn').addEventListener('click', () => {
       if (!activeModalMatchId) return;
       const match = tournament.matches.find(m => m.id === activeModalMatchId);
       if (!match) return;
 
       const chosenTable = document.getElementById('modalTableSelect').value;
-
       if (chosenTable === 'unassigned') {
         if (match.tableId) {
           const prevTable = tournament.tables.find(t => t.id === match.tableId);
@@ -1025,7 +1075,6 @@
           match.tableId = null;
         }
 
-        // 1. Advance Winner
         if (match.winNext) {
           const wMatch = tournament.matches.find(m => m.id === match.winNext);
           if (wMatch) {
@@ -1034,7 +1083,6 @@
           }
         }
 
-        // 2. Drop Loser to Losers Bracket
         if (match.loseNext) {
           const lMatch = tournament.matches.find(m => m.id === match.loseNext);
           if (lMatch) {
@@ -1043,10 +1091,8 @@
           }
         }
 
-        // 3. Grand Finals Logic (Match 14 & 15)
         if (match.id === 14) {
           const m15 = tournament.matches.find(m => m.id === 15);
-          // If Losers Champion (p2) beats Winners Champion (p1), trigger Match 15 (True Finals)
           if (match.winner === match.p2) {
             m15.active = true;
             m15.p1 = match.p1;
@@ -1072,6 +1118,71 @@
       if (match) announceMatchCallout(match);
     });
 
+    // ----------------------------------------------------
+    // NEW FIELD INSTANTIATION ROUTINES
+    // ----------------------------------------------------
+    const newFieldModal = document.getElementById('newFieldModal');
+    const bulkInput = document.getElementById('bulkPlayerInput');
+    const bulkCounter = document.getElementById('bulkCounter');
+
+    function openNewFieldModal() {
+      bulkInput.value = tournament.players.join('\n');
+      updateBulkCount();
+      newFieldModal.classList.remove('hidden');
+      bulkInput.focus();
+    }
+
+    function closeNewFieldModal() {
+      newFieldModal.classList.add('hidden');
+    }
+
+    function updateBulkCount() {
+      const raw = bulkInput.value;
+      const lines = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+      bulkCounter.textContent = `${lines.length} player${lines.length === 1 ? '' : 's'} entered (optimal: 8)`;
+    }
+
+    bulkInput.addEventListener('input', updateBulkCount);
+
+    document.getElementById('btnOpenNewFieldModal').addEventListener('click', openNewFieldModal);
+    document.getElementById('btnTriggerNewFieldFromTab').addEventListener('click', openNewFieldModal);
+    document.getElementById('btnCloseNewFieldModal').addEventListener('click', closeNewFieldModal);
+    document.getElementById('btnCancelNewField').addEventListener('click', closeNewFieldModal);
+
+    document.getElementById('btnFillPlaceholders').addEventListener('click', () => {
+      bulkInput.value = Array.from({length: 8}, (_, i) => `Player ${i + 1}`).join('\n');
+      updateBulkCount();
+    });
+
+    document.getElementById('btnCommitNewField').addEventListener('click', () => {
+      const raw = bulkInput.value;
+      let names = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+
+      if (names.length < 2) {
+        alert("Please enter at least 2 players to instantiate a bracket.");
+        return;
+      }
+
+      // Pad up to 8 with BYEs if fewer, or slice to first 8
+      if (names.length < 8) {
+        const fillCount = 8 - names.length;
+        for (let i = 0; i < fillCount; i++) {
+          names.push("BYE");
+        }
+      } else if (names.length > 8) {
+        names = names.slice(0, 8);
+      }
+
+      tournament.players = names;
+      buildDoubleElimBracket();
+      closeNewFieldModal();
+      saveState();
+      speakCallout("New player field instantiated. Bracket re-racked and ready for dispatch.");
+    });
+
+    // ----------------------------------------------------
+    // STANDARD ROSTER & BRACKET ACTIONS
+    // ----------------------------------------------------
     document.getElementById('addPlayerForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const input = document.getElementById('newPlayerName');
@@ -1100,6 +1211,7 @@
 
     document.getElementById('btnLoadHeritagePreset').addEventListener('click', () => {
       tournament.players = [...DEFAULT_ROSTER];
+      buildDoubleElimBracket();
       saveState();
     });
 
