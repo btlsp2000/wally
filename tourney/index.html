@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Heritage Park 8-Ball Tournament Director — 16 Player Double Elimination</title>
+  <title>Heritage Park 8-Ball Tournament Director — Dynamic Double Elimination (8-24)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,11 +55,11 @@
             Heritage Park 8-Ball Tournament
           </h1>
           <span class="text-[10px] font-mono-cad font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40" id="formatBadge">
-            RACE TO 2 • 16-PLAYER D-ELIM
+            RACE TO 2 • DOUBLE ELIM
           </span>
         </div>
         <p class="text-xs text-slate-400 font-mono-cad flex items-center gap-2">
-          <span>FRIDAY REGULAR FLIGHT (16 FIELD)</span>
+          <span id="subFlightTag">FRIDAY REGULAR FLIGHT</span>
           <span class="text-slate-600">•</span>
           <span id="directorClock">11:00:00 AM</span>
         </p>
@@ -68,6 +68,22 @@
 
     <!-- Director Action Controls -->
     <div class="flex items-center gap-2 flex-wrap">
+      <!-- Quick Even-Field Dropdown -->
+      <div class="flex items-center gap-1 bg-slate-900 border border-slate-700 px-2 py-1 rounded-lg">
+        <span class="text-[10px] font-mono-cad text-slate-400">FIELD:</span>
+        <select id="quickFieldSelect" class="bg-transparent font-mono-cad text-xs text-cyan-300 font-bold focus:outline-none cursor-pointer">
+          <option value="8">8 Players</option>
+          <option value="10">10 Players</option>
+          <option value="12">12 Players</option>
+          <option value="14">14 Players</option>
+          <option value="16" selected>16 Players</option>
+          <option value="18">18 Players</option>
+          <option value="20">20 Players</option>
+          <option value="22">22 Players</option>
+          <option value="24">24 Players</option>
+        </select>
+      </div>
+
       <button id="btnAutoAssign" title="Auto-assign ready matches to vacant tables" class="px-3 py-1.5 rounded-lg text-xs font-mono-cad font-semibold bg-emerald-600 hover:bg-emerald-500 text-slate-950 flex items-center gap-1.5 shadow transition">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
         AUTO-DISPATCH
@@ -78,11 +94,11 @@
         ANNOUNCE
       </button>
 
-      <button id="btnOpenNewFieldModal" title="Instantiate a completely new player field" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad font-bold text-cyan-400 hover:text-white bg-slate-900 border border-cyan-500/40 transition">
-        + NEW FIELD (16)
+      <button id="btnOpenNewFieldModal" title="Batch enter or modify the player list" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad font-bold text-cyan-400 hover:text-white bg-slate-900 border border-cyan-500/40 transition">
+        + NEW FIELD
       </button>
 
-      <button id="btnTopReset" title="Reset bracket, clear tables, and re-rack" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad text-amber-400 hover:text-white bg-slate-900 border border-amber-500/40 transition">
+      <button id="btnTopReset" title="Reset current bracket and clear tables" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad text-amber-400 hover:text-white bg-slate-900 border border-amber-500/40 transition">
         RESET RACKS
       </button>
 
@@ -99,10 +115,10 @@
   <!-- NAVIGATION TABS -->
   <nav class="border-b border-slate-800 bg-slate-900/60 px-4 py-2 flex items-center gap-1 font-mono-cad text-xs">
     <button data-tab="tab-bracket" class="tab-btn px-3 py-1.5 rounded-md font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30">
-      1. 16-PLAYER BRACKETS
+      1. BRACKETS & MATCHES
     </button>
     <button data-tab="tab-tables" class="tab-btn px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200">
-      2. TABLE DISPATCH (4)
+      2. TABLE DISPATCH (<span id="tabTableCountNav">4</span>)
     </button>
     <button data-tab="tab-roster" class="tab-btn px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200">
       3. ROSTER & SEEDS (<span id="rosterCount">16</span>)
@@ -118,15 +134,15 @@
   <!-- MAIN VIEWPORT CONTAINER -->
   <main class="flex-1 p-4 lg:p-6 overflow-y-auto max-w-7xl mx-auto w-full">
 
-    <!-- TAB 1: BRACKETS -->
+    <!-- TAB 1: DYNAMIC BRACKETS -->
     <section id="tab-bracket" class="tab-content space-y-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
           <div>
             <div class="text-[10px] font-mono-cad uppercase text-slate-500">Total Matches</div>
-            <div id="statTotalMatches" class="text-xl font-display font-bold text-white">30</div>
+            <div id="statTotalMatches" class="text-xl font-display font-bold text-white">0</div>
           </div>
-          <div class="text-xs font-mono-cad text-slate-400">16-DE Mode</div>
+          <div class="text-xs font-mono-cad text-slate-400" id="statBracketSizeLabel">Grid: 16</div>
         </div>
         <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
           <div>
@@ -151,7 +167,7 @@
         </div>
       </div>
 
-      <!-- WINNERS BRACKET (4 ROUNDS) -->
+      <!-- WINNERS BRACKET -->
       <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-4 lg:p-6 shadow-2xl overflow-x-auto felt-pattern">
         <div class="flex items-center justify-between mb-4 border-b border-emerald-900/40 pb-3">
           <div class="flex items-center gap-2">
@@ -160,10 +176,10 @@
           </div>
           <span class="text-xs font-mono-cad text-slate-400">First loss drops to Losers Bracket</span>
         </div>
-        <div id="winnersBracketView" class="min-w-[1040px] py-2 flex gap-8 items-stretch"></div>
+        <div id="winnersBracketView" class="py-2 flex gap-8 items-stretch overflow-x-auto min-h-[300px]"></div>
       </div>
 
-      <!-- LOSERS BRACKET (6 ROUNDS) -->
+      <!-- LOSERS BRACKET -->
       <div class="bg-slate-900/70 border border-purple-950/70 rounded-2xl p-4 lg:p-6 shadow-2xl overflow-x-auto felt-pattern">
         <div class="flex items-center justify-between mb-4 border-b border-purple-900/40 pb-3">
           <div class="flex items-center gap-2">
@@ -172,7 +188,7 @@
           </div>
           <span class="text-xs font-mono-cad text-red-400 font-semibold">2nd Loss = Eliminated</span>
         </div>
-        <div id="losersBracketView" class="min-w-[1480px] py-2 flex gap-8 items-stretch"></div>
+        <div id="losersBracketView" class="py-2 flex gap-8 items-stretch overflow-x-auto min-h-[300px]"></div>
       </div>
 
       <!-- GRAND FINALS SECTION -->
@@ -216,18 +232,18 @@
       <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-5">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-800">
           <div>
-            <h2 class="font-display font-bold text-xl text-white">16-Player Roster Management</h2>
-            <p class="text-xs font-mono-cad text-slate-400">Seeds 1 to 16, quick addition, and batch instantiation</p>
+            <h2 class="font-display font-bold text-xl text-white">Player Roster Management</h2>
+            <p class="text-xs font-mono-cad text-slate-400">Even field size: 8 to 24 players</p>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
             <button id="btnTriggerNewFieldFromTab" class="px-3 py-1.5 text-xs font-mono-cad font-bold rounded bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/40 transition">
-              ⚡ INSTANTIATE NEW FIELD
+              ⚡ INSTANTIATE FIELD
             </button>
             <button id="btnShuffleSeeds" class="px-3 py-1.5 text-xs font-mono-cad font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
               🎲 RANDOMIZE SEEDS
             </button>
             <button id="btnLoadHeritagePreset" class="px-3 py-1.5 text-xs font-mono-cad font-semibold rounded bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 transition">
-              RESTORE HERITAGE 16
+              RESTORE PRESET
             </button>
           </div>
         </div>
@@ -260,7 +276,7 @@
         </div>
 
         <div class="mt-4 flex items-center justify-between text-xs font-mono-cad text-slate-500">
-          <span>Modifying the roster re-seeds and rebuilds the 16-player bracket.</span>
+          <span>* Roster requires an even player count between 8 and 24.</span>
           <button id="btnRebuildBracket" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs font-mono-cad transition shadow">
             REBUILD TOURNAMENT BRACKET
           </button>
@@ -305,7 +321,7 @@
             <input 
               type="text" 
               id="cfgTitle" 
-              value="Heritage Park 8-Ball Tournament (16 Field) - Nov 13, 2026"
+              value="Heritage Park 8-Ball Tournament - Nov 13, 2026"
               class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-emerald-500"
             >
           </div>
@@ -345,36 +361,44 @@
     </section>
   </main>
 
-  <!-- MODAL: INSTANTIATE NEW FIELD (16 PLAYERS) -->
+  <!-- MODAL: INSTANTIATE NEW FIELD (8 - 24 EVEN) -->
   <div id="newFieldModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-cyan-500/50 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl card-surface">
       <div class="bg-slate-950 px-5 py-3 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
-          <span class="font-display font-bold text-cyan-300 text-sm uppercase">Instantiate 16-Player Field</span>
+          <span class="font-display font-bold text-cyan-300 text-sm uppercase">Instantiate Player Field (8 to 24)</span>
         </div>
         <button id="btnCloseNewFieldModal" class="text-slate-400 hover:text-white font-mono-cad text-lg">&times;</button>
       </div>
 
       <div class="p-6 space-y-4">
         <p class="text-xs font-mono-cad text-slate-300">
-          Paste or type up to 16 players (one per line or comma-separated). This clears existing scores, resets tables, and constructs a fresh 16-player double-elimination bracket.
+          Enter an even number of players (between 8 and 24, one name per line). The engine will configure the grid and apply seeded BYEs automatically.
         </p>
 
         <div>
           <textarea 
             id="bulkPlayerInput" 
             rows="10" 
-            placeholder="Enter up to 16 player names..."
+            placeholder="Enter between 8 and 24 player names..."
             class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-cyan-200 font-mono-cad focus:outline-none focus:border-cyan-400"
           ></textarea>
         </div>
 
         <div class="flex items-center justify-between pt-2">
-          <button id="btnFillPlaceholders" class="text-[11px] font-mono-cad text-slate-400 hover:text-cyan-300 underline">
-            Generate 16 Generic Placeholders
-          </button>
-          <span class="text-[11px] font-mono-cad text-slate-500" id="bulkCounter">0 players entered</span>
+          <div class="flex gap-2">
+            <button id="btnFillPlaceholders8" class="text-[11px] font-mono-cad text-slate-400 hover:text-cyan-300 underline">8 Players</button>
+            <span class="text-slate-600">&bull;</span>
+            <button id="btnFillPlaceholders12" class="text-[11px] font-mono-cad text-slate-400 hover:text-cyan-300 underline">12 Players</button>
+            <span class="text-slate-600">&bull;</span>
+            <button id="btnFillPlaceholders16" class="text-[11px] font-mono-cad text-slate-400 hover:text-cyan-300 underline">16 Players</button>
+            <span class="text-slate-600">&bull;</span>
+            <button id="btnFillPlaceholders20" class="text-[11px] font-mono-cad text-slate-400 hover:text-cyan-300 underline">20 Players</button>
+            <span class="text-slate-600">&bull;</span>
+            <button id="btnFillPlaceholders24" class="text-[11px] font-mono-cad text-slate-400 hover:text-cyan-300 underline">24 Players</button>
+          </div>
+          <span class="text-[11px] font-mono-cad text-slate-500" id="bulkCounter">0 players</span>
         </div>
       </div>
 
@@ -383,7 +407,7 @@
           CANCEL
         </button>
         <button id="btnCommitNewField" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-mono-cad font-bold text-xs rounded-lg transition shadow">
-          INSTANTIATE FIELD & RE-RACK
+          BUILD & RE-RACK
         </button>
       </div>
     </div>
@@ -456,31 +480,21 @@
 
   <!-- SCRIPT ENGINE -->
   <script>
-    const DEFAULT_ROSTER = [
-      "Bill Tonnesen",
-      "Alvin",
-      "Art",
-      "Ken",
-      "Rick",
-      "Vince",
-      "Dave",
-      "Alan",
-      "Gary",
-      "Johnny",
-      "Miguel",
-      "Robert",
-      "Stan",
-      "Tom",
-      "Frank",
-      "Eddie"
+    const MASTER_PLAYERS_POOL = [
+      "Bill Tonnesen", "Alvin", "Art", "Ken",
+      "Rick", "Vince", "Dave", "Alan",
+      "Gary", "Johnny", "Miguel", "Robert",
+      "Stan", "Tom", "Frank", "Eddie",
+      "Carl", "Wayne", "Tony", "Sam",
+      "George", "Danny", "Leo", "Ray"
     ];
 
     let tournament = {
-      title: "Heritage Park 8-Ball Tournament (16 Field) - Nov 13, 2026",
+      title: "Heritage Park 8-Ball Tournament - Nov 13, 2026",
       tableCount: 4,
       raceTo: 2,
-      format: "double_elim_16",
-      players: [...DEFAULT_ROSTER],
+      fieldSize: 16,
+      players: MASTER_PLAYERS_POOL.slice(0, 16),
       tables: [],
       matches: []
     };
@@ -488,22 +502,23 @@
     let activeModalMatchId = null;
 
     function loadState() {
-      const saved = localStorage.getItem("heritage_pool_tourney_16de");
+      const saved = localStorage.getItem("heritage_pool_tourney_dynamic");
       if (saved) {
         try {
           tournament = JSON.parse(saved);
+          if (!tournament.fieldSize) tournament.fieldSize = tournament.players.length;
         } catch(e) {
           initTables();
-          build16DoubleElimBracket();
+          buildDynamicDoubleElimBracket();
         }
       } else {
         initTables();
-        build16DoubleElimBracket();
+        buildDynamicDoubleElimBracket();
       }
     }
 
     function saveState() {
-      localStorage.setItem("heritage_pool_tourney_16de", JSON.stringify(tournament));
+      localStorage.setItem("heritage_pool_tourney_dynamic", JSON.stringify(tournament));
       updateUI();
     }
 
@@ -514,70 +529,340 @@
       }
     }
 
-    // 16-Player Double Elimination Structure
-    function build16DoubleElimBracket() {
-      const p = tournament.players;
-      initTables();
-
-      tournament.matches = [
-        // ==================== WINNERS ROUND 1 (Matches 1-8) ====================
-        // Seeds: 1v16, 8v9, 4v13, 5v12, 2v15, 7v10, 3v14, 6v11
-        { id: 1, bracket: 'winners', round: 1, roundName: 'Winners R1', p1: p[0]||'BYE', p2: p[15]||'BYE', score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 9, winSlot: 1, loseNext: 16, loseSlot: 1 },
-        { id: 2, bracket: 'winners', round: 1, roundName: 'Winners R1', p1: p[7]||'BYE', p2: p[8]||'BYE', score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 9, winSlot: 2, loseNext: 16, loseSlot: 2 },
-        { id: 3, bracket: 'winners', round: 1, roundName: 'Winners R1', p1: p[3]||'BYE', p2: p[12]||'BYE', score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 10, winSlot: 1, loseNext: 17, loseSlot: 1 },
-        { id: 4, bracket: 'winners', round: 1, roundName: 'Winners R1', p1: p[4]||'BYE', p2: p[11]||'BYE', score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 10, winSlot: 2, loseNext: 17, loseSlot: 2 },
-        { id: 5, bracket: 'winners', round: 1, roundName: 'Winners R1', p1: p[1]||'BYE', p2: p[14]||'BYE', score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 11, winSlot: 1, loseNext: 18, loseSlot: 1 },
-        { id: 6, bracket: 'winners', round: 1, roundName: 'Winners R1', p1: p[6]||'BYE', p2: p[9]||'BYE', score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 11, winSlot: 2, loseNext: 18, loseSlot: 2 },
-        { id: 7, bracket: 'winners', round: 1, roundName: 'Winners R1', p1: p[2]||'BYE', p2: p[13]||'BYE', score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 12, winSlot: 1, loseNext: 19, loseSlot: 1 },
-        { id: 8, bracket: 'winners', round: 1, roundName: 'Winners R1', p1: p[5]||'BYE', p2: p[10]||'BYE', score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 12, winSlot: 2, loseNext: 19, loseSlot: 2 },
-
-        // ==================== WINNERS ROUND 2 / QF (Matches 9-12) ====================
-        { id: 9, bracket: 'winners', round: 2, roundName: 'Winners QF', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 13, winSlot: 1, loseNext: 20, loseSlot: 2 },
-        { id: 10, bracket: 'winners', round: 2, roundName: 'Winners QF', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 13, winSlot: 2, loseNext: 21, loseSlot: 2 },
-        { id: 11, bracket: 'winners', round: 2, roundName: 'Winners QF', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 14, winSlot: 1, loseNext: 22, loseSlot: 2 },
-        { id: 12, bracket: 'winners', round: 2, roundName: 'Winners QF', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 14, winSlot: 2, loseNext: 23, loseSlot: 2 },
-
-        // ==================== WINNERS ROUND 3 / SF (Matches 13-14) ====================
-        { id: 13, bracket: 'winners', round: 3, roundName: 'Winners SF', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 15, winSlot: 1, loseNext: 26, loseSlot: 2 },
-        { id: 14, bracket: 'winners', round: 3, roundName: 'Winners SF', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 15, winSlot: 2, loseNext: 27, loseSlot: 2 },
-
-        // ==================== WINNERS ROUND 4 / FINAL (Match 15) ====================
-        { id: 15, bracket: 'winners', round: 4, roundName: 'Winners Final', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 30, winSlot: 1, loseNext: 29, loseSlot: 2 },
-
-        // ==================== LOSERS ROUND 1 (Matches 16-19) ====================
-        { id: 16, bracket: 'losers', round: 1, roundName: 'Losers R1', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 20, winSlot: 1, loseNext: null },
-        { id: 17, bracket: 'losers', round: 1, roundName: 'Losers R1', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 21, winSlot: 1, loseNext: null },
-        { id: 18, bracket: 'losers', round: 1, roundName: 'Losers R1', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 22, winSlot: 1, loseNext: null },
-        { id: 19, bracket: 'losers', round: 1, roundName: 'Losers R1', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 23, winSlot: 1, loseNext: null },
-
-        // ==================== LOSERS ROUND 2 (Matches 20-23) ====================
-        { id: 20, bracket: 'losers', round: 2, roundName: 'Losers R2', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 24, winSlot: 1, loseNext: null },
-        { id: 21, bracket: 'losers', round: 2, roundName: 'Losers R2', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 24, winSlot: 2, loseNext: null },
-        { id: 22, bracket: 'losers', round: 2, roundName: 'Losers R2', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 25, winSlot: 1, loseNext: null },
-        { id: 23, bracket: 'losers', round: 2, roundName: 'Losers R2', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 25, winSlot: 2, loseNext: null },
-
-        // ==================== LOSERS ROUND 3 (Matches 24-25) ====================
-        { id: 24, bracket: 'losers', round: 3, roundName: 'Losers R3', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 26, winSlot: 1, loseNext: null },
-        { id: 25, bracket: 'losers', round: 3, roundName: 'Losers R3', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 27, winSlot: 1, loseNext: null },
-
-        // ==================== LOSERS ROUND 4 / QF (Matches 26-27) ====================
-        { id: 26, bracket: 'losers', round: 4, roundName: 'Losers QF', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 28, winSlot: 1, loseNext: null },
-        { id: 27, bracket: 'losers', round: 4, roundName: 'Losers QF', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 28, winSlot: 2, loseNext: null },
-
-        // ==================== LOSERS ROUND 5 / SF (Match 28) ====================
-        { id: 28, bracket: 'losers', round: 5, roundName: 'Losers SF', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 29, winSlot: 1, loseNext: null },
-
-        // ==================== LOSERS ROUND 6 / FINAL (Match 29) ====================
-        { id: 29, bracket: 'losers', round: 6, roundName: 'Losers Final', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: 30, winSlot: 2, loseNext: null },
-
-        // ==================== GRAND FINALS (Match 30) ====================
-        { id: 30, bracket: 'finals', round: 1, roundName: 'Grand Finals', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: null, loseNext: null },
-
-        // ==================== TRUE FINALS (Match 31: If Losers Champ beats Winners Champ) ====================
-        { id: 31, bracket: 'finals', round: 2, roundName: 'True Finals (If Needed)', p1: null, p2: null, score1: 0, score2: 0, status: 'scheduled', tableId: null, winner: null, loser: null, winNext: null, loseNext: null, active: false }
-      ];
+    // Standard Seed Pairing Generator for Power of 2 (8, 16, 32)
+    function generateSeedPairings(n) {
+      let rounds = Math.log2(n) - 1;
+      let pls = [1, 2];
+      for (let i = 0; i < rounds; i++) {
+        let next = [];
+        let length = pls.length * 2 + 1;
+        pls.forEach(p => {
+          next.push(p);
+          next.push(length - p);
+        });
+        pls = next;
+      }
+      const pairs = [];
+      for (let i = 0; i < pls.length; i += 2) {
+        pairs.push([pls[i], pls[i+1]]);
+      }
+      return pairs;
     }
 
+    // =========================================================================
+    // DYNAMIC DOUBLE ELIMINATION ENGINE FOR ANY EVEN N (8 TO 24)
+    // =========================================================================
+    function buildDynamicDoubleElimBracket() {
+      initTables();
+
+      let N = tournament.players.length;
+      // Enforce even number between 8 and 24
+      if (N % 2 !== 0) N += 1;
+      if (N < 8) N = 8;
+      if (N > 24) N = 24;
+
+      // Determine next power of two
+      let grid = 8;
+      if (N > 8 && N <= 16) grid = 16;
+      if (N > 16) grid = 32;
+
+      // Setup seeded roster array padded with BYEs
+      const seededRoster = [];
+      const numByes = grid - N;
+      
+      // Top seeds get BYEs
+      for (let s = 1; s <= grid; s++) {
+        if (s <= N) {
+          seededRoster[s - 1] = tournament.players[s - 1] || `Player ${s}`;
+        } else {
+          seededRoster[s - 1] = "BYE";
+        }
+      }
+
+      const pairings = generateSeedPairings(grid);
+      let matchCounter = 1;
+      const matches = [];
+
+      // --- WINNERS ROUND 1 ---
+      const wR1Matches = [];
+      const wR1Count = grid / 2;
+      for (let i = 0; i < wR1Count; i++) {
+        const p1Seed = pairings[i][0];
+        const p2Seed = pairings[i][1];
+        const p1 = seededRoster[p1Seed - 1];
+        const p2 = seededRoster[p2Seed - 1];
+
+        const m = {
+          id: matchCounter++,
+          bracket: 'winners',
+          round: 1,
+          roundName: 'Winners R1',
+          p1: p1,
+          p2: p2,
+          score1: 0,
+          score2: 0,
+          status: 'scheduled',
+          tableId: null,
+          winner: null,
+          loser: null,
+          winNext: null,
+          winSlot: null,
+          loseNext: null,
+          loseSlot: null
+        };
+
+        // Auto-resolve BYEs
+        if (p1 !== 'BYE' && p2 === 'BYE') {
+          m.winner = p1;
+          m.loser = 'BYE';
+          m.status = 'complete';
+          m.score1 = tournament.raceTo;
+        } else if (p2 !== 'BYE' && p1 === 'BYE') {
+          m.winner = p2;
+          m.loser = 'BYE';
+          m.status = 'complete';
+          m.score2 = tournament.raceTo;
+        }
+
+        wR1Matches.push(m);
+        matches.push(m);
+      }
+
+      // --- WINNERS SUCCESSIVE ROUNDS UP TO FINALS ---
+      let prevWRMatches = wR1Matches;
+      let wRound = 2;
+      const winnersRoundsMap = { 1: wR1Matches };
+
+      while (prevWRMatches.length > 1) {
+        const nextWRCount = prevWRMatches.length / 2;
+        const curWRMatches = [];
+        const isSemi = (nextWRCount === 2);
+        const isFinal = (nextWRCount === 1);
+        let roundName = `Winners R${wRound}`;
+        if (isSemi) roundName = 'Winners SF';
+        if (isFinal) roundName = 'Winners Final';
+
+        for (let j = 0; j < nextWRCount; j++) {
+          const m1 = prevWRMatches[j * 2];
+          const m2 = prevWRMatches[j * 2 + 1];
+
+          const m = {
+            id: matchCounter++,
+            bracket: 'winners',
+            round: wRound,
+            roundName: roundName,
+            p1: m1.winner || null,
+            p2: m2.winner || null,
+            score1: 0,
+            score2: 0,
+            status: 'scheduled',
+            tableId: null,
+            winner: null,
+            loser: null,
+            winNext: null,
+            winSlot: null,
+            loseNext: null,
+            loseSlot: null
+          };
+
+          m1.winNext = m.id;
+          m1.winSlot = 1;
+          m2.winNext = m.id;
+          m2.winSlot = 2;
+
+          curWRMatches.push(m);
+          matches.push(m);
+        }
+        winnersRoundsMap[wRound] = curWRMatches;
+        prevWRMatches = curWRMatches;
+        wRound++;
+      }
+
+      const winnersFinalMatch = prevWRMatches[0];
+
+      // --- LOSERS BRACKET CONSTRUCTION ---
+      // In double elim with grid G:
+      // Number of Losers Rounds = 2 * (log2(G) - 1)
+      const totalLosersRounds = 2 * (Math.log2(grid) - 1);
+      const losersRoundsMap = {};
+
+      // Losers Round 1 (Losers of W-R1 play each other)
+      const lR1Count = wR1Count / 2;
+      const lR1Matches = [];
+      for (let k = 0; k < lR1Count; k++) {
+        const m = {
+          id: matchCounter++,
+          bracket: 'losers',
+          round: 1,
+          roundName: 'Losers R1',
+          p1: null,
+          p2: null,
+          score1: 0,
+          score2: 0,
+          status: 'scheduled',
+          tableId: null,
+          winner: null,
+          loser: null,
+          winNext: null,
+          winSlot: null,
+          loseNext: null
+        };
+
+        const wm1 = wR1Matches[k * 2];
+        const wm2 = wR1Matches[k * 2 + 1];
+        wm1.loseNext = m.id;
+        wm1.loseSlot = 1;
+        wm2.loseNext = m.id;
+        wm2.loseSlot = 2;
+
+        if (wm1.loser) m.p1 = wm1.loser;
+        if (wm2.loser) m.p2 = wm2.loser;
+
+        lR1Matches.push(m);
+        matches.push(m);
+      }
+      losersRoundsMap[1] = lR1Matches;
+
+      // Successive Losers Rounds
+      // Alternates between:
+      // Even Round: Losers of previous L-Round vs. Losers dropping down from Winners
+      // Odd Round: Winners of previous L-Round playing each other
+      let prevLRMatches = lR1Matches;
+      let wDropRound = 2;
+
+      for (let lr = 2; lr <= totalLosersRounds; lr++) {
+        const curLRMatches = [];
+        const isMinor = (lr % 2 === 0); // Drop-in round from Winners
+        const isLastLoserRound = (lr === totalLosersRounds);
+        let roundName = `Losers R${lr}`;
+        if (isLastLoserRound) roundName = 'Losers Final';
+        else if (lr === totalLosersRounds - 1) roundName = 'Losers SF';
+
+        if (isMinor) {
+          // Drops from Winners Bracket
+          const wDrops = winnersRoundsMap[wDropRound] || [];
+          const count = prevLRMatches.length;
+          for (let mIdx = 0; mIdx < count; mIdx++) {
+            const m = {
+              id: matchCounter++,
+              bracket: 'losers',
+              round: lr,
+              roundName: roundName,
+              p1: null,
+              p2: null,
+              score1: 0,
+              score2: 0,
+              status: 'scheduled',
+              tableId: null,
+              winner: null,
+              loser: null,
+              winNext: null,
+              winSlot: null,
+              loseNext: null
+            };
+
+            prevLRMatches[mIdx].winNext = m.id;
+            prevLRMatches[mIdx].winSlot = 1;
+
+            if (wDrops[count - 1 - mIdx]) {
+              wDrops[count - 1 - mIdx].loseNext = m.id;
+              wDrops[count - 1 - mIdx].loseSlot = 2;
+            }
+
+            curLRMatches.push(m);
+            matches.push(m);
+          }
+          wDropRound++;
+        } else {
+          // Internal elimination round
+          const count = prevLRMatches.length / 2;
+          for (let mIdx = 0; mIdx < count; mIdx++) {
+            const m = {
+              id: matchCounter++,
+              bracket: 'losers',
+              round: lr,
+              roundName: roundName,
+              p1: null,
+              p2: null,
+              score1: 0,
+              score2: 0,
+              status: 'scheduled',
+              tableId: null,
+              winner: null,
+              loser: null,
+              winNext: null,
+              winSlot: null,
+              loseNext: null
+            };
+
+            prevLRMatches[mIdx * 2].winNext = m.id;
+            prevLRMatches[mIdx * 2].winSlot = 1;
+            prevLRMatches[mIdx * 2 + 1].winNext = m.id;
+            prevLRMatches[mIdx * 2 + 1].winSlot = 2;
+
+            curLRMatches.push(m);
+            matches.push(m);
+          }
+        }
+
+        losersRoundsMap[lr] = curLRMatches;
+        prevLRMatches = curLRMatches;
+      }
+
+      const losersFinalMatch = prevLRMatches[0];
+
+      // --- GRAND FINALS (Match 1) ---
+      const grandFinalMatch = {
+        id: matchCounter++,
+        bracket: 'finals',
+        round: 1,
+        roundName: 'Grand Finals',
+        p1: null,
+        p2: null,
+        score1: 0,
+        score2: 0,
+        status: 'scheduled',
+        tableId: null,
+        winner: null,
+        loser: null,
+        winNext: null,
+        loseNext: null
+      };
+
+      winnersFinalMatch.winNext = grandFinalMatch.id;
+      winnersFinalMatch.winSlot = 1;
+
+      losersFinalMatch.winNext = grandFinalMatch.id;
+      losersFinalMatch.winSlot = 2;
+
+      matches.push(grandFinalMatch);
+
+      // --- TRUE FINALS (Match 2: If Losers Champ beats Winners Champ) ---
+      const trueFinalMatch = {
+        id: matchCounter++,
+        bracket: 'finals',
+        round: 2,
+        roundName: 'True Finals (If Needed)',
+        p1: null,
+        p2: null,
+        score1: 0,
+        score2: 0,
+        status: 'scheduled',
+        tableId: null,
+        winner: null,
+        loser: null,
+        winNext: null,
+        loseNext: null,
+        active: false
+      };
+      matches.push(trueFinalMatch);
+
+      tournament.matches = matches;
+    }
+
+    // ----------------------------------------------------
+    // SPEECH SYNTHESIS / DIRECTOR ANNOUNCER
+    // ----------------------------------------------------
     function speakCallout(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -594,16 +879,21 @@
       speakCallout(msg);
     }
 
+    // ----------------------------------------------------
+    // DISPATCH & TABLE ACTIONS
+    // ----------------------------------------------------
     function autoDispatchTables() {
       const openTables = tournament.tables.filter(t => t.matchId === null);
       if (openTables.length === 0) return;
+
+      const finalMatchId = tournament.matches[tournament.matches.length - 1].id;
 
       const readyMatches = tournament.matches.filter(m => 
         (m.status === 'scheduled' || !m.status) && 
         m.p1 && m.p2 && 
         m.p1 !== 'BYE' && m.p2 !== 'BYE' && 
         !m.tableId &&
-        (m.id !== 31 || m.active)
+        (m.id !== finalMatchId || m.active)
       );
 
       let assignedCount = 0;
@@ -640,10 +930,16 @@
       }
     }
 
+    // ----------------------------------------------------
+    // UI RENDERING ROUTINES
+    // ----------------------------------------------------
     function updateUI() {
       document.getElementById('topbarTitle').textContent = tournament.title;
-      document.getElementById('formatBadge').textContent = `RACE TO ${tournament.raceTo} • 16-D-ELIM`;
+      document.getElementById('formatBadge').textContent = `RACE TO ${tournament.raceTo} • ${tournament.players.length}-D-ELIM`;
       document.getElementById('rosterCount').textContent = tournament.players.length;
+      document.getElementById('subFlightTag').textContent = `${tournament.players.length} PLAYERS • EVEN FIELD`;
+      document.getElementById('tabTableCountNav').textContent = tournament.tableCount;
+      document.getElementById('quickFieldSelect').value = tournament.players.length;
 
       renderAllBrackets();
       renderTables();
@@ -697,7 +993,7 @@
     }
 
     function renderAllBrackets() {
-      // 1. Winners Bracket (4 Columns)
+      // 1. Winners Bracket
       const winContainer = document.getElementById('winnersBracketView');
       winContainer.innerHTML = '';
       const winMatches = tournament.matches.filter(m => m.bracket === 'winners');
@@ -722,7 +1018,7 @@
         winContainer.appendChild(col);
       });
 
-      // 2. Losers Bracket (6 Columns)
+      // 2. Losers Bracket
       const loseContainer = document.getElementById('losersBracketView');
       loseContainer.innerHTML = '';
       const loseMatches = tournament.matches.filter(m => m.bracket === 'losers');
@@ -750,12 +1046,10 @@
       // 3. Finals Bracket
       const finalsContainer = document.getElementById('finalsBracketView');
       finalsContainer.innerHTML = '';
-      const final30 = tournament.matches.find(m => m.id === 30);
-      if (final30) finalsContainer.appendChild(renderMatchCard(final30));
-
-      const final31 = tournament.matches.find(m => m.id === 31);
-      if (final31 && (final31.active || final31.status === 'complete')) {
-        finalsContainer.appendChild(renderMatchCard(final31));
+      const finals = tournament.matches.filter(m => m.bracket === 'finals');
+      if (finals[0]) finalsContainer.appendChild(renderMatchCard(finals[0]));
+      if (finals[1] && (finals[1].active || finals[1].status === 'complete')) {
+        finalsContainer.appendChild(renderMatchCard(finals[1]));
       }
     }
 
@@ -830,12 +1124,13 @@
         grid.appendChild(card);
       });
 
+      const finalMatchId = tournament.matches[tournament.matches.length - 1].id;
       const onDeck = tournament.matches.filter(m => 
         (m.status === 'scheduled' || !m.status) && 
         m.p1 && m.p2 && 
         m.p1 !== 'BYE' && m.p2 !== 'BYE' && 
         !m.tableId &&
-        (m.id !== 31 || m.active)
+        (m.id !== finalMatchId || m.active)
       );
 
       const deckList = document.getElementById('onDeckList');
@@ -896,7 +1191,7 @@
       });
 
       tournament.matches.forEach(m => {
-        if (m.status === 'complete' && m.p1 && m.p2) {
+        if (m.status === 'complete' && m.p1 && m.p2 && m.p1 !== 'BYE' && m.p2 !== 'BYE') {
           if (stats[m.p1]) {
             stats[m.p1].pf += m.score1;
             stats[m.p1].pa += m.score2;
@@ -943,22 +1238,23 @@
     }
 
     function renderStats() {
-      const activeMatches = tournament.matches.filter(m => m.id !== 31 || m.active);
+      const activeMatches = tournament.matches.filter(m => m.bracket !== 'finals' || m.round === 1 || m.active);
       const total = activeMatches.length;
-      const completed = activeMatches.filter(m => m.status === 'complete').length;
+      const completed = activeMatches.filter(m => m.status === 'complete' && m.p1 !== 'BYE' && m.p2 !== 'BYE').length;
       const live = activeMatches.filter(m => m.status === 'on_table').length;
 
       document.getElementById('statTotalMatches').textContent = total;
       document.getElementById('statCompletedMatches').textContent = completed;
       document.getElementById('statLiveMatches').textContent = live;
 
-      const m31 = tournament.matches.find(m => m.id === 31);
-      const m30 = tournament.matches.find(m => m.id === 30);
+      const finals = tournament.matches.filter(m => m.bracket === 'finals');
+      const mGrand = finals[0];
+      const mTrue = finals[1];
 
-      if (m31 && m31.active && m31.status === 'complete' && m31.winner) {
-        document.getElementById('statChampion').textContent = m31.winner;
-      } else if (m30 && m30.status === 'complete' && (!m31 || !m31.active)) {
-        document.getElementById('statChampion').textContent = m30.winner;
+      if (mTrue && mTrue.active && mTrue.status === 'complete' && mTrue.winner) {
+        document.getElementById('statChampion').textContent = mTrue.winner;
+      } else if (mGrand && mGrand.status === 'complete' && (!mTrue || !mTrue.active)) {
+        document.getElementById('statChampion').textContent = mGrand.winner;
       } else {
         document.getElementById('statChampion').textContent = "UNDECIDED";
       }
@@ -1105,6 +1401,7 @@
           match.tableId = null;
         }
 
+        // Advance Winner
         if (match.winNext) {
           const wMatch = tournament.matches.find(m => m.id === match.winNext);
           if (wMatch) {
@@ -1113,6 +1410,7 @@
           }
         }
 
+        // Drop Loser
         if (match.loseNext) {
           const lMatch = tournament.matches.find(m => m.id === match.loseNext);
           if (lMatch) {
@@ -1121,18 +1419,19 @@
           }
         }
 
-        // Grand Finals Logic (Match 30 & 31)
-        if (match.id === 30) {
-          const m31 = tournament.matches.find(m => m.id === 31);
-          if (match.winner === match.p2) {
-            m31.active = true;
-            m31.p1 = match.p1;
-            m31.p2 = match.p2;
-            m31.status = 'scheduled';
+        // Grand Finals Logic Check
+        const finals = tournament.matches.filter(m => m.bracket === 'finals');
+        if (finals.length >= 2 && match.id === finals[0].id) {
+          const trueFinal = finals[1];
+          if (match.winner === match.p2) { // Losers bracket champ won Match 1
+            trueFinal.active = true;
+            trueFinal.p1 = match.p1;
+            trueFinal.p2 = match.p2;
+            trueFinal.status = 'scheduled';
             speakCallout("Losers champion forced a bracket reset. True finals match scheduled!");
           } else {
-            m31.active = false;
-            m31.status = 'complete';
+            trueFinal.active = false;
+            trueFinal.status = 'complete';
           }
         }
       }
@@ -1150,7 +1449,7 @@
     });
 
     // ----------------------------------------------------
-    // NEW FIELD INSTANTIATION ROUTINES (16 PLAYERS)
+    // NEW FIELD INSTANTIATION ROUTINES
     // ----------------------------------------------------
     const newFieldModal = document.getElementById('newFieldModal');
     const bulkInput = document.getElementById('bulkPlayerInput');
@@ -1170,7 +1469,7 @@
     function updateBulkCount() {
       const raw = bulkInput.value;
       const lines = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-      bulkCounter.textContent = `${lines.length} player${lines.length === 1 ? '' : 's'} entered (standard: 16)`;
+      bulkCounter.textContent = `${lines.length} player${lines.length === 1 ? '' : 's'} entered`;
     }
 
     bulkInput.addEventListener('input', updateBulkCount);
@@ -1180,34 +1479,50 @@
     document.getElementById('btnCloseNewFieldModal').addEventListener('click', closeNewFieldModal);
     document.getElementById('btnCancelNewField').addEventListener('click', closeNewFieldModal);
 
-    document.getElementById('btnFillPlaceholders').addEventListener('click', () => {
-      bulkInput.value = Array.from({length: 16}, (_, i) => `Player ${i + 1}`).join('\n');
+    function fillPlaceholdersCount(count) {
+      bulkInput.value = MASTER_PLAYERS_POOL.slice(0, count).join('\n');
       updateBulkCount();
-    });
+    }
+
+    document.getElementById('btnFillPlaceholders8').addEventListener('click', () => fillPlaceholdersCount(8));
+    document.getElementById('btnFillPlaceholders12').addEventListener('click', () => fillPlaceholdersCount(12));
+    document.getElementById('btnFillPlaceholders16').addEventListener('click', () => fillPlaceholdersCount(16));
+    document.getElementById('btnFillPlaceholders20').addEventListener('click', () => fillPlaceholdersCount(20));
+    document.getElementById('btnFillPlaceholders24').addEventListener('click', () => fillPlaceholdersCount(24));
 
     document.getElementById('btnCommitNewField').addEventListener('click', () => {
       const raw = bulkInput.value;
       let names = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
 
-      if (names.length < 2) {
-        alert("Please enter at least 2 players to instantiate a bracket.");
+      if (names.length < 8) {
+        alert("Please enter at least 8 players.");
+        return;
+      }
+      if (names.length > 24) {
+        alert("Field capacity is 24 players. Truncating to 24.");
+        names = names.slice(0, 24);
+      }
+      if (names.length % 2 !== 0) {
+        alert("Field count must be an EVEN number. Please add or remove 1 player.");
         return;
       }
 
-      if (names.length < 16) {
-        const fillCount = 16 - names.length;
-        for (let i = 0; i < fillCount; i++) {
-          names.push("BYE");
-        }
-      } else if (names.length > 16) {
-        names = names.slice(0, 16);
-      }
-
       tournament.players = names;
-      build16DoubleElimBracket();
+      tournament.fieldSize = names.length;
+      buildDynamicDoubleElimBracket();
       closeNewFieldModal();
       saveState();
-      speakCallout("16-player field instantiated. Bracket re-racked and ready for dispatch.");
+      speakCallout(`${names.length} player double elimination tournament instantiated and ready.`);
+    });
+
+    // Quick Field Dropdown Handler
+    document.getElementById('quickFieldSelect').addEventListener('change', (e) => {
+      const targetCount = parseInt(e.target.value);
+      tournament.players = MASTER_PLAYERS_POOL.slice(0, targetCount);
+      tournament.fieldSize = targetCount;
+      buildDynamicDoubleElimBracket();
+      saveState();
+      speakCallout(`Tournament adjusted to ${targetCount} players.`);
     });
 
     // ----------------------------------------------------
@@ -1218,6 +1533,10 @@
       const input = document.getElementById('newPlayerName');
       const name = input.value.trim();
       if (name) {
+        if (tournament.players.length >= 24) {
+          alert("Maximum tournament capacity of 24 reached.");
+          return;
+        }
         tournament.players.push(name);
         input.value = '';
         saveState();
@@ -1225,6 +1544,10 @@
     });
 
     function removePlayer(index) {
+      if (tournament.players.length <= 8) {
+        alert("Minimum tournament field size is 8 players.");
+        return;
+      }
       if (confirm(`Remove ${tournament.players[index]} from roster? Rebuild bracket to apply.`)) {
         tournament.players.splice(index, 1);
         saveState();
@@ -1240,21 +1563,26 @@
     });
 
     document.getElementById('btnLoadHeritagePreset').addEventListener('click', () => {
-      tournament.players = [...DEFAULT_ROSTER];
-      build16DoubleElimBracket();
+      const currentCount = tournament.players.length || 16;
+      tournament.players = MASTER_PLAYERS_POOL.slice(0, currentCount);
+      buildDynamicDoubleElimBracket();
       saveState();
     });
 
     document.getElementById('btnRebuildBracket').addEventListener('click', () => {
+      if (tournament.players.length % 2 !== 0) {
+        alert("Cannot build bracket: Player count must be an EVEN number (8 to 24).");
+        return;
+      }
       if (confirm("Rebuilding the bracket will reset all active scores and table allocations. Proceed?")) {
-        build16DoubleElimBracket();
+        buildDynamicDoubleElimBracket();
         saveState();
       }
     });
 
     document.getElementById('btnTopReset').addEventListener('click', () => {
-      if (confirm("Reset active racks, clear all tables, and restart the 16-player double elimination bracket?")) {
-        build16DoubleElimBracket();
+      if (confirm("Reset active racks, clear all tables, and restart the bracket?")) {
+        buildDynamicDoubleElimBracket();
         saveState();
       }
     });
@@ -1270,24 +1598,26 @@
     });
 
     document.getElementById('btnResetAll').addEventListener('click', () => {
-      if (confirm("Perform full reset back to Heritage Park 16-Player Double Elimination defaults?")) {
-        localStorage.removeItem("heritage_pool_tourney_16de");
-        tournament.title = "Heritage Park 8-Ball Tournament (16 Field) - Nov 13, 2026";
+      if (confirm("Perform full reset back to Heritage Park Defaults?")) {
+        localStorage.removeItem("heritage_pool_tourney_dynamic");
+        tournament.title = "Heritage Park 8-Ball Tournament - Nov 13, 2026";
         tournament.tableCount = 4;
         tournament.raceTo = 2;
-        tournament.players = [...DEFAULT_ROSTER];
+        tournament.fieldSize = 16;
+        tournament.players = MASTER_PLAYERS_POOL.slice(0, 16);
         initTables();
-        build16DoubleElimBracket();
+        buildDynamicDoubleElimBracket();
         saveState();
       }
     });
 
     document.getElementById('btnAnnounceNext').addEventListener('click', () => {
+      const finalMatchId = tournament.matches[tournament.matches.length - 1].id;
       const nextMatch = tournament.matches.find(m => 
         (m.status === 'scheduled' || !m.status) && 
         m.p1 && m.p2 && 
-        m.p1 !== 'BYE' &&
-        (m.id !== 31 || m.active)
+        m.p1 !== 'BYE' && m.p2 !== 'BYE' &&
+        (m.id !== finalMatchId || m.active)
       );
       if (nextMatch) {
         announceMatchCallout(nextMatch);
@@ -1303,7 +1633,7 @@
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tournament, null, 2));
       const dlAnchor = document.createElement('a');
       dlAnchor.setAttribute("href", dataStr);
-      dlAnchor.setAttribute("download", `tournament_16_double_elim_${Date.now()}.json`);
+      dlAnchor.setAttribute("download", `tournament_${tournament.players.length}_double_elim_${Date.now()}.json`);
       dlAnchor.click();
     });
 
