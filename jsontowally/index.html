@@ -6,77 +6,136 @@
     <title>WallyCAD | Data Converter</title>
     <style>
         body { background: #1a1a1a; color: #00ff00; font-family: monospace; padding: 20px; }
-        textarea { width: 100%; height: 200px; background: #000; color: #00ff00; border: 1px solid #444; padding: 10px; margin-bottom: 10px; }
-        button { background: #00ff00; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        textarea { width: 100%; height: 200px; background: #000; color: #00ff00; border: 1px solid #444; padding: 10px; margin-bottom: 10px; box-sizing: border-box; }
+        button { background: #00ff00; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin-right: 8px; margin-bottom: 10px; font-family: monospace; }
         button:hover { background: #00cc00; }
+        .btn-alt { background: #00ffff; }
+        .btn-alt:hover { background: #00cccc; }
         .label { margin-bottom: 5px; display: block; color: #fff; }
+        .btn-row { margin-bottom: 15px; }
     </style>
 </head>
 <body>
     <h2>WALLY DATA CONVERTER</h2>
     
-    <span class="label">INPUT: Standard JSON or Wally Entity (e.g. [{"type": "SQFONT", "geo": "..."}])</span>
+    <span class="label">INPUT: Standard JSON or Wally Entity (e.g. [{"lat": 45.5, "lng": -122.6}] or [{"type": "SQFONT", "geo": "..."}])</span>
     <textarea id="jsonInput" placeholder='[{"lat": 45.5, "lng": -122.6}, {"lat": 45.6, "lng": -122.7}]'></textarea>
     
-    <button onclick="convertToWally()">CONVERT TO SDJ STRING</button>
-    <br><br>
+    <div class="btn-row">
+        <button onclick="convertToWally()">CONVERT TO SDJ STRING</button>
+        <button class="btn-alt" onclick="convertToColumnar()">CONVERT TO COLUMNAR (TABLE / TSV)</button>
+    </div>
     
-    <span class="label">OUTPUT: Wally Space-Delimited String (Ready for Gist)</span>
+    <span class="label" id="outputLabel">OUTPUT: Space-Delimited String / Columnar View</span>
     <textarea id="wallyOutput" readonly></textarea>
 
     <script>
         function convertToWally() {
             const input = document.getElementById('jsonInput').value;
             const output = document.getElementById('wallyOutput');
+            const outputLabel = document.getElementById('outputLabel');
             
             try {
                 const data = JSON.parse(input);
-                // Ensure data is treated as an array even if a single object is pasted
                 const dataArray = Array.isArray(data) ? data : [data];
                 
                 const sdjString = dataArray.map(item => {
-                    // Case 1: Standard Wally CAD Entity Object (SQFONT, WALL, LINE, etc.)
                     if (item.type || item.geo) {
                         const type = item.type || 'ENTITY';
-                        
                         let cleanGeo = "";
                         if (item.geo) {
                             cleanGeo = item.geo.split(/\r?\n/).map(line => {
-                                // Strip commas and normalize spaces
                                 let t = line.trim().replace(/,/g, ' ').replace(/\s+/g, ' ');
                                 if (!t) return "";
-                                
-                                // If the line contains letters, it's a label. Wrap it in quotes.
-                                if (/[a-zA-Z]/.test(t)) return `"${t}"`; 
-                                
-                                // Otherwise, it's pure coordinate math. Leave it alone.
+                                if (/[a-zA-Z]/.test(t)) return `"${t}"`;
                                 return t; 
                             }).filter(Boolean).join(' ');
                         }
-                        
                         const thick = item.thick !== undefined ? item.thick : 0;
                         const entText = item.text ? ` "${item.text}"` : "";
-                        
                         return `[${type}] ${cleanGeo} T:${thick}${entText}`;
                     }
                     
-                    // Case 2: Raw Coordinate Pairs (lat/lng or x/y)
                     const x = item.lat ?? item.latitude ?? item.x;
                     const y = item.lng ?? item.long ?? item.longitude ?? item.y;
                     
                     if (x !== undefined && y !== undefined) {
                         return `${Number(x).toFixed(4)} ${Number(y).toFixed(4)}`;
                     }
-                    
                     return '';
                 }).filter(Boolean).join(' ');
 
                 output.value = sdjString;
-                
-                // Copy to clipboard automatically for frictionless Gist updates
+                outputLabel.textContent = "OUTPUT: Wally Space-Delimited String (Copied to Clipboard)";
                 navigator.clipboard.writeText(sdjString);
-                console.log("Conversion complete and copied to clipboard.");
-                
+            } catch (e) {
+                alert("Error parsing JSON. Check your syntax (brackets/commas).");
+            }
+        }
+
+        function convertToColumnar() {
+            const input = document.getElementById('jsonInput').value;
+            const output = document.getElementById('wallyOutput');
+            const outputLabel = document.getElementById('outputLabel');
+
+            try {
+                const data = JSON.parse(input);
+                const dataArray = Array.isArray(data) ? data : [data];
+
+                if (dataArray.length === 0) {
+                    output.value = "";
+                    return;
+                }
+
+                // Collect unique keys across all objects
+                const headers = Array.from(
+                    new Set(dataArray.flatMap(item => (typeof item === 'object' && item !== null) ? Object.keys(item) : ['VALUE']))
+                );
+
+                // Compute column widths for aligned monospace display
+                const colWidths = {};
+                headers.forEach(h => {
+                    colWidths[h] = h.length;
+                });
+
+                dataArray.forEach(item => {
+                    headers.forEach(h => {
+                        let valStr = "";
+                        if (typeof item === 'object' && item !== null) {
+                            const val = item[h];
+                            valStr = (val !== undefined && val !== null) ? (typeof val === 'object' ? JSON.stringify(val) : String(val)) : "";
+                        } else {
+                            valStr = String(item);
+                        }
+                        if (valStr.length > colWidths[h]) {
+                            colWidths[h] = valStr.length;
+                        }
+                    });
+                });
+
+                // Build aligned header and separator rows
+                const headerRow = headers.map(h => h.padEnd(colWidths[h])).join("  ");
+                const separatorRow = headers.map(h => "-".repeat(colWidths[h])).join("  ");
+
+                // Build data rows
+                const dataRows = dataArray.map(item => {
+                    return headers.map(h => {
+                        let valStr = "";
+                        if (typeof item === 'object' && item !== null) {
+                            const val = item[h];
+                            valStr = (val !== undefined && val !== null) ? (typeof val === 'object' ? JSON.stringify(val) : String(val)) : "";
+                        } else {
+                            valStr = String(item);
+                        }
+                        return valStr.padEnd(colWidths[h]);
+                    }).join("  ");
+                });
+
+                const columnarResult = [headerRow, separatorRow, ...dataRows].join("\n");
+
+                output.value = columnarResult;
+                outputLabel.textContent = "OUTPUT: Aligned Columnar Data (Copied to Clipboard)";
+                navigator.clipboard.writeText(columnarResult);
             } catch (e) {
                 alert("Error parsing JSON. Check your syntax (brackets/commas).");
             }
