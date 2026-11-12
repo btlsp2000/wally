@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WallyCAD | Space Trailer Generator</title>
+    <style>
+        :root {
+            --cad-bg: #121212;
+            --panel-bg: #1e1e1e;
+            --accent: #00ff00;
+            --text-main: #eeeeee;
+            --text-dim: #aaaaaa;
+            --border: #444444;
+            --highlight: #61afef;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--cad-bg);
+            color: var(--text-main);
+            font-family: 'Consolas', 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+        .header h2 { margin: 0; color: #fff; letter-spacing: 2px; font-size: 20px; }
+        .header p { margin: 5px 0 0 0; color: var(--highlight); font-size: 11px; text-transform: uppercase; }
+        
+        .container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+        
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+        
+        .controls-panel {
+            flex: 0 0 250px;
+        }
+        
+        .preview-panel {
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+            background-color: #0a0a0a;
+            position: relative;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            background-color: #111;
+            color: var(--accent);
+            border: 1px solid var(--border);
+            padding: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .output-group {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 120px;
+            background-color: #000;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 10px;
+            font-family: inherit;
+            font-size: 11px;
+            resize: none;
+            box-sizing: border-box;
+            white-space: pre-wrap;
+        }
+        
+        button {
+            background-color: var(--accent);
+            color: #000;
+            border: none;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover { background-color: #388E3C; }
+        
+        canvas {
+            border: 1px dashed #333;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .controls-panel { flex: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>SPACE TRAILER PLAN</h2>
+        <p>Octagon & Core Matrix Generator</p>
+    </div>
+
+    <div class="container">
+        <!-- CONTROLS -->
+        <div class="panel controls-panel">
+            <div class="input-group">
+                <label>CENTER X</label>
+                <input type="number" id="cx" value="0" step="1" oninput="generate()">
+            </div>
+            <div class="input-group">
+                <label>CENTER Y</label>
+                <input type="number" id="cy" value="0" step="1" oninput="generate()">
+            </div>
+            <div class="input-group">
+                <label>OCTAGON WIDTH (FLAT-TO-FLAT)</label>
+                <input type="number" id="w-oct" value="96" step="1" title="Default: 96 inches (8 feet)" oninput="generate()">
+            </div>
+            <div class="input-group">
+                <label>INNER SQUARE WIDTH</label>
+                <input type="number" id="w-sq" value="48" step="1" title="Default: 48 inches (4 feet)" oninput="generate()">
+            </div>
+            
+            <div class="output-group">
+                <label style="font-size: 11px; color: var(--text-dim); font-weight: bold;">SDJ OUTPUT (READY FOR V17)</label>
+                <textarea id="sdj-output" readonly></textarea>
+                <button id="copy-btn" onclick="copySDJ()">COPY TO CLIPBOARD</button>
+            </div>
+        </div>
+
+        <!-- PREVIEW -->
+        <div class="panel preview-panel">
+            <canvas id="preview-canvas" width="500" height="500"></canvas>
+        </div>
+    </div>
+
+    <script>
+        window.onload = () => {
+            generate();
+        };
+
+        function generate() {
+            const cx = parseFloat(document.getElementById('cx').value) || 0;
+            const cy = parseFloat(document.getElementById('cy').value) || 0;
+            const wOct = parseFloat(document.getElementById('w-oct').value) || 96;
+            const wSq = parseFloat(document.getElementById('w-sq').value) || 48;
+            
+            // 1. Calculate Octagon Nodes (22.5 degree offset for flat top/sides)
+            // Radius to vertex = (Width / 2) / cos(22.5 deg)
+            const rOct = (wOct / 2) / Math.cos(Math.PI / 8);
+            const octNodes = [];
+            const octCoords = [];
+            
+            for(let i = 0; i < 8; i++) {
+                const theta = (Math.PI / 8) + (i * Math.PI / 4); // 22.5 deg + multiples of 45
+                const x = cx + rOct * Math.cos(theta);
+                const y = cy + rOct * Math.sin(theta);
+                octNodes.push({x, y});
+                octCoords.push(x.toFixed(4).replace(/\.?0+$/, ''));
+                octCoords.push(y.toFixed(4).replace(/\.?0+$/, ''));
+            }
+            // Close the octagon loop
+            octCoords.push(octNodes[0].x.toFixed(4).replace(/\.?0+$/, ''));
+            octCoords.push(octNodes[0].y.toFixed(4).replace(/\.?0+$/, ''));
+            
+            // 2. Calculate Inner Square Nodes
+            const halfSq = wSq / 2;
+            const sqNodes = [
+                {x: cx - halfSq, y: cy + halfSq}, // Top Left
+                {x: cx + halfSq, y: cy + halfSq}, // Top Right
+                {x: cx + halfSq, y: cy - halfSq}, // Bottom Right
+                {x: cx - halfSq, y: cy - halfSq}  // Bottom Left
+            ];
+            const sqCoords = [];
+            sqNodes.forEach(pt => {
+                sqCoords.push(pt.x.toFixed(4).replace(/\.?0+$/, ''));
+                sqCoords.push(pt.y.toFixed(4).replace(/\.?0+$/, ''));
+            });
+            // Close the square loop
+            sqCoords.push(sqNodes[0].x.toFixed(4).replace(/\.?0+$/, ''));
+            sqCoords.push(sqNodes[0].y.toFixed(4).replace(/\.?0+$/, ''));
+
+            // 3. Format SDJ String (Generates two distinct LINE entities)
+            const sdjString = `[LINE] ${octCoords.join(' ')}\n[LINE] ${sqCoords.join(' ')}`;
+            document.getElementById('sdj-output').value = sdjString;
+            
+            // 4. Draw Preview
+            drawPreview(octNodes, sqNodes, rOct);
+        }
+
+        function drawPreview(octNodes, sqNodes, rOct) {
+            const cvs = document.getElementById('preview-canvas');
+            const ctx = cvs.getContext('2d');
+            
+            // Clear canvas
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, cvs.width, cvs.height);
+            
+            ctx.save();
+            ctx.translate(cvs.width / 2, cvs.height / 2);
+            
+            // Auto-scale to fit canvas 
+            const scale = (cvs.width / 2 - 40) / (rOct === 0 ? 1 : Math.abs(rOct));
+            ctx.scale(scale, -scale); 
+            
+            const cx = parseFloat(document.getElementById('cx').value) || 0;
+            const cy = parseFloat(document.getElementById('cy').value) || 0;
+            ctx.translate(-cx, -cy);
+
+            // Draw faint bounding circumcircle for reference
+            ctx.strokeStyle = '#333333';
+            ctx.lineWidth = 1 / scale;
+            ctx.beginPath();
+            ctx.arc(cx, cy, rOct, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Draw Octagon
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 2 / scale;
+            ctx.beginPath();
+            octNodes.forEach((pt, step) => {
+                if (step === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.lineTo(octNodes[0].x, octNodes[0].y);
+            ctx.stroke();
+            
+            // Draw Square
+            ctx.beginPath();
+            sqNodes.forEach((pt, step) => {
+                if (step === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.lineTo(sqNodes[0].x, sqNodes[0].y);
+            ctx.stroke();
+            
+            // Draw the 12 orange nodes
+            ctx.fillStyle = '#ff9800';
+            const allNodes = [...octNodes, ...sqNodes];
+            allNodes.forEach(pt => {
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 4 / scale, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.restore();
+        }
+
+        function copySDJ() {
+            const txt = document.getElementById('sdj-output').value;
+            const btn = document.getElementById('copy-btn');
+            navigator.clipboard.writeText(txt).then(() => {
+                btn.innerText = "COPIED!";
+                btn.style.backgroundColor = "#fff";
+                setTimeout(() => {
+                    btn.innerText = "COPY TO CLIPBOARD";
+                    btn.style.backgroundColor = "var(--accent)";
+                }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
