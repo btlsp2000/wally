@@ -253,9 +253,16 @@
         RESET RACKS
       </button>
 
-      <button id="btnExportJson" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad text-slate-400 hover:text-white bg-slate-900 border border-slate-700 transition">
-        EXPORT
-      </button>
+      <div class="flex gap-1 ml-1">
+        <button id="btnImportJson" title="Import saved tournament JSON" class="px-2.5 py-1.5 rounded-l-lg text-xs font-mono-cad text-slate-400 hover:text-white bg-slate-900 border border-slate-700 hover:bg-slate-800 transition">
+          IMPORT
+        </button>
+        <button id="btnExportJson" title="Export current tournament to JSON" class="px-2.5 py-1.5 rounded-r-lg text-xs font-mono-cad text-slate-400 hover:text-white bg-slate-900 border border-slate-700 border-l-0 hover:bg-slate-800 transition">
+          EXPORT
+        </button>
+      </div>
+      <!-- Hidden File Input for JSON Loader -->
+      <input type="file" id="importFileInput" accept=".json" class="hidden">
     </div>
   </header>
 
@@ -1682,6 +1689,45 @@
     });
 
     // ----------------------------------------------------
+    // IMPORT / EXPORT ENGINE
+    // ----------------------------------------------------
+    document.getElementById('btnExportJson').addEventListener('click', () => {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tournament, null, 2));
+      const dlAnchor = document.createElement('a');
+      dlAnchor.setAttribute("href", dataStr);
+      dlAnchor.setAttribute("download", `tournament_${tournament.players.length}_double_elim_${Date.now()}.json`);
+      dlAnchor.click();
+    });
+
+    document.getElementById('btnImportJson').addEventListener('click', () => {
+      document.getElementById('importFileInput').click();
+    });
+
+    document.getElementById('importFileInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const loadedData = JSON.parse(event.target.result);
+          if (loadedData && loadedData.players && loadedData.matches) {
+            tournament = loadedData;
+            saveState();
+            speakCallout("Tournament data imported and restored successfully.");
+          } else {
+            alert("Invalid tournament file format.");
+          }
+        } catch (err) {
+          alert("Error parsing the JSON file.");
+          console.error(err);
+        }
+        e.target.value = ''; // Reset input to allow re-importing the same file if needed
+      };
+      reader.readAsText(file);
+    });
+
+    // ----------------------------------------------------
     // NEW FIELD INSTANTIATION ROUTINES
     // ----------------------------------------------------
     const newFieldModal = document.getElementById('newFieldModal');
@@ -1861,14 +1907,6 @@
 
     document.getElementById('btnAutoAssign').addEventListener('click', autoDispatchTables);
     document.getElementById('btnQuickDispatchAll').addEventListener('click', autoDispatchTables);
-
-    document.getElementById('btnExportJson').addEventListener('click', () => {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tournament, null, 2));
-      const dlAnchor = document.createElement('a');
-      dlAnchor.setAttribute("href", dataStr);
-      dlAnchor.setAttribute("download", `tournament_${tournament.players.length}_double_elim_${Date.now()}.json`);
-      dlAnchor.click();
-    });
 
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
