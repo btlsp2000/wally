@@ -114,20 +114,19 @@
     flex: 1 !important;
   }
 
+/* Turn off all background colors for the bracket cards and inner player rows */
   .card-surface, 
   #winnersBracketView .cursor-pointer, 
   #losersBracketView .cursor-pointer, 
-  #finalsBracketView .cursor-pointer {
-    background: white !important;
-    border: 1px solid #94a3b8 !important;
-    color: black !important;
-    box-shadow: none !important;
-    padding: 3px 5px !important;
-    border-radius: 4px !important;
-    min-width: 0 !important;
-    margin-bottom: 3px !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+  #finalsBracketView .cursor-pointer,
+  .cursor-pointer div {
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+
+  /* Force a clean, thin border on the inner player rows to maintain the grid structure */
+  .cursor-pointer div.rounded-lg {
+    border: 1px solid #cbd5e1 !important; 
   }
 
   /* Score and player typography adjustments utilizing calc() for dynamic scaling */
