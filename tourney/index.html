@@ -14,6 +14,7 @@
       --felt-accent: #10b981;
       --slate-deep: #090e17;
       --rail-gold: #f59e0b;
+      --player-count: 16; /* Default fallback for print scale */
     }
     body {
       font-family: 'Inter', sans-serif;
@@ -33,6 +34,7 @@
     ::-webkit-scrollbar-track { background: #090e17; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
 @media print {
   @page {
     /* 11" x 17" Tabloid in Landscape orientation */
@@ -128,12 +130,23 @@
     break-inside: avoid !important;
   }
 
-  /* Score and player typography adjustments */
+  /* Score and player typography adjustments utilizing calc() for dynamic scaling */
   .cursor-pointer span, 
   .cursor-pointer div {
     color: #0f172a !important;
-    font-size: 8pt !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    /* Scales between 7pt and 12pt strictly based on the player field array size */
+    font-size: clamp(7pt, calc(14pt - (var(--player-count) * 0.3pt)), 12pt) !important;
     line-height: 1.15 !important;
+  }
+
+  /* High contrast lock for names, ensuring they truncate rather than break logic */
+  .cursor-pointer span.truncate {
+    font-weight: 700 !important;
+    color: #000000 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 
   /* Section and round titles */
@@ -220,21 +233,11 @@
 
   <!-- NAVIGATION TABS -->
   <nav class="border-b border-slate-800 bg-slate-900/60 px-4 py-2 flex items-center gap-1 font-mono-cad text-xs">
-    <button data-tab="tab-bracket" class="tab-btn px-3 py-1.5 rounded-md font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30">
-      1. BRACKETS & MATCHES
-    </button>
-    <button data-tab="tab-tables" class="tab-btn px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200">
-      2. TABLE DISPATCH (<span id="tabTableCountNav">4</span>)
-    </button>
-    <button data-tab="tab-roster" class="tab-btn px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200">
-      3. ROSTER & SEEDS (<span id="rosterCount">16</span>)
-    </button>
-    <button data-tab="tab-standings" class="tab-btn px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200">
-      4. STANDINGS & STATS
-    </button>
-    <button data-tab="tab-setup" class="tab-btn px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200">
-      5. TOURNAMENT SETUP
-    </button>
+    <button data-tab="tab-bracket" class="tab-btn px-3 py-1.5 rounded-md font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30">BRACKETS & MATCHES</button>
+    <button data-tab="tab-tables" class="tab-btn px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200">2. TABLE DISPATCH (<span id="tabTableCountNav">4</span>)</button>
+    <button data-tab="tab-roster" class="tab-btn px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200">3. ROSTER & SEEDS (<span id="rosterCount">16</span>)</button>
+    <button data-tab="tab-standings" class="tab-btn px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200">4. STANDINGS & STATS</button>
+    <button data-tab="tab-setup" class="tab-btn px-3 py-1.5 rounded-md text-slate-400 hover:text-slate-200">5. TOURNAMENT SETUP</button>
   </nav>
 
   <!-- MAIN VIEWPORT CONTAINER -->
@@ -382,7 +385,7 @@
         </div>
 
         <div class="mt-4 flex items-center justify-between text-xs font-mono-cad text-slate-500">
-          <span>* Roster requires an even player count between 8 and 24.</span>
+          <span>Roster requires an even player count between 8 and 24.</span>
           <button id="btnRebuildBracket" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs font-mono-cad transition shadow">
             REBUILD TOURNAMENT BRACKET
           </button>
@@ -525,7 +528,7 @@
       <div class="bg-slate-950 px-5 py-3 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span id="modalMatchId" class="font-display font-bold text-amber-400 text-sm">MATCH #1</span>
-          <span id="modalRoundName" class="text-xs font-mono-cad text-slate-400">• WINNERS R1</span>
+          <span id="modalRoundName" class="text-xs font-mono-cad text-slate-400">WINNERS R1</span>
         </div>
         <button id="modalCloseBtn" class="text-slate-400 hover:text-white font-mono-cad text-lg">&times;</button>
       </div>
@@ -587,11 +590,11 @@
   <!-- SCRIPT ENGINE -->
   <script>
     const MASTER_PLAYERS_POOL = [
-      "Bill Tonnesen", "Alvin", "Art", "Ken",
-      "Rick", "Vince", "Dave", "Alan",
-      "Gary", "Johnny", "Miguel", "Robert",
-      "Stan", "Tom", "Frank", "Eddie",
-      "Carl", "Wayne", "Tony", "Sam",
+      "Bill Tonnesen", "Alvin", "Art", "Ken", 
+      "Rick", "Vince", "Dave", "Alan", 
+      "Gary", "Johnny", "Miguel", "Robert", 
+      "Stan", "Tom", "Frank", "Eddie", 
+      "Carl", "Wayne", "Tony", "Sam", 
       "George", "Danny", "Leo", "Ray"
     ];
 
@@ -830,9 +833,6 @@
       losersRoundsMap[1] = lR1Matches;
 
       // Successive Losers Rounds
-      // Alternates between:
-      // Even Round: Losers of previous L-Round vs. Losers dropping down from Winners
-      // Odd Round: Winners of previous L-Round playing each other
       let prevLRMatches = lR1Matches;
       let wDropRound = 2;
 
@@ -1040,6 +1040,9 @@
     // UI RENDERING ROUTINES
     // ----------------------------------------------------
     function updateUI() {
+      // INJECT CSS PRINT SCALING VARIABLE BASED ON ACTIVE FIELD
+      document.documentElement.style.setProperty('--player-count', tournament.players.length);
+
       document.getElementById('topbarTitle').textContent = tournament.title;
       document.getElementById('formatBadge').textContent = `RACE TO ${tournament.raceTo} • ${tournament.players.length}-D-ELIM`;
       document.getElementById('rosterCount').textContent = tournament.players.length;
@@ -1722,7 +1725,7 @@
       const nextMatch = tournament.matches.find(m => 
         (m.status === 'scheduled' || !m.status) && 
         m.p1 && m.p2 && 
-        m.p1 !== 'BYE' && m.p2 !== 'BYE' &&
+        m.p1 !== 'BYE' && m.p2 !== 'BYE' && 
         (m.id !== finalMatchId || m.active)
       );
       if (nextMatch) {
