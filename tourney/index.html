@@ -34,6 +34,9 @@
     ::-webkit-scrollbar-track { background: #090e17; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    
+    /* Hide the timestamp UI on screen */
+    .print-only { display: none; }
 
 @media print {
   @page {
@@ -52,6 +55,11 @@
     margin: 0 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  /* Reveal print-only elements */
+  .print-only {
+    display: block !important;
   }
 
   /* Hide app chrome, director bar, nav tabs, setup forms, and modal dialogs */
@@ -114,7 +122,7 @@
     flex: 1 !important;
   }
 
-/* Turn off all background colors for the bracket cards and inner player rows */
+  /* Turn off all background colors for the bracket cards and inner player rows */
   .card-surface, 
   #winnersBracketView .cursor-pointer, 
   #losersBracketView .cursor-pointer, 
@@ -244,6 +252,12 @@
 
     <!-- TAB 1: DYNAMIC BRACKETS -->
     <section id="tab-bracket" class="tab-content space-y-6">
+      
+      <!-- INJECT: Print-only header -->
+      <div class="print-only text-right font-mono-cad text-sm font-bold text-black border-b-2 border-black pb-1 mb-2">
+        HERITAGE PARK 8-BALL TOURNAMENT • OFFICIAL BRACKET • PRINTED: <span id="printTimestamp"></span>
+      </div>
+
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
           <div>
@@ -658,6 +672,55 @@
     }
 
     // =========================================================================
+    // RECURSIVE BYE PROPAGATION ENGINE
+    // =========================================================================
+    function propagateByes() {
+      let changed = false;
+      tournament.matches.forEach(m => {
+        // Find incomplete matches where both slots are filled, and at least one is a BYE
+        if (m.status !== 'complete' && m.p1 && m.p2 && (m.p1 === 'BYE' || m.p2 === 'BYE')) {
+          
+          if (m.p1 === 'BYE' && m.p2 === 'BYE') {
+            m.winner = 'BYE';
+            m.loser = 'BYE';
+          } else if (m.p1 === 'BYE') {
+            m.winner = m.p2;
+            m.loser = 'BYE';
+            m.score2 = tournament.raceTo;
+          } else {
+            m.winner = m.p1;
+            m.loser = 'BYE';
+            m.score1 = tournament.raceTo;
+          }
+          
+          m.status = 'complete';
+          changed = true;
+
+          // Push the advanced player to their next coordinate node
+          if (m.winNext) {
+            const wMatch = tournament.matches.find(x => x.id === m.winNext);
+            if (wMatch) {
+              if (m.winSlot === 1) wMatch.p1 = m.winner;
+              if (m.winSlot === 2) wMatch.p2 = m.winner;
+            }
+          }
+          
+          // Push the eliminated BYE down if applicable
+          if (m.loseNext) {
+            const lMatch = tournament.matches.find(x => x.id === m.loseNext);
+            if (lMatch) {
+              if (m.loseSlot === 1) lMatch.p1 = m.loser;
+              if (m.loseSlot === 2) lMatch.p2 = m.loser;
+            }
+          }
+        }
+      });
+      
+      // If a BYE advanced, recurse to see if it immediately triggers the next round
+      if (changed) propagateByes(); 
+    }
+
+    // =========================================================================
     // DYNAMIC DOUBLE ELIMINATION ENGINE FOR ANY EVEN N (8 TO 24)
     // =========================================================================
     function buildDynamicDoubleElimBracket() {
@@ -963,6 +1026,9 @@
       matches.push(trueFinalMatch);
 
       tournament.matches = matches;
+      
+      // Auto-resolve all cascading BYEs through the lower bracket
+      propagateByes(); 
     }
 
     // ----------------------------------------------------
@@ -1351,6 +1417,11 @@
       const completed = activeMatches.filter(m => m.status === 'complete' && m.p1 !== 'BYE' && m.p2 !== 'BYE').length;
       const live = activeMatches.filter(m => m.status === 'on_table').length;
 
+      let currentGrid = 8;
+      if (tournament.players.length > 8 && tournament.players.length <= 16) currentGrid = 16;
+      if (tournament.players.length > 16) currentGrid = 32;
+      document.getElementById('statBracketSizeLabel').textContent = `Grid: ${currentGrid}`;
+
       document.getElementById('statTotalMatches').textContent = total;
       document.getElementById('statCompletedMatches').textContent = completed;
       document.getElementById('statLiveMatches').textContent = live;
@@ -1543,6 +1614,9 @@
           }
         }
       }
+
+      // Sweep the matrix in case a player dropped down into a BYE
+      propagateByes(); 
 
       closeModal();
       saveState();
@@ -1764,6 +1838,15 @@
             c.classList.add('hidden');
           }
         });
+      });
+    });
+
+    // Automatically stamp the bracket right before the print spooler activates
+    window.addEventListener('beforeprint', () => {
+      const now = new Date();
+      document.getElementById('printTimestamp').textContent = now.toLocaleString('en-US', {
+        weekday: 'short', month: 'short', day: 'numeric', 
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
       });
     });
 
