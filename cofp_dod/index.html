@@ -1,424 +1,399 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculus of Pool - Degree of Difficulty</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CofP Degree of Difficulty Visualizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background-color: #070b12;
+      color: #e2e8f0;
+    }
+    .font-display { font-family: 'Chakra Petch', sans-serif; }
+    
+    .felt-pattern {
+      background-color: #061e16;
+      background-image: 
+        radial-gradient(rgba(16, 185, 129, 0.08) 1px, transparent 0),
+        linear-gradient(to bottom, rgba(5, 23, 17, 0.95), rgba(4, 15, 11, 0.98));
+      background-size: 16px 16px, 100% 100%;
+    }
 
-        body {
-            background-color: #0d0d12;
-            color: #00ffff;
-            font-family: 'Share Tech Mono', monospace;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .cad-container {
-            width: 100%;
-            max-width: 1000px;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        canvas {
-            background-color: #111118;
-            border: 1px solid #00ffff;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
-            display: block;
-            width: 100%;
-            border-radius: 4px;
-            image-rendering: crisp-edges;
-        }
-
-        .controls {
-            background-color: #1a1a24;
-            border: 1px solid #334;
-            padding: 20px;
-            margin-top: 20px;
-            border-radius: 4px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .control-group label {
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-            color: #88ccff;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-        }
-
-        input[type=range]:focus {
-            outline: none;
-        }
-
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: #334;
-            border-radius: 2px;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            background: #00ffff;
-            cursor: pointer;
-            -webkit-appearance: none;
-            margin-top: -6px;
-            box-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
-        }
-
-        .value-display {
-            font-size: 1.2rem;
-            color: #fff;
-            margin-top: 4px;
-        }
-
-        button {
-            background-color: transparent;
-            color: #00ffff;
-            border: 1px solid #00ffff;
-            padding: 10px 20px;
-            font-family: inherit;
-            font-size: 1rem;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.2s;
-            border-radius: 2px;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            background-color: rgba(0, 255, 255, 0.1);
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-        }
-        
-        button:active {
-            background-color: rgba(0, 255, 255, 0.3);
-        }
-
-        .header-title {
-            text-align: center;
-            margin: 20px 0;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
-        }
-    </style>
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 20px;
+      width: 20px;
+      border-radius: 4px;
+      background: var(--thumb-color, #10b981);
+      cursor: pointer;
+      margin-top: -8px;
+      box-shadow: 0 0 10px var(--thumb-color, #10b981);
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: #1e293b;
+      border-radius: 2px;
+    }
+  </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 lg:p-8">
 
-<div class="cad-container">
-    <h1 class="header-title">The Calculus of Pool<br><span class="text-sm text-gray-400">f(S,P) &rarr; &theta; (Margin of Error)</span></h1>
+  <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
     
-    <canvas id="cadCanvas" width="960" height="480"></canvas>
+    <!-- LEFT COLUMN: CONTROLS & MATRIX -->
+    <div class="col-span-1 lg:col-span-5 space-y-6 flex flex-col">
+      
+      <!-- HEADER -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-2xl">
+        <h1 class="font-display font-bold text-2xl text-emerald-400 uppercase tracking-wider border-b border-emerald-900/50 pb-2 mb-2">
+          CofP <span class="text-slate-500 text-sm">v1.0</span>
+        </h1>
+        <h2 class="text-sm text-slate-300 font-bold uppercase tracking-widest">Degree of Difficulty Matrix</h2>
+        <p class="text-xs text-slate-500 mt-2">Vector Magnitude Engine: ƒ(S,P) → θ</p>
+      </div>
 
-    <div class="controls">
-        <div class="control-group">
-            <label for="cutAngle">Cut Angle (&alpha; degrees)</label>
-            <input type="range" id="cutAngle" min="0" max="90" value="30" step="1">
-            <div class="value-display" id="cutVal">30&deg;</div>
-        </div>
+      <!-- INPUT CONTROLS -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-2xl flex-1 flex flex-col justify-between">
         
-        <div class="control-group">
-            <label for="obDistance">OB Distance (feet)</label>
-            <input type="range" id="obDistance" min="0" max="9" value="4" step="0.1">
-            <div class="value-display" id="distVal">4.0 ft</div>
-        </div>
-        
-        <div class="control-group">
-            <label for="speedControl">Tangent/Speed Complexity (P)</label>
-            <input type="range" id="speedControl" min="0" max="2" value="1" step="1">
-            <div class="value-display" id="speedVal">Medium (1)</div>
+        <div class="space-y-8">
+          <!-- Shot Difficulty (S) -->
+          <div>
+            <div class="flex justify-between items-end mb-2">
+              <label class="text-xs font-bold text-slate-400">SHOT DIFFICULTY (S)</label>
+              <span id="sValueDisplay" class="font-display font-bold text-xl text-white">0.50</span>
+            </div>
+            <input type="range" id="sSlider" min="0" max="1" step="0.01" value="0.5">
+            <div class="flex justify-between text-[10px] text-slate-600 mt-1">
+              <span>HANGER / NATURAL</span>
+              <span>SEVERE CUT / DISTANCE</span>
+            </div>
+          </div>
+
+          <!-- Position Precision (P) -->
+          <div>
+            <div class="flex justify-between items-end mb-2">
+              <label class="text-xs font-bold text-slate-400">POSITION PRECISION (P)</label>
+              <span id="pValueDisplay" class="font-display font-bold text-xl text-white">0.50</span>
+            </div>
+            <input type="range" id="pSlider" min="0" max="1" step="0.01" value="0.5">
+            <div class="flex justify-between text-[10px] text-slate-600 mt-1">
+              <span>NATURAL TANGENT LINE</span>
+              <span>MANUFACTURED / MULTI-RAIL</span>
+            </div>
+          </div>
         </div>
 
-        <div class="control-group" style="justify-content: flex-end;">
-            <button id="saveShotBtn">Log Shot to Matrix</button>
+        <!-- LIVE RESULT -->
+        <div class="mt-8 bg-slate-950 border border-slate-800 rounded-lg p-4">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-[10px] text-slate-500 uppercase tracking-widest">Active Profile</span>
+            <span class="text-xs font-bold" id="liveThetaDisplay">θ = 0.71</span>
+          </div>
+          <div id="classificationDisplay" class="font-display font-bold text-sm text-emerald-400">
+            Standard Coordinate Vector
+          </div>
         </div>
+
+        <button id="btnLogShot" class="w-full mt-4 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-xs font-bold text-white transition shadow shadow-slate-900">
+          LOG COORDINATE TO MATRIX
+        </button>
+      </div>
+
+      <!-- HANDWRITTEN TRACKING MATRIX REPLICA -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-2xl">
+        <div class="text-xs font-bold text-slate-400 mb-3 border-b border-slate-800 pb-2">SHOT vs POSITION TRACKER</div>
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b-2 border-slate-700 text-slate-500">
+              <th class="py-2 w-12 text-center">SHOT</th>
+              <th class="py-2 px-2">S</th>
+              <th class="py-2 px-2">P</th>
+              <th class="py-2 px-2 text-right">θ</th>
+            </tr>
+          </thead>
+          <tbody id="matrixBody">
+            <tr class="border-b border-slate-800 text-slate-300 h-10">
+              <td class="text-center font-bold text-slate-600">1</td>
+              <td class="px-2" id="m-s-1">--</td>
+              <td class="px-2" id="m-p-1">--</td>
+              <td class="px-2 text-right font-bold" id="m-t-1">--</td>
+            </tr>
+            <tr class="border-b border-slate-800 text-slate-300 h-10">
+              <td class="text-center font-bold text-slate-600">2</td>
+              <td class="px-2" id="m-s-2">--</td>
+              <td class="px-2" id="m-p-2">--</td>
+              <td class="px-2 text-right font-bold" id="m-t-2">--</td>
+            </tr>
+            <tr class="border-b border-slate-800 text-slate-300 h-10">
+              <td class="text-center font-bold text-slate-600">3</td>
+              <td class="px-2" id="m-s-3">--</td>
+              <td class="px-2" id="m-p-3">--</td>
+              <td class="px-2 text-right font-bold" id="m-t-3">--</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="flex justify-between items-center mt-3">
+           <div class="text-[10px] text-slate-600 italic">ƒ(S,P) → θ</div>
+           <button id="btnClearMatrix" class="text-[10px] text-slate-500 hover:text-red-400 underline">CLEAR</button>
+        </div>
+      </div>
     </div>
-</div>
 
-<script>
-    const canvas = document.getElementById('cadCanvas');
+    <!-- RIGHT COLUMN: HTML5 CANVAS VISUALIZER -->
+    <div class="col-span-1 lg:col-span-7 bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-2xl flex flex-col relative overflow-hidden">
+      <div class="absolute top-8 left-8 text-[10px] text-slate-600 uppercase font-bold z-10 pointer-events-none">Vector Plot (S, P)</div>
+      
+      <!-- Container to preserve aspect ratio -->
+      <div class="w-full aspect-square relative felt-pattern border border-slate-700 rounded-lg overflow-hidden flex-1 shadow-inner">
+        <canvas id="dodCanvas" class="absolute inset-0 w-full h-full"></canvas>
+      </div>
+
+      <div class="mt-4 flex gap-4 text-[10px] text-slate-500 justify-center">
+        <div class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span> Standard Vector</div>
+        <div class="flex items-center gap-1"><span class="w-2 h-2 bg-amber-500 rounded-full"></span> Speed Trap</div>
+        <div class="flex items-center gap-1"><span class="w-2 h-2 bg-cyan-500 rounded-full"></span> Absolute Optical</div>
+        <div class="flex items-center gap-1"><span class="w-2 h-2 bg-purple-500 rounded-full"></span> High Deflection</div>
+        <div class="flex items-center gap-1"><span class="w-2 h-2 bg-red-500 rounded-full"></span> Max Liability</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // CORE LOGIC ENGINE
+    const sSlider = document.getElementById('sSlider');
+    const pSlider = document.getElementById('pSlider');
+    const sValueDisplay = document.getElementById('sValueDisplay');
+    const pValueDisplay = document.getElementById('pValueDisplay');
+    const liveThetaDisplay = document.getElementById('liveThetaDisplay');
+    const classificationDisplay = document.getElementById('classificationDisplay');
+    const canvas = document.getElementById('dodCanvas');
     const ctx = canvas.getContext('2d');
-    
-    // Sliders
-    const cutSlider = document.getElementById('cutAngle');
-    const distSlider = document.getElementById('obDistance');
-    const speedSlider = document.getElementById('speedControl');
-    
-    // Displays
-    const cutVal = document.getElementById('cutVal');
-    const distVal = document.getElementById('distVal');
-    const speedVal = document.getElementById('speedVal');
-    
-    // State
-    let state = {
-        cutAngle: parseFloat(cutSlider.value),
-        distance: parseFloat(distSlider.value),
-        speed: parseInt(speedSlider.value),
-        theta: 0,
-        matrixRows: [null, null, null] // Max 3 rows for history
-    };
-    
-    const speedLabels = ["Low (0)", "Medium (1)", "High (2)"];
 
-    // Initialize Event Listeners
-    function init() {
-        cutSlider.addEventListener('input', updateState);
-        distSlider.addEventListener('input', updateState);
-        speedSlider.addEventListener('input', updateState);
-        
-        document.getElementById('saveShotBtn').addEventListener('click', saveShot);
-        
-        updateState();
+    let matrixRow = 1;
+
+    // Structural Pattern Matcher & Vector Magnitude Calculator
+    function evaluateDoD(s, p) {
+      const theta = Math.hypot(s, p);
+      let classification = "Standard Coordinate Vector";
+      let color = "#10b981"; // Emerald
+
+      // Guard clauses profiling stroke biomechanics
+      if (s <= 0.3 && p >= 0.8) {
+        classification = "The Manufacturing Paradox (High Deflection Risk)";
+        color = "#a855f7"; // Purple
+      } else if (s >= 0.8 && p <= 0.3) {
+        classification = "The Pocket Speed Execution (Absolute Optical Alignment)";
+        color = "#06b6d4"; // Cyan
+      } else if (s >= 0.4 && s <= 0.6 && p >= 0.7) {
+        classification = "The Speed Control Trap (Tangent Line Deceleration)";
+        color = "#f59e0b"; // Amber
+      } else if (s > 0.8 && p > 0.8) {
+        classification = "Maximum Liability (Bailout Required)";
+        color = "#ef4444"; // Red
+      }
+
+      return { 
+        theta: theta, 
+        thetaStr: theta.toFixed(2), 
+        classification, 
+        color 
+      };
     }
 
-    function calculateTheta() {
-        // Normalize variables to 0-1 range representing "Difficulty"
-        // Cut Angle: 0-90 (Higher is harder)
-        const sCut = state.cutAngle / 90; 
-        
-        // Distance: 0-9ft (Higher is harder)
-        const sDist = state.distance / 9; 
-        
-        // Shot Difficulty (S) weighted blending
-        const S = (sCut * 0.7) + (sDist * 0.3);
-        
-        // Position Difficulty (P) 0, 1, 2 normalized
-        const P = state.speed / 2;
-        
-        // Combined Degree of Difficulty (0 to 1)
-        // Weighted slightly heavier on the shot execution
-        const difficulty = (S * 0.6) + (P * 0.4);
-        
-        // Theta represents Margin of Error (0 to 100)
-        // Inverse of difficulty. 100 = infinite margin, 0 = absolute perfection required.
-        // Using an exponential falloff to make harder shots feel geometrically tighter.
-        const marginOfError = (1 - Math.pow(difficulty, 0.8)) * 100;
-        
-        state.theta = Math.max(0, Math.min(100, marginOfError));
+    // CANVAS RENDER ENGINE
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      // Multiply by DPR for crisp Retina displays
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      renderVisualizer();
     }
 
-    function updateState() {
-        state.cutAngle = parseFloat(cutSlider.value);
-        state.distance = parseFloat(distSlider.value);
-        state.speed = parseInt(speedSlider.value);
-        
-        cutVal.innerHTML = `${state.cutAngle}&deg;`;
-        distVal.innerText = `${state.distance.toFixed(1)} ft`;
-        speedVal.innerText = speedLabels[state.speed];
-        
-        calculateTheta();
-        render();
+    function renderVisualizer() {
+      const s = parseFloat(sSlider.value);
+      const p = parseFloat(pSlider.value);
+      const res = evaluateDoD(s, p);
+      
+      const w = canvas.width / (window.devicePixelRatio || 1);
+      const h = canvas.height / (window.devicePixelRatio || 1);
+      
+      ctx.clearRect(0, 0, w, h);
+
+      // Margins for the graph
+      const pad = 40;
+      const graphW = w - (pad * 2);
+      const graphH = h - (pad * 2);
+
+      // Coordinate mapping functions
+      const mapX = (val) => pad + (val * graphW);
+      const mapY = (val) => h - pad - (val * graphH);
+
+      // Draw Grid Matrix (PTP structural lines)
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for(let i=0; i<=10; i++) {
+        const lineX = mapX(i/10);
+        const lineY = mapY(i/10);
+        // Vertical
+        ctx.moveTo(lineX, mapY(0));
+        ctx.lineTo(lineX, mapY(1));
+        // Horizontal
+        ctx.moveTo(mapX(0), lineY);
+        ctx.lineTo(mapX(1), lineY);
+      }
+      ctx.stroke();
+
+      // Draw Axes
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      // X-Axis (S)
+      ctx.moveTo(mapX(0), mapY(0));
+      ctx.lineTo(mapX(1.05), mapY(0));
+      // Y-Axis (P)
+      ctx.moveTo(mapX(0), mapY(0));
+      ctx.lineTo(mapX(0), mapY(1.05));
+      ctx.stroke();
+
+      // Axis Labels
+      ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+      ctx.font = "10px 'JetBrains Mono'";
+      ctx.textAlign = "center";
+      ctx.fillText("S = 1.0", mapX(1), mapY(0) + 20);
+      ctx.textAlign = "right";
+      ctx.fillText("P = 1.0", mapX(0) - 10, mapY(1) + 4);
+      ctx.fillText("0,0", mapX(0) - 10, mapY(0) + 15);
+
+      // Calculate Target Point
+      const targetX = mapX(s);
+      const targetY = mapY(p);
+
+      // Draw Target Vector Line
+      ctx.strokeStyle = res.color;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(mapX(0), mapY(0));
+      ctx.lineTo(targetX, targetY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw Projection Lines to Axes
+      ctx.strokeStyle = res.color + "40"; // 25% opacity hex
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(targetX, targetY);
+      ctx.lineTo(targetX, mapY(0));
+      ctx.moveTo(targetX, targetY);
+      ctx.lineTo(mapX(0), targetY);
+      ctx.stroke();
+
+      // Draw Dynamic Margin of Error Window (Shrinks as theta increases)
+      // Max theoretical theta is sqrt(2) approx 1.41.
+      // Base radius 60px. Target gets violently tight at high magnitudes.
+      const maxRadius = 80;
+      const minRadius = 5;
+      const rawRadius = maxRadius - (res.theta * 50);
+      const currentRadius = Math.max(minRadius, rawRadius);
+
+      // Outer bounding box (Ghost ball equivalent zone)
+      ctx.strokeStyle = res.color + "30";
+      ctx.strokeRect(targetX - maxRadius, targetY - maxRadius, maxRadius*2, maxRadius*2);
+
+      // MoE Target Window
+      ctx.beginPath();
+      ctx.arc(targetX, targetY, currentRadius, 0, Math.PI * 2);
+      ctx.fillStyle = res.color + "20";
+      ctx.fill();
+      ctx.strokeStyle = res.color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Center Node Strike Point
+      ctx.beginPath();
+      ctx.arc(targetX, targetY, 3, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+
+      // Data HUD on Canvas
+      ctx.fillStyle = res.color;
+      ctx.font = "bold 12px 'Chakra Petch'";
+      ctx.textAlign = "left";
+      ctx.fillText(`θ: ${res.thetaStr}`, targetX + 15, targetY - 15);
     }
 
-    function saveShot() {
-        // Shift history down
-        state.matrixRows[2] = state.matrixRows[1];
-        state.matrixRows[1] = state.matrixRows[0];
-        
-        // Calculate abstract S and P scores for the table
-        const sScore = ((state.cutAngle/90 * 0.7) + (state.distance/9 * 0.3)) * 100;
-        const pScore = (state.speed / 2) * 100;
-        
-        state.matrixRows[0] = {
-            s: sScore.toFixed(1),
-            p: pScore.toFixed(1),
-            t: state.theta.toFixed(1)
-        };
-        render();
+    // UPDATE UI HANDLER
+    function handleUpdate() {
+      const s = parseFloat(sSlider.value);
+      const p = parseFloat(pSlider.value);
+      const res = evaluateDoD(s, p);
+
+      sValueDisplay.textContent = s.toFixed(2);
+      pValueDisplay.textContent = p.toFixed(2);
+      liveThetaDisplay.textContent = `θ = ${res.thetaStr}`;
+      classificationDisplay.textContent = res.classification;
+      classificationDisplay.style.color = res.color;
+
+      // Push dynamic color to CSS variables for sliders
+      document.documentElement.style.setProperty('--thumb-color', res.color);
+
+      renderVisualizer();
     }
 
-    // Drawing Functions
-    function drawGrid() {
-        ctx.strokeStyle = '#1e1e2d';
-        ctx.lineWidth = 1;
-        const gridSize = 40;
-        
-        for (let x = 0; x <= canvas.width; x += gridSize) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, canvas.height);
-            ctx.stroke();
-        }
-        for (let y = 0; y <= canvas.height; y += gridSize) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(canvas.width, y);
-            ctx.stroke();
-        }
-    }
+    // MATRIX LOGGING
+    document.getElementById('btnLogShot').addEventListener('click', () => {
+      if (matrixRow > 3) matrixRow = 1; // Loop back to top like an overwrite
+      
+      const s = parseFloat(sSlider.value);
+      const p = parseFloat(pSlider.value);
+      const res = evaluateDoD(s, p);
 
-    function drawMatrix() {
-        const startX = 40;
-        const startY = 80;
-        const cellWidth = 140;
-        const cellHeight = 50;
-        
-        ctx.font = '16px Share Tech Mono';
-        ctx.fillStyle = '#00ffff';
-        
-        // Matrix Title
-        ctx.fillText("DEGREE OF DIFFICULTY MATRIX", startX, startY - 20);
-        ctx.font = '12px Share Tech Mono';
-        ctx.fillStyle = '#88ccff';
-        ctx.fillText("- OF SHOT vs POSITION", startX, startY - 5);
-        
-        // Colors & styles
-        ctx.strokeStyle = '#00ffff';
-        ctx.lineWidth = 1.5;
-        
-        const cols = ['SHOT (S)', 'POSITION (P)', 'THETA (θ)'];
-        
-        // Draw Header
-        ctx.fillStyle = 'rgba(0, 255, 255, 0.1)';
-        ctx.fillRect(startX, startY, cellWidth * 3, cellHeight);
-        ctx.strokeRect(startX, startY, cellWidth * 3, cellHeight);
-        
-        ctx.fillStyle = '#00ffff';
-        ctx.font = 'bold 16px Share Tech Mono';
-        cols.forEach((col, i) => {
-            ctx.fillText(col, startX + (i * cellWidth) + 15, startY + 32);
-            if (i > 0) {
-                ctx.beginPath();
-                ctx.moveTo(startX + (i * cellWidth), startY);
-                ctx.lineTo(startX + (i * cellWidth), startY + cellHeight * 4);
-                ctx.stroke();
-            }
-        });
+      document.getElementById(`m-s-${matrixRow}`).textContent = s.toFixed(2);
+      document.getElementById(`m-p-${matrixRow}`).textContent = p.toFixed(2);
+      
+      const tCell = document.getElementById(`m-t-${matrixRow}`);
+      tCell.textContent = res.thetaStr;
+      tCell.style.color = res.color;
 
-        // Draw Rows
-        for (let i = 0; i < 3; i++) {
-            const rowY = startY + cellHeight * (i + 1);
-            ctx.strokeRect(startX, rowY, cellWidth * 3, cellHeight);
-            
-            ctx.fillStyle = '#fff';
-            // Draw Row Number Indicator
-            ctx.fillText((i + 1).toString(), startX - 25, rowY + 32);
-            
-            const rowData = state.matrixRows[i];
-            
-            if (rowData) {
-                ctx.fillStyle = i === 0 ? '#39ff14' : '#aaaaaa'; // highlight latest
-                ctx.fillText(rowData.s, startX + 15, rowY + 32);
-                ctx.fillText(rowData.p, startX + cellWidth + 15, rowY + 32);
-                ctx.fillText(rowData.t, startX + (cellWidth * 2) + 15, rowY + 32);
-            } else {
-                ctx.fillStyle = '#445';
-                ctx.fillText("---", startX + 15, rowY + 32);
-                ctx.fillText("---", startX + cellWidth + 15, rowY + 32);
-                ctx.fillText("---", startX + (cellWidth * 2) + 15, rowY + 32);
-            }
-        }
-        
-        // Render Formula notation
-        ctx.fillStyle = '#ff00ff';
-        ctx.font = '24px Share Tech Mono';
-        ctx.fillText("f(S,P) → θ", startX + (cellWidth * 3) / 2 - 60, startY + cellHeight * 4 + 40);
-    }
+      matrixRow++;
+    });
 
-    function drawTargetGraphic() {
-        const centerX = 700;
-        const centerY = canvas.height / 2;
-        const maxRadius = 150;
-        
-        // Calculate dynamic radius based on Theta (0 to 100 maps to 5px to maxRadius)
-        const targetRadius = Math.max(5, (state.theta / 100) * maxRadius);
+    document.getElementById('btnClearMatrix').addEventListener('click', () => {
+      for(let i=1; i<=3; i++) {
+        document.getElementById(`m-s-${i}`).textContent = "--";
+        document.getElementById(`m-p-${i}`).textContent = "--";
+        const tCell = document.getElementById(`m-t-${i}`);
+        tCell.textContent = "--";
+        tCell.style.color = "";
+      }
+      matrixRow = 1;
+    });
 
-        // Draw crosshairs
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY - maxRadius - 20);
-        ctx.lineTo(centerX, centerY + maxRadius + 20);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(centerX - maxRadius - 20, centerY);
-        ctx.lineTo(centerX + maxRadius + 20, centerY);
-        ctx.stroke();
+    // EVENT LISTENERS
+    sSlider.addEventListener('input', handleUpdate);
+    pSlider.addEventListener('input', handleUpdate);
+    window.addEventListener('resize', resizeCanvas);
 
-        // Draw Outer Bounds (100% margin)
-        ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, maxRadius, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        
-        ctx.fillStyle = 'rgba(0,255,255,0.5)';
-        ctx.font = '12px Share Tech Mono';
-        ctx.fillText("MAX LIMIT", centerX + maxRadius + 10, centerY - 10);
+    // INIT
+    resizeCanvas();
+    handleUpdate();
 
-        // Draw Dynamic Margin of Error Circle (θ)
-        // Color transition: Green (safe) -> Yellow (moderate) -> Red (critical)
-        let color = '#39ff14'; // default green
-        if (state.theta < 30) color = '#ff3333'; // red
-        else if (state.theta < 60) color = '#ffcc00'; // yellow
-        
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, targetRadius, 0, Math.PI * 2);
-        ctx.fill();
-        
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, targetRadius, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Inner precise dot
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Theta Readout
-        ctx.fillStyle = color;
-        ctx.font = 'bold 28px Share Tech Mono';
-        ctx.textAlign = 'center';
-        ctx.fillText(`θ = ${state.theta.toFixed(1)}`, centerX, centerY + maxRadius + 50);
-        ctx.textAlign = 'left'; // reset
-    }
-
-    function render() {
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw layers
-        drawGrid();
-        drawMatrix();
-        drawTargetGraphic();
-    }
-
-    // Start
-    window.onload = function() {
-        init();
-    };
-
-</script>
+  </script>
 </body>
 </html>
