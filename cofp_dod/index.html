@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus of Pool - Degree of Difficulty</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        body {
+            background-color: #0d0d12;
+            color: #00ffff;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .cad-container {
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        canvas {
+            background-color: #111118;
+            border: 1px solid #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+            display: block;
+            width: 100%;
+            border-radius: 4px;
+            image-rendering: crisp-edges;
+        }
+
+        .controls {
+            background-color: #1a1a24;
+            border: 1px solid #334;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 4px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: #88ccff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #334;
+            border-radius: 2px;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #00ffff;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -6px;
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
+        }
+
+        .value-display {
+            font-size: 1.2rem;
+            color: #fff;
+            margin-top: 4px;
+        }
+
+        button {
+            background-color: transparent;
+            color: #00ffff;
+            border: 1px solid #00ffff;
+            padding: 10px 20px;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            border-radius: 2px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        
+        button:active {
+            background-color: rgba(0, 255, 255, 0.3);
+        }
+
+        .header-title {
+            text-align: center;
+            margin: 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+<div class="cad-container">
+    <h1 class="header-title">The Calculus of Pool<br><span class="text-sm text-gray-400">f(S,P) &rarr; &theta; (Margin of Error)</span></h1>
+    
+    <canvas id="cadCanvas" width="960" height="480"></canvas>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="cutAngle">Cut Angle (&alpha; degrees)</label>
+            <input type="range" id="cutAngle" min="0" max="90" value="30" step="1">
+            <div class="value-display" id="cutVal">30&deg;</div>
+        </div>
+        
+        <div class="control-group">
+            <label for="obDistance">OB Distance (feet)</label>
+            <input type="range" id="obDistance" min="0" max="9" value="4" step="0.1">
+            <div class="value-display" id="distVal">4.0 ft</div>
+        </div>
+        
+        <div class="control-group">
+            <label for="speedControl">Tangent/Speed Complexity (P)</label>
+            <input type="range" id="speedControl" min="0" max="2" value="1" step="1">
+            <div class="value-display" id="speedVal">Medium (1)</div>
+        </div>
+
+        <div class="control-group" style="justify-content: flex-end;">
+            <button id="saveShotBtn">Log Shot to Matrix</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('cadCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Sliders
+    const cutSlider = document.getElementById('cutAngle');
+    const distSlider = document.getElementById('obDistance');
+    const speedSlider = document.getElementById('speedControl');
+    
+    // Displays
+    const cutVal = document.getElementById('cutVal');
+    const distVal = document.getElementById('distVal');
+    const speedVal = document.getElementById('speedVal');
+    
+    // State
+    let state = {
+        cutAngle: parseFloat(cutSlider.value),
+        distance: parseFloat(distSlider.value),
+        speed: parseInt(speedSlider.value),
+        theta: 0,
+        matrixRows: [null, null, null] // Max 3 rows for history
+    };
+    
+    const speedLabels = ["Low (0)", "Medium (1)", "High (2)"];
+
+    // Initialize Event Listeners
+    function init() {
+        cutSlider.addEventListener('input', updateState);
+        distSlider.addEventListener('input', updateState);
+        speedSlider.addEventListener('input', updateState);
+        
+        document.getElementById('saveShotBtn').addEventListener('click', saveShot);
+        
+        updateState();
+    }
+
+    function calculateTheta() {
+        // Normalize variables to 0-1 range representing "Difficulty"
+        // Cut Angle: 0-90 (Higher is harder)
+        const sCut = state.cutAngle / 90; 
+        
+        // Distance: 0-9ft (Higher is harder)
+        const sDist = state.distance / 9; 
+        
+        // Shot Difficulty (S) weighted blending
+        const S = (sCut * 0.7) + (sDist * 0.3);
+        
+        // Position Difficulty (P) 0, 1, 2 normalized
+        const P = state.speed / 2;
+        
+        // Combined Degree of Difficulty (0 to 1)
+        // Weighted slightly heavier on the shot execution
+        const difficulty = (S * 0.6) + (P * 0.4);
+        
+        // Theta represents Margin of Error (0 to 100)
+        // Inverse of difficulty. 100 = infinite margin, 0 = absolute perfection required.
+        // Using an exponential falloff to make harder shots feel geometrically tighter.
+        const marginOfError = (1 - Math.pow(difficulty, 0.8)) * 100;
+        
+        state.theta = Math.max(0, Math.min(100, marginOfError));
+    }
+
+    function updateState() {
+        state.cutAngle = parseFloat(cutSlider.value);
+        state.distance = parseFloat(distSlider.value);
+        state.speed = parseInt(speedSlider.value);
+        
+        cutVal.innerHTML = `${state.cutAngle}&deg;`;
+        distVal.innerText = `${state.distance.toFixed(1)} ft`;
+        speedVal.innerText = speedLabels[state.speed];
+        
+        calculateTheta();
+        render();
+    }
+
+    function saveShot() {
+        // Shift history down
+        state.matrixRows[2] = state.matrixRows[1];
+        state.matrixRows[1] = state.matrixRows[0];
+        
+        // Calculate abstract S and P scores for the table
+        const sScore = ((state.cutAngle/90 * 0.7) + (state.distance/9 * 0.3)) * 100;
+        const pScore = (state.speed / 2) * 100;
+        
+        state.matrixRows[0] = {
+            s: sScore.toFixed(1),
+            p: pScore.toFixed(1),
+            t: state.theta.toFixed(1)
+        };
+        render();
+    }
+
+    // Drawing Functions
+    function drawGrid() {
+        ctx.strokeStyle = '#1e1e2d';
+        ctx.lineWidth = 1;
+        const gridSize = 40;
+        
+        for (let x = 0; x <= canvas.width; x += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvas.height);
+            ctx.stroke();
+        }
+        for (let y = 0; y <= canvas.height; y += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
+            ctx.stroke();
+        }
+    }
+
+    function drawMatrix() {
+        const startX = 40;
+        const startY = 80;
+        const cellWidth = 140;
+        const cellHeight = 50;
+        
+        ctx.font = '16px Share Tech Mono';
+        ctx.fillStyle = '#00ffff';
+        
+        // Matrix Title
+        ctx.fillText("DEGREE OF DIFFICULTY MATRIX", startX, startY - 20);
+        ctx.font = '12px Share Tech Mono';
+        ctx.fillStyle = '#88ccff';
+        ctx.fillText("- OF SHOT vs POSITION", startX, startY - 5);
+        
+        // Colors & styles
+        ctx.strokeStyle = '#00ffff';
+        ctx.lineWidth = 1.5;
+        
+        const cols = ['SHOT (S)', 'POSITION (P)', 'THETA (θ)'];
+        
+        // Draw Header
+        ctx.fillStyle = 'rgba(0, 255, 255, 0.1)';
+        ctx.fillRect(startX, startY, cellWidth * 3, cellHeight);
+        ctx.strokeRect(startX, startY, cellWidth * 3, cellHeight);
+        
+        ctx.fillStyle = '#00ffff';
+        ctx.font = 'bold 16px Share Tech Mono';
+        cols.forEach((col, i) => {
+            ctx.fillText(col, startX + (i * cellWidth) + 15, startY + 32);
+            if (i > 0) {
+                ctx.beginPath();
+                ctx.moveTo(startX + (i * cellWidth), startY);
+                ctx.lineTo(startX + (i * cellWidth), startY + cellHeight * 4);
+                ctx.stroke();
+            }
+        });
+
+        // Draw Rows
+        for (let i = 0; i < 3; i++) {
+            const rowY = startY + cellHeight * (i + 1);
+            ctx.strokeRect(startX, rowY, cellWidth * 3, cellHeight);
+            
+            ctx.fillStyle = '#fff';
+            // Draw Row Number Indicator
+            ctx.fillText((i + 1).toString(), startX - 25, rowY + 32);
+            
+            const rowData = state.matrixRows[i];
+            
+            if (rowData) {
+                ctx.fillStyle = i === 0 ? '#39ff14' : '#aaaaaa'; // highlight latest
+                ctx.fillText(rowData.s, startX + 15, rowY + 32);
+                ctx.fillText(rowData.p, startX + cellWidth + 15, rowY + 32);
+                ctx.fillText(rowData.t, startX + (cellWidth * 2) + 15, rowY + 32);
+            } else {
+                ctx.fillStyle = '#445';
+                ctx.fillText("---", startX + 15, rowY + 32);
+                ctx.fillText("---", startX + cellWidth + 15, rowY + 32);
+                ctx.fillText("---", startX + (cellWidth * 2) + 15, rowY + 32);
+            }
+        }
+        
+        // Render Formula notation
+        ctx.fillStyle = '#ff00ff';
+        ctx.font = '24px Share Tech Mono';
+        ctx.fillText("f(S,P) → θ", startX + (cellWidth * 3) / 2 - 60, startY + cellHeight * 4 + 40);
+    }
+
+    function drawTargetGraphic() {
+        const centerX = 700;
+        const centerY = canvas.height / 2;
+        const maxRadius = 150;
+        
+        // Calculate dynamic radius based on Theta (0 to 100 maps to 5px to maxRadius)
+        const targetRadius = Math.max(5, (state.theta / 100) * maxRadius);
+
+        // Draw crosshairs
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY - maxRadius - 20);
+        ctx.lineTo(centerX, centerY + maxRadius + 20);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(centerX - maxRadius - 20, centerY);
+        ctx.lineTo(centerX + maxRadius + 20, centerY);
+        ctx.stroke();
+
+        // Draw Outer Bounds (100% margin)
+        ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, maxRadius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        ctx.fillStyle = 'rgba(0,255,255,0.5)';
+        ctx.font = '12px Share Tech Mono';
+        ctx.fillText("MAX LIMIT", centerX + maxRadius + 10, centerY - 10);
+
+        // Draw Dynamic Margin of Error Circle (θ)
+        // Color transition: Green (safe) -> Yellow (moderate) -> Red (critical)
+        let color = '#39ff14'; // default green
+        if (state.theta < 30) color = '#ff3333'; // red
+        else if (state.theta < 60) color = '#ffcc00'; // yellow
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, targetRadius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, targetRadius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Inner precise dot
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Theta Readout
+        ctx.fillStyle = color;
+        ctx.font = 'bold 28px Share Tech Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText(`θ = ${state.theta.toFixed(1)}`, centerX, centerY + maxRadius + 50);
+        ctx.textAlign = 'left'; // reset
+    }
+
+    function render() {
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw layers
+        drawGrid();
+        drawMatrix();
+        drawTargetGraphic();
+    }
+
+    // Start
+    window.onload = function() {
+        init();
+    };
+
+</script>
+</body>
+</html>
