@@ -57,6 +57,15 @@
     print-color-adjust: exact !important;
   }
 
+  /* Custom Print Logic Hooks for Split Sheet Printing */
+  body.print-winners #section-losers { display: none !important; }
+  
+  body.print-losers #section-winners { display: none !important; }
+  body.print-losers #section-finals { display: none !important; }
+
+  body.print-blank .print-hide-text { color: transparent !important; }
+  body.print-blank .print-hide-element { display: none !important; }
+
   /* Reveal print-only elements */
   .print-only {
     display: block !important;
@@ -224,12 +233,24 @@
         + NEW FIELD
       </button>
 
-      <button id="btnTopReset" title="Reset current bracket and clear tables" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad text-amber-400 hover:text-white bg-slate-900 border border-amber-500/40 transition">
-        RESET RACKS
-      </button>
+      <!-- Targeted Print Matrix Buttons -->
+      <div class="flex flex-wrap items-center gap-1 bg-slate-900 border border-slate-700 rounded-lg p-0.5 ml-1">
+        <button onclick="executePrint('winners')" class="px-2.5 py-1 rounded text-[11px] font-mono-cad font-bold text-emerald-400 hover:text-slate-900 hover:bg-emerald-400 transition">
+          🖨️ WINNERS
+        </button>
+        <button onclick="executePrint('losers')" class="px-2.5 py-1 rounded text-[11px] font-mono-cad font-bold text-purple-400 hover:text-slate-900 hover:bg-purple-400 transition">
+          🖨️ LOSERS
+        </button>
+        <button onclick="executePrint('blank')" class="px-2.5 py-1 rounded text-[11px] font-mono-cad font-bold text-slate-400 hover:text-slate-900 hover:bg-slate-300 transition border-l border-slate-700 rounded-l-none pl-3">
+          BLANK
+        </button>
+        <button onclick="executePrint('all')" class="px-2.5 py-1 rounded text-[11px] font-mono-cad font-bold text-slate-400 hover:text-slate-900 hover:bg-slate-300 transition">
+          ALL
+        </button>
+      </div>
 
-      <button id="btnPrint" onclick="window.print()" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad text-slate-400 hover:text-white bg-slate-900 border border-slate-700 transition">
-        PRINT
+      <button id="btnTopReset" title="Reset current bracket and clear tables" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad text-amber-400 hover:text-white bg-slate-900 border border-amber-500/40 ml-1 transition">
+        RESET RACKS
       </button>
 
       <button id="btnExportJson" class="px-2.5 py-1.5 rounded-lg text-xs font-mono-cad text-slate-400 hover:text-white bg-slate-900 border border-slate-700 transition">
@@ -254,8 +275,8 @@
     <section id="tab-bracket" class="tab-content space-y-6">
       
       <!-- INJECT: Print-only header -->
-      <div class="print-only text-right font-mono-cad text-sm font-bold text-black border-b-2 border-black pb-1 mb-2">
-        HERITAGE PARK 8-BALL TOURNAMENT • OFFICIAL BRACKET • PRINTED: <span id="printTimestamp"></span>
+      <div class="print-only text-right font-mono-cad text-sm font-bold text-black border-b-2 border-black pb-1 mb-2 uppercase">
+        HERITAGE PARK 8-BALL TOURNAMENT • OFFICIAL BRACKET • RECORDED: <span id="printTimestamp"></span>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -290,37 +311,37 @@
       </div>
 
       <!-- WINNERS BRACKET -->
-      <div class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-4 lg:p-6 shadow-2xl overflow-x-auto felt-pattern">
+      <div id="section-winners" class="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-4 lg:p-6 shadow-2xl overflow-x-auto felt-pattern">
         <div class="flex items-center justify-between mb-4 border-b border-emerald-900/40 pb-3">
           <div class="flex items-center gap-2">
             <span class="px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 font-mono-cad text-xs font-bold border border-emerald-500/30">UPPER BRACKET</span>
-            <h2 class="font-display font-bold text-base text-emerald-300 uppercase tracking-wide">Winners Bracket (0 Losses)</h2>
+            <h2 class="font-display font-bold text-base text-emerald-300 uppercase tracking-wide print-hide-text">Winners Bracket (0 Losses)</h2>
           </div>
-          <span class="text-xs font-mono-cad text-slate-400">First loss drops to Losers Bracket</span>
+          <span class="text-xs font-mono-cad text-slate-400 print-hide-text">First loss drops to Losers Bracket</span>
         </div>
         <div id="winnersBracketView" class="py-2 flex gap-8 items-stretch overflow-x-auto min-h-[300px]"></div>
       </div>
 
       <!-- LOSERS BRACKET -->
-      <div class="bg-slate-900/70 border border-purple-950/70 rounded-2xl p-4 lg:p-6 shadow-2xl overflow-x-auto felt-pattern">
+      <div id="section-losers" class="bg-slate-900/70 border border-purple-950/70 rounded-2xl p-4 lg:p-6 shadow-2xl overflow-x-auto felt-pattern">
         <div class="flex items-center justify-between mb-4 border-b border-purple-900/40 pb-3">
           <div class="flex items-center gap-2">
             <span class="px-2 py-0.5 rounded bg-purple-950/80 text-purple-300 font-mono-cad text-xs font-bold border border-purple-500/30">LOWER BRACKET</span>
-            <h2 class="font-display font-bold text-base text-purple-300 uppercase tracking-wide">Losers Bracket (1 Loss)</h2>
+            <h2 class="font-display font-bold text-base text-purple-300 uppercase tracking-wide print-hide-text">Losers Bracket (1 Loss)</h2>
           </div>
-          <span class="text-xs font-mono-cad text-red-400 font-semibold">2nd Loss = Eliminated</span>
+          <span class="text-xs font-mono-cad text-red-400 font-semibold print-hide-text">2nd Loss = Eliminated</span>
         </div>
         <div id="losersBracketView" class="py-2 flex gap-8 items-stretch overflow-x-auto min-h-[300px]"></div>
       </div>
 
       <!-- GRAND FINALS SECTION -->
-      <div class="bg-slate-900/70 border border-amber-500/40 rounded-2xl p-4 lg:p-6 shadow-2xl felt-pattern">
+      <div id="section-finals" class="bg-slate-900/70 border border-amber-500/40 rounded-2xl p-4 lg:p-6 shadow-2xl felt-pattern">
         <div class="flex items-center justify-between mb-4 border-b border-amber-900/40 pb-3">
           <div class="flex items-center gap-2">
             <span class="px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 font-mono-cad text-xs font-bold border border-amber-500/40">CHAMPIONSHIP</span>
-            <h2 class="font-display font-bold text-base text-amber-300 uppercase tracking-wide">Grand Finals & True Finals</h2>
+            <h2 class="font-display font-bold text-base text-amber-300 uppercase tracking-wide print-hide-text">Grand Finals & True Finals</h2>
           </div>
-          <span class="text-xs font-mono-cad text-amber-400/80">Winners Champ vs. Losers Champ</span>
+          <span class="text-xs font-mono-cad text-amber-400/80 print-hide-text">Winners Champ vs. Losers Champ</span>
         </div>
         <div id="finalsBracketView" class="flex flex-wrap gap-8 items-center justify-start py-2"></div>
       </div>
@@ -1125,14 +1146,14 @@
     function renderMatchCard(m) {
       const card = document.createElement('div');
       let borderStatus = "border-slate-800 hover:border-slate-600";
-      let badgeStatus = '<span class="text-slate-500 font-mono-cad text-[10px]">SCHEDULED</span>';
+      let badgeStatus = '<span class="print-hide-element text-slate-500 font-mono-cad text-[10px]">SCHEDULED</span>';
 
       if (m.status === 'on_table') {
         borderStatus = "border-amber-500/80 shadow-[0_0_15px_rgba(245,158,11,0.2)]";
-        badgeStatus = `<span class="bg-amber-950 text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded text-[10px] font-mono-cad font-bold">TABLE ${m.tableId}</span>`;
+        badgeStatus = `<span class="print-hide-element bg-amber-950 text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded text-[10px] font-mono-cad font-bold">TABLE ${m.tableId}</span>`;
       } else if (m.status === 'complete') {
         borderStatus = "border-emerald-500/60";
-        badgeStatus = '<span class="bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-1.5 py-0.5 rounded text-[10px] font-mono-cad font-bold">FINAL</span>';
+        badgeStatus = '<span class="print-hide-element bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-1.5 py-0.5 rounded text-[10px] font-mono-cad font-bold">FINAL</span>';
       }
 
       card.className = `bg-slate-950/95 border ${borderStatus} rounded-xl p-3 cursor-pointer transition transform hover:-translate-y-0.5 shadow-lg select-none min-w-[210px]`;
@@ -1147,18 +1168,18 @@
           ${badgeStatus}
         </div>
         <div class="flex items-center justify-between py-1.5 px-2 rounded-lg ${isP1Win ? 'bg-emerald-950/70 border border-emerald-500/40' : 'bg-slate-900/60'} mb-1">
-          <span class="text-xs font-semibold ${isP1Win ? 'text-emerald-300 font-bold' : (m.p1 ? 'text-slate-200' : 'text-slate-500')} truncate">
+          <span class="print-hide-text text-xs font-semibold ${isP1Win ? 'text-emerald-300 font-bold' : (m.p1 ? 'text-slate-200' : 'text-slate-500')} truncate">
             ${m.p1 || '<span class="italic text-slate-600">Awaiting player</span>'}
           </span>
-          <span class="font-display font-bold text-sm ${isP1Win ? 'text-emerald-400' : 'text-slate-300'} ml-2">
+          <span class="print-hide-text font-display font-bold text-sm ${isP1Win ? 'text-emerald-400' : 'text-slate-300'} ml-2">
             ${m.score1}
           </span>
         </div>
         <div class="flex items-center justify-between py-1.5 px-2 rounded-lg ${isP2Win ? 'bg-emerald-950/70 border border-emerald-500/40' : 'bg-slate-900/60'}">
-          <span class="text-xs font-semibold ${isP2Win ? 'text-emerald-300 font-bold' : (m.p2 ? 'text-slate-200' : 'text-slate-500')} truncate">
+          <span class="print-hide-text text-xs font-semibold ${isP2Win ? 'text-emerald-300 font-bold' : (m.p2 ? 'text-slate-200' : 'text-slate-500')} truncate">
             ${m.p2 || '<span class="italic text-slate-600">Awaiting player</span>'}
           </span>
-          <span class="font-display font-bold text-sm ${isP2Win ? 'text-emerald-400' : 'text-slate-300'} ml-2">
+          <span class="print-hide-text font-display font-bold text-sm ${isP2Win ? 'text-emerald-400' : 'text-slate-300'} ml-2">
             ${m.score2}
           </span>
         </div>
@@ -1181,7 +1202,7 @@
         const col = document.createElement('div');
         col.className = 'flex-1 flex flex-col justify-around min-w-[220px] space-y-4';
         const title = document.createElement('div');
-        title.className = 'font-display font-bold text-xs uppercase tracking-wider text-emerald-400 text-center pb-2 border-b border-emerald-900/40';
+        title.className = 'font-display font-bold text-xs uppercase tracking-wider text-emerald-400 text-center pb-2 border-b border-emerald-900/40 print-hide-text';
         title.textContent = winRounds[r][0].roundName;
         col.appendChild(title);
 
@@ -1206,7 +1227,7 @@
         const col = document.createElement('div');
         col.className = 'flex-1 flex flex-col justify-around min-w-[220px] space-y-4';
         const title = document.createElement('div');
-        title.className = 'font-display font-bold text-xs uppercase tracking-wider text-purple-400 text-center pb-2 border-b border-purple-900/40';
+        title.className = 'font-display font-bold text-xs uppercase tracking-wider text-purple-400 text-center pb-2 border-b border-purple-900/40 print-hide-text';
         title.textContent = loseRounds[r][0].roundName;
         col.appendChild(title);
 
@@ -1631,6 +1652,36 @@
     });
 
     // ----------------------------------------------------
+    // PRINT ENGINE HANDLERS
+    // ----------------------------------------------------
+    function executePrint(mode) {
+      // Clear any prior state locks
+      document.body.classList.remove('print-winners', 'print-losers', 'print-blank');
+      
+      // Inject correct structural matrix flag
+      if (mode === 'winners') document.body.classList.add('print-winners');
+      if (mode === 'losers') document.body.classList.add('print-losers');
+      if (mode === 'blank') document.body.classList.add('print-blank');
+      
+      // Trigger Dell Spooler
+      window.print();
+      
+      // Clean up the UI matrix afterward
+      setTimeout(() => {
+        document.body.classList.remove('print-winners', 'print-losers', 'print-blank');
+      }, 1000);
+    }
+
+    // Automatically stamp the bracket right before the print spooler activates
+    window.addEventListener('beforeprint', () => {
+      const now = new Date();
+      document.getElementById('printTimestamp').textContent = now.toLocaleString('en-US', {
+        weekday: 'short', month: 'short', day: 'numeric', 
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+    });
+
+    // ----------------------------------------------------
     // NEW FIELD INSTANTIATION ROUTINES
     // ----------------------------------------------------
     const newFieldModal = document.getElementById('newFieldModal');
@@ -1838,15 +1889,6 @@
             c.classList.add('hidden');
           }
         });
-      });
-    });
-
-    // Automatically stamp the bracket right before the print spooler activates
-    window.addEventListener('beforeprint', () => {
-      const now = new Date();
-      document.getElementById('printTimestamp').textContent = now.toLocaleString('en-US', {
-        weekday: 'short', month: 'short', day: 'numeric', 
-        hour: '2-digit', minute: '2-digit', second: '2-digit'
       });
     });
 
