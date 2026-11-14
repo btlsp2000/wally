@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CofP Manual Spread: 6.0 Degree of Difficulty</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #1e293b; /* Dark backdrop for the "desk" */
+      font-family: 'Inter', sans-serif;
+    }
+    .font-mono-cad { font-family: 'JetBrains Mono', monospace; }
+    
+    /* Simulate standard 8.5x11 page aspect ratio */
+    .page-spread {
+      aspect-ratio: 8.5 / 11;
+      background: #ffffff;
+      color: #000000;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 2px;
+      background: #000000;
+      cursor: pointer;
+      margin-top: -6px;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: #cbd5e1;
+      border-radius: 0px;
+    }
+
+    /* Print overrides to guarantee crisp 2-page manual output */
+    @media print {
+      body { background: white !important; padding: 0 !important; }
+      #desk-container { padding: 0 !important; gap: 0 !important; display: block !important; }
+      .page-spread { 
+        box-shadow: none !important; 
+        width: 100% !important;
+        height: 100vh !important;
+        page-break-after: always;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 lg:p-12">
+
+  <!-- THE SPREAD CONTAINER (LEFT AND RIGHT PAGES) -->
+  <div id="desk-container" class="max-w-[1400px] w-full flex flex-col md:flex-row gap-2 items-center md:items-stretch justify-center">
+
+    <!-- LEFT PAGE: TEXT & MATRIX -->
+    <div class="page-spread w-full md:w-1/2 p-8 lg:p-12 flex flex-col relative">
+      <!-- Page Header -->
+      <div class="flex justify-between items-end border-b-2 border-black pb-2 mb-8 font-mono-cad text-xs font-bold uppercase">
+        <span>12 | The Calculus of Pool</span>
+        <span>Theoretical Framework</span>
+      </div>
+
+      <!-- Content -->
+      <h2 class="text-2xl font-bold mb-4 tracking-tight">6.0 The Degree of Difficulty Matrix</h2>
+      
+      <div class="prose prose-sm text-black mb-8 space-y-4">
+        <p>
+          The geometric physics of the table dictate only five primary shot classifications: <strong>Cut, Carom, Combination, Kick, and Bank.</strong>
+        </p>
+        <blockquote class="border-l-4 border-black pl-4 py-1 my-4 bg-slate-50 italic">
+          <strong>The Bank Theorem:</strong> Amateurs view the bank as an inherent liability. However, mathematically, many times the bank is optimal. By minimizing positional variance ($P$) and allowing the cue ball to travel on a natural post-collision tangent line, it becomes the least error-prone path and the best option for securing the next coordinate.
+        </blockquote>
+        <p>
+          To quantify this, the Degree of Difficulty ($\theta$) is calculated not as a product, but as a Cartesian vector magnitude: <strong class="font-mono-cad bg-slate-200 px-1">ƒ(S,P) → θ = √(S² + P²)</strong>.
+        </p>
+      </div>
+
+      <!-- Interactive Tooling (Styled for Print) -->
+      <div class="border-2 border-black p-5 flex-1 flex flex-col justify-between bg-slate-50">
+        <div class="text-xs font-mono-cad font-bold border-b border-black pb-2 mb-4 uppercase">Vector Input Variables</div>
+        
+        <div class="space-y-6">
+          <div>
+            <div class="flex justify-between items-end mb-2 font-mono-cad text-sm font-bold">
+              <label>SHOT CUT ANGLE (S)</label>
+              <span id="sValueDisplay">0.60</span>
+            </div>
+            <input type="range" id="sSlider" min="0" max="1" step="0.01" value="0.6">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono-cad">
+              <span>0.0 (NATURAL)</span>
+              <span>1.0 (SEVERE)</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-end mb-2 font-mono-cad text-sm font-bold">
+              <label>POSITION TANGENT (P)</label>
+              <span id="pValueDisplay">0.40</span>
+            </div>
+            <input type="range" id="pSlider" min="0" max="1" step="0.01" value="0.4">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono-cad">
+              <span>0.0 (NATURAL)</span>
+              <span>1.0 (MANUFACTURED)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 border-t border-black pt-4">
+          <div class="flex justify-between items-center mb-2 font-mono-cad text-xs font-bold uppercase">
+            <span>Resulting Magnitude</span>
+            <span id="liveThetaDisplay" class="text-lg bg-black text-white px-2 py-1">θ = 0.72</span>
+          </div>
+          <div id="classificationDisplay" class="font-mono-cad text-xs font-bold text-slate-600 uppercase">
+            Standard Coordinate Vector
+          </div>
+        </div>
+
+        <!-- Logging Matrix -->
+        <div class="mt-6">
+          <table class="w-full text-left text-xs font-mono-cad border-collapse border border-black">
+            <thead class="bg-black text-white">
+              <tr>
+                <th class="py-1.5 w-10 text-center border-r border-slate-600">ID</th>
+                <th class="py-1.5 px-2 border-r border-slate-600">S</th>
+                <th class="py-1.5 px-2 border-r border-slate-600">P</th>
+                <th class="py-1.5 px-2 text-right">θ</th>
+              </tr>
+            </thead>
+            <tbody id="matrixBody">
+              <tr class="border-b border-black">
+                <td class="text-center font-bold border-r border-black">1</td>
+                <td class="px-2 border-r border-black" id="m-s-1">--</td>
+                <td class="px-2 border-r border-black" id="m-p-1">--</td>
+                <td class="px-2 text-right font-bold" id="m-t-1">--</td>
+              </tr>
+              <tr class="border-b border-black">
+                <td class="text-center font-bold border-r border-black">2</td>
+                <td class="px-2 border-r border-black" id="m-s-2">--</td>
+                <td class="px-2 border-r border-black" id="m-p-2">--</td>
+                <td class="px-2 text-right font-bold" id="m-t-2">--</td>
+              </tr>
+              <tr>
+                <td class="text-center font-bold border-r border-black">3</td>
+                <td class="px-2 border-r border-black" id="m-s-3">--</td>
+                <td class="px-2 border-r border-black" id="m-p-3">--</td>
+                <td class="px-2 text-right font-bold" id="m-t-3">--</td>
+              </tr>
+            </tbody>
+          </table>
+          <button id="btnLogShot" class="w-full mt-2 py-1.5 bg-slate-200 hover:bg-slate-300 border border-black text-[10px] font-mono-cad font-bold transition">
+            RECORD TARGET VECTOR
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PAGE: CARTESIAN CANVAS SPREAD -->
+    <div class="page-spread w-full md:w-1/2 p-8 lg:p-12 flex flex-col relative">
+      <!-- Page Header -->
+      <div class="flex justify-between items-end border-b-2 border-black pb-2 mb-8 font-mono-cad text-xs font-bold uppercase">
+        <span>Geometric Layouts</span>
+        <span>13</span>
+      </div>
+
+      <h2 class="text-xl font-bold mb-1 tracking-tight">6.1 Cartesian Symmetry (MIR-Q2-Q3-Q4)</h2>
+      <p class="text-xs font-mono-cad text-slate-600 mb-4">
+        Proof of structural magnitude equivalence across all shot orientations.
+      </p>
+
+      <!-- Container to preserve exact square aspect ratio for the math -->
+      <div class="w-full aspect-square relative border-2 border-black flex-1 shadow-inner bg-[#f8fafc]">
+        <canvas id="dodCanvas" class="absolute inset-0 w-full h-full"></canvas>
+      </div>
+
+      <div class="mt-6 text-[10px] font-mono-cad text-slate-600 leading-relaxed border-l-2 border-black pl-3">
+        <p><strong>NOTE:</strong> The primary vector (solid line) mapped in Q1 represents a right-cut with forward follow. The mirrored ghost vectors (dashed lines) in Q2, Q3, and Q4 mathematically prove that an inverse layout (e.g., left-cut with reverse draw) requires the exact same biomechanical execution threshold ($\theta$).</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // CORE LOGIC ENGINE
+    const sSlider = document.getElementById('sSlider');
+    const pSlider = document.getElementById('pSlider');
+    const sValueDisplay = document.getElementById('sValueDisplay');
+    const pValueDisplay = document.getElementById('pValueDisplay');
+    const liveThetaDisplay = document.getElementById('liveThetaDisplay');
+    const classificationDisplay = document.getElementById('classificationDisplay');
+    const canvas = document.getElementById('dodCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let matrixRow = 1;
+
+    // Standard structural sizing for the print canvas
+    const PAD = 40; 
+
+    function evaluateDoD(s, p) {
+      const theta = Math.hypot(s, p);
+      let classification = "Standard Coordinate Vector";
+
+      if (s <= 0.3 && p >= 0.8) {
+        classification = "The Manufacturing Paradox";
+      } else if (s >= 0.8 && p <= 0.3) {
+        classification = "The Pocket Speed Execution";
+      } else if (s >= 0.4 && s <= 0.6 && p >= 0.7) {
+        classification = "The Speed Control Trap";
+      } else if (s > 0.8 && p > 0.8) {
+        classification = "Maximum Liability";
+      }
+
+      return { theta, thetaStr: theta.toFixed(2), classification };
+    }
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      renderVisualizer();
+    }
+
+    function renderVisualizer() {
+      const s = parseFloat(sSlider.value);
+      const p = parseFloat(pSlider.value);
+      const res = evaluateDoD(s, p);
+      
+      const w = canvas.width / (window.devicePixelRatio || 1);
+      const h = canvas.height / (window.devicePixelRatio || 1);
+      
+      ctx.clearRect(0, 0, w, h);
+
+      const graphW = w - (PAD * 2);
+      const graphH = h - (PAD * 2);
+
+      // Map values (-1 to 1) onto the canvas, centered at 0,0
+      const mapX = (val) => PAD + (((val + 1) / 2) * graphW);
+      const mapY = (val) => h - PAD - (((val + 1) / 2) * graphH);
+
+      // 1. Draw Blueprint Grid
+      ctx.strokeStyle = "#e2e8f0"; // Light slate grid
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for(let i = -10; i <= 10; i += 2) {
+        const lineX = mapX(i/10);
+        const lineY = mapY(i/10);
+        ctx.moveTo(lineX, mapY(-1)); ctx.lineTo(lineX, mapY(1));
+        ctx.moveTo(mapX(-1), lineY); ctx.lineTo(mapX(1), lineY);
+      }
+      ctx.stroke();
+
+      // 2. Draw Main Axes (Black for print contrast)
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(mapX(-1.05), mapY(0)); ctx.lineTo(mapX(1.05), mapY(0)); // X
+      ctx.moveTo(mapX(0), mapY(-1.05)); ctx.lineTo(mapX(0), mapY(1.05)); // Y
+      ctx.stroke();
+
+      // Axis Labels
+      ctx.fillStyle = "#64748b";
+      ctx.font = "10px 'JetBrains Mono'";
+      ctx.textAlign = "center";
+      ctx.fillText("+S (R-Cut)", mapX(1), mapY(0) + 14);
+      ctx.fillText("-S (L-Cut)", mapX(-1), mapY(0) + 14);
+      ctx.textAlign = "left";
+      ctx.fillText("+P (Fwd)", mapX(0) + 5, mapY(1) + 4);
+      ctx.fillText("-P (Rev)", mapX(0) + 5, mapY(-1) + 4);
+
+      // Helper function to draw a vector and its structural components
+      function drawVectorNode(vX, vY, isPrimary) {
+        const tX = mapX(vX);
+        const tY = mapY(vY);
+
+        // Vector line from origin
+        ctx.strokeStyle = isPrimary ? "#000000" : "#94a3b8"; // Black if primary, slate if mirrored
+        ctx.lineWidth = isPrimary ? 2 : 1;
+        ctx.setLineDash(isPrimary ? [] : [4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(mapX(0), mapY(0));
+        ctx.lineTo(tX, tY);
+        ctx.stroke();
+        ctx.setLineDash([]); // Reset
+
+        // Orthogonal projection lines
+        if (isPrimary) {
+          ctx.strokeStyle = "rgba(0,0,0,0.1)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(tX, tY); ctx.lineTo(tX, mapY(0));
+          ctx.moveTo(tX, tY); ctx.lineTo(mapX(0), tY);
+          ctx.stroke();
+        }
+
+        // MoE (Margin of Error) Radius Visualization
+        const maxRadius = 50;
+        const currentRadius = Math.max(4, maxRadius - (res.theta * 30));
+
+        // Draw Ghost Node
+        ctx.beginPath();
+        ctx.arc(tX, tY, currentRadius, 0, Math.PI * 2);
+        ctx.fillStyle = isPrimary ? "rgba(0,0,0,0.1)" : "rgba(148, 163, 184, 0.1)";
+        ctx.fill();
+        ctx.strokeStyle = isPrimary ? "#000000" : "#94a3b8";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Exact Coordinate Point
+        ctx.beginPath();
+        ctx.arc(tX, tY, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.stroke();
+        
+        // Print Theta only on the primary
+        if(isPrimary) {
+          ctx.fillStyle = "#000000";
+          ctx.font = "bold 12px 'JetBrains Mono'";
+          ctx.textAlign = vX > 0 ? "right" : "left";
+          const offX = vX > 0 ? -12 : 12;
+          const offY = vY > 0 ? 16 : -12;
+          ctx.fillText(`θ:${res.thetaStr}`, tX + offX, tY + offY);
+        }
+      }
+
+      // Draw the mathematical symmetry (The WallyCAD MIR command equivalent)
+      // Q2 (-S, P)
+      drawVectorNode(-s, p, false);
+      // Q3 (-S, -P)
+      drawVectorNode(-s, -p, false);
+      // Q4 (S, -P)
+      drawVectorNode(s, -p, false);
+      
+      // Draw Q1 (Primary Vector) last so it sits on top of the z-index
+      drawVectorNode(s, p, true);
+    }
+
+    // INTERFACE LOGIC
+    function handleUpdate() {
+      const s = parseFloat(sSlider.value);
+      const p = parseFloat(pSlider.value);
+      const res = evaluateDoD(s, p);
+
+      sValueDisplay.textContent = s.toFixed(2);
+      pValueDisplay.textContent = p.toFixed(2);
+      liveThetaDisplay.textContent = `θ = ${res.thetaStr}`;
+      classificationDisplay.textContent = res.classification;
+
+      renderVisualizer();
+    }
+
+    document.getElementById('btnLogShot').addEventListener('click', () => {
+      if (matrixRow > 3) matrixRow = 1; 
+      
+      const s = parseFloat(sSlider.value);
+      const p = parseFloat(pSlider.value);
+      const res = evaluateDoD(s, p);
+
+      document.getElementById(`m-s-${matrixRow}`).textContent = s.toFixed(2);
+      document.getElementById(`m-p-${matrixRow}`).textContent = p.toFixed(2);
+      document.getElementById(`m-t-${matrixRow}`).textContent = res.thetaStr;
+
+      matrixRow++;
+    });
+
+    sSlider.addEventListener('input', handleUpdate);
+    pSlider.addEventListener('input', handleUpdate);
+    window.addEventListener('resize', resizeCanvas);
+
+    // Boot
+    resizeCanvas();
+    handleUpdate();
+
+  </script>
+</body>
+</html>
