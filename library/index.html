@@ -3,266 +3,201 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bill's Books - wallycad.com/library</title>
+<title>wallycad.com/library - Bill's Books</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
   body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    color: #2c3e50;
-    margin: 0;
-    padding: 40px 20px;
-    /* Eastern High Sierra Motif Background */
-    background: url('https://images.unsplash.com/photo-1516084042296-189f33b1e360?q=80&w=2560&auto=format&fit=crop') no-repeat center center fixed;
+    /* Beautiful sunlight forest background */
+    background: url('https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
     background-size: cover;
-    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
   }
   
-  /* Glassmorphism Container */
+  /* Glassmorphism effect for panels */
   .glass-panel {
-    max-width: 850px;
-    margin: 0 auto;
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 12px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
   }
 
-  h1 {
-    text-align: center;
-    color: #1a252f;
-    border-bottom: 2px solid #34495e;
-    padding-bottom: 15px;
-    margin-top: 0;
-    font-size: 2.5em;
+  /* Smooth transition for views */
+  .fade-in {
+    animation: fadeIn 0.4s ease-in-out;
   }
   
-  /* Link List with Thumbnails */
-  .book-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
-    padding: 0;
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  .book-item {
-    background: rgba(255, 255, 255, 0.6);
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  .book-item:hover {
-    transform: translateY(-3px);
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-  }
-  .thumbnail {
-    width: 80px;
-    height: 120px;
-    background: linear-gradient(135deg, #2c3e50, #34495e);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 0.8em;
-    color: #ecf0f1;
-    font-weight: bold;
-    padding: 5px;
-    box-sizing: border-box;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-  }
-  .book-details h2 {
-    margin: 0 0 5px 0;
-    font-size: 1.3em;
-    color: #2c3e50;
-  }
-  .book-details p {
-    margin: 0;
-    color: #555;
-    font-size: 0.95em;
-  }
-  
-  /* Landing Pages */
-  .landing-page {
-    display: none; /* Hidden by default */
-    text-align: center;
-  }
-  .back-btn {
-    display: inline-block;
-    margin-bottom: 25px;
-    padding: 10px 20px;
-    background: #2c3e50;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 6px;
-    cursor: pointer;
-    border: none;
-    font-weight: bold;
-    transition: background 0.2s;
-  }
-  .back-btn:hover {
-    background: #1a252f;
-  }
-  .hero-image {
-    width: 250px;
-    height: 380px;
-    background: linear-gradient(135deg, #2c3e50, #34495e);
-    margin: 0 auto 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ecf0f1;
-    font-weight: bold;
-    border-radius: 6px;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-    font-size: 1.2em;
-    text-align: center;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-  .qr-code {
-    margin: 20px auto;
-    padding: 15px;
-    background: #fff;
-    border-radius: 8px;
-    display: inline-block;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  }
-  .book-link {
-    display: block;
-    font-size: 1.3em;
-    color: #2980b9;
-    text-decoration: none;
-    font-weight: bold;
-    margin-top: 15px;
-  }
-  .book-link:hover {
-    text-decoration: underline;
-    color: #1c5980;
+
+  .book-hover:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   }
 </style>
+<!-- Import Inter font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="min-h-screen text-slate-800 p-4 md:p-8">
 
-  <div class="glass-panel">
-    <h1>wallycad.com/library</h1>
+  <!-- Header -->
+  <header class="text-center mb-10 mt-4 fade-in">
+    <h1 class="text-5xl md:text-6xl font-bold text-white drop-shadow-lg tracking-tight">wallycad.com/library</h1>
+  </header>
+
+  <main class="max-w-4xl mx-auto">
     
-    <!-- Main Library View -->
-    <div id="library-view">
-      <div class="book-list">
+    <!-- MAIN LIBRARY VIEW -->
+    <div id="library-view" class="glass-panel rounded-2xl p-6 md:p-10 fade-in">
+      <h2 class="text-3xl font-bold text-center mb-8 text-slate-800 border-b-2 border-slate-300 pb-4">Bill's Books</h2>
+      
+      <div class="flex flex-col gap-4">
         
-        <div class="book-item" onclick="showLanding('golden-triangle')">
-          <div class="thumbnail">The Golden Triangle</div>
-          <div class="book-details">
-            <h2>The Golden Triangle</h2>
-            <p>Read Bill's Memoir</p>
-          </div>
-        </div>
-        
-        <div class="book-item" onclick="showLanding('charade')">
-          <div class="thumbnail">Charade</div>
-          <div class="book-details">
-            <h2>Charade</h2>
-            <p>Read Bill's Memoir</p>
+        <!-- Book 1: The Golden Triangle -->
+        <div class="book-item book-hover flex items-center p-4 rounded-xl cursor-pointer transition-all duration-300 border border-transparent hover:border-slate-200" onclick="showLanding('golden-triangle')">
+          <img src="https://placehold.co/100x150/e2e8f0/475569?text=The+Golden\nTriangle" alt="The Golden Triangle Thumbnail" class="w-20 h-28 object-cover rounded shadow-sm mr-6">
+          <div>
+            <h3 class="text-xl font-bold text-slate-800">The Golden Triangle</h3>
+            <p class="text-slate-600">Read Bill's Memoir</p>
           </div>
         </div>
 
-        <div class="book-item" onclick="showLanding('counter-point')">
-          <div class="thumbnail">Counter Point</div>
-          <div class="book-details">
-            <h2>Counter Point</h2>
-            <p>Read Bill's Book</p>
+        <hr class="border-slate-300">
+
+        <!-- Book 2: Charade -->
+        <div class="book-item book-hover flex items-center p-4 rounded-xl cursor-pointer transition-all duration-300 border border-transparent hover:border-slate-200" onclick="showLanding('charade')">
+          <img src="https://placehold.co/100x150/e2e8f0/475569?text=Charade" alt="Charade Thumbnail" class="w-20 h-28 object-cover rounded shadow-sm mr-6">
+          <div>
+            <h3 class="text-xl font-bold text-slate-800">Charade</h3>
+            <p class="text-slate-600">Read Bill's Memoir</p>
           </div>
         </div>
 
-        <div class="book-item" onclick="showLanding('calculus-pool')">
-          <div class="thumbnail">The Calculus<br>of Pool</div>
-          <div class="book-details">
-            <h2>The Calculus of Pool</h2>
-            <p>A Treatise on Billiards Vectors</p>
+        <hr class="border-slate-300">
+
+        <!-- Book 3: Counter Point -->
+        <div class="book-item book-hover flex items-center p-4 rounded-xl cursor-pointer transition-all duration-300 border border-transparent hover:border-slate-200" onclick="showLanding('counter-point')">
+          <img src="https://placehold.co/100x150/e2e8f0/475569?text=Counter\nPoint" alt="Counter Point Thumbnail" class="w-20 h-28 object-cover rounded shadow-sm mr-6">
+          <div>
+            <h3 class="text-xl font-bold text-slate-800">Counter Point</h3>
+            <p class="text-slate-600">Read Bill's Book</p>
+          </div>
+        </div>
+
+        <hr class="border-slate-300">
+
+        <!-- Book 4: The Calculus of Pool -->
+        <div class="book-item book-hover flex items-center p-4 rounded-xl cursor-pointer transition-all duration-300 border border-transparent hover:border-slate-200" onclick="showLanding('calculus-pool')">
+          <img src="https://placehold.co/100x150/e2e8f0/475569?text=Calculus\nof+Pool" alt="The Calculus of Pool Thumbnail" class="w-20 h-28 object-cover rounded shadow-sm mr-6">
+          <div>
+            <h3 class="text-xl font-bold text-slate-800">The Calculus of Pool</h3>
+            <p class="text-slate-600">A Treatise on Billiards Vectors</p>
           </div>
         </div>
 
       </div>
     </div>
 
+    <!-- LANDING PAGES -->
+
     <!-- Landing Page: The Golden Triangle -->
-    <div id="golden-triangle" class="landing-page">
-      <button class="back-btn" onclick="showLibrary()">← Back to Library</button>
-      <div class="hero-image">The Golden Triangle<br><br><span style="font-size:0.7em; font-weight:normal;">High-Res Cover Image</span></div>
-      <h2>The Golden Triangle</h2>
-      <p>An independent memoir by Barstow Bill Tonnesen.</p>
-      <div class="qr-code">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wallycad.com/library/golden-triangle" alt="QR Code for The Golden Triangle">
+    <div id="golden-triangle" class="landing-page hidden max-w-2xl mx-auto glass-panel rounded-2xl p-6 md:p-10 fade-in text-center">
+      <button onclick="showLibrary()" class="mb-6 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition font-semibold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
+        Back to Library
+      </button>
+      <img src="https://placehold.co/300x450/e2e8f0/475569?text=The+Golden\nTriangle\n(High-Res)" alt="The Golden Triangle Cover" class="mx-auto rounded-lg shadow-xl mb-6">
+      <h2 class="text-3xl font-bold mb-2">The Golden Triangle</h2>
+      <p class="text-slate-600 mb-6 text-lg">An independent memoir by Barstow Bill Tonnesen.</p>
+      <div class="bg-white p-4 rounded-xl inline-block shadow-md mb-6">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wallycad.com/library/golden-triangle" alt="QR Code" class="mx-auto">
       </div>
-      <a href="https://wallycad.com/library/golden-triangle" class="book-link" target="_blank">wallycad.com/library/golden-triangle</a>
+      <div>
+        <a href="https://wallycad.com/library/golden-triangle" class="text-blue-600 hover:text-blue-800 font-bold text-lg underline break-all">wallycad.com/library/golden-triangle</a>
+      </div>
     </div>
 
     <!-- Landing Page: Charade -->
-    <div id="charade" class="landing-page">
-      <button class="back-btn" onclick="showLibrary()">← Back to Library</button>
-      <div class="hero-image">Charade<br><br><span style="font-size:0.7em; font-weight:normal;">High-Res Cover Image</span></div>
-      <h2>Charade</h2>
-      <p>An independent memoir by Barstow Bill Tonnesen.</p>
-      <div class="qr-code">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wallycad.com/library/charade" alt="QR Code for Charade">
+    <div id="charade" class="landing-page hidden max-w-2xl mx-auto glass-panel rounded-2xl p-6 md:p-10 fade-in text-center">
+      <button onclick="showLibrary()" class="mb-6 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition font-semibold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
+        Back to Library
+      </button>
+      <img src="https://placehold.co/300x450/e2e8f0/475569?text=Charade\n(High-Res)" alt="Charade Cover" class="mx-auto rounded-lg shadow-xl mb-6">
+      <h2 class="text-3xl font-bold mb-2">Charade</h2>
+      <p class="text-slate-600 mb-6 text-lg">An independent memoir by Barstow Bill Tonnesen.</p>
+      <div class="bg-white p-4 rounded-xl inline-block shadow-md mb-6">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wallycad.com/library/charade" alt="QR Code" class="mx-auto">
       </div>
-      <a href="https://wallycad.com/library/charade" class="book-link" target="_blank">wallycad.com/library/charade</a>
+      <div>
+        <a href="https://wallycad.com/library/charade" class="text-blue-600 hover:text-blue-800 font-bold text-lg underline break-all">wallycad.com/library/charade</a>
+      </div>
     </div>
 
     <!-- Landing Page: Counter Point -->
-    <div id="counter-point" class="landing-page">
-      <button class="back-btn" onclick="showLibrary()">← Back to Library</button>
-      <div class="hero-image">Counter Point<br><br><span style="font-size:0.7em; font-weight:normal;">High-Res Cover Image</span></div>
-      <h2>Counter Point</h2>
-      <p>Read Bill's Book</p>
-      <div class="qr-code">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wallycad.com/library/counter-point" alt="QR Code for Counter Point">
+    <div id="counter-point" class="landing-page hidden max-w-2xl mx-auto glass-panel rounded-2xl p-6 md:p-10 fade-in text-center">
+      <button onclick="showLibrary()" class="mb-6 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition font-semibold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
+        Back to Library
+      </button>
+      <img src="https://placehold.co/300x450/e2e8f0/475569?text=Counter+Point\n(High-Res)" alt="Counter Point Cover" class="mx-auto rounded-lg shadow-xl mb-6">
+      <h2 class="text-3xl font-bold mb-2">Counter Point</h2>
+      <p class="text-slate-600 mb-6 text-lg">Read Bill's Book</p>
+      <div class="bg-white p-4 rounded-xl inline-block shadow-md mb-6">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wallycad.com/library/counter-point" alt="QR Code" class="mx-auto">
       </div>
-      <a href="https://wallycad.com/library/counter-point" class="book-link" target="_blank">wallycad.com/library/counter-point</a>
+      <div>
+        <a href="https://wallycad.com/library/counter-point" class="text-blue-600 hover:text-blue-800 font-bold text-lg underline break-all">wallycad.com/library/counter-point</a>
+      </div>
     </div>
 
     <!-- Landing Page: The Calculus of Pool -->
-    <div id="calculus-pool" class="landing-page">
-      <button class="back-btn" onclick="showLibrary()">← Back to Library</button>
-      <div class="hero-image">The Calculus of Pool<br><br><span style="font-size:0.7em; font-weight:normal;">High-Res Cover Image</span></div>
-      <h2>The Calculus of Pool</h2>
-      <p>A treatise on billiards vectors, tangent lines, and ball collision geometry.</p>
-      <div class="qr-code">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wallycad.com/cofp" alt="QR Code for The Calculus of Pool">
+    <div id="calculus-pool" class="landing-page hidden max-w-2xl mx-auto glass-panel rounded-2xl p-6 md:p-10 fade-in text-center">
+      <button onclick="showLibrary()" class="mb-6 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition font-semibold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
+        Back to Library
+      </button>
+      <img src="https://placehold.co/300x450/e2e8f0/475569?text=Calculus+of+Pool\n(High-Res)" alt="The Calculus of Pool Cover" class="mx-auto rounded-lg shadow-xl mb-6">
+      <h2 class="text-3xl font-bold mb-2">The Calculus of Pool</h2>
+      <p class="text-slate-600 mb-6 text-lg">A treatise on billiards vectors, tangent lines, and ball collision geometry.</p>
+      <div class="bg-white p-4 rounded-xl inline-block shadow-md mb-6">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wallycad.com/cofp" alt="QR Code" class="mx-auto">
       </div>
-      <a href="https://wallycad.com/cofp" class="book-link" target="_blank">wallycad.com/cofp</a>
+      <div>
+        <a href="https://wallycad.com/cofp" class="text-blue-600 hover:text-blue-800 font-bold text-lg underline break-all">wallycad.com/cofp</a>
+      </div>
     </div>
 
-  </div>
+  </main>
 
   <script>
     function showLanding(bookId) {
-      document.getElementById('library-view').style.display = 'none';
-      var pages = document.querySelectorAll('.landing-page');
-      pages.forEach(function(page) {
-        page.style.display = 'none';
-      });
-      document.getElementById(bookId).style.display = 'block';
-      window.scrollTo(0, 0);
+      // Hide the main library view
+      document.getElementById('library-view').classList.add('hidden');
+      
+      // Hide all landing pages
+      const pages = document.querySelectorAll('.landing-page');
+      pages.forEach(page => page.classList.add('hidden'));
+      
+      // Show the targeted landing page and scroll to top
+      const targetPage = document.getElementById(bookId);
+      targetPage.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function showLibrary() {
-      var pages = document.querySelectorAll('.landing-page');
-      pages.forEach(function(page) {
-        page.style.display = 'none';
-      });
-      document.getElementById('library-view').style.display = 'block';
+      // Hide all landing pages
+      const pages = document.querySelectorAll('.landing-page');
+      pages.forEach(page => page.classList.add('hidden'));
+      
+      // Show the main library view and scroll to top
+      const libraryView = document.getElementById('library-view');
+      libraryView.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   </script>
-
 </body>
 </html>
