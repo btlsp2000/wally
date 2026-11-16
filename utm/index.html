@@ -33,9 +33,10 @@
         }
 
         /* --- INGESTION PARSERS --- */
-        function parseTuples(txt) {
-            /* Assumes raw tuples are a single continuous [LINE] for conversion */
-            const tokens = txt.trim().split(/[\s,]+/);
+function parseTuples(txt) {
+            /* Strip angle brackets before splitting to prevent parseFloat(NaN) errors */
+            const cleanTxt = txt.replace(/[<>]/g, ' ');
+            const tokens = cleanTxt.trim().split(/[\s,]+/);
             let coords = [];
             tokens.forEach(t => {
                 let n = parseFloat(t);
