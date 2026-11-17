@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route 2: The New Family Times</title>
+    <style>
+    /* --- 1. THE ARCHITECTURAL VARIABLES --- */
+    :root {
+        --route-red: #9C2A20;       /* Oxidized brick-red for structural accents */
+        --grid-black: #1A1A1A;      /* Deep off-black for text */
+        --paper-white: #F9F9F9;     /* Soft broadsheet background */
+        --border-weight: 2px;
+    }
+
+    /* --- READ MORE LINK --- */
+    .read-more {
+        display: inline-block;
+        margin-top: 1.2rem;
+        font-family: "Georgia", serif;
+        font-size: 0.9rem;
+        font-weight: bold;
+        font-style: italic;
+        color: var(--route-red);
+        text-decoration: none;
+        border-bottom: 1px dotted var(--route-red);
+        transition: all 0.3s ease;
+    }
+
+    .read-more:hover {
+        color: var(--grid-black);
+        border-bottom: 1px solid var(--grid-black);
+    }
+
+    /* --- 2. THE BASELINE MATRIX --- */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: var(--paper-white);
+        color: var(--grid-black);
+        font-family: "Georgia", serif;
+        line-height: 1.6;
+        padding: 2rem;
+    }
+
+    /* --- 3. THE MASTER CONTAINER --- */
+    .master-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* --- 4. THE MASTHEAD --- */
+    .masthead {
+        text-align: center;
+        border-bottom: var(--border-weight) solid var(--route-red);
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .masthead h1 {
+        font-family: monospace;
+        font-size: 4rem;
+        letter-spacing: 0.1em;
+        color: var(--grid-black);
+    }
+
+    .subhead {
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--route-red);
+    }
+
+    .directory-anchor {
+        margin-top: 0.85rem;
+        font-family: monospace;
+        font-size: 0.92rem;
+        letter-spacing: 0.05em;
+    }
+
+    .armike-link {
+        color: var(--route-red);
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: border-bottom 0.3s ease;
+    }
+
+    .armike-link:hover {
+        border-bottom: 1px solid var(--grid-black);
+    }
+
+    /* --- SPARING ROUTETWO (/R2_) BUS --- */
+    .route-bus {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding-bottom: 1.25rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #ccc;
+        font-family: monospace;
+        font-size: 0.85rem;
+    }
+
+    .bus-dots {
+        color: #777;
+        letter-spacing: 0.1em;
+    }
+
+    .r2-btn {
+        background: transparent;
+        border: 1px solid var(--grid-black);
+        color: var(--grid-black);
+        font-family: monospace;
+        font-size: 0.82rem;
+        font-weight: bold;
+        padding: 0.25rem 0.65rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .r2-btn:hover {
+        border-color: var(--route-red);
+        color: var(--route-red);
+    }
+
+    .r2-btn.active {
+        background: var(--route-red);
+        border-color: var(--route-red);
+        color: var(--paper-white);
+    }
+
+    /* --- 5. THE FLEXBOX GEOMETRY --- */
+    .content-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3rem;
+        align-items: flex-start;
+    }
+
+    .feature-story {
+        flex: 2 1 60%;
+    }
+
+    .editorial-column {
+        flex: 1 1 30%;
+        border-left: 1px solid #ccc;
+        padding-left: 2rem;
+    }
+
+    /* --- 6. TYPOGRAPHY & ACCENTS --- */
+    .edition-kicker {
+        font-family: monospace;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--route-red);
+        margin-bottom: 0.35rem;
+    }
+
+    .headline {
+        font-size: 2.2rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.2;
+    }
+
+    .sub-headline {
+        font-size: 1.45rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.25;
+    }
+
+    .story-copy p {
+        margin-bottom: 1.1rem;
+    }
+
+    .pull-quote {
+        font-size: 1.4rem;
+        font-style: italic;
+        color: var(--route-red);
+        border-left: 4px solid var(--route-red);
+        padding-left: 1.5rem;
+        margin: 1.75rem 0;
+    }
+
+    .drop-cap {
+        float: left;
+        font-size: 4rem;
+        line-height: 0.8;
+        padding-right: 0.5rem;
+        color: var(--route-red);
+        font-family: monospace;
+    }
+
+    .sidebar-block {
+        margin-bottom: 2rem;
+        padding-bottom: 1.75rem;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .sidebar-block:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .meta-ledger {
+        font-family: monospace;
+        font-size: 0.8rem;
+        line-height: 1.7;
+        color: #444;
+    }
+
+    .meta-ledger strong {
+        color: var(--grid-black);
+    }
+
+    /* --- 9. THE FEATURE IMAGE --- */
+    .feature-image-container {
+        margin: 1.25rem 0 1.75rem 0;
+        width: 100%;
+    }
+
+    .feature-image {
+        width: 100%;
+        height: auto;
+        display: block;
+        border: var(--border-weight) solid var(--grid-black);
+        filter: grayscale(100%);
+    }
+
+    .image-caption {
+        margin-top: 0.5rem;
+        font-family: monospace;
+        font-size: 0.8rem;
+        color: #666;
+        text-align: right;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 0.25rem;
+    }
+
+    /* --- 8. THE COLOPHON / CREDITS --- */
+    .broadsheet-credits {
+        width: 100%;
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: var(--border-weight) solid var(--grid-black);
+        text-align: center;
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: var(--grid-black);
+        letter-spacing: 0.05em;
+    }
+
+    .broadsheet-credits p {
+        margin-bottom: 0.5rem;
+    }
+
+    .credit-title {
+        color: var(--route-red);
+        font-weight: bold;
+    }
+
+    .footer-links {
+        margin: 1rem 0;
+        font-size: 0.8rem;
+    }
+
+    .copyright {
+        margin-top: 1.25rem;
+        font-size: 0.75rem;
+        color: #666;
+    }
+
+    /* --- 7. MOBILE BREAKPOINT --- */
+    @media (max-width: 800px) {
+        body {
+            padding: 1.25rem;
+        }
+        .editorial-column {
+            border-left: none;
+            padding-left: 0;
+            border-top: var(--border-weight) solid var(--grid-black);
+            padding-top: 2rem;
+        }
+    }
+    </style>
+</head>
+<body>
+
+    <div class="master-container">
+        <header class="masthead">
+            <h1>ROUTE 2</h1>
+            <p class="subhead">THE NEW FAMILY TIMES</p>
+            <div class="directory-anchor">
+                <a href="https://wallycad.com/armike" class="armike-link">wallycad.com/armike</a> &bull;
+                <a href="https://wallycad.com/library" class="armike-link">Golden Triangle</a> &bull;
+                <a href="https://wallycad.com/transit" class="armike-link">WIB</a>
+            </div>
+        </header>
+
+        <!-- SPARING ROUTETWO (/R2_) VERSION BUS -->
+        <nav class="route-bus" aria-label="RouteTwo Editions">
+            <span class="bus-dots">...</span>
+            <button class="r2-btn" data-key="R2B" onclick="loadDispatch('R2B')">R2B</button>
+            <button class="r2-btn" data-key="R2C" onclick="loadDispatch('R2C')">R2C</button>
+            <button class="r2-btn active" data-key="R2D" onclick="loadDispatch('R2D')">R2D</button>
+            <button class="r2-btn" data-key="R2E" onclick="loadDispatch('R2E')">R2E</button>
+            <button class="r2-btn" data-key="WES" onclick="loadDispatch('WES')">WESLEY</button>
+            <button class="r2-btn" data-key="ARM" onclick="loadDispatch('ARM')">MIKE</button>
+            <button class="r2-btn" data-key="GT2" onclick="loadDispatch('GT2')">GOLDEN TRIANGLE</button>
+            <span class="bus-dots">...</span>
+        </nav>
+
+        <main class="content-grid">
+
+            <!-- THE FRONT PAGE FEATURE (READER) -->
+            <article class="feature-story" id="reader">
+                <div class="edition-kicker" id="d-kicker">EDITION R2D &bull; WRIGHTWOOD / ROUTE 2</div>
+                <h2 class="headline" id="d-headline">"The Bystander"</h2>
+
+                <!-- THE FEATURE IMAGE -->
+                <figure class="feature-image-container" id="d-figure">
+                    <img src="https://photos.app.goo.gl/cBpeTcow57DqwzLe9" alt="Route 2 Feature" class="feature-image">
+                    <figcaption class="image-caption">Photo / wallycad.com/armike registry</figcaption>
+                </figure>
+
+                <div class="story-copy" id="d-body">
+                    <p>UNDERSTOOD.</p>
+                    <p>Sheri meets Bill. She's seen him walking on the street...</p>
+                    <blockquote class="pull-quote">
+                        "Are you alright, are you sure? Can I give you some money?"
+                    </blockquote>
+                    <p>She hands Bill 3 bills folded. "Do you need a blanket, I know the fire dept well across the street, I'll ask for a blanket."</p>
+                </div>
+
+                <a href="https://wallycad.com/r2e" id="d-link" class="read-more">Continue to /r2e (1969 LBCC) &raquo;</a>
+            </article>
+
+            <!-- EDITORIAL & REMEMBRANCE SIDEBAR -->
+            <aside class="editorial-column">
+                <div class="sidebar-block">
+                    <div class="edition-kicker">1953 – 2026 &bull; BROTHERHOOD</div>
+                    <h2 class="sub-headline">Mike: A Lesson in Brother</h2>
+                    <p><span class="drop-cap">W</span>hen the traditional structures break down, twenty months of shared origin on Firmona Avenue and miles between Coquille and Portland remain fixed on the line.</p>
+                    <a href="#ARM" onclick="loadDispatch('ARM'); return false;" class="read-more">Mike Remembrance &raquo;</a>
+                </div>
+
+                <div class="sidebar-block">
+                    <div class="edition-kicker">1977 – 2022 &bull; ELDEST SON</div>
+                    <h2 class="sub-headline">Wesley: Unforgotten Coordinates</h2>
+                    <p>Firstborn son, brother to Malcolm and Justin—remembered across Carlsbad, Goodsprings, and Bend.</p>
+                    <a href="#WES" onclick="loadDispatch('WES'); return false;" class="read-more">Wesley Life Capture &raquo;</a>
+                </div>
+
+                <div class="sidebar-block meta-ledger">
+                    <div class="edition-kicker">COORDINATES &amp; ARCHIVE</div>
+                    <p><strong>WIB:</strong> Las Vegas / Paradise, NV (Q4)</p>
+                    <p><strong>LKA:</strong> Long Beach &rarr; Lennox &rarr; Westminster &rarr; Carlsbad &rarr; Portland &rarr; Vegas</p>
+                    <p><strong>ARC:</strong> <a href="https://wallycad.com/library" class="armike-link">The New Golden Triangle</a></p>
+                </div>
+            </aside>
+
+        </main>
+
+        <!-- THE PUBLISHING CREDITS -->
+        <footer class="broadsheet-credits">
+            <p><span class="credit-title">ARCHITECT &amp; PUBLISHER:</span> Bill Tonnesen</p>
+            <p><span class="credit-title">SYSTEMS &amp; TYPESETTING:</span> WallyCAD Engine / SquareFont</p>
+            <p><span class="credit-title">ARCHIVE &amp; REGISTRY:</span> Rainy Day Crafts</p>
+            <p class="footer-links">
+                <a href="/library" class="armike-link">Read Bill's Books</a> &bull;
+                <a href="/photo-story" class="armike-link">Photo Story</a> &bull;
+                <a href="https://camera-mtx-rtc.tt2468.net/hwy2_mtnhardware/" target="_blank" rel="noopener noreferrer" class="armike-link">Hwy 2 Mountain Hardware Cam</a>
+            </p>
+            <p class="copyright">&copy; 2026. All routes reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+    const DISPATCHES = {
+        R2B: {
+            kicker: "EDITION R2B &bull; 1966 WESTMINSTER",
+            headline: "1966: La Quinta & The Summer the Line Broke",
+            showImage: false,
+            html: `
+                <p>It was the start of the 1966 school year. Bill enrolled next door in La Quinta High School in Westminster, California.</p>
+                <blockquote class="pull-quote">"That summer Bill's father left forever, his wife and children, Bill..."</blockquote>
+                <p>Carrying the sudden weight of a fractured household, Bill stepped onto a new campus while holding onto the tactile roots of eighth-grade and freshman woodshop in Lennox.</p>
+            `,
+            linkText: "Continue to R2C (1967–68 Long Beach) »",
+            linkHref: "#R2C"
+        },
+        R2C: {
+            kicker: "EDITION R2C &bull; 1967–1968 LONG BEACH",
+            headline: "Bermuda Street & Poly High Drafting",
+            showImage: false,
+            html: `
+                <p>Returning to Long Beach established a baseline on Bermuda Street, between Cherry and Orange Avenue at Grandma Pearl's house.</p>
+                <blockquote class="pull-quote">"In drafting and Machinery's Handbook, if two lines don't meet at the right tolerance, you recalculate until the structure holds."</blockquote>
+                <p>Between Poly High drafting class and afternoons at the 3rd Street Library, numbers and mechanical geometry replaced guesswork.</p>
+            `,
+            linkText: "Continue to R2E (1969 LBCC) »",
+            linkHref: "#R2E"
+        },
+        R2D: {
+            kicker: "EDITION R2D &bull; WRIGHTWOOD / ROUTE 2",
+            headline: "\"The Bystander\"",
+            showImage: true,
+            html: `
+                <p>UNDERSTOOD.</p>
+                <p>Sheri meets Bill. She's seen him walking on the street...</p>
+                <blockquote class="pull-quote">"Are you alright, are you sure? Can I give you some money?"</blockquote>
+                <p>She hands Bill 3 bills folded. "Do you need a blanket, I know the fire dept well across the street, I'll ask for a blanket."</p>
+            `,
+            linkText: "Read the full entry »",
+            linkHref: "https://wallycad.com/route2/"
+        },
+        R2E: {
+            kicker: "EDITION R2E &bull; 1969 LONG BEACH CITY COLLEGE",
+            headline: "1969: Special Exception at LBCC",
+            showImage: false,
+            html: `
+                <p>In 1969, Mr. Chard got Bill into Long Beach City College (LBCC), Long Beach, California—Bill's birthplace, and his father's birthplace, one generation removed from his grandfather's birthplace in Salt Lake City, Utah.</p>
+                <p>That year before becoming a college student, Bill completed his high school years as a senior and received no diploma. Bill was given a special exception to start his higher education, registering in four classes: Drafting, College Algebra, Machine Shop, and Speed Reading.</p>
+                <blockquote class="pull-quote">"At the time, higher education was taboo at the religious system Bill joined at the urging of his mother, baptized at age 9. Bill was a conflicted renegade."</blockquote>
+                <p>Bill enjoyed Machine Shop—it recreated the roots of woodshop from his 8th grade and high school freshman year in Lennox. The first assignment was sharpening cutting tools; next, turning a slug on the lathe...</p>
+            `,
+            linkText: "Open standalone /r2e broadsheet »",
+            linkHref: "https://wallycad.com/r2e"
+        },
+        WES: {
+            kicker: "LIFE CAPTURE &bull; WESLEY TONNESEN (1977–2022)",
+            headline: "Wesley: Eldest Son, Unforgotten Coordinates",
+            showImage: false,
+            html: `
+                <p>Born in 1977, Wesley was the eldest of Bill and Lydia's three sons—firstborn brother to Malcolm and Justin, and the anchor of Bill's early family years in Carlsbad and San Diego North County.</p>
+                <blockquote class="pull-quote">"Time moves and miles pile up, but the firstborn coordinate never leaves the survey sheet."</blockquote>
+                <p>His passing in April 2022 left a permanent silence across Goodsprings, Nevada and Bend, Oregon—preserved honestly in the /wesley life-capture archive.</p>
+            `,
+            linkText: "Open /wesley Archive »",
+            linkHref: "https://wallycad.com/wesley"
+        },
+        ARM: {
+            kicker: "LIFE CAPTURE &bull; MICHAEL TONNESEN (1953–2026)",
+            headline: "Mike: Twenty Months Behind, Always on the Same Line",
+            showImage: false,
+            html: `
+                <p>Born March 12, 1953—twenty months after Bill—Mike shared the earliest coordinates of childhood on Firmona Avenue in Lennox, the upheaval of 1966, and decades of miles between Coquille and Portland.</p>
+                <blockquote class="pull-quote">"To Mike, he will always be Bei—and a fractured timeline never erases the shared foundation."</blockquote>
+                <p>Remembered following his passing on June 3, 2026 at Salem Hospital, and chronicled in the ARMike memorial archive.</p>
+            `,
+            linkText: "Open /armike Portal »",
+            linkHref: "https://wallycad.com/armike"
+        },
+        GT2: {
+            kicker: "MASTER SYNTHESIS &bull; THE NEW GOLDEN TRIANGLE",
+            headline: "Where All Coordinates Converge",
+            showImage: false,
+            html: `
+                <p>The New Golden Triangle integrates RouteTwo (R2B–R2E), Family Times, Last Known Address (LKA), Where is Bill (WIB), and the Wesley and Mike remembrance archives into a single triangulated record.</p>
+                <blockquote class="pull-quote">"Measure the angles, verify the last known address, honor the dead, and keep building the next line."</blockquote>
+                <p>Spanning Long Beach and San Diego North County, the Mojave and Las Vegas valley, and the Pacific Northwest, every stop serves as a verified survey monument.</p>
+            `,
+            linkText: "Read The Golden Triangle in Library »",
+            linkHref: "https://wallycad.com/library"
+        }
+    };
+
+    function loadDispatch(key) {
+        const d = DISPATCHES[key];
+        if (!d) return;
+
+        document.getElementById("d-kicker").innerHTML = d.kicker;
+        document.getElementById("d-headline").textContent = d.headline;
+        document.getElementById("d-figure").style.display = d.showImage ? "block" : "none";
+        document.getElementById("d-body").innerHTML = d.html;
+
+        const linkEl = document.getElementById("d-link");
+        linkEl.textContent = d.linkText;
+        linkEl.href = d.linkHref;
+        linkEl.onclick = d.linkHref.startsWith("#")
+            ? (e) => { e.preventDefault(); loadDispatch(d.linkHref.slice(1)); }
+            : null;
+
+        document.querySelectorAll(".r2-btn").forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.key === key);
+        });
+
+        history.replaceState(null, "", `#${key}`);
+    }
+
+    const startHash = window.location.hash.replace("#", "").toUpperCase();
+    if (DISPATCHES[startHash]) loadDispatch(startHash);
+    </script>
+
+</body>
+</html>
