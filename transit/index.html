@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIB Transit Integration | WallyCAD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #050505; /* Deep CAD Black */
+            color: #e5e7eb;
+            overflow: hidden;
+        }
+        
+        /* Custom UI Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* Glowing text effects */
+        .neon-text-green { text-shadow: 0 0 5px rgba(0, 255, 128, 0.5); }
+        .neon-text-blue { text-shadow: 0 0 5px rgba(0, 200, 255, 0.5); }
+
+        .route-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .route-btn.active {
+            background-color: #1f2937;
+            border-left-color: currentColor;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col">
+
+    <!-- Top Navigation / Header -->
+    <header class="flex-none h-12 bg-neutral-900 border-b border-neutral-700 flex items-center justify-between px-6 select-none z-10 shadow-lg">
+        <div class="flex items-center space-x-4">
+            <span class="text-green-400 font-bold tracking-widest text-lg neon-text-green">WallyCAD</span>
+            <span class="text-neutral-500 text-sm">/</span>
+            <span class="text-neutral-300 text-sm font-semibold tracking-wide">WIB_TRANSIT_INTEGRATION</span>
+        </div>
+        <div class="flex items-center space-x-4 text-xs">
+            <span class="text-neutral-500">COORD_SYS: CARTESIAN</span>
+            <span class="text-neutral-500">SCALE: <span id="ui-scale">1:12</span></span>
+            <div class="flex items-center space-x-2">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span class="text-green-400">SYS_ONLINE</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex overflow-hidden">
+        
+        <!-- Sidebar Controls -->
+        <aside class="w-80 bg-neutral-900 border-r border-neutral-800 flex flex-col z-10 shadow-2xl overflow-y-auto">
+            <div class="p-4 border-b border-neutral-800">
+                <h2 class="text-xs text-neutral-500 uppercase tracking-widest mb-1">Command Interface</h2>
+                <p class="text-sm text-neutral-300">Select active vector path</p>
+            </div>
+
+            <!-- Route Selectors -->
+            <div class="flex flex-col p-2 space-y-1" id="route-list">
+                <!-- Buttons injected via JS -->
+            </div>
+
+            <!-- SDJ Data Output View -->
+            <div class="mt-auto border-t border-neutral-800 flex-1 p-4 bg-black flex flex-col">
+                <h3 class="text-[10px] text-neutral-500 uppercase tracking-widest mb-2 flex justify-between">
+                    <span>Parsed SDJ Tuple Data</span>
+                    <span id="node-count">0 Nodes</span>
+                </h3>
+                <div class="flex-1 overflow-y-auto font-mono text-[10px] text-neutral-400 bg-neutral-900 p-2 rounded border border-neutral-800" id="sdj-output">
+                    // Awaiting route selection...
+                </div>
+            </div>
+        </aside>
+
+        <!-- CAD Canvas Area -->
+        <section class="flex-1 relative bg-[#0a0a0c] cursor-crosshair overflow-hidden" id="canvas-container">
+            <canvas id="wib-board" class="absolute inset-0 block w-full h-full"></canvas>
+            
+            <!-- Floating Overlay Information -->
+            <div class="absolute bottom-4 left-4 pointer-events-none">
+                <div class="text-[10px] text-neutral-600 font-mono">
+                    MOUSE_POS: [<span id="mouse-x">0.00</span>, <span id="mouse-y">0.00</span>]<br>
+                    WIB_GRID: ACTIVE
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- Mock SDJ (Spatial Data JSON) Route Definitions ---
+        // Coordinates represent spatial relationship on the WIB modular board.
+        const transitData = {
+            "sys-overview": {
+                name: "SYSTEM OVERVIEW",
+                color: "#4ade80", // Green
+                renderAll: true
+            },
+            "coast-starlight": {
+                name: "Amtrak Coast Starlight",
+                color: "#06b6d4", // Cyan
+                nodes: [
+                    { id: "pdx", name: "Portland (PDX)", x: -15, y: 70 },
+                    { id: "sle", name: "Salem (SLE)", x: -20, y: 35 },
+                    { id: "alb", name: "Albany (ALY)", x: -22, y: 15 },
+                    { id: "eug", name: "Eugene (EUG)", x: -25, y: -10 },
+                    { id: "kfs", name: "Klamath Falls (KFS)", x: 30, y: -65 }
+                ]
+            },
+            "point-cascades": {
+                name: "POINT Cascades Bus",
+                color: "#fbbf24", // Amber
+                nodes: [
+                    { id: "pdx", name: "Portland Union Stn", x: -15, y: 70 },
+                    { id: "tua", name: "Tualatin P&R", x: -17, y: 55 },
+                    { id: "wls", name: "Wilsonville", x: -18, y: 48 },
+                    { id: "sle", name: "Salem Amtrak", x: -20, y: 35 },
+                    { id: "alb", name: "Albany Station", x: -22, y: 15 },
+                    { id: "eug", name: "Eugene Station", x: -25, y: -10 }
+                ]
+            },
+            "smart-1x": {
+                name: "SMART 1X Express",
+                color: "#ec4899", // Pink
+                nodes: [
+                    { id: "sle", name: "Salem Downtown Transit Center", x: -21, y: 33 },
+                    { id: "s-cap", name: "State Capitol", x: -19, y: 35 },
+                    { id: "wls-stn", name: "Wilsonville Station (WES)", x: -18, y: 48 }
+                ]
+            }
+        };
+
+        // --- State Variables ---
+        let activeRoute = "sys-overview";
+        let canvas, ctx;
+        let originX, originY;
+        let scale = 6; // Pixels per internal coordinate unit
+        
+        // --- Initialization ---
+        function init() {
+            canvas = document.getElementById('wib-board');
+            ctx = canvas.getContext('2d');
+            
+            buildUI();
+            resizeCanvas();
+            
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Mouse tracking for coordinate display
+            canvas.addEventListener('mousemove', handleMouseMove);
+            
+            // Initial render
+            selectRoute('sys-overview');
+            renderLoop();
+        }
+
+        // --- Build Sidebar UI ---
+        function buildUI() {
+            const list = document.getElementById('route-list');
+            list.innerHTML = '';
+            
+            Object.keys(transitData).forEach(key => {
+                const data = transitData[key];
+                const btn = document.createElement('button');
+                btn.id = `btn-${key}`;
+                btn.className = `route-btn w-full text-left px-4 py-3 rounded text-sm font-semibold border-l-4 border-transparent hover:bg-neutral-800 text-neutral-300 focus:outline-none flex justify-between items-center`;
+                
+                // Color indicator dot
+                const colorDot = `<span class="inline-block w-2.5 h-2.5 rounded-full" style="background-color: ${data.color}; box-shadow: 0 0 5px ${data.color};"></span>`;
+                
+                btn.innerHTML = `
+                    <span style="color: ${key === 'sys-overview' ? '#fff' : data.color}">${data.name}</span>
+                    ${colorDot}
+                `;
+                
+                btn.onclick = () => selectRoute(key);
+                list.appendChild(btn);
+            });
+        }
+
+        // --- Route Selection & Data Parsing ---
+        function selectRoute(routeKey) {
+            activeRoute = routeKey;
+            
+            // Update UI buttons
+            document.querySelectorAll('.route-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-neutral-800');
+                btn.style.borderLeftColor = 'transparent';
+            });
+            const activeBtn = document.getElementById(`btn-${routeKey}`);
+            activeBtn.classList.add('active');
+            activeBtn.style.borderLeftColor = transitData[routeKey].color;
+            
+            // Update Output Window
+            updateSDJOutput(routeKey);
+            
+            // Trigger redraw
+            drawBoard();
+        }
+
+        function updateSDJOutput(key) {
+            const output = document.getElementById('sdj-output');
+            const count = document.getElementById('node-count');
+            
+            if (transitData[key].renderAll) {
+                output.innerHTML = "// Parsing comprehensive matrix...<br>// UTM Mode: ACTIVE<br>// Rendering all active transit layers.";
+                count.innerText = "MULTIPLE";
+                return;
+            }
+
+            const nodes = transitData[key].nodes;
+            count.innerText = `${nodes.length} Nodes`;
+            
+            // Formulate mock SDJ format
+            let jsonString = `{\n  "route": "${transitData[key].name}",\n  "color": "${transitData[key].color}",\n  "anchor_nodes": [\n`;
+            nodes.forEach((n, i) => {
+                jsonString += `    { "id": "${n.id}", "loc": [${n.x.toFixed(2)}, ${n.y.toFixed(2)}] }${i < nodes.length - 1 ? ',' : ''}\n`;
+            });
+            jsonString += `  ]\n}`;
+            
+            output.innerHTML = jsonString.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;');
+        }
+
+        // --- Canvas Geometry & Rendering ---
+        function resizeCanvas() {
+            const container = document.getElementById('canvas-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            
+            // Set origin (0,0) to center of the canvas
+            originX = Math.floor(canvas.width / 2);
+            originY = Math.floor(canvas.height / 2);
+            
+            drawBoard();
+        }
+
+        // Convert Math coords (Y up) to Canvas coords (Y down)
+        function toScreen(x, y) {
+            return {
+                x: originX + (x * scale),
+                y: originY - (y * scale)
+            };
+        }
+
+        // Convert Canvas coords to Math coords
+        function toWorld(screenX, screenY) {
+            return {
+                x: (screenX - originX) / scale,
+                y: (originY - screenY) / scale
+            };
+        }
+
+        function handleMouseMove(e) {
+            const rect = canvas.getBoundingClientRect();
+            const world = toWorld(e.clientX - rect.left, e.clientY - rect.top);
+            document.getElementById('mouse-x').innerText = world.x.toFixed(2).padStart(6, ' ');
+            document.getElementById('mouse-y').innerText = world.y.toFixed(2).padStart(6, ' ');
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = '#1a1a24'; // Very subtle grid
+            ctx.lineWidth = 1;
+
+            // Calculate grid bounds
+            const xMax = canvas.width / scale / 2;
+            const yMax = canvas.height / scale / 2;
+
+            ctx.beginPath();
+            // Draw vertical lines
+            for (let x = -xMax; x <= xMax; x++) {
+                if (Math.floor(x) % 10 === 0) {
+                    let p1 = toScreen(x, -yMax);
+                    let p2 = toScreen(x, yMax);
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                }
+            }
+            // Draw horizontal lines
+            for (let y = -yMax; y <= yMax; y++) {
+                if (Math.floor(y) % 10 === 0) {
+                    let p1 = toScreen(-xMax, y);
+                    let p2 = toScreen(xMax, y);
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                }
+            }
+            ctx.stroke();
+
+            // Draw primary Axes
+            ctx.strokeStyle = '#2d3748'; // Lighter axes
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            // X Axis
+            ctx.moveTo(0, originY);
+            ctx.lineTo(canvas.width, originY);
+            // Y Axis
+            ctx.moveTo(originX, 0);
+            ctx.lineTo(originX, canvas.height);
+            ctx.stroke();
+            
+            // Draw origin marker
+            ctx.fillStyle = '#4a5568';
+            ctx.fillRect(originX - 2, originY - 2, 4, 4);
+        }
+
+        function drawRouteLayer(data) {
+            if (!data.nodes || data.nodes.length === 0) return;
+
+            const nodes = data.nodes;
+            const routeColor = data.color;
+
+            // Draw Vectors (Lines)
+            ctx.beginPath();
+            ctx.strokeStyle = routeColor;
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = routeColor;
+            
+            let start = toScreen(nodes[0].x, nodes[0].y);
+            ctx.moveTo(start.x, start.y);
+
+            for (let i = 1; i < nodes.length; i++) {
+                let p = toScreen(nodes[i].x, nodes[i].y);
+                ctx.lineTo(p.x, p.y);
+            }
+            ctx.stroke();
+
+            // Reset shadow for nodes and text to prevent fuzziness on labels
+            ctx.shadowBlur = 0;
+
+            // Draw Nodes (Anchor Points)
+            nodes.forEach(n => {
+                let p = toScreen(n.x, n.y);
+                
+                // Crosshair/Node style
+                ctx.fillStyle = '#050505'; // Cutout center
+                ctx.strokeStyle = routeColor;
+                ctx.lineWidth = 2;
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Draw Label
+                ctx.fillStyle = '#d1d5db'; // Light gray text
+                ctx.font = '10px "JetBrains Mono"';
+                
+                // Calculate label offset to prevent line overlap
+                const textOffset = 8;
+                ctx.fillText(`[${n.id.toUpperCase()}]`, p.x + textOffset, p.y - textOffset);
+            });
+        }
+
+        function drawBoard() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawGrid();
+
+            // Determine what to draw
+            const routeDef = transitData[activeRoute];
+            if (routeDef.renderAll) {
+                // Render all routes
+                Object.keys(transitData).forEach(key => {
+                    if (!transitData[key].renderAll) {
+                        drawRouteLayer(transitData[key]);
+                    }
+                });
+            } else {
+                // Render specific route
+                drawRouteLayer(routeDef);
+            }
+        }
+
+        // Optional: Simple animation loop if pulsing/dynamic effects are desired later
+        // Currently just static rendering on selection/resize to save CPU, but structured for loops.
+        function renderLoop() {
+            // Uncomment line below to force continuous draw loop 
+            // requestAnimationFrame(renderLoop);
+            // drawBoard();
+        }
+
+        // Start
+        window.onload = init;
+
+    </script>
+</body>
+</html>
