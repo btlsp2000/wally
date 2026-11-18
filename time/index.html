@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tap to Declare Time</title>
+  <!-- Load Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Load Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Base typography and custom animations */
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* Ripple effect animation on tap/click */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple-animation 0.7s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    @keyframes ripple-animation {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    /* Subtle breathing glow when speaking */
+    @keyframes speaking-pulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 0 24px rgba(99, 102, 241, 0);
+      }
+    }
+
+    .is-speaking {
+      animation: speaking-pulse 1.5s infinite;
+    }
+
+    /* Soundwave bars animation */
+    @keyframes sound-bar {
+      0%, 100% { height: 6px; }
+      50% { height: 22px; }
+    }
+
+    .bar-1 { animation: sound-bar 0.6s ease-in-out infinite 0.0s; }
+    .bar-2 { animation: sound-bar 0.6s ease-in-out infinite 0.15s; }
+    .bar-3 { animation: sound-bar 0.6s ease-in-out infinite 0.3s; }
+    .bar-4 { animation: sound-bar 0.6s ease-in-out infinite 0.15s; }
+
+    /* Tabular numbers to prevent layout jitter as seconds tick */
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Enable text selection inside inputs */
+    input {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+  </style>
+</head>
+<body class="min-h-screen w-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 transition-colors duration-300 overflow-x-hidden relative flex flex-col justify-between">
+
+  <!-- Interactive Full-Screen Tap Surface -->
+  <div id="tapSurface" class="fixed inset-0 z-0 cursor-pointer" aria-label="Single tap anywhere to hear the current time, or double tap to open your configured web page"></div>
+
+  <!-- Top Navigation / Controls Bar -->
+  <header class="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 pt-6 flex items-center justify-between pointer-events-none">
+    <!-- App Brand / Status -->
+    <div class="flex items-center gap-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-full border border-slate-200/80 dark:border-slate-800/80 shadow-sm pointer-events-auto">
+      <span class="relative flex h-2.5 w-2.5">
+        <span id="statusPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span id="statusDot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+      </span>
+      <span class="text-xs sm:text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-300">Vocal Clock</span>
+    </div>
+
+    <!-- Right Controls: Format Toggle & Theme Toggle -->
+    <div class="flex items-center gap-2 sm:gap-3 pointer-events-auto">
+      <!-- 12H / 24H Segmented Toggle -->
+      <div role="group" aria-label="Time format toggle" class="inline-flex items-center bg-slate-200/80 dark:bg-slate-800/90 backdrop-blur-md p-1 rounded-full border border-slate-300/50 dark:border-slate-700/50 shadow-sm">
+        <button id="btn12h" type="button" aria-pressed="true" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 bg-white dark:bg-slate-950 text-indigo-600 dark:text-indigo-400 shadow-sm">
+          12H
+        </button>
+        <button id="btn24h" type="button" aria-pressed="false" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200">
+          24H
+        </button>
+      </div>
+
+      <!-- Dark/Light Theme Toggle Button -->
+      <button id="themeToggle" type="button" aria-label="Toggle color theme" class="p-2.5 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm">
+        <!-- Sun Icon (shown in dark mode) -->
+        <svg id="sunIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+        <!-- Moon Icon (shown in light mode) -->
+        <svg id="moonIcon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Clock Display Area -->
+  <main class="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center pointer-events-none">
+    
+    <!-- Date Pill -->
+    <div class="mb-4 sm:mb-6">
+      <p id="dateDisplay" class="text-sm sm:text-base md:text-lg font-medium text-slate-500 dark:text-slate-400 tracking-wide uppercase">
+        Loading date...
+      </p>
+    </div>
+
+    <!-- Clock Card -->
+    <div id="clockCard" class="relative bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 rounded-3xl px-6 py-8 sm:px-12 sm:py-12 md:px-16 md:py-14 shadow-xl shadow-slate-200/50 dark:shadow-black/40 transition-all duration-300 max-w-full">
+      
+      <!-- Digital Time Wrapper -->
+      <div class="flex items-baseline justify-center gap-2 sm:gap-3 tabular-nums">
+        <span id="timeMain" class="text-6xl sm:text-8xl md:text-9xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-none">
+          00:00
+        </span>
+        
+        <div class="flex flex-col items-start justify-end pb-1 sm:pb-2">
+          <span id="timePeriod" class="text-lg sm:text-2xl md:text-3xl font-bold text-indigo-600 dark:text-indigo-400 leading-none mb-1">
+            AM
+          </span>
+          <span id="timeSeconds" class="text-xl sm:text-3xl md:text-4xl font-semibold text-slate-400 dark:text-slate-500 leading-none">
+            00
+          </span>
+        </div>
+      </div>
+
+      <!-- Live Spoken Transcript / Subtitle Banner -->
+      <div class="mt-6 sm:mt-8 min-h-[2.5rem] flex items-center justify-center">
+        <div id="speechStatusBadge" class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 text-xs sm:text-sm font-medium transition-all duration-300">
+          <!-- Animated Equalizer (Hidden unless speaking) -->
+          <div id="soundWave" class="hidden items-center gap-1 h-5">
+            <span class="w-1 bg-indigo-500 rounded-full bar-1"></span>
+            <span class="w-1 bg-indigo-500 rounded-full bar-2"></span>
+            <span class="w-1 bg-indigo-500 rounded-full bar-3"></span>
+            <span class="w-1 bg-indigo-500 rounded-full bar-4"></span>
+          </div>
+          <span id="speechText">Single Tap: Declare Time &bull; Double Tap: Open Page</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dedicated Accessible Action Button -->
+    <div class="mt-6 sm:mt-8 pointer-events-auto">
+      <button id="speakBtn" type="button" class="group relative inline-flex items-center gap-3 px-7 py-3.5 sm:px-8 sm:py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold text-base sm:text-lg shadow-lg shadow-indigo-600/30 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-500/40">
+        <svg class="w-6 h-6 transition-transform duration-200 group-hover:scale-110" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+        </svg>
+        <span>Declare Time</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Bottom Target URL Configuration Bar & Hints -->
+  <footer class="relative z-10 w-full max-w-2xl mx-auto px-4 pb-6 pt-2 flex flex-col items-center gap-3 pointer-events-none">
+    
+    <!-- URL Configuration Card -->
+    <div id="urlConfigBar" class="w-full bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 rounded-2xl p-2.5 sm:p-3 shadow-lg shadow-slate-200/40 dark:shadow-black/30 pointer-events-auto">
+      <form id="urlForm" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <label for="targetUrlInput" class="sr-only">Double-tap target web page URL</label>
+        
+        <!-- Input with Globe Icon -->
+        <div class="relative flex-1 flex items-center">
+          <span class="absolute left-3 text-slate-400 dark:text-slate-500 pointer-events-none">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+            </svg>
+          </span>
+          <input
+            id="targetUrlInput"
+            type="text"
+            inputmode="url"
+            autocomplete="url"
+            placeholder="https://en.wikipedia.org"
+            aria-label="Double-tap target web page URL"
+            class="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-indigo-500 transition-all"
+          />
+        </div>
+
+        <!-- Save & Test/Open Buttons -->
+        <div class="flex items-center gap-2">
+          <button
+            id="saveUrlBtn"
+            type="submit"
+            class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-white active:scale-95 transition-all shadow-sm"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>Save</span>
+          </button>
+
+          <button
+            id="openUrlBtn"
+            type="button"
+            title="Open target web page now"
+            aria-label="Open target web page now"
+            class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-emerald-600/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-600/20 dark:border-emerald-400/20 hover:bg-emerald-600/20 dark:hover:bg-emerald-500/25 active:scale-95 transition-all"
+          >
+            <span>Open</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Gesture Legend & Keyboard Shortcut -->
+    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 text-center">
+      <span class="font-medium text-slate-700 dark:text-slate-300">Single Tap</span> or <kbd class="px-1.5 py-0.5 text-xs font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded border border-slate-300 dark:border-slate-700">Space</kbd> to Speak &bull; <span class="font-medium text-emerald-600 dark:text-emerald-400">Double Tap</span> to Open Page
+    </p>
+
+    <!-- Custom Non-Blocking Feedback Toast -->
+    <div id="toastMessage" role="status" aria-live="polite" class="hidden mx-auto max-w-md bg-slate-900 dark:bg-slate-800 text-white text-xs sm:text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg border border-slate-700/80 transition-all">
+      Notification
+    </div>
+  </footer>
+
+  <script>
+    /**
+     * Application State & Configuration
+     */
+    const STORAGE_KEY_URL = 'vocalClock_doubleTapUrl';
+    const DEFAULT_TARGET_URL = 'https://en.wikipedia.org';
+    const DOUBLE_TAP_DELAY_MS = 300;
+
+    const state = {
+      is24Hour: false,
+      isSpeaking: false,
+      darkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches,
+      preferredVoice: null,
+      targetUrl: DEFAULT_TARGET_URL,
+      tapTimer: null,
+      toastTimer: null
+    };
+
+    /**
+     * DOM Element References
+     */
+    const elements = {
+      html: document.documentElement,
+      tapSurface: document.getElementById('tapSurface'),
+      clockCard: document.getElementById('clockCard'),
+      timeMain: document.getElementById('timeMain'),
+      timeSeconds: document.getElementById('timeSeconds'),
+      timePeriod: document.getElementById('timePeriod'),
+      dateDisplay: document.getElementById('dateDisplay'),
+      btn12h: document.getElementById('btn12h'),
+      btn24h: document.getElementById('btn24h'),
+      speakBtn: document.getElementById('speakBtn'),
+      speechStatusBadge: document.getElementById('speechStatusBadge'),
+      soundWave: document.getElementById('soundWave'),
+      speechText: document.getElementById('speechText'),
+      themeToggle: document.getElementById('themeToggle'),
+      sunIcon: document.getElementById('sunIcon'),
+      moonIcon: document.getElementById('moonIcon'),
+      urlConfigBar: document.getElementById('urlConfigBar'),
+      urlForm: document.getElementById('urlForm'),
+      targetUrlInput: document.getElementById('targetUrlInput'),
+      openUrlBtn: document.getElementById('openUrlBtn'),
+      toastMessage: document.getElementById('toastMessage')
+    };
+
+    /**
+     * Show non-blocking status toast
+     */
+    function showToast(message, variant = 'info') {
+      clearTimeout(state.toastTimer);
+      elements.toastMessage.textContent = message;
+
+      elements.toastMessage.classList.remove(
+        'hidden',
+        'bg-rose-600',
+        'bg-emerald-600',
+        'bg-slate-900',
+        'dark:bg-slate-800'
+      );
+
+      if (variant === 'error') {
+        elements.toastMessage.classList.add('bg-rose-600');
+      } else if (variant === 'success') {
+        elements.toastMessage.classList.add('bg-emerald-600');
+      } else {
+        elements.toastMessage.classList.add('bg-slate-900', 'dark:bg-slate-800');
+      }
+
+      state.toastTimer = setTimeout(() => {
+        elements.toastMessage.classList.add('hidden');
+      }, 3500);
+    }
+
+    /**
+     * Normalize and validate user-entered URLs (auto-prepending https:// if omitted)
+     */
+    function normalizeUrl(rawInput) {
+      const trimmed = (rawInput || '').trim();
+      if (!trimmed) return null;
+
+      const withProtocol = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(trimmed)
+        ? trimmed
+        : `https://${trimmed}`;
+
+      try {
+        const parsed = new URL(withProtocol);
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+          return null;
+        }
+        return parsed.href;
+      } catch {
+        return null;
+      }
+    }
+
+    /**
+     * Load persisted target URL from localStorage
+     */
+    function loadSavedUrl() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_URL);
+        if (saved) {
+          const valid = normalizeUrl(saved);
+          if (valid) {
+            state.targetUrl = valid;
+          }
+        }
+      } catch {
+        // Ignore storage access errors in restricted frames
+      }
+      elements.targetUrlInput.value = state.targetUrl;
+    }
+
+    /**
+     * Save target URL to state and localStorage
+     */
+    function saveTargetUrl(rawValue) {
+      const normalized = normalizeUrl(rawValue);
+      if (!normalized) {
+        showToast('Please enter a valid web address (e.g., https://example.com)', 'error');
+        return false;
+      }
+
+      state.targetUrl = normalized;
+      elements.targetUrlInput.value = normalized;
+
+      try {
+        localStorage.setItem(STORAGE_KEY_URL, normalized);
+      } catch {
+        // Ignore storage access errors
+      }
+
+      showToast(`Double-tap destination saved: ${normalized}`, 'success');
+      return true;
+    }
+
+    /**
+     * Open the configured web page in a new tab
+     */
+    function openTargetPage(clientX = window.innerWidth / 2, clientY = window.innerHeight / 2) {
+      // Ensure latest input value is normalized if user edited without hitting Save
+      const currentInputVal = elements.targetUrlInput.value.trim();
+      if (currentInputVal && normalizeUrl(currentInputVal) && normalizeUrl(currentInputVal) !== state.targetUrl) {
+        saveTargetUrl(currentInputVal);
+      }
+
+      triggerRipple(clientX, clientY, 'emerald');
+      showToast(`Opening ${state.targetUrl}...`, 'success');
+
+      const openedWindow = window.open(state.targetUrl, '_blank', 'noopener,noreferrer');
+      if (!openedWindow) {
+        showToast('Pop-up blocked by browser. Please allow pop-ups or tap "Open".', 'error');
+      }
+    }
+
+    /**
+     * Initialize Theme (Dark / Light)
+     */
+    function applyTheme() {
+      if (state.darkMode) {
+        elements.html.classList.add('dark');
+        elements.sunIcon.classList.remove('hidden');
+        elements.moonIcon.classList.add('hidden');
+      } else {
+        elements.html.classList.remove('dark');
+        elements.sunIcon.classList.add('hidden');
+        elements.moonIcon.classList.remove('hidden');
+      }
+    }
+
+    /**
+     * Load and select the most natural-sounding English voice available
+     */
+    function loadVoices() {
+      if (!('speechSynthesis' in window)) return;
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices.length) return;
+
+      // Prioritize natural/enhanced English voices
+      state.preferredVoice =
+        voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Daniel'))) ||
+        voices.find(v => v.lang.startsWith('en')) ||
+        voices[0];
+    }
+
+    if ('speechSynthesis' in window) {
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    /**
+     * Update the visual clock display every tick
+     */
+    function updateClockDisplay() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+
+      // Format Date
+      const dateOptions = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+      elements.dateDisplay.textContent = now.toLocaleDateString(undefined, dateOptions);
+
+      // Format Hours & AM/PM
+      if (state.is24Hour) {
+        elements.timeMain.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        elements.timePeriod.classList.add('hidden');
+      } else {
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12;
+        elements.timeMain.textContent = `${String(displayHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        elements.timePeriod.textContent = period;
+        elements.timePeriod.classList.remove('hidden');
+      }
+
+      // Format Seconds
+      elements.timeSeconds.textContent = String(seconds).padStart(2, '0');
+    }
+
+    /**
+     * Generate natural spoken text for the current time
+     */
+    function buildSpokenTimeString(dateObj) {
+      const hours24 = dateObj.getHours();
+      const minutes = dateObj.getMinutes();
+
+      if (state.is24Hour) {
+        const hourStr = hours24 === 0 ? 'zero' : String(hours24);
+        if (minutes === 0) {
+          return `The time is ${hourStr} hundred hours.`;
+        }
+        const minStr = minutes < 10 ? `zero ${minutes}` : String(minutes);
+        return `The time is ${hourStr} ${minStr}.`;
+      } else {
+        const period = hours24 >= 12 ? 'PM' : 'AM';
+        const hours12 = hours24 % 12 || 12;
+
+        if (minutes === 0) {
+          return `It's ${hours12} o'clock ${period}.`;
+        } else if (minutes < 10) {
+          return `It's ${hours12} oh ${minutes} ${period}.`;
+        } else {
+          return `It's ${hours12}:${minutes} ${period}.`;
+        }
+      }
+    }
+
+    /**
+     * Create a tactile ripple animation at the tap/click coordinates
+     */
+    function triggerRipple(x, y, color = 'indigo') {
+      const ripple = document.createElement('span');
+      const diameter = Math.max(window.innerWidth, window.innerHeight) * 0.45;
+      const radius = diameter / 2;
+
+      ripple.style.width = `${diameter}px`;
+      ripple.style.height = `${diameter}px`;
+      ripple.style.left = `${x - radius}px`;
+      ripple.style.top = `${y - radius}px`;
+      ripple.className = color === 'emerald'
+        ? 'ripple bg-emerald-500/25 dark:bg-emerald-400/25'
+        : 'ripple bg-indigo-500/20 dark:bg-indigo-400/20';
+
+      document.body.appendChild(ripple);
+
+      ripple.addEventListener('animationend', () => {
+        ripple.remove();
+      });
+    }
+
+    /**
+     * Update UI state while speaking vs idle
+     */
+    function setSpeakingUI(active, spokenPhrase = '') {
+      state.isSpeaking = active;
+      if (active) {
+        elements.clockCard.classList.add('is-speaking', 'border-indigo-500/60', 'dark:border-indigo-400/60');
+        elements.soundWave.classList.remove('hidden');
+        elements.soundWave.classList.add('flex');
+        elements.speechStatusBadge.classList.add('bg-indigo-50', 'dark:bg-indigo-950/80', 'text-indigo-700', 'dark:text-indigo-300');
+        elements.speechText.textContent = `"${spokenPhrase}"`;
+      } else {
+        elements.clockCard.classList.remove('is-speaking', 'border-indigo-500/60', 'dark:border-indigo-400/60');
+        elements.soundWave.classList.add('hidden');
+        elements.soundWave.classList.remove('flex');
+        elements.speechStatusBadge.classList.remove('bg-indigo-50', 'dark:bg-indigo-950/80', 'text-indigo-700', 'dark:text-indigo-300');
+        elements.speechText.textContent = 'Single Tap: Declare Time • Double Tap: Open Page';
+      }
+    }
+
+    /**
+     * Speak the current time aloud using Web Speech API
+     */
+    function declareTime(clientX = window.innerWidth / 2, clientY = window.innerHeight / 2) {
+      // Trigger visual ripple feedback immediately
+      triggerRipple(clientX, clientY, 'indigo');
+
+      if (!('speechSynthesis' in window)) {
+        showToast('Speech synthesis is not supported in this browser.', 'error');
+        return;
+      }
+
+      try {
+        // Cancel any ongoing utterance so rapid taps restart cleanly
+        window.speechSynthesis.cancel();
+
+        const now = new Date();
+        const phrase = buildSpokenTimeString(now);
+        const utterance = new SpeechSynthesisUtterance(phrase);
+
+        if (state.preferredVoice) {
+          utterance.voice = state.preferredVoice;
+        }
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+
+        utterance.onstart = () => setSpeakingUI(true, phrase);
+        utterance.onend = () => setSpeakingUI(false);
+        utterance.onerror = () => setSpeakingUI(false);
+
+        // Fallback UI activation in case onstart fires slowly on some mobile browsers
+        setSpeakingUI(true, phrase);
+        window.speechSynthesis.speak(utterance);
+      } catch (err) {
+        console.error('Speech synthesis error:', err);
+        setSpeakingUI(false);
+      }
+    }
+
+    /**
+     * Disambiguate single tap vs double tap on the background canvas
+     */
+    function handleCanvasTap(clientX, clientY) {
+      if (state.tapTimer !== null) {
+        // Second tap arrived within the window: cancel single-tap speech and open page
+        clearTimeout(state.tapTimer);
+        state.tapTimer = null;
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+        setSpeakingUI(false);
+        openTargetPage(clientX, clientY);
+      } else {
+        // First tap: wait briefly to see if a second tap follows
+        state.tapTimer = setTimeout(() => {
+          state.tapTimer = null;
+          declareTime(clientX, clientY);
+        }, DOUBLE_TAP_DELAY_MS);
+      }
+    }
+
+    /**
+     * Toggle between 12-hour and 24-hour formats
+     */
+    function setTimeFormat(use24Hour) {
+      state.is24Hour = use24Hour;
+
+      if (use24Hour) {
+        elements.btn24h.classList.add('bg-white', 'dark:bg-slate-950', 'text-indigo-600', 'dark:text-indigo-400', 'shadow-sm');
+        elements.btn24h.classList.remove('text-slate-600', 'dark:text-slate-400');
+        elements.btn24h.setAttribute('aria-pressed', 'true');
+
+        elements.btn12h.classList.remove('bg-white', 'dark:bg-slate-950', 'text-indigo-600', 'dark:text-indigo-400', 'shadow-sm');
+        elements.btn12h.classList.add('text-slate-600', 'dark:text-slate-400');
+        elements.btn12h.setAttribute('aria-pressed', 'false');
+      } else {
+        elements.btn12h.classList.add('bg-white', 'dark:bg-slate-950', 'text-indigo-600', 'dark:text-indigo-400', 'shadow-sm');
+        elements.btn12h.classList.remove('text-slate-600', 'dark:text-slate-400');
+        elements.btn12h.setAttribute('aria-pressed', 'true');
+
+        elements.btn24h.classList.remove('bg-white', 'dark:bg-slate-950', 'text-indigo-600', 'dark:text-indigo-400', 'shadow-sm');
+        elements.btn24h.classList.add('text-slate-600', 'dark:text-slate-400');
+        elements.btn24h.setAttribute('aria-pressed', 'false');
+      }
+
+      updateClockDisplay();
+    }
+
+    /**
+     * Event Listeners
+     */
+    // Full-screen background tap/click with single vs double tap disambiguation
+    elements.tapSurface.addEventListener('click', (e) => {
+      handleCanvasTap(e.clientX, e.clientY);
+    });
+
+    // Prevent clicks inside URL config bar from bubbling to canvas
+    elements.urlConfigBar.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Save URL form submission
+    elements.urlForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      saveTargetUrl(elements.targetUrlInput.value);
+    });
+
+    // Quick Test / Open URL button
+    elements.openUrlBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const rect = elements.openUrlBtn.getBoundingClientRect();
+      const x = e.clientX || rect.left + rect.width / 2;
+      const y = e.clientY || rect.top + rect.height / 2;
+      openTargetPage(x, y);
+    });
+
+    // Dedicated Speak button click
+    elements.speakBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const rect = elements.speakBtn.getBoundingClientRect();
+      const x = e.clientX || rect.left + rect.width / 2;
+      const y = e.clientY || rect.top + rect.height / 2;
+      declareTime(x, y);
+    });
+
+    // Format buttons
+    elements.btn12h.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setTimeFormat(false);
+    });
+
+    elements.btn24h.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setTimeFormat(true);
+    });
+
+    // Theme toggle button
+    elements.themeToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.darkMode = !state.darkMode;
+      applyTheme();
+    });
+
+    // Keyboard accessibility (Spacebar triggers time announcement when not focused on a control)
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && document.activeElement === document.body) {
+        e.preventDefault();
+        declareTime(window.innerWidth / 2, window.innerHeight / 2);
+      }
+    });
+
+    /**
+     * Boot Application
+     */
+    loadSavedUrl();
+    applyTheme();
+    updateClockDisplay();
+    setInterval(updateClockDisplay, 250);
+  </script>
+</body>
+</html>
