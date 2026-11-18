@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WallyCAD // SYS.RTWO — Curated Archive</title>
+  <style>
+    :root {
+      --bg-primary: #0b0e14;
+      --bg-secondary: #111622;
+      --bg-hover: #182032;
+      --border-color: #243047;
+      --accent: #38bdf8;
+      --accent-dim: rgba(56, 189, 248, 0.14);
+      --text-main: #e2e8f0;
+      --text-muted: #8b9bb4;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Main Split Layout */
+    .rtwo-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Sidebar Menu */
+    .rtwo-sidebar {
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .rtwo-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sys-tag {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }
+
+    .sort-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    button {
+      background: var(--bg-primary);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    #rtwo-menu {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .rtwo-menu-item {
+      display: block;
+      text-decoration: none;
+      color: var(--text-main);
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.15s ease;
+    }
+
+    .rtwo-menu-item:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-color);
+    }
+
+    .rtwo-menu-item.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+    }
+
+    .item-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .rtwo-menu-item.active .item-meta time {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .item-tag {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 0.65rem;
+    }
+
+    .item-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    /* Main Viewport */
+    .rtwo-viewport {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .rtwo-meta-bar {
+      height: 52px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    #rtwo-breadcrumb {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .seq-nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    #rtwo-article-section {
+      flex: 1;
+      overflow-y: auto;
+      padding: 36px 48px;
+      max-width: 860px;
+    }
+
+    .article-header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 20px;
+      margin-bottom: 28px;
+    }
+
+    .article-date-stamp {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+
+    .article-header h1 {
+      font-size: 1.85rem;
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+
+    .article-summary {
+      color: var(--text-muted);
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .article-body {
+      line-height: 1.75;
+      font-size: 1rem;
+      color: #cbd5e1;
+    }
+
+    .article-body h2 {
+      color: var(--text-main);
+      margin: 24px 0 12px;
+      font-size: 1.25rem;
+    }
+
+    .article-body p {
+      margin-bottom: 16px;
+    }
+
+    .article-body pre {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 14px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+
+    /* Responsive Mobile Collapse */
+    @media (max-width: 768px) {
+      .rtwo-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 240px 1fr;
+      }
+      .rtwo-sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+      #rtwo-article-section {
+        padding: 24px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="rtwo-shell" class="rtwo-layout">
+    <!-- Chronological Menu / Archive List -->
+    <aside class="rtwo-sidebar">
+      <div class="rtwo-header">
+        <span class="sys-tag">SYS.RTWO // CURATED ARCHIVE</span>
+        <div class="sort-controls">
+          <button id="sort-toggle" type="button">DATE ↑ (CHRONOLOGICAL)</button>
+        </div>
+      </div>
+      <nav id="rtwo-menu" aria-label="Curated Articles"></nav>
+    </aside>
+
+    <!-- Populated Article Section -->
+    <main class="rtwo-viewport">
+      <div class="rtwo-meta-bar">
+        <span id="rtwo-breadcrumb">/RTWO/</span>
+        <div class="seq-nav">
+          <button id="btn-prev" type="button" title="Previous Entry">← PREV</button>
+          <button id="btn-next" type="button" title="Next Entry">NEXT →</button>
+        </div>
+      </div>
+
+      <article id="rtwo-article-section">
+        <!-- Populated dynamically from curated archive -->
+      </article>
+    </main>
+  </div>
+
+  <script>
+    // Curated / Archived Dated Entries (Sequential / Chronological by Date)
+    const RTWO_ARCHIVE = [
+      {
+        id: "2026-09-14-parametric-offsets",
+        date: "2026-09-14",
+        title: "Parametric Offset Chains in v17",
+        tag: "CORE",
+        summary: "Handling self-intersecting polylines during recursive offset passes.",
+        content: `
+          <h2>Overview</h2>
+          <p>When chaining multiple offset operations inside the core engine, vertex winding order must remain normalized across closed loops to prevent inverted miter joins.</p>
+          <pre>offsetChain(polyline, { distance: 2.5, passes: 4, normalizeWinding: true });</pre>
+          <p>Each pass validates segment normals prior to projecting the next hull boundary.</p>
+        `
+      },
+      {
+        id: "2026-10-02-sdj-schema-v2",
+        date: "2026-10-02",
+        title: "SDJ Translation Matrix Specification",
+        tag: "DATA",
+        summary: "Standardizing JSON-to-WallyCAD vector serialization.",
+        content: `
+          <h2>Schema Architecture</h2>
+          <p>The Universal Translation Matrix (UTM) maps raw coordinate arrays directly into deterministic SDJ primitives for cross-module portability.</p>
+          <pre>{ "type": "SDJ_PATH", "version": "2.0", "closed": true, "vertices": [[0,0], [100,0], [100,50]] }</pre>
+        `
+      },
+      {
+        id: "2026-11-18-subrouting-architecture",
+        date: "2026-11-18",
+        title: "Hierarchical Sub-Routing & State Persistence",
+        tag: "SYSTEM",
+        summary: "Decoupling module viewports from top-level shell navigation.",
+        content: `
+          <h2>RouteTwo Dispatcher</h2>
+          <p>By isolating <code>/rtwo</code> sub-routes under a dedicated chronological dispatcher, archived entries remain directly addressable via deep links while preserving sequential Prev/Next traversal.</p>
+          <p>Both <code>#/rtwo/&lt;entry-id&gt;</code> and <code>#/routetwo/&lt;entry-id&gt;</code> resolve seamlessly to the active article viewport.</p>
+        `
+      }
+    ];
+
+    class RouteTwoController {
+      constructor(articles) {
+        this.rawArticles = articles;
+        this.sortOrder = "asc"; // "asc" = chronological (oldest -> newest)
+        this.sortedArticles = [];
+        this.currentIndex = 0;
+
+        this.menuEl = document.getElementById("rtwo-menu");
+        this.articleEl = document.getElementById("rtwo-article-section");
+        this.crumbEl = document.getElementById("rtwo-breadcrumb");
+        this.sortBtn = document.getElementById("sort-toggle");
+        this.prevBtn = document.getElementById("btn-prev");
+        this.nextBtn = document.getElementById("btn-next");
+
+        this.init();
+      }
+
+      init() {
+        this.sortArticles();
+        this.renderMenu();
+
+        this.sortBtn.addEventListener("click", () => {
+          this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+          this.sortBtn.textContent =
+            this.sortOrder === "asc" ? "DATE ↑ (CHRONOLOGICAL)" : "DATE ↓ (NEWEST FIRST)";
+          this.sortArticles();
+          this.renderMenu();
+          this.resolveRoute();
+        });
+
+        this.prevBtn.addEventListener("click", () => this.step(-1));
+        this.nextBtn.addEventListener("click", () => this.step(1));
+
+        window.addEventListener("hashchange", () => this.resolveRoute());
+        this.resolveRoute();
+      }
+
+      sortArticles() {
+        this.sortedArticles = [...this.rawArticles].sort((a, b) => {
+          const diff = new Date(a.date) - new Date(b.date);
+          return this.sortOrder === "asc" ? diff : -diff;
+        });
+      }
+
+      renderMenu() {
+        this.menuEl.innerHTML = this.sortedArticles
+          .map(
+            (item, idx) => `
+            <a href="#/rtwo/${item.id}" 
+               class="rtwo-menu-item" 
+               data-id="${item.id}" 
+               data-index="${idx}">
+              <div class="item-meta">
+                <time datetime="${item.date}">${item.date}</time>
+                <span class="item-tag">${item.tag}</span>
+              </div>
+              <div class="item-title">${item.title}</div>
+            </a>
+          `
+          )
+          .join("");
+      }
+
+      resolveRoute() {
+        const hash = window.location.hash.replace(/^#\/?/, "");
+        const parts = hash.split("/").filter(Boolean);
+
+        // Normalize /routetwo alias to /rtwo
+        if (parts[0] === "routetwo") {
+          const slug = parts[1] || this.sortedArticles[0]?.id;
+          window.location.replace(`#/rtwo/${slug}`);
+          return;
+        }
+
+        const targetSlug = parts[1];
+        let foundIndex = this.sortedArticles.findIndex((a) => a.id === targetSlug);
+
+        if (foundIndex === -1) {
+          foundIndex = 0;
+          if (this.sortedArticles[0]) {
+            history.replaceState(null, "", `#/rtwo/${this.sortedArticles[0].id}`);
+          }
+        }
+
+        this.populateArticle(foundIndex);
+      }
+
+      populateArticle(index) {
+        const entry = this.sortedArticles[index];
+        if (!entry) return;
+
+        this.currentIndex = index;
+
+        // Highlight active item in menu
+        this.menuEl.querySelectorAll(".rtwo-menu-item").forEach((el) => {
+          el.classList.toggle("active", el.dataset.id === entry.id);
+        });
+
+        // Update breadcrumb and sequential controls
+        this.crumbEl.textContent = `/RTWO/${entry.date}/${entry.id.toUpperCase()}`;
+        this.prevBtn.disabled = index <= 0;
+        this.nextBtn.disabled = index >= this.sortedArticles.length - 1;
+
+        // Inject article content
+        this.articleEl.innerHTML = `
+          <header class="article-header">
+            <div class="article-date-stamp">ENTRY ${index + 1} OF ${this.sortedArticles.length} // DATED ${entry.date}</div>
+            <h1>${entry.title}</h1>
+            <p class="article-summary">${entry.summary}</p>
+          </header>
+          <div class="article-body">
+            ${entry.content}
+          </div>
+        `;
+      }
+
+      step(delta) {
+        const nextIdx = this.currentIndex + delta;
+        if (nextIdx >= 0 && nextIdx < this.sortedArticles.length) {
+          window.location.hash = `/rtwo/${this.sortedArticles[nextIdx].id}`;
+        }
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      new RouteTwoController(RTWO_ARCHIVE);
+    });
+  </script>
+</body>
+</html>
