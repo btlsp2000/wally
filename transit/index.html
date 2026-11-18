@@ -44,7 +44,7 @@
         </div>
         <div class="flex items-center space-x-4 text-xs">
             <span class="text-neutral-500">COORD_SYS: CARTESIAN</span>
-            <span class="text-neutral-500">SCALE: <span id="ui-scale">1:12</span></span>
+            <span class="text-neutral-500">ZOOM: <span id="ui-scale" class="text-white">1.00x</span></span>
             <div class="flex items-center space-x-2">
                 <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                 <span class="text-green-400">SYS_ONLINE</span>
@@ -59,7 +59,14 @@
         <aside class="w-80 bg-neutral-900 border-r border-neutral-800 flex flex-col z-10 shadow-2xl overflow-y-auto">
             <div class="p-4 border-b border-neutral-800">
                 <h2 class="text-xs text-neutral-500 uppercase tracking-widest mb-1">Command Interface</h2>
-                <p class="text-sm text-neutral-300">Select active vector path</p>
+                <p class="text-sm text-neutral-300 mb-4">Select active vector path</p>
+                
+                <!-- Zoom Controls -->
+                <div class="flex space-x-2 text-[10px] font-bold">
+                    <button onclick="scaleCanvas(1.2)" class="flex-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 py-2 rounded transition-colors border border-neutral-700">[+] ZOOM IN</button>
+                    <button onclick="scaleCanvas(0.8)" class="flex-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 py-2 rounded transition-colors border border-neutral-700">[-] ZOOM OUT</button>
+                    <button onclick="resetScale()" class="flex-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 py-2 rounded transition-colors border border-neutral-700">[ ] RESET</button>
+                </div>
             </div>
 
             <!-- Route Selectors -->
@@ -95,7 +102,6 @@
 
     <script>
         // --- Mock SDJ (Spatial Data JSON) Route Definitions ---
-        // Coordinates represent spatial relationship on the WIB modular board.
         const transitData = {
             "sys-overview": {
                 name: "SYSTEM OVERVIEW",
@@ -140,7 +146,8 @@
         let activeRoute = "sys-overview";
         let canvas, ctx;
         let originX, originY;
-        let scale = 6; // Pixels per internal coordinate unit
+        const BASE_SCALE = 6;
+        let scale = BASE_SCALE; // Pixels per internal coordinate unit
         
         // --- Initialization ---
         function init() {
@@ -149,15 +156,47 @@
             
             buildUI();
             resizeCanvas();
+            updateScaleUI();
             
             window.addEventListener('resize', resizeCanvas);
             
             // Mouse tracking for coordinate display
             canvas.addEventListener('mousemove', handleMouseMove);
             
+            // Mouse wheel support for zooming
+            canvas.addEventListener('wheel', function(event) {
+                event.preventDefault();
+                if (event.deltaY < 0) {
+                    scaleCanvas(1.1); // Scroll up to zoom in
+                } else {
+                    scaleCanvas(0.9); // Scroll down to zoom out
+                }
+            }, { passive: false });
+            
             // Initial render
             selectRoute('sys-overview');
-            renderLoop();
+        }
+
+        // --- Zoom Logic ---
+        function scaleCanvas(factor) {
+            scale *= factor;
+            // Clamping the scale to prevent breaking the view
+            if (scale < 1) scale = 1; 
+            if (scale > 60) scale = 60;
+            
+            updateScaleUI();
+            drawBoard();
+        }
+
+        function resetScale() {
+            scale = BASE_SCALE;
+            updateScaleUI();
+            drawBoard();
+        }
+
+        function updateScaleUI() {
+            const zoomRatio = (scale / BASE_SCALE).toFixed(2);
+            document.getElementById('ui-scale').innerText = `${zoomRatio}x`;
         }
 
         // --- Build Sidebar UI ---
@@ -273,8 +312,8 @@
 
             ctx.beginPath();
             // Draw vertical lines
-            for (let x = -xMax; x <= xMax; x++) {
-                if (Math.floor(x) % 10 === 0) {
+            for (let x = -Math.ceil(xMax); x <= Math.ceil(xMax); x++) {
+                if (x % 10 === 0) {
                     let p1 = toScreen(x, -yMax);
                     let p2 = toScreen(x, yMax);
                     ctx.moveTo(p1.x, p1.y);
@@ -282,8 +321,8 @@
                 }
             }
             // Draw horizontal lines
-            for (let y = -yMax; y <= yMax; y++) {
-                if (Math.floor(y) % 10 === 0) {
+            for (let y = -Math.ceil(yMax); y <= Math.ceil(yMax); y++) {
+                if (y % 10 === 0) {
                     let p1 = toScreen(-xMax, y);
                     let p2 = toScreen(xMax, y);
                     ctx.moveTo(p1.x, p1.y);
@@ -377,14 +416,6 @@
                 // Render specific route
                 drawRouteLayer(routeDef);
             }
-        }
-
-        // Optional: Simple animation loop if pulsing/dynamic effects are desired later
-        // Currently just static rendering on selection/resize to save CPU, but structured for loops.
-        function renderLoop() {
-            // Uncomment line below to force continuous draw loop 
-            // requestAnimationFrame(renderLoop);
-            // drawBoard();
         }
 
         // Start
