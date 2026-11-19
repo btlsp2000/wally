@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RouteTwo (/rtwo) — Memory &amp; Dispatch Funnel</title>
+  <style>
+    :root {
+      --bg: #f8f5ee;
+      --card: #fffdf9;
+      --ink: #1a1917;
+      --muted: #5a554c;
+      --rule: #2b2925;
+      --light-rule: #d6cfc2;
+      --red: #9C2A20;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #eae4d7;
+      color: var(--ink);
+      font-family: "Georgia", serif;
+      line-height: 1.68;
+      padding: 18px 12px;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      background: var(--bg);
+      border: 2px solid var(--rule);
+      padding: 24px 28px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      border-bottom: 3px double var(--rule);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    header h1 {
+      font-family: monospace;
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.12em;
+    }
+
+    .subtitle {
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-top: 2px;
+    }
+
+    /* Funnel Filter & Quick-Jump Bar */
+    .funnel-controls {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      padding: 12px;
+      margin-bottom: 20px;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    #search-input {
+      flex: 1;
+      padding: 8px 10px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      border: 1px solid var(--rule);
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .pill-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-family: monospace;
+    }
+
+    .pill {
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      color: var(--ink);
+      font-family: monospace;
+      font-size: 0.8rem;
+      font-weight: bold;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+
+    .pill:hover { border-color: var(--red); color: var(--red); }
+    .pill.active { background: var(--red); border-color: var(--red); color: #fff; }
+    .pill.hidden { display: none; }
+
+    /* Reader Area */
+    .meta-line {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-family: monospace;
+      font-size: 0.78rem;
+      color: var(--red);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .reader-title {
+      font-size: clamp(1.55rem, 3.2vw, 2.2rem);
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .reader-deck {
+      font-style: italic;
+      color: var(--muted);
+      border-bottom: 1px solid var(--light-rule);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .reader-body p {
+      margin-bottom: 14px;
+    }
+
+    .pull-quote {
+      border-left: 4px solid var(--red);
+      padding-left: 16px;
+      margin: 18px 0;
+      font-style: italic;
+      font-size: 1.15rem;
+      color: var(--red);
+    }
+
+    /* Sequential Prev/Next Bar */
+    .seq-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding-top: 14px;
+      border-top: 1px solid var(--light-rule);
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+
+    .seq-btn {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      padding: 6px 12px;
+      font-family: monospace;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .seq-btn:hover { background: var(--rule); color: #fff; }
+
+    /* Footer */
+    footer {
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 2px solid var(--rule);
+      text-align: center;
+      font-family: monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--red);
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>ROUTETWO</h1>
+      <div class="subtitle">The New Family Times &bull; Memory &amp; Dispatch Funnel</div>
+    </header>
+
+    <!-- INSTANT SEARCH & EDITION SELECTOR -->
+    <section class="funnel-controls" aria-label="Filter and Select Dispatches">
+      <div class="search-row">
+        <input type="text" id="search-input" placeholder="Filter memories by keyword (e.g. LBCC, Mike, Wesley, Barstow, 1966, Wrightwood)..." oninput="filterDispatches()" />
+      </div>
+      <div class="pill-bar" id="pill-bar"></div>
+    </section>
+
+    <!-- CLEAN SINGLE-COLUMN READER -->
+    <main id="reader">
+      <div class="meta-line">
+        <span id="r-meta-left"></span>
+        <span id="r-meta-right"></span>
+      </div>
+      <h2 class="reader-title" id="r-title"></h2>
+      <p class="reader-deck" id="r-deck"></p>
+      <div class="reader-body" id="r-body"></div>
+
+      <div class="seq-nav">
+        <button class="seq-btn" onclick="stepDispatch(-1)">&laquo; Previous</button>
+        <span id="r-counter"></span>
+        <button class="seq-btn" onclick="stepDispatch(1)">Next &raquo;</button>
+      </div>
+    </main>
+
+    <footer>
+      <a href="/library">Golden Triangle &amp; Books</a> &bull;
+      <a href="/wesley">/wesley</a> &bull;
+      <a href="/armike">/armike</a> &bull;
+      <a href="/transit">WIB</a> &bull;
+      <a href="/photo-story">Photo Story</a> &bull;
+      <a href="https://camera-mtx-rtc.tt2468.net/hwy2_mtnhardware/" target="_blank" rel="noopener noreferrer">Hwy 2 Cam</a>
+    </footer>
+  </div>
+
+  <script>
+    /* =========================================================================
+       DISPATCH FUNNEL ARRAY
+       To add any new thought or handwritten page, append one object below.
+       ========================================================================= */
+    const FUNNEL = [
+      {
+        id: "R2A",
+        label: "R2A • Prologue",
+        date: "1951–2026",
+        place: "Long Beach → Las Vegas",
+        title: "A House, A World, A Life",
+        deck: "Asymmetric symmetry, load paths, and seventy-five years of running survey coordinates.",
+        quote: "Static symmetry breaks the moment one piece moves. Asymmetric symmetry absorbs the shift, recalculates the fulcrum, and stays standing.",
+        paragraphs: [
+          "Look at a house, and you do not just see four walls, siding, and a roof—you see the load paths, the framing tolerances, the joinery hidden behind the drywall, and the survey monuments buried at the corners of the lot.",
+          "Look at the world outside the door, and it follows the exact same geometry: highways, rail lines, senior center pool tables, library terminals, and unconditioned human kindness along Route 2.",
+          "And a life is the running survey drafted across all of it in real time—honoring Wesley and Mike permanently on the sheet while setting down the next true line."
+        ]
+      },
+      {
+        id: "R2B",
+        label: "R2B • 1966",
+        date: "Summer / Fall 1966",
+        place: "Lennox & Westminster, CA",
+        title: "1966: La Quinta & The Summer the Line Broke",
+        deck: "Enrolling next door at La Quinta High School after Dale left forever.",
+        quote: "That summer Bill's father left forever, his wife and children, Bill...",
+        paragraphs: [
+          "It was the start of the 1966 school year. Bill enrolled next door in La Quinta High School in Westminster, California.",
+          "That summer, Bill's father left forever—leaving his wife and children, while Bill held onto the tactile roots of eighth-grade and freshman woodshop in Lennox."
+        ]
+      },
+      {
+        id: "R2C",
+        label: "R2C • 1967–68",
+        date: "1967–1968",
+        place: "Long Beach, CA",
+        title: "Bermuda Street & Poly High Drafting",
+        deck: "Grandma Pearl's house between Cherry and Orange, and Machinery's Handbook at the 3rd Street Library.",
+        quote: "If two lines do not meet at the right tolerance, you recalculate the coordinates until the structure holds.",
+        paragraphs: [
+          "Returning to Long Beach established a baseline on Bermuda Street between Cherry and Orange Avenue at Grandma Pearl's house.",
+          "Between Poly High drafting class and afternoons studying Machinery's Handbook at the 3rd Street Library, mechanical geometry replaced guesswork."
+        ]
+      },
+      {
+        id: "R2D",
+        label: "R2D • Route 2",
+        date: "High Road Dispatch",
+        place: "Wrightwood, CA",
+        title: "\"The Bystander\" on Route 2",
+        deck: "Sheri, three folded bills, and a blanket across from the fire department.",
+        quote: "Are you alright, are you sure? Can I give you some money?",
+        paragraphs: [
+          "Sheri meets Bill along the street in Wrightwood—offering three folded bills and walking across to the fire department to ask for a blanket.",
+          "Unconditioned help on a cold stretch of Route 2 became the editorial spine of The New Family Times."
+        ]
+      },
+      {
+        id: "R2E",
+        label: "R2E • 1969 LBCC",
+        date: "1969",
+        place: "Long Beach City College",
+        title: "1969: Special Exception at LBCC",
+        deck: "Mr. Chard, four classes without a high school diploma, and turning a slug on the lathe.",
+        quote: "At the time, higher education was taboo at the religious system Bill joined at the urging of his mother, baptized at age 9. Bill was a conflicted renegade.",
+        paragraphs: [
+          "In 1969, Mr. Chard got Bill into Long Beach City College (LBCC) in Long Beach, California—Bill's birthplace, and his father's birthplace, one generation removed from Salt Lake City, Utah.",
+          "After finishing his senior year with no diploma, Bill received a special exception and registered in Drafting, College Algebra, Machine Shop, and Speed Reading.",
+          "Machine Shop recreated the roots of woodshop from Lennox: sharpening cutting tools first, then turning a slug on the lathe."
+        ]
+      },
+      {
+        id: "R2F",
+        label: "R2F • Hillsboro & Barstow",
+        date: "2022–2026",
+        place: "Hillsboro • Barstow • Henderson",
+        title: "From Hillsboro Library to Draft2Digital & For the Road",
+        deck: "The phone call about Wesley, starting to publish in Multnomah County, and Joyce at Barstow Senior Center.",
+        quote: "Joyce of Barstow inspired me to write. Mike said it was stupid. My intent was not to sell. I only wanted to write. Like Family Times.",
+        paragraphs: [
+          "When Malcolm called about Wesley's death, Bill was sitting at a computer at the Hillsboro Library in Multnomah County—where a librarian introduced him to independent publishing outlets like Draft2Digital.",
+          "Later, Joyce at the Barstow Senior Center inspired him to write in earnest—not to chase sales, but simply to put the truth on paper like Family Times.",
+          "From Carson Suites in Henderson, between library sessions at Bonanza and seniors' lunches, the next stretch of road stays open."
+        ]
+      },
+      {
+        id: "WES",
+        label: "Wesley (1977–2022)",
+        date: "1977 – April 2022",
+        place: "Carlsbad • Goodsprings • Bend",
+        title: "Wesley Remembrance & Life Capture",
+        deck: "Eldest son, older brother to Malcolm and Justin, permanently anchored in the family record.",
+        quote: "Time moves and miles pile up, but the firstborn coordinate never leaves the survey sheet.",
+        paragraphs: [
+          "Born in 1977, Wesley was the eldest of Bill and Lydia's three sons—firstborn brother to Malcolm and Justin, remembered from Flower Street in Carlsbad to Goodsprings, Nevada and Bend, Oregon.",
+          "Preserved permanently across RouteTwo, /wesley, and the Photo Story archive."
+        ]
+      },
+      {
+        id: "ARM",
+        label: "Mike (1953–2026)",
+        date: "March 12, 1953 – June 3, 2026",
+        place: "Lennox • Coquille • Salem, OR",
+        title: "Mike Remembrance / ARMike Life Capture",
+        deck: "Twenty months younger, shared Firmona Avenue symmetry, and lifelong brotherhood.",
+        quote: "To Mike, he will always be Bei—and a fractured timeline never erases the shared foundation.",
+        paragraphs: [
+          "Born twenty months after Bill, Michael Tonnesen shared the earliest coordinates on Firmona Avenue in Lennox and decades of miles between Coquille and Portland.",
+          "Remembered following his passing on June 3, 2026 at Salem Hospital, and chronicled in the ARMike archive."
+        ]
+      },
+      {
+        id: "GT2",
+        label: "Golden Triangle",
+        date: "Master Synthesis",
+        place: "CA • NV • OR",
+        title: "The New Golden Triangle",
+        deck: "Triangulating Long Beach, the High Desert, and the Pacific Northwest into one unified book.",
+        quote: "Measure the angles, verify the last known address, honor the dead, and keep building the next line.",
+        paragraphs: [
+          "The New Golden Triangle unites RouteTwo, Family Times, Last Known Address (LKA), Where is Bill (WIB), and the Wesley and Mike life captures into one cohesive survey."
+        ]
+      }
+    ];
+
+    let currentIndex = 0;
+
+    function buildPills() {
+      const bar = document.getElementById("pill-bar");
+      bar.innerHTML = FUNNEL.map((item, idx) =>
+        `<button class="pill" data-idx="${idx}" onclick="renderDispatch(${idx})">${item.label}</button>`
+      ).join("");
+    }
+
+    function renderDispatch(idx) {
+      if (idx < 0 || idx >= FUNNEL.length) return;
+      currentIndex = idx;
+      const d = FUNNEL[idx];
+
+      document.getElementById("r-meta-left").textContent = `${d.id} // ${d.date}`;
+      document.getElementById("r-meta-right").textContent = d.place;
+      document.getElementById("r-title").textContent = d.title;
+      document.getElementById("r-deck").textContent = d.deck;
+      document.getElementById("r-counter").textContent = `${idx + 1} of ${FUNNEL.length}`;
+
+      const bodyHtml = d.paragraphs.map((p, i) =>
+        i === 0
+          ? `<p>${p}</p><blockquote class="pull-quote">“${d.quote}”</blockquote>`
+          : `<p>${p}</p>`
+      ).join("");
+      document.getElementById("r-body").innerHTML = bodyHtml;
+
+      document.querySelectorAll(".pill").forEach((btn, i) => {
+        btn.classList.toggle("active", i === idx);
+      });
+
+      history.replaceState(null, "", `#${d.id}`);
+    }
+
+    function stepDispatch(delta) {
+      const next = (currentIndex + delta + FUNNEL.length) % FUNNEL.length;
+      renderDispatch(next);
+    }
+
+    function filterDispatches() {
+      const q = document.getElementById("search-input").value.trim().toLowerCase();
+      let firstMatch = -1;
+
+      document.querySelectorAll(".pill").forEach((btn, idx) => {
+        const d = FUNNEL[idx];
+        const haystack = `${d.id} ${d.label} ${d.date} ${d.place} ${d.title} ${d.deck} ${d.quote} ${d.paragraphs.join(" ")}`.toLowerCase();
+        const match = !q || haystack.includes(q);
+        btn.classList.toggle("hidden", !match);
+        if (match && firstMatch === -1) firstMatch = idx;
+      });
+
+      if (q && firstMatch !== -1 && document.querySelectorAll(".pill")[currentIndex].classList.contains("hidden")) {
+        renderDispatch(firstMatch);
+      }
+    }
+
+    buildPills();
+    const initialHash = window.location.hash.replace("#", "").toUpperCase();
+    const startIdx = FUNNEL.findIndex(item => item.id === initialHash);
+    renderDispatch(startIdx !== -1 ? startIdx : 0);
+  </script>
+</body>
+</html>
