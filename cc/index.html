@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THE GOLDEN TRIANGLE // Calling Card &amp; QR Field Handout</title>
+  <style>
+    :root {
+      --bg: #FFFCE8;
+      --ink: #3E363F;
+      --gold: #B8B42D;
+      --olive: #697A21;
+      --red: #DD403A;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #e5e1cc;
+      color: var(--ink);
+      font-family: "Georgia", serif;
+      line-height: 1.5;
+      padding: 16px 12px;
+    }
+
+    .toolbar {
+      max-width: 780px;
+      margin: 0 auto 14px auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: var(--ink);
+      color: var(--bg);
+      padding: 10px 14px;
+      font-family: monospace;
+      font-size: 0.82rem;
+    }
+
+    .qr-controls {
+      max-width: 780px;
+      margin: 0 auto 14px auto;
+      background: var(--bg);
+      border: 1.5px solid var(--ink);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+
+    .qr-controls input {
+      flex: 1;
+      min-width: 220px;
+      padding: 6px 8px;
+      border: 1px solid var(--ink);
+      font-family: monospace;
+      font-size: 0.82rem;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    button {
+      background: var(--bg);
+      color: var(--ink);
+      border: 1.5px solid var(--gold);
+      font-family: monospace;
+      font-weight: bold;
+      font-size: 0.78rem;
+      padding: 6px 11px;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    button:hover {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    /* Single Broadsheet Calling Card Preview */
+    .card-sheet {
+      max-width: 780px;
+      margin: 0 auto;
+      background: var(--bg);
+      border: 3px solid var(--ink);
+      padding: 26px 30px;
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 3px double var(--ink);
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+
+    .header-badges {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .qr-box {
+      border: 1.5px solid var(--ink);
+      background: #fff;
+      padding: 5px;
+      text-align: center;
+    }
+
+    .qr-box img {
+      display: block;
+      width: 76px;
+      height: 76px;
+    }
+
+    .qr-caption {
+      font-family: monospace;
+      font-size: 0.62rem;
+      font-weight: bold;
+      color: var(--ink);
+      margin-top: 2px;
+      letter-spacing: 0.04em;
+    }
+
+    .kicker {
+      font-family: monospace;
+      font-size: 0.78rem;
+      font-weight: bold;
+      color: var(--olive);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    h1 {
+      font-family: monospace;
+      font-size: clamp(1.55rem, 3.8vw, 2.25rem);
+      letter-spacing: 0.07em;
+      line-height: 1.15;
+      margin: 4px 0;
+    }
+
+    .author-line {
+      font-family: monospace;
+      font-size: 0.84rem;
+      font-weight: bold;
+      color: var(--red);
+    }
+
+    .lead-quote {
+      border-left: 4px solid var(--red);
+      padding-left: 14px;
+      font-style: italic;
+      font-size: 1.05rem;
+      margin-bottom: 16px;
+    }
+
+    .vertices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .vertices { grid-template-columns: 1fr; }
+      .card-header { flex-direction: column; text-align: center; }
+    }
+
+    .vertex-box {
+      border: 1.5px solid var(--ink);
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .vertex-box strong {
+      display: block;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: var(--olive);
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .vertex-box span {
+      font-size: 0.88rem;
+    }
+
+    .works-list {
+      border-top: 1px solid var(--ink);
+      padding-top: 12px;
+      margin-bottom: 14px;
+      font-size: 0.92rem;
+    }
+
+    .works-list p { margin-bottom: 6px; }
+
+    .card-footer {
+      border-top: 2px solid var(--ink);
+      padding-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-family: monospace;
+      font-size: 0.82rem;
+      font-weight: bold;
+    }
+
+    .url-pill {
+      background: var(--ink);
+      color: var(--bg);
+      padding: 3px 9px;
+    }
+
+    /* 4-Up Pocket Card Print Grid (Hidden on Screen) */
+    #four-up-print { display: none; }
+
+    @page {
+      size: letter portrait;
+      margin: 0.45in;
+    }
+
+    @media print {
+      body { background: #fff !important; padding: 0 !important; }
+      .toolbar, .qr-controls { display: none !important; }
+
+      body.four-up-mode .card-sheet { display: none !important; }
+      body.four-up-mode #four-up-print {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 0.25in;
+        width: 7.6in;
+        height: 10.1in;
+      }
+
+      .pocket-card {
+        border: 2px solid #3E363F;
+        background: #FFFCE8;
+        padding: 0.2in;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        font-size: 8.3pt;
+        line-height: 1.36;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <span>GT1 // GT2 CALLING CARD + QR</span>
+    <div class="btn-group">
+      <button onclick="printSingle()">Print 1-Page Handout</button>
+      <button onclick="printFourUp()">Print 4-Up Pocket Cards (Cut Sheet)</button>
+    </div>
+  </div>
+
+  <div class="qr-controls">
+    <label for="qr-url"><strong>QR Target URL:</strong></label>
+    <input type="text" id="qr-url" value="https://wallycad.com/rtwo" oninput="updateQR()" />
+    <button onclick="setQRPreset('https://wallycad.com/rtwo')">/rtwo</button>
+    <button onclick="setQRPreset('https://wallycad.com/cofp')">/cofp</button>
+    <button onclick="setQRPreset('https://wallycad.com')">wallycad.com</button>
+  </div>
+
+  <!-- SINGLE BROADSHEET CALLING CARD -->
+  <article class="card-sheet" id="single-card">
+    <div class="card-header">
+      <div>
+        <div class="kicker">Surveyor &bull; Draftsman &bull; Author &bull; Pool Player</div>
+        <h1>THE GOLDEN TRIANGLE</h1>
+        <div class="author-line">Bill Leendert Tonnesen (&ldquo;Barstow Bill&rdquo;)</div>
+      </div>
+
+      <div class="header-badges">
+        <!-- Golden Triangle Emblem -->
+        <svg width="82" height="76" viewBox="0 0 100 92" aria-label="Golden Triangle Emblem">
+          <polygon points="50,6 94,84 6,84" fill="#B8B42D" stroke="#3E363F" stroke-width="4"/>
+          <polygon points="50,24 78,74 22,74" fill="#FFFCE8" stroke="#697A21" stroke-width="2.5"/>
+          <circle cx="50" cy="56" r="6" fill="#DD403A"/>
+          <text x="50" y="47" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#3E363F">GT</text>
+        </svg>
+
+        <!-- Scannable QR Code -->
+        <div class="qr-box">
+          <img id="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&color=3E363F&bgcolor=FFFFFF&data=https%3A%2F%2Fwallycad.com%2Frtwo" alt="Scan QR Code" />
+          <div class="qr-caption">SCAN ROUTE</div>
+        </div>
+      </div>
+    </div>
+
+    <blockquote class="lead-quote">
+      &ldquo;Measure the angles, verify the last known address, honor the dead, and keep building the next line.&rdquo;
+    </blockquote>
+
+    <div class="vertices">
+      <div class="vertex-box">
+        <strong>01 // Southern California</strong>
+        <span>Long Beach &bull; Lennox &bull; San Diego &bull; Route 2 High Country</span>
+      </div>
+      <div class="vertex-box">
+        <strong>02 // Mojave &amp; Basin</strong>
+        <span>Las Vegas &bull; Henderson &bull; Barstow &bull; Salt Lake City</span>
+      </div>
+      <div class="vertex-box">
+        <strong>03 // Pacific Northwest</strong>
+        <span>Portland &bull; Hillsboro &bull; Klamath Falls &bull; Coquille</span>
+      </div>
+    </div>
+
+    <div class="works-list">
+      <p><strong>Books &amp; Memoirs:</strong> <em>The Golden Triangle</em>, <em>Charade</em>, <em>The New Golden Triangle</em>, and <em>The Calculus of Pool</em> (planar stroke geometry &amp; vector alignment for 8-ball and 9-ball).</p>
+      <p><strong>WallyCAD &amp; RouteTwo:</strong> Browser-native 2D parametric CAD tools, <em>QuickClick</em> text entry, modular trailer engineering (<em>The Cub</em>), and serialized road dispatches.</p>
+    </div>
+
+    <div class="card-footer">
+      <span class="url-pill" id="footer-url-label">wallycad.com/rtwo</span>
+      <span>wallycad.com/cofp</span>
+      <span>LastKnownAddress (LKA)</span>
+    </div>
+  </article>
+
+  <!-- 4-UP POCKET CALLING CARD SHEET -->
+  <section id="four-up-print" aria-hidden="true"></section>
+
+  <script>
+    function getQRImageUrl(targetUrl) {
+      return `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=2&color=3E363F&bgcolor=FFFFFF&data=${encodeURIComponent(targetUrl)}`;
+    }
+
+    function updateQR() {
+      const rawUrl = document.getElementById("qr-url").value.trim() || "https://wallycad.com/rtwo";
+      document.getElementById("qr-img").src = getQRImageUrl(rawUrl);
+      document.getElementById("footer-url-label").textContent = rawUrl.replace(/^https?:\/\//, "");
+    }
+
+    function setQRPreset(url) {
+      document.getElementById("qr-url").value = url;
+      updateQR();
+    }
+
+    function printSingle() {
+      document.body.classList.remove("four-up-mode");
+      window.print();
+    }
+
+    function printFourUp() {
+      const rawUrl = document.getElementById("qr-url").value.trim() || "https://wallycad.com/rtwo";
+      const cleanLabel = rawUrl.replace(/^https?:\/\//, "");
+      const qrSrc = getQRImageUrl(rawUrl);
+
+      const cardHTML = `
+        <div class="pocket-card">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1.5px solid #3E363F;padding-bottom:6px;margin-bottom:8px;">
+              <div>
+                <div style="font-family:monospace;font-size:6.5pt;color:#697A21;font-weight:bold;">DRAFTSMAN &bull; AUTHOR &bull; POOL PLAYER</div>
+                <div style="font-family:monospace;font-size:11.2pt;font-weight:bold;letter-spacing:0.04em;">THE GOLDEN TRIANGLE</div>
+                <div style="font-family:monospace;font-size:7.6pt;color:#DD403A;font-weight:bold;">Bill Leendert Tonnesen</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                <svg width="38" height="35" viewBox="0 0 100 92">
+                  <polygon points="50,6 94,84 6,84" fill="#B8B42D" stroke="#3E363F" stroke-width="5"/>
+                  <polygon points="50,25 77,73 23,73" fill="#FFFCE8" stroke="#697A21" stroke-width="3"/>
+                  <circle cx="50" cy="56" r="7" fill="#DD403A"/>
+                </svg>
+                <div style="border:1px solid #3E363F;background:#fff;padding:2px;">
+                  <img src="${qrSrc}" alt="QR" style="width:44px;height:44px;display:block;" />
+                </div>
+              </div>
+            </div>
+            <p style="font-style:italic;border-left:2.5px solid #DD403A;padding-left:7px;margin-bottom:7px;">
+              &ldquo;Measure the angles, verify the last known address, and keep building the next line.&rdquo;
+            </p>
+            <p style="margin-bottom:5px;"><strong>Books:</strong> <em>The Golden Triangle</em>, <em>Charade</em> &amp; <em>The Calculus of Pool</em> (vector &amp; planar stroke geometry).</p>
+            <p><strong>Projects:</strong> WallyCAD 2D drafting, RouteTwo dispatches &amp; 5&prime;&times;8&prime; modular camper engineering.</p>
+          </div>
+          <div style="font-family:monospace;font-size:7pt;font-weight:bold;border-top:1px solid #3E363F;padding-top:5px;display:flex;justify-content:space-between;">
+            <span style="background:#3E363F;color:#FFFCE8;padding:1px 5px;">${cleanLabel}</span>
+            <span>wallycad.com/cofp</span>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("four-up-print").innerHTML = cardHTML.repeat(4);
+      document.body.classList.add("four-up-mode");
+      window.print();
+      setTimeout(() => document.body.classList.remove("four-up-mode"), 500);
+    }
+  </script>
+</body>
+</html>
