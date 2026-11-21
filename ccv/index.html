@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THE GOLDEN TRIANGLE // Vertical-Read Calling Card &amp; Bookmark</title>
+  <style>
+    :root {
+      --bg: #FFFCE8;
+      --ink: #3E363F;
+      --gold: #B8B42D;
+      --olive: #697A21;
+      --red: #DD403A;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #e5e1cc;
+      color: var(--ink);
+      font-family: "Georgia", serif;
+      line-height: 1.45;
+      padding: 16px 12px;
+    }
+
+    .toolbar {
+      max-width: 780px;
+      margin: 0 auto 12px auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: var(--ink);
+      color: var(--bg);
+      padding: 10px 14px;
+      font-family: monospace;
+      font-size: 0.82rem;
+    }
+
+    .qr-controls {
+      max-width: 780px;
+      margin: 0 auto 16px auto;
+      background: var(--bg);
+      border: 1.5px solid var(--ink);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+
+    .qr-controls input {
+      flex: 1;
+      min-width: 200px;
+      padding: 6px 8px;
+      border: 1px solid var(--ink);
+      font-family: monospace;
+      font-size: 0.82rem;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    button {
+      background: var(--bg);
+      color: var(--ink);
+      border: 1.5px solid var(--gold);
+      font-family: monospace;
+      font-weight: bold;
+      font-size: 0.76rem;
+      padding: 6px 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    button:hover {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    /* =======================================================================
+       VERTICAL-READ SINGLE CARD PREVIEW (2.5" x 4.75" PROPORTION)
+       ======================================================================= */
+    .vertical-card {
+      width: 100%;
+      max-width: 340px;
+      margin: 0 auto;
+      background: var(--bg);
+      border: 3px solid var(--ink);
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+      box-shadow: 4px 4px 0 rgba(62, 54, 63, 0.18);
+    }
+
+    .v-top {
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+
+    .v-kicker {
+      font-family: monospace;
+      font-size: 0.7rem;
+      font-weight: bold;
+      color: var(--olive);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+
+    .v-emblem {
+      margin: 4px auto 8px auto;
+      display: block;
+    }
+
+    .v-title {
+      font-family: monospace;
+      font-size: 1.38rem;
+      font-weight: bold;
+      letter-spacing: 0.06em;
+      line-height: 1.15;
+    }
+
+    .v-author {
+      font-family: monospace;
+      font-size: 0.78rem;
+      font-weight: bold;
+      color: var(--red);
+      margin-top: 4px;
+    }
+
+    .v-quote {
+      font-style: italic;
+      font-size: 0.88rem;
+      border-top: 1px dashed var(--ink);
+      border-bottom: 1px dashed var(--ink);
+      padding: 8px 4px;
+      margin-bottom: 12px;
+    }
+
+    .v-stack {
+      text-align: left;
+      font-size: 0.82rem;
+      margin-bottom: 12px;
+    }
+
+    .v-row {
+      padding: 5px 0;
+      border-bottom: 1px dotted #b5af9b;
+    }
+
+    .v-row:last-child { border-bottom: none; }
+
+    .v-row strong {
+      display: block;
+      font-family: monospace;
+      font-size: 0.72rem;
+      color: var(--olive);
+      text-transform: uppercase;
+    }
+
+    .v-qr-block {
+      border-top: 2px solid var(--ink);
+      padding-top: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .qr-frame {
+      background: #fff;
+      border: 1.5px solid var(--ink);
+      padding: 6px;
+      margin-bottom: 6px;
+    }
+
+    .qr-frame img {
+      display: block;
+      width: 96px;
+      height: 96px;
+    }
+
+    .v-url {
+      background: var(--ink);
+      color: var(--bg);
+      font-family: monospace;
+      font-size: 0.76rem;
+      font-weight: bold;
+      padding: 3px 10px;
+      letter-spacing: 0.04em;
+    }
+
+    .v-sub-url {
+      font-family: monospace;
+      font-size: 0.68rem;
+      color: var(--ink);
+      margin-top: 4px;
+      font-weight: bold;
+    }
+
+    /* 6-Up Vertical Cut Sheet (Hidden on Screen) */
+    #six-up-print { display: none; }
+
+    @page {
+      size: letter portrait;
+      margin: 0.35in;
+    }
+
+    @media print {
+      body { background: #fff !important; padding: 0 !important; }
+      .toolbar, .qr-controls { display: none !important; }
+
+      body.six-up-mode .vertical-card { display: none !important; }
+      body.six-up-mode #six-up-print {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 0.18in;
+        width: 7.8in;
+        height: 10.3in;
+      }
+
+      .v-cut-card {
+        border: 2px solid #3E363F;
+        background: #FFFCE8;
+        padding: 0.16in 0.14in;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: center;
+        font-size: 7.6pt;
+        line-height: 1.3;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <span>GT VERTICAL-READ CARD // BOOKMARK &amp; POCKET</span>
+    <div class="btn-group">
+      <button onclick="printSingle()">Print Single Card</button>
+      <button onclick="printSixUp()">Print 6-Up Vertical Sheet (Cut)</button>
+    </div>
+  </div>
+
+  <div class="qr-controls">
+    <label for="qr-url"><strong>QR Target:</strong></label>
+    <input type="text" id="qr-url" value="https://wallycad.com/rtwo" oninput="updateQR()" />
+    <button onclick="setQRPreset('https://wallycad.com/rtwo')">/rtwo</button>
+    <button onclick="setQRPreset('https://wallycad.com/cofp')">/cofp</button>
+    <button onclick="setQRPreset('https://wallycad.com/manual')">/manual</button>
+    <button onclick="setQRPreset('https://wallycad.com')">wallycad.com</button>
+  </div>
+
+  <!-- VERTICAL-READ CALLING CARD -->
+  <article class="vertical-card">
+    <div class="v-top">
+      <div class="v-kicker">Draftsman &bull; Author &bull; Pool Player</div>
+      <svg class="v-emblem" width="64" height="58" viewBox="0 0 100 92" aria-label="Golden Triangle Emblem">
+        <polygon points="50,6 94,84 6,84" fill="#B8B42D" stroke="#3E363F" stroke-width="4.5"/>
+        <polygon points="50,24 78,74 22,74" fill="#FFFCE8" stroke="#697A21" stroke-width="2.5"/>
+        <circle cx="50" cy="56" r="6.5" fill="#DD403A"/>
+        <text x="50" y="47" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#3E363F">GT</text>
+      </svg>
+      <h1 class="v-title">THE GOLDEN TRIANGLE</h1>
+      <div class="v-author">Bill Leendert Tonnesen</div>
+    </div>
+
+    <div class="v-quote">
+      &ldquo;Measure the angles, verify the last known address, and keep building the next line.&rdquo;
+    </div>
+
+    <div class="v-stack">
+      <div class="v-row">
+        <strong>01 // Books &amp; Memoirs</strong>
+        <span><em>The Golden Triangle</em>, <em>Charade</em> &amp; <em>The Calculus of Pool</em></span>
+      </div>
+      <div class="v-row">
+        <strong>02 // WallyCAD &amp; QuickClick</strong>
+        <span>Browser-native 2D drafting &amp; 5&times;5 text tools</span>
+      </div>
+      <div class="v-row">
+        <strong>03 // Three Vertices</strong>
+        <span>So-Cal &bull; Mojave / Vegas &bull; Pacific NW</span>
+      </div>
+    </div>
+
+    <div class="v-qr-block">
+      <div class="qr-frame">
+        <img id="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=2&color=3E363F&bgcolor=FFFFFF&data=https%3A%2F%2Fwallycad.com%2Frtwo" alt="Scan QR Code" />
+      </div>
+      <div class="v-url" id="footer-url-label">wallycad.com/rtwo</div>
+      <div class="v-sub-url">wallycad.com/cofp &bull; LKA</div>
+    </div>
+  </article>
+
+  <!-- 6-UP VERTICAL CUT SHEET -->
+  <section id="six-up-print" aria-hidden="true"></section>
+
+  <script>
+    function getQRImageUrl(targetUrl) {
+      return `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=2&color=3E363F&bgcolor=FFFFFF&data=${encodeURIComponent(targetUrl)}`;
+    }
+
+    function updateQR() {
+      const rawUrl = document.getElementById("qr-url").value.trim() || "https://wallycad.com/rtwo";
+      document.getElementById("qr-img").src = getQRImageUrl(rawUrl);
+      document.getElementById("footer-url-label").textContent = rawUrl.replace(/^https?:\/\//, "");
+    }
+
+    function setQRPreset(url) {
+      document.getElementById("qr-url").value = url;
+      updateQR();
+    }
+
+    function printSingle() {
+      document.body.classList.remove("six-up-mode");
+      window.print();
+    }
+
+    function printSixUp() {
+      const rawUrl = document.getElementById("qr-url").value.trim() || "https://wallycad.com/rtwo";
+      const cleanLabel = rawUrl.replace(/^https?:\/\//, "");
+      const qrSrc = getQRImageUrl(rawUrl);
+
+      const cardHTML = `
+        <div class="v-cut-card">
+          <div style="border-bottom:1.5px solid #3E363F;padding-bottom:6px;">
+            <div style="font-family:monospace;font-size:6.2pt;color:#697A21;font-weight:bold;">DRAFTSMAN &bull; AUTHOR &bull; POOL PLAYER</div>
+            <svg width="42" height="38" viewBox="0 0 100 92" style="margin:3px auto;display:block;">
+              <polygon points="50,6 94,84 6,84" fill="#B8B42D" stroke="#3E363F" stroke-width="5"/>
+              <polygon points="50,24 78,74 22,74" fill="#FFFCE8" stroke="#697A21" stroke-width="3"/>
+              <circle cx="50" cy="56" r="7" fill="#DD403A"/>
+            </svg>
+            <div style="font-family:monospace;font-size:10.5pt;font-weight:bold;letter-spacing:0.04em;line-height:1.1;">THE GOLDEN TRIANGLE</div>
+            <div style="font-family:monospace;font-size:7pt;color:#DD403A;font-weight:bold;margin-top:2px;">Bill Leendert Tonnesen</div>
+          </div>
+
+          <div style="font-style:italic;font-size:7.2pt;border-top:1px dashed #3E363F;border-bottom:1px dashed #3E363F;padding:5px 2px;margin:5px 0;">
+            &ldquo;Measure the angles, verify the last known address, and keep building the next line.&rdquo;
+          </div>
+
+          <div style="text-align:left;font-size:7.1pt;">
+            <div style="padding:3px 0;border-bottom:1px dotted #b5af9b;">
+              <strong style="display:block;font-family:monospace;font-size:6.2pt;color:#697A21;">01 // BOOKS</strong>
+              <em>The Golden Triangle</em>, <em>Charade</em> &amp; <em>The Calculus of Pool</em>
+            </div>
+            <div style="padding:3px 0;border-bottom:1px dotted #b5af9b;">
+              <strong style="display:block;font-family:monospace;font-size:6.2pt;color:#697A21;">02 // WALLYCAD &amp; QC</strong>
+              Browser-native 2D drafting &amp; 5&times;5 text tools
+            </div>
+            <div style="padding:3px 0;">
+              <strong style="display:block;font-family:monospace;font-size:6.2pt;color:#697A21;">03 // VERTICES</strong>
+              So-Cal &bull; Mojave / Vegas &bull; Pacific NW
+            </div>
+          </div>
+
+          <div style="border-top:1.5px solid #3E363F;padding-top:6px;display:flex;flex-direction:column;align-items:center;">
+            <div style="background:#fff;border:1px solid #3E363F;padding:3px;margin-bottom:4px;">
+              <img src="${qrSrc}" alt="QR" style="width:58px;height:58px;display:block;" />
+            </div>
+            <div style="background:#3E363F;color:#FFFCE8;font-family:monospace;font-size:6.8pt;font-weight:bold;padding:2px 7px;">${cleanLabel}</div>
+            <div style="font-family:monospace;font-size:6pt;font-weight:bold;margin-top:2px;">wallycad.com/cofp &bull; LKA</div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("six-up-print").innerHTML = cardHTML.repeat(6);
+      document.body.classList.add("six-up-mode");
+      window.print();
+      setTimeout(() => document.body.classList.remove("six-up-mode"), 500);
+    }
+  </script>
+</body>
+</html>
