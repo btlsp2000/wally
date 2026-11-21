@@ -79,7 +79,7 @@
       text-align: center;
       border-bottom: 3px double var(--rule);
       padding-bottom: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     header h1 {
@@ -95,108 +95,6 @@
       text-transform: uppercase;
       letter-spacing: 0.14em;
     }
-
-    /* 2x2 Quadrant Cross-Link Compass */
-    .quad-compass {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      max-width: 580px;
-      margin: 0 auto 14px auto;
-      padding: 10px;
-      border: 1.5px solid var(--rule);
-      background: var(--card);
-    }
-
-    .quad-btn {
-      background: var(--bg);
-      border: 1.5px solid var(--rule);
-      color: var(--ink);
-      font-family: monospace;
-      font-weight: bold;
-      font-size: 0.86rem;
-      padding: 10px 8px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .quad-btn:hover { border-color: var(--red); color: var(--red); }
-    .quad-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
-
-    /* Print Action Strip */
-    .print-bar {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .print-btn {
-      background: var(--ink);
-      color: #fff;
-      border: 1.5px solid var(--ink);
-      font-family: monospace;
-      font-size: 0.8rem;
-      font-weight: bold;
-      padding: 6px 12px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .print-btn.secondary {
-      background: var(--card);
-      color: var(--ink);
-    }
-
-    .print-btn:hover {
-      background: var(--red);
-      border-color: var(--red);
-      color: #fff;
-    }
-
-    /* Shared Filter & Dispatch Pill Bar */
-    .funnel-controls {
-      background: var(--card);
-      border: 1px solid var(--rule);
-      padding: 12px;
-      margin-bottom: 20px;
-    }
-
-    #search-input {
-      width: 100%;
-      padding: 8px 10px;
-      font-family: monospace;
-      font-size: 0.88rem;
-      border: 1px solid var(--rule);
-      background: var(--bg);
-      color: var(--ink);
-      margin-bottom: 10px;
-    }
-
-    .pill-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-family: monospace;
-    }
-
-    .pill {
-      background: var(--bg);
-      border: 1px solid var(--rule);
-      color: var(--ink);
-      font-family: monospace;
-      font-size: 0.76rem;
-      font-weight: bold;
-      padding: 4px 8px;
-      cursor: pointer;
-    }
-
-    .pill:hover { border-color: var(--red); color: var(--red); }
-    .pill.active { background: var(--rule); border-color: var(--rule); color: #fff; }
-    .pill.hidden { display: none; }
 
     .view-panel { display: none; }
     .view-panel.active { display: block; }
@@ -292,6 +190,114 @@
     }
 
     .seq-btn:hover { background: var(--rule); color: #fff; }
+
+    /* Control Deck (Below Central Story Content) */
+    .control-deck {
+      margin-top: 26px;
+      padding-top: 20px;
+      border-top: 3px double var(--rule);
+    }
+
+    /* 2x2 Quadrant Cross-Link Compass */
+    .quad-compass {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      max-width: 580px;
+      margin: 0 auto 14px auto;
+      padding: 10px;
+      border: 1.5px solid var(--rule);
+      background: var(--card);
+    }
+
+    .quad-btn {
+      background: var(--bg);
+      border: 1.5px solid var(--rule);
+      color: var(--ink);
+      font-family: monospace;
+      font-weight: bold;
+      font-size: 0.86rem;
+      padding: 10px 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .quad-btn:hover { border-color: var(--red); color: var(--red); }
+    .quad-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
+
+    /* Print Action Strip */
+    .print-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .print-btn {
+      background: var(--ink);
+      color: #fff;
+      border: 1.5px solid var(--ink);
+      font-family: monospace;
+      font-size: 0.8rem;
+      font-weight: bold;
+      padding: 6px 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .print-btn.secondary {
+      background: var(--card);
+      color: var(--ink);
+    }
+
+    .print-btn:hover {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    /* Shared Filter & Dispatch Pill Bar */
+    .funnel-controls {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      padding: 12px;
+    }
+
+    #search-input {
+      width: 100%;
+      padding: 8px 10px;
+      font-family: monospace;
+      font-size: 0.88rem;
+      border: 1px solid var(--rule);
+      background: var(--bg);
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .pill-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-family: monospace;
+    }
+
+    .pill {
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      color: var(--ink);
+      font-family: monospace;
+      font-size: 0.76rem;
+      font-weight: bold;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+
+    .pill:hover { border-color: var(--red); color: var(--red); }
+    .pill.active { background: var(--rule); border-color: var(--rule); color: #fff; }
+    .pill.hidden { display: none; }
 
     /* Timeline View */
     .timeline-list {
@@ -419,7 +425,7 @@
     }
 
     footer {
-      margin-top: 26px;
+      margin-top: 24px;
       padding-top: 12px;
       border-top: 2px solid var(--rule);
       text-align: center;
@@ -450,9 +456,7 @@
       }
 
       .global-nav,
-      .quad-compass,
-      .print-bar,
-      .funnel-controls,
+      .control-deck,
       .cross-links,
       .seq-nav,
       footer a {
@@ -588,31 +592,15 @@
   </nav>
 
   <div class="container">
+    <!-- MASTHEAD HEADER -->
     <header>
       <h1>ROUTETWO</h1>
       <div class="subtitle">The New Family Times &bull; 4-Quadrant Archival Matrix</div>
     </header>
 
-    <!-- 2x2 QUADRANT COMPASS -->
-    <nav class="quad-compass" aria-label="4-Quadrant Matrix">
-      <button class="quad-btn active" data-mode="DISPATCH" onclick="switchMode('DISPATCH')">&#9632; DISPATCH (Reader)</button>
-      <button class="quad-btn" data-mode="TIMELINE" onclick="switchMode('TIMELINE')">&#9632; TIMELINE (Chronology)</button>
-      <button class="quad-btn" data-mode="WIB" onclick="switchMode('WIB')">&#9632; WIB (Coordinates)</button>
-      <button class="quad-btn" data-mode="INDEX" onclick="switchMode('INDEX')">&#9632; INDEX (Entities)</button>
-    </nav>
-
-    <!-- PRINT CONTROLS -->
-    <div class="print-bar">
-      <button class="print-btn" onclick="printSingleDispatch()">&#9113; Print Active Sheet</button>
-      <button class="print-btn secondary" onclick="printFullArchive()">&#9113; Print Full Book</button>
-      <button class="print-btn secondary" onclick="printEightPageZine()">&#9986; Print 8-Page Mini-Zine</button>
-    </div>
-
-    <!-- SHARED FILTER & DISPATCH PILL BAR -->
-    <section class="funnel-controls">
-      <input type="text" id="search-input" placeholder="Filter across Dispatch, Timeline, WIB & Index..." oninput="filterAll()" />
-      <div class="pill-bar" id="pill-bar"></div>
-    </section>
+    <!-- =======================================================================
+         CENTRAL STORY CONTENT (MOVED DIRECTLY BELOW HEADER)
+         ======================================================================= -->
 
     <!-- QUADRANT 1: DISPATCH READER -->
     <main id="view-DISPATCH" class="view-panel active">
@@ -648,6 +636,32 @@
     <!-- FULL ARCHIVE PRINT CONTAINER -->
     <section id="full-book-print" aria-hidden="true"></section>
 
+    <!-- =======================================================================
+         CONTROL DECK (2x2 QUADRANT COMPASS, PRINT BAR & DISPATCH SWITCHBOARD)
+         ======================================================================= -->
+    <div class="control-deck">
+      <!-- 2x2 QUADRANT COMPASS -->
+      <nav class="quad-compass" aria-label="4-Quadrant Matrix">
+        <button class="quad-btn active" data-mode="DISPATCH" onclick="switchMode('DISPATCH')">&#9632; DISPATCH (Reader)</button>
+        <button class="quad-btn" data-mode="TIMELINE" onclick="switchMode('TIMELINE')">&#9632; TIMELINE (Chronology)</button>
+        <button class="quad-btn" data-mode="WIB" onclick="switchMode('WIB')">&#9632; WIB (Coordinates)</button>
+        <button class="quad-btn" data-mode="INDEX" onclick="switchMode('INDEX')">&#9632; INDEX (Entities)</button>
+      </nav>
+
+      <!-- PRINT CONTROLS -->
+      <div class="print-bar">
+        <button class="print-btn" onclick="printSingleDispatch()">&#9113; Print Active Sheet</button>
+        <button class="print-btn secondary" onclick="printFullArchive()">&#9113; Print Full Book</button>
+        <button class="print-btn secondary" onclick="printEightPageZine()">&#9986; Print 8-Page Mini-Zine</button>
+      </div>
+
+      <!-- SHARED FILTER & DISPATCH PILL BAR -->
+      <section class="funnel-controls">
+        <input type="text" id="search-input" placeholder="Filter across Dispatch, Timeline, WIB & Index..." oninput="filterAll()" />
+        <div class="pill-bar" id="pill-bar"></div>
+      </section>
+    </div>
+
     <footer>
       <a href="/library">Golden Triangle &amp; Books</a> &bull;
       <a href="/wesley">/wesley</a> &bull;
@@ -662,10 +676,6 @@
   <section id="mini-zine-output" aria-hidden="true"></section>
 
   <script>
-    /* =========================================================================
-       MASTER DISPATCH BLOCK REGISTRY (R2A – R2M + WES, ARM, GT2)
-       Single source feeding: Dispatch Reader, Timeline, WIB, Index & Print
-       ========================================================================= */
     const FUNNEL = [
       {
         id: "R2A",
@@ -1023,6 +1033,7 @@
         p.classList.toggle("active", p.id === `view-${mode}`);
       });
       history.replaceState(null, "", mode === "DISPATCH" ? `#${FUNNEL[currentIndex].id}` : `#${mode}`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function jumpToDispatch(idx) {
@@ -1077,6 +1088,7 @@
 
     function stepDispatch(delta) {
       renderDispatch((currentIndex + delta + FUNNEL.length) % FUNNEL.length);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function printSingleDispatch() {
@@ -1093,7 +1105,6 @@
     }
 
     function printEightPageZine() {
-      // Pulls 6 consecutive dispatches starting at active dispatch (wrapping cleanly)
       const pick = offset => FUNNEL[(currentIndex + offset) % FUNNEL.length];
       const [p2, p3, p4, p5, p6, p7] = [pick(1), pick(2), pick(3), pick(4), pick(5), pick(6)];
       const cover = pick(0);
