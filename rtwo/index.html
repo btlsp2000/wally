@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RouteTwo (/rtwo) — Unified 4-Quadrant &amp; Print Engine</title>
+  <title>WALLYCAD // MERGED MASTER SHELL (RouteTwo • WallyCAD • CofP • Trailer)</title>
   <style>
     :root {
       --bg: #f8f5ee;
@@ -21,95 +21,86 @@
       background: #eae4d7;
       color: var(--ink);
       font-family: "Georgia", serif;
-      line-height: 1.65;
-      padding: 16px 12px;
+      line-height: 1.62;
+      padding: 12px 10px;
     }
 
-    /* Unified Top Navigation Bar */
-    .global-nav {
-      max-width: 1040px;
-      margin: 0 auto 10px auto;
-      background: var(--rule);
-      color: #fff;
-      padding: 8px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      font-family: monospace;
-      font-size: 0.82rem;
-    }
-
-    .global-brand {
-      font-weight: bold;
-      letter-spacing: 0.1em;
-      color: #fff;
-      text-decoration: none;
-    }
-
-    .global-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .global-links a {
-      color: #e8e2d5;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .global-links a:hover,
-    .global-links a.current {
-      color: #fff;
-      border-bottom: 2px solid var(--red);
-    }
-
-    /* Main Container */
+    /* Calibrated for Fire HD 8 (601px Portrait / 962px Landscape) & Desktop */
     .container {
-      max-width: 1040px;
+      max-width: 960px;
       margin: 0 auto;
       background: var(--bg);
       border: 2px solid var(--rule);
-      padding: 24px 28px;
+      padding: 18px 20px;
     }
 
     header {
       text-align: center;
       border-bottom: 3px double var(--rule);
-      padding-bottom: 12px;
-      margin-bottom: 18px;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
     }
 
     header h1 {
       font-family: monospace;
-      font-size: clamp(2rem, 5vw, 3rem);
-      letter-spacing: 0.12em;
+      font-size: clamp(1.7rem, 4.5vw, 2.6rem);
+      letter-spacing: 0.1em;
     }
 
     .subtitle {
       font-family: monospace;
-      font-size: 0.84rem;
+      font-size: 0.8rem;
       color: var(--red);
       text-transform: uppercase;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.12em;
+      margin-top: 2px;
     }
 
+    /* 4-Pillar Domain Switcher */
+    .domain-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--light-rule);
+    }
+
+    @media (max-width: 560px) {
+      .domain-bar { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .dom-btn {
+      background: var(--card);
+      border: 1.5px solid var(--rule);
+      color: var(--ink);
+      font-family: monospace;
+      font-weight: bold;
+      font-size: 0.8rem;
+      padding: 8px 6px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .dom-btn:hover { border-color: var(--red); color: var(--red); }
+    .dom-btn.active { background: var(--rule); color: #fff; border-color: var(--rule); }
+
+    /* =======================================================================
+       CENTRAL CONTENT STAGE (DIRECTLY BELOW HEADER)
+       ======================================================================= */
     .view-panel { display: none; }
     .view-panel.active { display: block; }
 
-    /* Print-Only Header Stamp */
     .print-stamp { display: none; }
 
-    /* Cross-Link Badges inside Reader */
     .cross-links {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 10px;
       font-family: monospace;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
     }
 
     .xlink {
@@ -125,7 +116,7 @@
     .xlink:hover { background: var(--red); color: #fff; }
 
     .reader-title {
-      font-size: clamp(1.55rem, 3.2vw, 2.2rem);
+      font-size: clamp(1.45rem, 3.2vw, 2.1rem);
       line-height: 1.2;
       margin-bottom: 8px;
     }
@@ -134,27 +125,83 @@
       font-style: italic;
       color: var(--muted);
       border-bottom: 1px solid var(--light-rule);
-      padding-bottom: 12px;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    /* 4-Tier Story Architecture Blocks */
+    .story-tier {
       margin-bottom: 16px;
     }
 
-    .reader-body p { margin-bottom: 14px; }
+    .story-tier + .story-tier {
+      padding-top: 12px;
+      border-top: 1px solid var(--light-rule);
+    }
+
+    .tier-label {
+      font-family: monospace;
+      font-size: 0.74rem;
+      font-weight: bold;
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .reader-body p { margin-bottom: 12px; }
 
     .pull-quote {
       border-left: 4px solid var(--red);
-      padding-left: 16px;
-      margin: 18px 0;
+      padding-left: 14px;
+      margin: 10px 0;
       font-style: italic;
-      font-size: 1.15rem;
+      font-size: 1.08rem;
       color: var(--red);
+    }
+
+    .visual-frame {
+      margin: 10px 0;
+      background: var(--card);
+      border: 1px solid var(--rule);
+      padding: 8px;
+    }
+
+    .visual-caption {
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .spec-box {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      padding: 10px 12px;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+
+    .spec-box strong {
+      display: block;
+      color: var(--red);
+      margin-bottom: 4px;
+      text-transform: uppercase;
     }
 
     .tag-row {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-top: 16px;
-      padding-top: 12px;
+      margin-top: 14px;
+      padding-top: 10px;
       border-top: 1px dashed var(--light-rule);
     }
 
@@ -162,7 +209,7 @@
       background: var(--card);
       border: 1px solid var(--rule);
       font-family: monospace;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       padding: 2px 8px;
       cursor: pointer;
     }
@@ -173,11 +220,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 20px;
-      padding-top: 14px;
+      margin-top: 18px;
+      padding-top: 12px;
       border-top: 1px solid var(--light-rule);
       font-family: monospace;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
     }
 
     .seq-btn {
@@ -191,21 +238,22 @@
 
     .seq-btn:hover { background: var(--rule); color: #fff; }
 
-    /* Control Deck (Below Central Story Content) */
+    /* =======================================================================
+       CONTROL DECK (BELOW CENTRAL STORY STAGE)
+       ======================================================================= */
     .control-deck {
-      margin-top: 26px;
-      padding-top: 20px;
+      margin-top: 22px;
+      padding-top: 18px;
       border-top: 3px double var(--rule);
     }
 
-    /* 2x2 Quadrant Cross-Link Compass */
     .quad-compass {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      max-width: 580px;
-      margin: 0 auto 14px auto;
-      padding: 10px;
+      max-width: 560px;
+      margin: 0 auto 12px auto;
+      padding: 8px;
       border: 1.5px solid var(--rule);
       background: var(--card);
     }
@@ -216,23 +264,21 @@
       color: var(--ink);
       font-family: monospace;
       font-weight: bold;
-      font-size: 0.86rem;
-      padding: 10px 8px;
+      font-size: 0.82rem;
+      padding: 8px 6px;
       cursor: pointer;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
     }
 
     .quad-btn:hover { border-color: var(--red); color: var(--red); }
     .quad-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
 
-    /* Print Action Strip */
     .print-bar {
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .print-btn {
@@ -240,47 +286,37 @@
       color: #fff;
       border: 1.5px solid var(--ink);
       font-family: monospace;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: bold;
-      padding: 6px 12px;
+      padding: 6px 11px;
       cursor: pointer;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
     }
 
-    .print-btn.secondary {
-      background: var(--card);
-      color: var(--ink);
-    }
+    .print-btn.secondary { background: var(--card); color: var(--ink); }
+    .print-btn:hover { background: var(--red); border-color: var(--red); color: #fff; }
 
-    .print-btn:hover {
-      background: var(--red);
-      border-color: var(--red);
-      color: #fff;
-    }
-
-    /* Shared Filter & Dispatch Pill Bar */
     .funnel-controls {
       background: var(--card);
       border: 1px solid var(--rule);
-      padding: 12px;
+      padding: 10px;
     }
 
     #search-input {
       width: 100%;
       padding: 8px 10px;
       font-family: monospace;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       border: 1px solid var(--rule);
       background: var(--bg);
       color: var(--ink);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .pill-bar {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 5px;
       font-family: monospace;
     }
 
@@ -289,7 +325,7 @@
       border: 1px solid var(--rule);
       color: var(--ink);
       font-family: monospace;
-      font-size: 0.76rem;
+      font-size: 0.74rem;
       font-weight: bold;
       padding: 4px 8px;
       cursor: pointer;
@@ -299,123 +335,28 @@
     .pill.active { background: var(--rule); border-color: var(--rule); color: #fff; }
     .pill.hidden { display: none; }
 
-    /* Timeline View */
-    .timeline-list {
-      border-left: 3px solid var(--red);
-      margin-left: 14px;
-      padding-left: 20px;
-    }
-
-    .tl-item {
-      position: relative;
-      margin-bottom: 16px;
-      padding: 12px 14px;
-      background: var(--card);
-      border: 1px solid var(--light-rule);
-      cursor: pointer;
-    }
-
+    /* Timeline, WIB & Index Views */
+    .timeline-list { border-left: 3px solid var(--red); margin-left: 12px; padding-left: 18px; }
+    .tl-item { position: relative; margin-bottom: 14px; padding: 10px 12px; background: var(--card); border: 1px solid var(--light-rule); cursor: pointer; }
     .tl-item:hover { border-color: var(--red); }
+    .tl-item::before { content: ""; position: absolute; left: -25px; top: 14px; width: 10px; height: 10px; background: var(--red); border: 2px solid var(--bg); }
+    .tl-year { font-family: monospace; font-size: 0.78rem; font-weight: bold; color: var(--red); text-transform: uppercase; }
+    .tl-title { font-size: 1.08rem; font-weight: bold; margin: 2px 0; }
+    .tl-sub { font-size: 0.88rem; color: var(--muted); }
 
-    .tl-item::before {
-      content: "";
-      position: absolute;
-      left: -27px;
-      top: 16px;
-      width: 11px;
-      height: 11px;
-      background: var(--red);
-      border: 2px solid var(--bg);
-    }
-
-    .tl-year {
-      font-family: monospace;
-      font-size: 0.8rem;
-      font-weight: bold;
-      color: var(--red);
-      text-transform: uppercase;
-    }
-
-    .tl-title { font-size: 1.12rem; font-weight: bold; margin: 2px 0; }
-    .tl-sub { font-size: 0.9rem; color: var(--muted); }
-
-    /* WIB Spatial Matrix */
-    .wib-matrix {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 14px;
-    }
-
-    .wib-card {
-      background: var(--card);
-      border: 1.5px solid var(--rule);
-      padding: 14px;
-    }
-
-    .wib-card h3 {
-      font-family: monospace;
-      font-size: 0.88rem;
-      color: var(--red);
-      text-transform: uppercase;
-      border-bottom: 1px solid var(--light-rule);
-      padding-bottom: 6px;
-      margin-bottom: 10px;
-    }
-
-    .wib-entry {
-      padding: 6px 0;
-      border-bottom: 1px dashed var(--light-rule);
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-
+    .wib-matrix { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    .wib-card { background: var(--card); border: 1.5px solid var(--rule); padding: 12px; }
+    .wib-card h3 { font-family: monospace; font-size: 0.85rem; color: var(--red); text-transform: uppercase; border-bottom: 1px solid var(--light-rule); padding-bottom: 5px; margin-bottom: 8px; }
+    .wib-entry { padding: 5px 0; border-bottom: 1px dashed var(--light-rule); font-size: 0.88rem; cursor: pointer; }
     .wib-entry:last-child { border-bottom: none; }
     .wib-entry:hover { color: var(--red); }
+    .wib-entry span { font-family: monospace; font-size: 0.74rem; font-weight: bold; color: var(--muted); display: block; }
 
-    .wib-entry span {
-      font-family: monospace;
-      font-size: 0.76rem;
-      font-weight: bold;
-      color: var(--muted);
-      display: block;
-    }
-
-    /* Index Grid */
-    .index-grid {
-      columns: 2 280px;
-      column-gap: 24px;
-    }
-
-    .idx-group {
-      break-inside: avoid;
-      margin-bottom: 14px;
-      background: var(--card);
-      border: 1px solid var(--light-rule);
-      padding: 10px 12px;
-    }
-
-    .idx-term {
-      font-family: monospace;
-      font-weight: bold;
-      font-size: 0.88rem;
-      margin-bottom: 5px;
-    }
-
-    .idx-refs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .idx-ref-btn {
-      background: var(--bg);
-      border: 1px solid var(--rule);
-      font-family: monospace;
-      font-size: 0.74rem;
-      padding: 2px 7px;
-      cursor: pointer;
-    }
-
+    .index-grid { columns: 2 240px; column-gap: 20px; }
+    .idx-group { break-inside: avoid; margin-bottom: 12px; background: var(--card); border: 1px solid var(--light-rule); padding: 9px 11px; }
+    .idx-term { font-family: monospace; font-weight: bold; font-size: 0.86rem; margin-bottom: 4px; }
+    .idx-refs { display: flex; flex-wrap: wrap; gap: 5px; }
+    .idx-ref-btn { background: var(--bg); border: 1px solid var(--rule); font-family: monospace; font-size: 0.72rem; padding: 2px 6px; cursor: pointer; }
     .idx-ref-btn:hover { background: var(--red); border-color: var(--red); color: #fff; }
 
     /* Hidden Print Containers */
@@ -425,115 +366,50 @@
     }
 
     footer {
-      margin-top: 24px;
-      padding-top: 12px;
+      margin-top: 20px;
+      padding-top: 10px;
       border-top: 2px solid var(--rule);
       text-align: center;
       font-family: monospace;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       color: var(--muted);
     }
 
     footer a { color: var(--red); text-decoration: none; font-weight: bold; }
-    footer a:hover { text-decoration: underline; }
 
     /* =========================================================================
        PRINT STYLESHEET (BROADSHEET, FULL BOOK, & 8-PAGE MINI-ZINE)
        ========================================================================= */
-    @page {
-      size: letter portrait;
-      margin: 0.65in 0.7in;
-    }
+    @page { size: letter portrait; margin: 0.6in 0.65in; }
 
     @media print {
-      body {
-        background: #ffffff !important;
-        color: #000000 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        font-size: 11pt;
-        line-height: 1.55;
-      }
-
-      .global-nav,
-      .control-deck,
-      .cross-links,
-      .seq-nav,
-      footer a {
-        display: none !important;
-      }
-
-      .container {
-        max-width: 100% !important;
-        border: none !important;
-        background: #ffffff !important;
-        padding: 0 !important;
-      }
-
-      header {
-        border-bottom: 2px solid #000000;
-        padding-bottom: 8px;
-        margin-bottom: 14px;
-      }
-
-      header h1 { font-size: 20pt; color: #000000; }
-      .subtitle { color: #000000 !important; font-size: 8.5pt; }
-
+      body { background: #fff !important; color: #000 !important; padding: 0 !important; font-size: 10.5pt; line-height: 1.5; }
+      .domain-bar, .control-deck, .cross-links, .seq-nav, footer a { display: none !important; }
+      .container { max-width: 100% !important; border: none !important; padding: 0 !important; background: #fff !important; }
+      header { border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 12px; }
+      .subtitle, .tier-label { color: #000 !important; }
       .print-stamp {
         display: flex !important;
         justify-content: space-between;
         font-family: monospace;
         font-size: 8.5pt;
         font-weight: bold;
-        text-transform: uppercase;
-        border-bottom: 1px solid #000000;
+        border-bottom: 1px solid #000;
         padding-bottom: 4px;
         margin-bottom: 10px;
       }
+      .pull-quote { border-left: 3px solid #000 !important; color: #000 !important; page-break-inside: avoid; }
+      .visual-frame { border: 1px solid #000; page-break-inside: avoid; }
 
-      .reader-title { font-size: 18pt; color: #000000; }
-      .reader-deck { color: #222222 !important; border-bottom: 1px solid #000000; }
-
-      .pull-quote {
-        border-left: 3px solid #000000 !important;
-        color: #000000 !important;
-        font-size: 11.5pt;
-        page-break-inside: avoid;
-      }
-
-      .tag-chip {
-        border: 1px solid #000000;
-        background: #ffffff;
-        color: #000000;
-        font-size: 7.5pt;
-      }
-
-      /* Full Book Print Mode */
       body.print-all-mode #view-DISPATCH,
       body.print-all-mode #view-TIMELINE,
       body.print-all-mode #view-WIB,
-      body.print-all-mode #view-INDEX {
-        display: none !important;
-      }
+      body.print-all-mode #view-INDEX { display: none !important; }
+      body.print-all-mode #full-book-print { display: block !important; }
+      .book-sheet { page-break-after: always; padding-top: 4px; }
+      .book-sheet:last-child { page-break-after: auto; }
 
-      body.print-all-mode #full-book-print {
-        display: block !important;
-      }
-
-      .book-sheet {
-        page-break-after: always;
-        padding-top: 4px;
-      }
-
-      .book-sheet:last-child {
-        page-break-after: auto;
-      }
-
-      /* 8-Page Mini-Zine Mode (11" x 8.5" Landscape Single Sheet) */
-      body.zine-print-mode .container {
-        display: none !important;
-      }
-
+      body.zine-print-mode .container { display: none !important; }
       body.zine-print-mode #mini-zine-output {
         display: grid !important;
         width: 11in;
@@ -543,71 +419,50 @@
         position: relative;
         overflow: hidden;
       }
-
       .zine-panel {
         width: 2.75in;
         height: 4.25in;
         padding: 0.22in 0.2in;
-        border: 0.4pt dotted #888888;
+        border: 0.4pt dotted #888;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         overflow: hidden;
         font-size: 7.5pt;
         line-height: 1.35;
-        color: #000000;
+        color: #000;
       }
-
-      .zine-panel.invert {
-        transform: rotate(180deg);
-      }
-
-      footer {
-        border-top: 1px solid #000000;
-        margin-top: 18px;
-        padding-top: 6px;
-        font-size: 8pt;
-        color: #000000;
-      }
-
-      footer::after {
-        content: "RouteTwo (/rtwo) • LastKnownAddress Archival Print Edition • Bill Tonnesen";
-      }
+      .zine-panel.invert { transform: rotate(180deg); }
+      footer::after { content: "WallyCAD Unified Archive • RouteTwo • CofP • Space Trailer • Bill Tonnesen"; }
     }
   </style>
 </head>
 <body>
-
-  <!-- UNIFIED WALLYCAD / ROUTETWO TOP BAR -->
-  <nav class="global-nav" aria-label="Primary Site Navigation">
-    <a href="/" class="global-brand">WALLYCAD.COM // LKA</a>
-    <div class="global-links">
-      <a href="/">CAD Engine</a>
-      <a href="/rtwo" class="current">RouteTwo (/rtwo)</a>
-      <a href="/library">Golden Triangle &amp; Books</a>
-      <a href="/wesley">/wesley</a>
-      <a href="/armike">/armike</a>
-      <a href="/transit">WIB / Transit</a>
-    </div>
-  </nav>
-
   <div class="container">
     <!-- MASTHEAD HEADER -->
     <header>
-      <h1>ROUTETWO</h1>
-      <div class="subtitle">The New Family Times &bull; 4-Quadrant Archival Matrix</div>
+      <h1 id="mast-title">ROUTETWO</h1>
+      <div class="subtitle" id="mast-sub">Merged Master Shell &bull; RouteTwo &bull; WallyCAD &bull; CofP &bull; Trailer</div>
     </header>
 
-    <!-- =======================================================================
-         CENTRAL STORY CONTENT (MOVED DIRECTLY BELOW HEADER)
-         ======================================================================= -->
+    <!-- 4-PILLAR DOMAIN SWITCHER -->
+    <nav class="domain-bar" aria-label="Merged Pillars">
+      <button class="dom-btn active" data-dom="ROUTETWO" onclick="switchDomain('ROUTETWO')">1. RouteTwo (/rtwo)</button>
+      <button class="dom-btn" data-dom="WALLYCAD" onclick="switchDomain('WALLYCAD')">2. WallyCAD (/wally)</button>
+      <button class="dom-btn" data-dom="COFP" onclick="switchDomain('COFP')">3. CofP (/billiards2)</button>
+      <button class="dom-btn" data-dom="TRAILER" onclick="switchDomain('TRAILER')">4. Trailer (/cub)</button>
+    </nav>
 
-    <!-- QUADRANT 1: DISPATCH READER -->
+    <!-- =======================================================================
+         CENTRAL CONTENT STAGE (DIRECTLY BELOW HEADER)
+         4-PART ARCHITECTURE: 1. INTAKE | 2. INTERPRETATION | 3. BLURBS | 4. VISUALS
+         ======================================================================= -->
     <main id="view-DISPATCH" class="view-panel active">
       <div class="print-stamp" id="p-stamp"></div>
       <div class="cross-links" id="r-xlinks"></div>
       <h2 class="reader-title" id="r-title"></h2>
       <p class="reader-deck" id="r-deck"></p>
+      <div id="r-specs"></div>
       <div class="reader-body" id="r-body"></div>
       <div class="tag-row" id="r-tags"></div>
 
@@ -618,17 +473,17 @@
       </div>
     </main>
 
-    <!-- QUADRANT 2: TIMELINE -->
+    <!-- TIMELINE VIEW -->
     <section id="view-TIMELINE" class="view-panel">
       <div class="timeline-list" id="timeline-container"></div>
     </section>
 
-    <!-- QUADRANT 3: WIB -->
+    <!-- WIB COORDINATES VIEW -->
     <section id="view-WIB" class="view-panel">
       <div class="wib-matrix" id="wib-container"></div>
     </section>
 
-    <!-- QUADRANT 4: INDEX -->
+    <!-- MASTER INDEX VIEW -->
     <section id="view-INDEX" class="view-panel">
       <div class="index-grid" id="index-container"></div>
     </section>
@@ -637,10 +492,9 @@
     <section id="full-book-print" aria-hidden="true"></section>
 
     <!-- =======================================================================
-         CONTROL DECK (2x2 QUADRANT COMPASS, PRINT BAR & DISPATCH SWITCHBOARD)
+         CONTROL DECK (4-QUADRANT COMPASS, PRINT BAR & UNIFIED SEARCH)
          ======================================================================= -->
     <div class="control-deck">
-      <!-- 2x2 QUADRANT COMPASS -->
       <nav class="quad-compass" aria-label="4-Quadrant Matrix">
         <button class="quad-btn active" data-mode="DISPATCH" onclick="switchMode('DISPATCH')">&#9632; DISPATCH (Reader)</button>
         <button class="quad-btn" data-mode="TIMELINE" onclick="switchMode('TIMELINE')">&#9632; TIMELINE (Chronology)</button>
@@ -648,16 +502,14 @@
         <button class="quad-btn" data-mode="INDEX" onclick="switchMode('INDEX')">&#9632; INDEX (Entities)</button>
       </nav>
 
-      <!-- PRINT CONTROLS -->
       <div class="print-bar">
         <button class="print-btn" onclick="printSingleDispatch()">&#9113; Print Active Sheet</button>
         <button class="print-btn secondary" onclick="printFullArchive()">&#9113; Print Full Book</button>
         <button class="print-btn secondary" onclick="printEightPageZine()">&#9986; Print 8-Page Mini-Zine</button>
       </div>
 
-      <!-- SHARED FILTER & DISPATCH PILL BAR -->
       <section class="funnel-controls">
-        <input type="text" id="search-input" placeholder="Filter across Dispatch, Timeline, WIB & Index..." oninput="filterAll()" />
+        <input type="text" id="search-input" placeholder="Search across RouteTwo, WallyCAD, CofP & Space Trailer..." oninput="filterAll()" />
         <div class="pill-bar" id="pill-bar"></div>
       </section>
     </div>
@@ -666,9 +518,8 @@
       <a href="/library">Golden Triangle &amp; Books</a> &bull;
       <a href="/wesley">/wesley</a> &bull;
       <a href="/armike">/armike</a> &bull;
-      <a href="/transit">Transit</a> &bull;
-      <a href="/photo-story">Photo Story</a> &bull;
-      <a href="https://camera-mtx-rtc.tt2468.net/hwy2_mtnhardware/" target="_blank" rel="noopener noreferrer">Hwy 2 Cam</a>
+      <a href="/transit">Transit / WIB</a> &bull;
+      <a href="/photo-story">Photo Story</a>
     </footer>
   </div>
 
@@ -676,25 +527,92 @@
   <section id="mini-zine-output" aria-hidden="true"></section>
 
   <script>
+    /* =========================================================================
+       UNIFIED MASTER FUNNEL (4-PART ARCHITECTURE PER BLOCK)
+       1. intake (Complete) | 2. interpretation (Complete) | 3. blurbs | 4. visuals
+       ========================================================================= */
     const FUNNEL = [
+      /* --- PILLAR 1: ROUTETWO --- */
       {
+        domain: "ROUTETWO",
         id: "R2A",
         label: "R2A • Prologue",
         sortYear: 1951,
         date: "1951–2026",
         place: "Long Beach → Las Vegas",
         quadrant: "Q3: Southern California",
-        terms: ["Asymmetric Symmetry", "Long Beach", "Lennox", "Carlsbad", "Klamath Falls", "Route 2"],
+        terms: ["Asymmetric Symmetry", "Route 2", "Long Beach", "Lennox", "Carlsbad", "Klamath Falls"],
         title: "A House, A World, A Life",
         deck: "Asymmetric symmetry, load paths, and seventy-five years of running survey coordinates.",
-        quote: "Static symmetry breaks the moment one piece moves. Asymmetric symmetry absorbs the shift, recalculates the fulcrum, and stays standing.",
-        paragraphs: [
+        intake: [
           "Look at a house, and you do not just see four walls, siding, and a roof—you see the load paths, the framing tolerances, the joinery hidden behind the drywall, and the survey monuments buried at the corners of the lot.",
           "Look at the world outside the door, and it follows the exact same geometry: highways, rail lines, senior center pool tables, library terminals, and unconditioned human kindness along Route 2.",
           "And a life is the running survey drafted across all of it in real time—honoring Wesley and Mike permanently on the sheet while setting down the next true line."
+        ],
+        interpretation: [
+          "In structural drafting and land surveying, static symmetry collapses the moment an external force shifts one corner of the frame. Asymmetric symmetry survives by recalculating the fulcrum and redistributing the load across new anchor points.",
+          "Across seventy-five years of moves from Long Beach to the Pacific Northwest and Southern Nevada, this master sheet treats every address, highway corridor, and loss not as a broken fragment, but as a verified survey monument in one continuous traverse."
+        ],
+        blurbs: [
+          "Static symmetry breaks the moment one piece moves. Asymmetric symmetry absorbs the shift, recalculates the fulcrum, and stays standing."
+        ],
+        visuals: [
+          {
+            caption: "FIG. R2A — Asymmetric Fulcrum Diagram: Redistributing Structural & Life Load Paths",
+            svg: `<svg viewBox="0 0 600 110" width="100%" style="display:block;">
+                    <line x1="40" y1="70" x2="560" y2="42" stroke="#2b2925" stroke-width="3"/>
+                    <polygon points="340,56 322,92 358,92" fill="#9C2A20"/>
+                    <circle cx="90" cy="66" r="6" fill="#2b2925"/>
+                    <circle cx="510" cy="45" r="6" fill="#9C2A20"/>
+                    <text x="40" y="30" font-family="monospace" font-size="11" fill="#1a1917">1951 ORIGIN MONUMENT</text>
+                    <text x="275" y="104" font-family="monospace" font-size="11" fill="#9C2A20" font-weight="bold">RECALCULATED FULCRUM</text>
+                    <text x="425" y="26" font-family="monospace" font-size="11" fill="#1a1917">ACTIVE RUNNING LINE</text>
+                  </svg>`
+          }
         ]
       },
       {
+        domain: "ROUTETWO",
+        id: "R2M",
+        label: "R2M • Fed Bible, Ripped From Family",
+        sortYear: 1960,
+        date: "1960s Baseline → Ongoing Fault Line",
+        place: "Lennox • Long Beach, CA",
+        quadrant: "Q3: Southern California",
+        terms: ["Betty Jo Tonnesen", "Family Severance", "Baptism at Age 9", "Lennox", "LBCC", "Coordinates of Belief"],
+        title: "Fed Bible & Ripped From Family",
+        deck: "When a mother repelled by her own kin turned to a rigid institutional system—substituting scripture for blood ties.",
+        intake: [
+          "I was fed Bible and ripped from family. Mom was repelled by her family...",
+          "At the root of the entire family fracture sits an earlier break: repelled by her own family, Bill's mother Betty Jo sought shelter inside a rigid, top-down religious system—handing her children over to it and severing the wider family network in the process.",
+          "Baptized at age nine and fed scripture as an absolute substitute for extended kinship, Bill grew up inside a closed circuit where institutional loyalty replaced blood ties, open inquiry, and ordinary family belonging."
+        ],
+        interpretation: [
+          "This severance was not a passing childhood episode; it set the structural fault line running across sixty years of family history—from the organizational taboo against attending Long Beach City College in 1969, to the closed doors around brother Mike's final illness in Oregon, to the generational distance with adult sons Malcolm and Justin.",
+          "Recording this root coordinate directly on the survey sheet separates inherited institutional isolation from Bill's own sovereign path as a draftsman, writer, and independent thinker."
+        ],
+        blurbs: [
+          "I was fed Bible and ripped from family. Mom was repelled by her family...",
+          "Naming the root coordinate on the survey sheet is the first step in refusing to carry an inherited isolation forward."
+        ],
+        visuals: [
+          {
+            caption: "FIG. R2M — Fault Line Survey: Kinship Severance vs. First-Principles Sovereignty (1960–2026)",
+            svg: `<svg viewBox="0 0 600 115" width="100%" style="display:block;">
+                    <line x1="30" y1="58" x2="270" y2="58" stroke="#9C2A20" stroke-width="3"/>
+                    <line x1="310" y1="34" x2="570" y2="34" stroke="#2b2925" stroke-width="2" stroke-dasharray="6,4"/>
+                    <line x1="310" y1="82" x2="570" y2="82" stroke="#2b2925" stroke-width="2.5"/>
+                    <circle cx="290" cy="58" r="7" fill="#9C2A20"/>
+                    <text x="30" y="42" font-family="monospace" font-size="11" fill="#1a1917">1960s KINSHIP BASELINE</text>
+                    <text x="255" y="96" font-family="monospace" font-size="11" fill="#9C2A20" font-weight="bold">FRACTURE (AGE 9)</text>
+                    <text x="320" y="23" font-family="monospace" font-size="10" fill="#5a554c">CLOSED INSTITUTIONAL LOOP</text>
+                    <text x="320" y="102" font-family="monospace" font-size="10" fill="#1a1917" font-weight="bold">1969 LBCC → FIRST-PRINCIPLES LINE</text>
+                  </svg>`
+          }
+        ]
+      },
+      {
+        domain: "ROUTETWO",
         id: "R2B",
         label: "R2B • 1966",
         sortYear: 1966,
@@ -704,13 +622,20 @@
         terms: ["La Quinta High School", "Westminster", "Lennox", "Dale Tonnesen", "Woodshop", "1966"],
         title: "1966: La Quinta & The Summer the Line Broke",
         deck: "Enrolling next door at La Quinta High School after Dale left forever.",
-        quote: "That summer Bill's father left forever, his wife and children, Bill...",
-        paragraphs: [
+        intake: [
           "It was the start of the 1966 school year. Bill enrolled next door in La Quinta High School in Westminster, California.",
-          "That summer, Bill's father left forever—leaving his wife and children, while Bill held onto the tactile roots of eighth-grade and freshman woodshop in Lennox."
-        ]
+          "That summer, Bill's father Dale left forever—leaving his wife and children, while Bill held onto the tactile roots of eighth-grade and freshman woodshop in Lennox."
+        ],
+        interpretation: [
+          "When the household baseline split in the summer of 1966, hands-on shop craft became the physical anchor that kept Bill grounded while school districts and addresses shifted beneath his feet."
+        ],
+        blurbs: [
+          "That summer Bill's father left forever, his wife and children, Bill..."
+        ],
+        visuals: []
       },
       {
+        domain: "ROUTETWO",
         id: "R2C",
         label: "R2C • 1967–68",
         sortYear: 1967,
@@ -720,13 +645,20 @@
         terms: ["Bermuda Street", "Grandma Pearl", "Poly High", "Machinery's Handbook", "3rd Street Library", "Long Beach"],
         title: "Bermuda Street & Poly High Drafting",
         deck: "Grandma Pearl's house between Cherry and Orange, and Machinery's Handbook at the 3rd Street Library.",
-        quote: "If two lines do not meet at the right tolerance, you recalculate the coordinates until the structure holds.",
-        paragraphs: [
+        intake: [
           "Returning to Long Beach established a baseline on Bermuda Street between Cherry and Orange Avenue at Grandma Pearl's house.",
           "Between Poly High drafting class and afternoons studying Machinery's Handbook at the 3rd Street Library, mechanical geometry replaced guesswork."
-        ]
+        ],
+        interpretation: [
+          "The 3rd Street Library and Poly High drafting boards introduced the permanent rule that governed the next fifty years: public libraries as personal workshops and engineering reference standards as objective truth."
+        ],
+        blurbs: [
+          "If two lines do not meet at the right tolerance, you recalculate the coordinates until the structure holds."
+        ],
+        visuals: []
       },
       {
+        domain: "ROUTETWO",
         id: "R2E",
         label: "R2E • 1969 LBCC",
         sortYear: 1969,
@@ -736,14 +668,21 @@
         terms: ["LBCC", "Mr. Chard", "Machine Shop", "Lathe", "Salt Lake City", "Long Beach", "1969"],
         title: "1969: Special Exception at LBCC",
         deck: "Mr. Chard, four classes without a high school diploma, and turning a slug on the lathe.",
-        quote: "At the time, higher education was taboo at the religious system Bill joined at the urging of his mother, baptized at age 9. Bill was a conflicted renegade.",
-        paragraphs: [
+        intake: [
           "In 1969, Mr. Chard got Bill into Long Beach City College (LBCC) in Long Beach, California—Bill's birthplace, and his father's birthplace, one generation removed from Salt Lake City, Utah.",
           "After finishing his senior year with no diploma, Bill received a special exception and registered in Drafting, College Algebra, Machine Shop, and Speed Reading.",
           "Machine Shop recreated the roots of woodshop from Lennox: sharpening cutting tools first, then turning a slug on the lathe."
-        ]
+        ],
+        interpretation: [
+          "Entering LBCC by special exception defied the anti-education taboo of his upbringing—proving that direct mechanical skill, algebra, and physical craft cut straight through institutional gatekeeping."
+        ],
+        blurbs: [
+          "At the time, higher education was taboo at the religious system Bill joined at the urging of his mother, baptized at age 9. Bill was a conflicted renegade."
+        ],
+        visuals: []
       },
       {
+        domain: "ROUTETWO",
         id: "R2G",
         label: "R2G • Hal Kelly's",
         sortYear: 1980,
@@ -753,13 +692,20 @@
         terms: ["Hal Kelly's", "Peterbilt", "Colton", "Banning", "Beaumont", "Phoenix"],
         title: "Ruling the Road: Hal Kelly's & the Peterbilt",
         deck: "From the feed-bagging line and graveyard dock to eighty thousand pounds of steel and full command of the grade.",
-        quote: "I ruled the road and my life in my Peterbilt at Kelly's.",
-        paragraphs: [
+        intake: [
           "Before taking the wheel, the work was earned from the ground up—starting on the feed-bagging line and working the graveyard dock at Hal Kelly's until the mechanics of the entire operation were second nature.",
           "Out on the highway between Colton, Banning, Beaumont, and Phoenix, there was no ambiguity and no committee deciding your worth. Behind the wheel of that Peterbilt, you had eighty thousand pounds of steel, a clear set of coordinates, and a logbook."
-        ]
+        ],
+        interpretation: [
+          "Four and a half years at Hal Kelly's established total self-reliance: earning command from the bottom rung up and proving mastery across Interstate 10 grades."
+        ],
+        blurbs: [
+          "I ruled the road and my life in my Peterbilt at Kelly's."
+        ],
+        visuals: []
       },
       {
+        domain: "ROUTETWO",
         id: "R2J",
         label: "R2J • Sandy (PDX)",
         sortYear: 2008,
@@ -769,13 +715,20 @@
         terms: ["Sandy (Sandra / Ry)", "Holiday Inn Express PDX", "Portland", "Multnomah County"],
         title: "Her Name Was Sandy",
         deck: "Holiday Inn Express near PDX, a script name on the forearm, and an unresolved coordinate in the Northwest ledger.",
-        quote: "Her name was Sandy...",
-        paragraphs: [
+        intake: [
           "Across the Portland and Multnomah County chapters—from the days working at Holiday Inn Express near PDX to the quiet stretches in between—Sandy (Sandra, who also went by Ry) remained one of the most enigmatic figures on the map.",
           "Marked permanently in script on the forearm—'Turn SANDRA, not the arm'—her presence spanned shared seasons, sudden silences, and unexpected messages that left the ledger open."
-        ]
+        ],
+        interpretation: [
+          "Unlike fixed survey monuments, human connections in Portland carried unanswered questions—anchored permanently in memory and ink even as addresses changed."
+        ],
+        blurbs: [
+          "Her name was Sandy..."
+        ],
+        visuals: []
       },
       {
+        domain: "ROUTETWO",
         id: "R2H",
         label: "R2H • 2014 Royal Manor",
         sortYear: 2014,
@@ -785,13 +738,20 @@
         terms: ["Royal Manor", "Charles", "Greyhound", "Salt Lake City", "Key Bank", "Las Vegas", "2014"],
         title: "The Royal Manor, Charles & The $50 Greyhound to Salt Lake",
         deck: "Passing a 2014 landmark from the window of an RTC bus—the robbery, a bad check, and the trip north to clear the ledger.",
-        quote: "The Royal Manor is still here where I was robbed. And where I housed conman Charles a week. Until the bad check which closed my Portland bank account and spurred a Greyhound to Salt Lake City. 2014.",
-        paragraphs: [
+        intake: [
           "Twelve years later, riding past the Royal Manor on an RTC bus in Las Vegas brings the 2014 survey line straight back into focus—the sign and exterior still standing in the desert glare exactly where the incident occurred.",
           "In 2014, that property was the site of a robbery and the week Bill housed conman Charles—ending with a bad check that closed his Portland Key Bank account and spurred a $50 Greyhound ticket north to Salt Lake City."
-        ]
+        ],
+        interpretation: [
+          "Re-encountering the Royal Manor from a Las Vegas transit window twelve years later confirms how physical landmarks hold exact historical coordinates long after the financial storm has been weathered."
+        ],
+        blurbs: [
+          "The Royal Manor is still here where I was robbed. And where I housed conman Charles a week. Until the bad check which closed my Portland bank account and spurred a Greyhound to Salt Lake City. 2014."
+        ],
+        visuals: []
       },
       {
+        domain: "ROUTETWO",
         id: "R2D",
         label: "R2D • Route 2",
         sortYear: 2021,
@@ -801,13 +761,20 @@
         terms: ["Route 2", "Sheri", "Wrightwood", "The Bystander", "Family Times"],
         title: "\"The Bystander\" on Route 2",
         deck: "Sheri, three folded bills, and a blanket across from the fire department.",
-        quote: "Are you alright, are you sure? Can I give you some money?",
-        paragraphs: [
+        intake: [
           "Sheri meets Bill along the street in Wrightwood—offering three folded bills and walking across to the fire department to ask for a blanket.",
           "Unconditioned help on a cold stretch of Route 2 became the editorial spine of The New Family Times."
-        ]
+        ],
+        interpretation: [
+          "In direct contrast to conditional institutional charity, a stranger's immediate, unasked kindness on Highway 2 defined the human standard of RouteTwo."
+        ],
+        blurbs: [
+          "Are you alright, are you sure? Can I give you some money?"
+        ],
+        visuals: []
       },
       {
+        domain: "ROUTETWO",
         id: "WES",
         label: "Wesley (1977–2022)",
         sortYear: 2022,
@@ -817,13 +784,20 @@
         terms: ["Wesley Tonnesen", "Malcolm", "Justin", "Carlsbad", "Goodsprings", "Bend"],
         title: "Wesley Remembrance & Life Capture",
         deck: "Eldest son, older brother to Malcolm and Justin, permanently anchored in the family record.",
-        quote: "Time moves and miles pile up, but the firstborn coordinate never leaves the survey sheet.",
-        paragraphs: [
+        intake: [
           "Born in 1977, Wesley was the eldest of Bill and Lydia's three sons—firstborn brother to Malcolm and Justin, remembered from Flower Street in Carlsbad to Goodsprings, Nevada and Bend, Oregon.",
           "Preserved permanently across RouteTwo, /wesley, and the Photo Story archive."
-        ]
+        ],
+        interpretation: [
+          "Regardless of distance or silence among the living, the firstborn coordinate remains permanently fixed on the master family sheet."
+        ],
+        blurbs: [
+          "Time moves and miles pile up, but the firstborn coordinate never leaves the survey sheet."
+        ],
+        visuals: []
       },
       {
+        domain: "ROUTETWO",
         id: "ARM",
         label: "Mike (1953–2026)",
         sortYear: 2026,
@@ -833,13 +807,20 @@
         terms: ["Michael Tonnesen (Mike)", "ARMike", "Coquille", "Salem", "Bei", "Lennox"],
         title: "Mike Remembrance / ARMike Life Capture",
         deck: "Twenty months younger, shared Firmona Avenue symmetry, and lifelong brotherhood.",
-        quote: "To Mike, he will always be Bei—and a fractured timeline never erases the shared foundation.",
-        paragraphs: [
+        intake: [
           "Born twenty months after Bill, Michael Tonnesen shared the earliest coordinates on Firmona Avenue in Lennox and decades of miles between Coquille and Portland.",
           "Remembered following his passing on June 3, 2026 at Salem Hospital, and chronicled in the ARMike archive."
-        ]
+        ],
+        interpretation: [
+          "Despite institutional friction late in life, the shared childhood origin and final 2025 Alaska cruise remain intact in the permanent record."
+        ],
+        blurbs: [
+          "To Mike, he will always be Bei—and a fractured timeline never erases the shared foundation."
+        ],
+        visuals: []
       },
       {
+        domain: "ROUTETWO",
         id: "R2F",
         label: "R2F • Hillsboro & Barstow",
         sortYear: 2026,
@@ -849,14 +830,21 @@
         terms: ["Hillsboro Library", "Draft2Digital", "Joyce", "Barstow Senior Center", "Malcolm", "Carson Suites", "Bonanza"],
         title: "From Hillsboro Library to Draft2Digital & For the Road",
         deck: "The phone call about Wesley, starting to publish in Multnomah County, and Joyce at Barstow Senior Center.",
-        quote: "Joyce of Barstow inspired me to write. Mike said it was stupid. My intent was not to sell. I only wanted to write. Like Family Times.",
-        paragraphs: [
+        intake: [
           "When Malcolm called about Wesley's death, Bill was sitting at a computer at the Hillsboro Library in Multnomah County—where a librarian introduced him to independent publishing outlets like Draft2Digital.",
           "Later, Joyce at the Barstow Senior Center inspired him to write in earnest—not to chase sales, but simply to put the truth on paper like Family Times.",
           "From Carson Suites in Henderson, between library sessions at Bonanza and seniors' lunches, the next stretch of road stays open."
-        ]
+        ],
+        interpretation: [
+          "Grief at a library terminal in Hillsboro and encouragement from Joyce in Barstow converged into an independent publishing pipeline that belongs entirely to the author."
+        ],
+        blurbs: [
+          "Joyce of Barstow inspired me to write. Mike said it was stupid. My intent was not to sell. I only wanted to write. Like Family Times."
+        ],
+        visuals: []
       },
       {
+        domain: "ROUTETWO",
         id: "R2I",
         label: "R2I • Longhorn Makeover",
         sortYear: 2026,
@@ -866,13 +854,20 @@
         terms: ["Longhorn Casino", "Boulder Highway", "Las Vegas", "RTC Transit"],
         title: "Boulder Highway Survey: The Longhorn Makeover",
         deck: "Passing 5288 Boulder Highway on the RTC bus—fresh paint outside and a full room overhaul at the Longhorn Casino.",
-        quote: "The Longhorn got a new paint job and the rooms are getting a complete makeover.",
-        paragraphs: [
+        intake: [
           "Riding along the Boulder Highway transit corridor in November 2026, the familiar landmarks register like survey checkpoints through the bus window—from the unchanged Royal Manor sign holding the memory of 2014 to the Longhorn Casino at 5288 Boulder Highway.",
           "While some corners of the corridor stay frozen in time, the Longhorn has taken on a fresh coat of paint outside alongside a complete interior makeover of its rooms."
-        ]
+        ],
+        interpretation: [
+          "Field observation from an RTC transit seat captures the contrast along Boulder Highway: unchanging monuments of the past side by side with active structural renewal."
+        ],
+        blurbs: [
+          "The Longhorn got a new paint job and the rooms are getting a complete makeover."
+        ],
+        visuals: []
       },
       {
+        domain: "ROUTETWO",
         id: "R2K",
         label: "R2K • Coos County Assessment",
         sortYear: 2026,
@@ -882,14 +877,21 @@
         terms: ["Coos County", "Coquille", "Michael Tonnesen (Mike)", "ARMike", "Legacy", "Henderson"],
         title: "Six Months After June 3: The Coos County Calculation",
         deck: "Weighing a mid-winter return to Coquille across four fixed vectors: Mike's legacy, the children, his associates, and personal history.",
-        quote: "Mike's legacy lives in the archive built with clear eyes—not in standing in December rain outside closed doors.",
-        paragraphs: [
+        intake: [
           "Approaching the six-month mark after Mike's passing on June 3, 2026, the question of whether to ride north to Coos County and assess conditions on the ground comes down to four clear coordinates: Mike's legacy, the children, Mike's associates, and personal history.",
           "Mike's legacy is already secured in the ARMike tribute archive and the road-trip record compiled together—not in a house in Coquille or a county ledger. The adult children operate within their own established boundaries, and local associates remain within the same closed religious circle that kept silence during his final illness.",
           "Personal history—from Firmona Avenue in Lennox in 1953 to the Alaska cruise in May 2025—needs no mid-winter verification in coastal rain. Keeping clear boundaries in Southern Nevada preserves both command of the road and the integrity of the record."
-        ]
+        ],
+        interpretation: [
+          "A disciplined four-vector audit prevents emotional restlessness from turning into high-friction mid-winter travel into closed territory."
+        ],
+        blurbs: [
+          "Mike's legacy lives in the archive built with clear eyes—not in standing in December rain outside closed doors."
+        ],
+        visuals: []
       },
       {
+        domain: "ROUTETWO",
         id: "R2L",
         label: "R2L • Dec PDX Recon",
         sortYear: 2026,
@@ -899,31 +901,21 @@
         terms: ["Portland", "PDX", "Sandra Lissette Figueroa", "Multnomah County Library", "TriMet", "MAX Red Line", "Henderson"],
         title: "December Reconnaissance: Returning to Portland on My Own Terms",
         deck: "A bounded, round-trip December run from LAS to PDX—reconnecting with Sandra Lissette Figueroa, logging Multnomah County library sessions, and closing the June 2026 departure loop.",
-        quote: "Leaving in June carried the weight of grief; returning in December with a round-trip ticket rewrites the final coordinate on my own terms.",
-        paragraphs: [
+        intake: [
           "While a mid-winter trip to rural Coos County offers little return against December rain and closed doors, a short, self-contained December reconnaissance run to Portland operates on completely different coordinates.",
           "With a nonstop flight from LAS to PDX and immediate access to the MAX Red Line and TriMet buses, the mission is clear and bounded: reconnecting with longtime friend and former Holiday Inn Express coworker Sandra Lissette Figueroa, setting up the Dell Inspiron 14 at familiar Multnomah County Library branches, and stepping back onto Portland turf without being stranded by the season.",
           "Locked in with a confirmed return leg back to Southern Nevada, the trip transforms June's heavy departure into a deliberate, self-directed survey stop."
-        ]
+        ],
+        interpretation: [
+          "Unlike rural Coos County, Portland provides full urban rail transit, library workspaces, and genuine human connection—allowing a bounded round-trip visit on sovereign terms."
+        ],
+        blurbs: [
+          "Leaving in June carried the weight of grief; returning in December with a round-trip ticket rewrites the final coordinate on my own terms."
+        ],
+        visuals: []
       },
       {
-        id: "R2M",
-        label: "R2M • Fed Bible, Ripped From Family",
-        sortYear: 1960,
-        date: "1960s Baseline → Ongoing Fault Line",
-        place: "Lennox • Long Beach, CA",
-        quadrant: "Q3: Southern California",
-        terms: ["Betty Jo Tonnesen", "Family Severance", "Baptism at Age 9", "Lennox", "LBCC", "Coordinates of Belief"],
-        title: "Fed Bible & Ripped From Family",
-        deck: "When a mother repelled by her own kin turned to a rigid institutional system—substituting scripture for blood ties and setting a multi-generational fault line.",
-        quote: "I was fed Bible and ripped from family. Mom was repelled by her family...",
-        paragraphs: [
-          "At the root of the entire family fracture sits an earlier break: repelled by her own family, Bill's mother Betty Jo sought shelter inside a rigid, top-down religious system—handing her children over to it and severing the wider family network in the process.",
-          "Baptized at age nine and fed scripture as an absolute substitute for extended kinship, Bill grew up inside a closed circuit where institutional loyalty replaced blood ties, open inquiry, and ordinary family belonging.",
-          "That original severance became the fault line running across sixty years—from the taboo against attending Long Beach City College in 1969, to the closed doors around brother Mike's final illness in Oregon, to the generational distance with his own sons. Naming the root coordinate on the survey sheet is the first step in refusing to carry an inherited isolation forward."
-        ]
-      },
-      {
+        domain: "ROUTETWO",
         id: "GT2",
         label: "GT2 • Golden Triangle",
         sortYear: 2026,
@@ -933,19 +925,160 @@
         terms: ["Golden Triangle", "Route 2", "WIB", "LKA", "WallyCAD"],
         title: "The New Golden Triangle",
         deck: "Triangulating Long Beach, the High Desert, and the Pacific Northwest into one unified book.",
-        quote: "Measure the angles, verify the last known address, honor the dead, and keep building the next line.",
-        paragraphs: [
+        intake: [
           "The New Golden Triangle unites RouteTwo, Family Times, Last Known Address (LKA), Where is Bill (WIB), and the Wesley and Mike life captures into one cohesive survey."
-        ]
+        ],
+        interpretation: [
+          "Three regional vertices—Southern California, the Mojave/Great Basin, and the Pacific Northwest—close the polygon of a seventy-five-year life survey."
+        ],
+        blurbs: [
+          "Measure the angles, verify the last known address, honor the dead, and keep building the next line."
+        ],
+        visuals: []
+      },
+
+      /* --- PILLAR 2: WALLYCAD --- */
+      {
+        domain: "WALLYCAD",
+        id: "WC1",
+        label: "WC1 • WallyCAD Core",
+        sortYear: 2026,
+        date: "v14–v17 • Browser Native",
+        place: "wallycad.com / GitHub Pages",
+        quadrant: "Q4: Mojave & Las Vegas",
+        terms: ["WallyCAD", "QuickClick", "SquareFont", "AutoLISP", "DXF", "HTML5 Canvas"],
+        title: "WallyCAD: Zero-Install 2D Vector & Parametric Drafting Engine",
+        deck: "Lightweight, single-file HTML5 Canvas/SVG geometry suite engineered for library terminals and mobile field hardware.",
+        specs: [
+          { k: "Core Modules", v: "/s2 Dual-Pane • /qc QuickClick • /traverse • /mir • /deck • /fence" },
+          { k: "Typography & Output", v: "SquareFont Vector Strokes • Direct DXF / SVG / 8-Page Mini-Zine" },
+          { k: "Target Hardware", v: "Library Terminals • Dell Inspiron 14 • Fire HD 8 (962x601 CSS)" }
+        ],
+        intake: [
+          "WallyCAD strips away bloated commercial licensing in favor of immediate, browser-native 2D geometry. Every command is tuned for rapid entry via the frequency-weighted QuickClick (/qc) interface and clean vector export.",
+          "From structural steel detailing and shutter parametrics to winder stair layouts and site traverses, WallyCAD runs identically off a local HTML file or GitHub Pages."
+        ],
+        interpretation: [
+          "Built directly on thirty-plus years of structural steel detailing, land surveying, and 1992 AutoLISP routines, WallyCAD puts industrial coordinate accuracy onto any public library browser without installation."
+        ],
+        blurbs: [
+          "First-principles coordinate math—built on 30+ years of structural steel detailing, land surveying, and 1992 AutoLISP routines."
+        ],
+        visuals: []
+      },
+
+      /* --- PILLAR 3: COFP --- */
+      {
+        domain: "COFP",
+        id: "CP1",
+        label: "CP1 • Calculus of Pool",
+        sortYear: 2026,
+        date: "Draft2Digital & Web Edition",
+        place: "Heritage Park Senior Facility • Henderson, NV",
+        quadrant: "Q4: Mojave & Las Vegas",
+        terms: ["The Calculus of Pool", "Planar Stroke", "Cue Ball English", "Heritage Park", "Draft2Digital", "8-Ball / 9-Ball"],
+        title: "The Calculus of Pool (CofP): Planar Stroke & Vector Geometry",
+        deck: "Applying descriptive geometry, tangent lines, and planar stroke mechanics to 8-ball, 9-ball, 11-ball, and bank pool.",
+        specs: [
+          { k: "Live Modules", v: "wallycad.com/cofp • /billiards2 • /billiards2spanish • /shots • /tourney" },
+          { k: "Core Mechanics", v: "Planar Stroke Alignment • Tangent-Line Control • 30-Degree Rule" },
+          { k: "Home Felt", v: "Heritage Park Senior Facility (Henderson) • Howdy's (Klamath Falls)" }
+        ],
+        intake: [
+          "Published via Draft2Digital and expanded online in English and Spanish editions, The Calculus of Pool translates decades of drafting table geometry onto the green baize.",
+          "Paired with the interactive /shots diagrammer and /tourney bracket generator, CofP replaces superstition with repeatable mechanical alignment and cue-ball path control."
+        ],
+        interpretation: [
+          "A pocket billiards table is a 2:1 rectangular coordinate plane; treating every shot as a vector problem eliminates guesswork and anchors tournament play in repeatable geometry."
+        ],
+        blurbs: [
+          "A pool table is a 2:1 rectangular coordinate plane—every shot is a vector problem solved before the tip strikes the cue ball."
+        ],
+        visuals: []
+      },
+
+      /* --- PILLAR 4: SPACE TRAILER --- */
+      {
+        domain: "TRAILER",
+        id: "TR1",
+        label: "TR1 • Space Trailer / The Cub",
+        sortYear: 2026,
+        date: "Structural & Geometric Spec",
+        place: "wallycad.com/space_trailer",
+        quadrant: "Q2: Sierra & Great Basin",
+        terms: ["Space Trailer", "The Cub", "Karavan 5x8", "Birch Wood", "Corrugated Aluminum", "Diamond Plate"],
+        title: "Space Trailer / The Cub: Modular 5'×8' Camper Shell",
+        deck: "Stub-nosed aerodynamic arc profile engineered to mount cleanly onto a standard 5'×8' Karavan utility trailer deck.",
+        specs: [
+          { k: "Chassis Footprint", v: "5' × 8' Karavan Utility Trailer Deck (Bolt-On Modular Shell)" },
+          { k: "Shell Materials", v: "Birch Plywood Sides • Corrugated Aluminum Roof • Diamond-Plate Front Guard" },
+          { k: "Profile & Glazing", v: "Stub-Nosed Aerodynamic Arc • Custom Elliptical Side Window" }
+        ],
+        intake: [
+          "Space Trailer / The Cub applies structural steel and architectural drafting discipline to compact mobile shelter—maximizing interior headroom and sleeping length within a 5'×8' footprint.",
+          "Every bulkhead curve, roof rib, and diamond-plate gravel guard is laid out in WallyCAD for clean sheet-goods nesting and straightforward shop assembly."
+        ],
+        interpretation: [
+          "Designing a bolt-on modular shell around an existing 5'×8' utility chassis delivers durable, weather-tight shelter without heavy RV overhead."
+        ],
+        blurbs: [
+          "Light enough to tow easily, rigid enough for high-desert wind, and drafted to exact sheet-material tolerances."
+        ],
+        visuals: []
       }
     ];
 
     let currentIndex = 0;
     let currentMode = "DISPATCH";
+    let activeDomain = "ROUTETWO";
+
+    const DOMAIN_HEADERS = {
+      ROUTETWO: { title: "ROUTETWO", sub: "The New Family Times • Running Life Survey (/rtwo)" },
+      WALLYCAD: { title: "WALLYCAD", sub: "Browser-Native 2D Vector & Parametric CAD Engine (/wally)" },
+      COFP:     { title: "THE CALCULUS OF POOL", sub: "Billiards Geometry, Planar Stroke & Shot Diagrammer (/cofp)" },
+      TRAILER:  { title: "SPACE TRAILER // THE CUB", sub: "5'×8' Modular Camper Shell Engineering (/space_trailer)" }
+    };
+
+    function renderFourPartBody(d) {
+      const intakeHtml = (d.intake || []).map(p => `<p>${p}</p>`).join("");
+      const interpHtml = (d.interpretation || []).map(p => `<p>${p}</p>`).join("");
+      const blurbsHtml = (d.blurbs || []).map(b => `<blockquote class="pull-quote">“${b}”</blockquote>`).join("");
+      const visualsHtml = (d.visuals || []).map(v => `
+        <figure class="visual-frame">
+          ${v.svg || (v.img ? `<img src="${v.img}" alt="${v.caption}" style="max-width:100%;display:block;"/>` : "")}
+          <figcaption class="visual-caption">${v.caption}</figcaption>
+        </figure>
+      `).join("");
+
+      return `
+        <section class="story-tier">
+          <div class="tier-label">01 // Intake Record (Complete)</div>
+          ${intakeHtml}
+        </section>
+
+        ${interpHtml ? `
+        <section class="story-tier">
+          <div class="tier-label">02 // Interpretation (Complete)</div>
+          ${interpHtml}
+        </section>` : ""}
+
+        ${blurbsHtml ? `
+        <section class="story-tier">
+          <div class="tier-label">03 // Blurb(s)</div>
+          ${blurbsHtml}
+        </section>` : ""}
+
+        ${visualsHtml ? `
+        <section class="story-tier">
+          <div class="tier-label">04 // Visuals</div>
+          ${visualsHtml}
+        </section>` : ""}
+      `;
+    }
 
     function buildAllViews() {
       document.getElementById("pill-bar").innerHTML = FUNNEL.map((item, idx) =>
-        `<button class="pill" data-idx="${idx}" onclick="jumpToDispatch(${idx})">${item.label}</button>`
+        `<button class="pill" data-idx="${idx}" data-dom="${item.domain}" onclick="jumpToDispatch(${idx})">${item.label}</button>`
       ).join("");
 
       const sorted = [...FUNNEL]
@@ -954,7 +1087,7 @@
 
       document.getElementById("timeline-container").innerHTML = sorted.map(item => `
         <div class="tl-item searchable-card" data-idx="${item.origIdx}" onclick="jumpToDispatch(${item.origIdx})">
-          <div class="tl-year">${item.date} &bull; ${item.place} [${item.id}]</div>
+          <div class="tl-year">[${item.domain}] ${item.date} &bull; ${item.place} (${item.id})</div>
           <div class="tl-title">${item.title}</div>
           <div class="tl-sub">${item.deck}</div>
         </div>
@@ -974,7 +1107,7 @@
             <h3>${q}</h3>
             ${matches.map(m => `
               <div class="wib-entry searchable-card" data-idx="${m.origIdx}" onclick="jumpToDispatch(${m.origIdx})">
-                <span>${m.id} // ${m.place}</span>
+                <span>[${m.domain}] ${m.id} // ${m.place}</span>
                 ${m.title}
               </div>
             `).join("")}
@@ -1005,23 +1138,32 @@
       document.getElementById("full-book-print").innerHTML = FUNNEL.map((d, i) => `
         <article class="book-sheet">
           <div class="print-stamp">
-            <span>DISPATCH ${d.id} (${i + 1}/${FUNNEL.length}) &bull; ${d.date}</span>
+            <span>[${d.domain}] ${d.id} (${i + 1}/${FUNNEL.length}) &bull; ${d.date}</span>
             <span>${d.place} (${d.quadrant})</span>
           </div>
           <h2 class="reader-title">${d.title}</h2>
           <p class="reader-deck">${d.deck}</p>
-          <div class="reader-body">
-            ${d.paragraphs.map((p, pIdx) =>
-              pIdx === 0
-                ? `<p>${p}</p><blockquote class="pull-quote">“${d.quote}”</blockquote>`
-                : `<p>${p}</p>`
-            ).join("")}
-          </div>
+          <div class="reader-body">${renderFourPartBody(d)}</div>
           <div class="tag-row">
             ${(d.terms || []).map(t => `<span class="tag-chip"># ${t}</span>`).join("")}
           </div>
         </article>
       `).join("");
+    }
+
+    function switchDomain(dom) {
+      activeDomain = dom;
+      document.querySelectorAll(".dom-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.dom === dom);
+      });
+      document.getElementById("mast-title").textContent = DOMAIN_HEADERS[dom].title;
+      document.getElementById("mast-sub").textContent = DOMAIN_HEADERS[dom].sub;
+
+      const firstMatch = FUNNEL.findIndex(item => item.domain === dom);
+      if (firstMatch !== -1) {
+        renderDispatch(firstMatch);
+        switchMode("DISPATCH");
+      }
     }
 
     function switchMode(mode) {
@@ -1032,7 +1174,6 @@
       document.querySelectorAll(".view-panel").forEach(p => {
         p.classList.toggle("active", p.id === `view-${mode}`);
       });
-      history.replaceState(null, "", mode === "DISPATCH" ? `#${FUNNEL[currentIndex].id}` : `#${mode}`);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -1052,26 +1193,33 @@
       currentIndex = idx;
       const d = FUNNEL[idx];
 
+      activeDomain = d.domain;
+      document.querySelectorAll(".dom-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.dom === d.domain);
+      });
+      document.getElementById("mast-title").textContent = DOMAIN_HEADERS[d.domain].title;
+      document.getElementById("mast-sub").textContent = DOMAIN_HEADERS[d.domain].sub;
+
       document.getElementById("p-stamp").innerHTML = `
-        <span>DISPATCH ${d.id} &bull; ${d.date}</span>
+        <span>[${d.domain}] ${d.id} &bull; ${d.date}</span>
         <span>${d.place} (${d.quadrant})</span>
       `;
 
       document.getElementById("r-xlinks").innerHTML = `
         <button class="xlink" onclick="switchMode('TIMELINE')">&#8599; TIMELINE: ${d.date}</button>
-        <button class="xlink" onclick="switchMode('WIB')">&#8601; WIB: ${d.place} (${d.quadrant})</button>
-        <button class="xlink" onclick="switchMode('INDEX')">&#8600; INDEX (${(d.terms||[]).length} Entries)</button>
+        <button class="xlink" onclick="switchMode('WIB')">&#8601; WIB: ${d.place}</button>
+        <button class="xlink" onclick="switchMode('INDEX')">&#8600; INDEX (${(d.terms||[]).length})</button>
       `;
 
       document.getElementById("r-title").textContent = d.title;
       document.getElementById("r-deck").textContent = d.deck;
-      document.getElementById("r-counter").textContent = `${d.id} (${idx + 1} of ${FUNNEL.length})`;
+      document.getElementById("r-counter").textContent = `[${d.domain}] ${d.id} (${idx + 1} of ${FUNNEL.length})`;
 
-      document.getElementById("r-body").innerHTML = d.paragraphs.map((p, i) =>
-        i === 0
-          ? `<p>${p}</p><blockquote class="pull-quote">“${d.quote}”</blockquote>`
-          : `<p>${p}</p>`
-      ).join("");
+      document.getElementById("r-specs").innerHTML = d.specs
+        ? `<div class="spec-grid">${d.specs.map(s => `<div class="spec-box"><strong>${s.k}</strong>${s.v}</div>`).join("")}</div>`
+        : "";
+
+      document.getElementById("r-body").innerHTML = renderFourPartBody(d);
 
       document.getElementById("r-tags").innerHTML = (d.terms || []).map(t =>
         `<button class="tag-chip" onclick="jumpToIndexTerm('${t.replace(/'/g, "\\'")}')"># ${t}</button>`
@@ -1081,9 +1229,7 @@
         btn.classList.toggle("active", i === idx);
       });
 
-      if (currentMode === "DISPATCH") {
-        history.replaceState(null, "", `#${d.id}`);
-      }
+      history.replaceState(null, "", `#${d.id}`);
     }
 
     function stepDispatch(delta) {
@@ -1109,21 +1255,24 @@
       const [p2, p3, p4, p5, p6, p7] = [pick(1), pick(2), pick(3), pick(4), pick(5), pick(6)];
       const cover = pick(0);
 
-      const renderPanel = (item, pageNum, invert) => `
-        <article class="zine-panel ${invert ? 'invert' : ''}">
-          <div>
-            <div style="font-family:monospace;font-size:6.8pt;font-weight:bold;border-bottom:1px solid #000;padding-bottom:2px;margin-bottom:5px;display:flex;justify-content:space-between;">
-              <span>${item.id}</span><span>${item.date}</span>
+      const renderPanel = (item, pageNum, invert) => {
+        const blurb = (item.blurbs && item.blurbs[0]) ? item.blurbs[0] : "";
+        return `
+          <article class="zine-panel ${invert ? 'invert' : ''}">
+            <div>
+              <div style="font-family:monospace;font-size:6.8pt;font-weight:bold;border-bottom:1px solid #000;padding-bottom:2px;margin-bottom:5px;display:flex;justify-content:space-between;">
+                <span>${item.id}</span><span>${item.date}</span>
+              </div>
+              <h3 style="font-size:10.5pt;line-height:1.15;margin-bottom:5px;">${item.title}</h3>
+              <p style="margin-bottom:5px;">${item.deck}</p>
+              ${blurb ? `<blockquote style="border-left:2px solid #000;padding-left:5px;font-style:italic;font-size:7.2pt;">“${blurb}”</blockquote>` : ""}
             </div>
-            <h3 style="font-size:10.5pt;line-height:1.15;margin-bottom:5px;">${item.title}</h3>
-            <p style="margin-bottom:5px;">${item.deck}</p>
-            <blockquote style="border-left:2px solid #000;padding-left:5px;font-style:italic;font-size:7.2pt;">“${item.quote}”</blockquote>
-          </div>
-          <div style="font-family:monospace;font-size:6.4pt;border-top:0.5pt solid #888;padding-top:2px;display:flex;justify-content:space-between;">
-            <span>${item.place}</span><span>P. ${pageNum}</span>
-          </div>
-        </article>
-      `;
+            <div style="font-family:monospace;font-size:6.4pt;border-top:0.5pt solid #888;padding-top:2px;display:flex;justify-content:space-between;">
+              <span>${item.place}</span><span>P. ${pageNum}</span>
+            </div>
+          </article>
+        `;
+      };
 
       const zineRoot = document.getElementById("mini-zine-output");
       zineRoot.innerHTML = `
@@ -1136,9 +1285,9 @@
         ${renderPanel(p7, 7, false)}
         <article class="zine-panel">
           <div>
-            <div style="font-family:monospace;font-size:6.8pt;font-weight:bold;border-bottom:1px solid #000;padding-bottom:2px;margin-bottom:5px;">BACK COVER // 4-QUADRANT MATRIX</div>
-            <h3 style="font-size:10.5pt;margin-bottom:6px;">The Golden Triangle Index</h3>
-            <p style="margin-bottom:6px;"><strong>Q1 NW:</strong> Portland, Hillsboro, Coquille, Salem<br/><strong>Q2 Basin:</strong> Salt Lake City, Reno, Sierra<br/><strong>Q3 So-Cal:</strong> Long Beach, Lennox, Wrightwood<br/><strong>Q4 Mojave:</strong> Las Vegas, Henderson, Barstow</p>
+            <div style="font-family:monospace;font-size:6.8pt;font-weight:bold;border-bottom:1px solid #000;padding-bottom:2px;margin-bottom:5px;">BACK COVER // 4-PILLAR MATRIX</div>
+            <h3 style="font-size:10.5pt;margin-bottom:6px;">WallyCAD Unified Shell</h3>
+            <p style="margin-bottom:6px;"><strong>1. RouteTwo:</strong> Running Life Survey<br/><strong>2. WallyCAD:</strong> 2D Vector Engine<br/><strong>3. CofP:</strong> Calculus of Pool<br/><strong>4. Trailer:</strong> 5'×8' The Cub</p>
             <p>Single-source archival shell feeding Reader, Timeline, WIB &amp; Master Index.</p>
           </div>
           <div style="font-family:monospace;font-size:6.5pt;border-top:0.5pt solid #888;padding-top:2px;">wallycad.com/rtwo</div>
@@ -1146,7 +1295,7 @@
         <article class="zine-panel" style="border:1.5pt solid #000;text-align:center;">
           <div>
             <div style="font-family:monospace;font-size:6.8pt;letter-spacing:0.1em;">THE NEW FAMILY TIMES &bull; FIELD ZINE</div>
-            <div style="font-family:monospace;font-size:18pt;font-weight:bold;letter-spacing:0.1em;border-top:2px solid #000;border-bottom:2px solid #000;padding:5px 0;margin:6px 0;">ROUTETWO</div>
+            <div style="font-family:monospace;font-size:18pt;font-weight:bold;letter-spacing:0.1em;border-top:2px solid #000;border-bottom:2px solid #000;padding:5px 0;margin:6px 0;">${DOMAIN_HEADERS[cover.domain].title}</div>
             <h2 style="font-size:12pt;line-height:1.2;margin:8px 0;">${cover.title}</h2>
             <p style="font-style:italic;font-size:7.3pt;">${cover.deck}</p>
           </div>
@@ -1162,9 +1311,8 @@
 
     function filterAll() {
       const q = document.getElementById("search-input").value.trim().toLowerCase();
-
       FUNNEL.forEach((d, idx) => {
-        const hay = `${d.id} ${d.label} ${d.date} ${d.place} ${d.quadrant} ${(d.terms||[]).join(" ")} ${d.title} ${d.deck} ${d.quote} ${d.paragraphs.join(" ")}`.toLowerCase();
+        const hay = `${d.domain} ${d.id} ${d.label} ${d.date} ${d.place} ${d.quadrant} ${(d.terms||[]).join(" ")} ${d.title} ${d.deck} ${(d.blurbs||[]).join(" ")} ${(d.intake||[]).join(" ")} ${(d.interpretation||[]).join(" ")}`.toLowerCase();
         const match = !q || hay.includes(q);
         document.querySelector(`.pill[data-idx="${idx}"]`).classList.toggle("hidden", !match);
         document.querySelectorAll(`.searchable-card[data-idx="${idx}"]`).forEach(el => {
