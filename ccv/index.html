@@ -265,11 +265,18 @@
   <article class="vertical-card">
     <div class="v-top">
       <div class="v-kicker">Draftsman &bull; Author &bull; Pool Player</div>
-      <svg class="v-emblem" width="64" height="58" viewBox="0 0 100 92" aria-label="Golden Triangle Emblem">
-        <polygon points="50,6 94,84 6,84" fill="#B8B42D" stroke="#3E363F" stroke-width="4.5"/>
-        <polygon points="50,24 78,74 22,74" fill="#FFFCE8" stroke="#697A21" stroke-width="2.5"/>
-        <circle cx="50" cy="56" r="6.5" fill="#DD403A"/>
-        <text x="50" y="47" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#3E363F">GT</text>
+      <svg class="v-emblem" width="76" height="76" viewBox="0 0 100 100" aria-label="Golden Triangle Emblem">
+        <!-- Outer Circle -->
+        <circle cx="50" cy="50" r="44" fill="#FFFCE8" stroke="#B8B42D" stroke-width="4"/>
+        <!-- Inscribed Equilateral Triangle (0°, 120°, 240° vertices at R=44) -->
+        <polygon points="50,6 88.1,72 11.9,72" fill="none" stroke="#B8B42D" stroke-width="3.6" stroke-linejoin="round"/>
+        <!-- Three Center-to-Vertex Radii -->
+        <line x1="50" y1="50" x2="50" y2="6" stroke="#B8B42D" stroke-width="3.2" stroke-linecap="round"/>
+        <line x1="50" y1="50" x2="88.1" y2="72" stroke="#B8B42D" stroke-width="3.2" stroke-linecap="round"/>
+        <line x1="50" y1="50" x2="11.9" y2="72" stroke="#B8B42D" stroke-width="3.2" stroke-linecap="round"/>
+        <!-- Geometric G & T Monogram -->
+        <path d="M27,35 H18 V49 H27 V43 H23" fill="none" stroke="#3E363F" stroke-width="3.2" stroke-linecap="square" stroke-linejoin="miter"/>
+        <path d="M72,35 H83 M77.5,35 V49" fill="none" stroke="#3E363F" stroke-width="3.2" stroke-linecap="square"/>
       </svg>
       <h1 class="v-title">THE GOLDEN TRIANGLE</h1>
       <div class="v-author">Bill Leendert Tonnesen</div>
@@ -336,10 +343,14 @@
         <div class="v-cut-card">
           <div style="border-bottom:1.5px solid #3E363F;padding-bottom:6px;">
             <div style="font-family:monospace;font-size:6.2pt;color:#697A21;font-weight:bold;">DRAFTSMAN &bull; AUTHOR &bull; POOL PLAYER</div>
-            <svg width="42" height="38" viewBox="0 0 100 92" style="margin:3px auto;display:block;">
-              <polygon points="50,6 94,84 6,84" fill="#B8B42D" stroke="#3E363F" stroke-width="5"/>
-              <polygon points="50,24 78,74 22,74" fill="#FFFCE8" stroke="#697A21" stroke-width="3"/>
-              <circle cx="50" cy="56" r="7" fill="#DD403A"/>
+            <svg width="46" height="46" viewBox="0 0 100 100" style="margin:3px auto;display:block;">
+              <circle cx="50" cy="50" r="44" fill="#FFFCE8" stroke="#B8B42D" stroke-width="4.5"/>
+              <polygon points="50,6 88.1,72 11.9,72" fill="none" stroke="#B8B42D" stroke-width="4" stroke-linejoin="round"/>
+              <line x1="50" y1="50" x2="50" y2="6" stroke="#B8B42D" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="50" y1="50" x2="88.1" y2="72" stroke="#B8B42D" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="50" y1="50" x2="11.9" y2="72" stroke="#B8B42D" stroke-width="3.5" stroke-linecap="round"/>
+              <path d="M27,35 H18 V49 H27 V43 H23" fill="none" stroke="#3E363F" stroke-width="3.6" stroke-linecap="square" stroke-linejoin="miter"/>
+              <path d="M72,35 H83 M77.5,35 V49" fill="none" stroke="#3E363F" stroke-width="3.6" stroke-linecap="square"/>
             </svg>
             <div style="font-family:monospace;font-size:10.5pt;font-weight:bold;letter-spacing:0.04em;line-height:1.1;">THE GOLDEN TRIANGLE</div>
             <div style="font-family:monospace;font-size:7pt;color:#DD403A;font-weight:bold;margin-top:2px;">Bill Leendert Tonnesen</div>
