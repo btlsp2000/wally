@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WallyCAD // DXF → SDJ Converter</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --border: #2a303c;
+      --text: #e6e9ef;
+      --muted: #8b94a5;
+      --accent: #38bdf8;
+      --ok: #34d399;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }
+    header span.sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-left: 8px;
+    }
+    .toolbar {
+      background: #13161c;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      font-size: 12px;
+    }
+    .toolbar label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .toolbar select, .toolbar input[type="number"], .toolbar input[type="text"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 3px 6px;
+      font-family: inherit;
+      font-size: 12px;
+    }
+    button {
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 5px 11px;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    button:hover {
+      background: var(--accent);
+      color: #090d16;
+      font-weight: bold;
+    }
+    button.primary {
+      background: rgba(52, 211, 153, 0.16);
+      color: var(--ok);
+      border-color: var(--ok);
+    }
+    button.primary:hover {
+      background: var(--ok);
+      color: #090d16;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 1;
+      overflow: hidden;
+    }
+    .pane {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .pane:last-child { border-right: none; }
+    .pane-header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 12px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    textarea {
+      flex: 1;
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      border: none;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 12px;
+      line-height: 1.45;
+      resize: none;
+      outline: none;
+    }
+    .status {
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+      padding: 6px 16px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+      .pane { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>WALLY // DXF → SDJ</h1>
+    <span class="sub">STANDALONE ASCII DXF PARSER & SPACE-DELIMITED JUNCTION GENERATOR</span>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <input type="file" id="fileInput" accept=".dxf,.txt" style="display:none" onchange="loadFile(event)" />
+    <button onclick="document.getElementById('fileInput').click()">LOAD .DXF FILE</button>
+    <button onclick="loadSample()">SAMPLE</button>
+    <button class="primary" onclick="copySDJ()">COPY SDJ</button>
+    <button onclick="downloadSDJ()">SAVE .SDJ</button>
+  </div>
+</header>
+
+<div class="toolbar">
+  <label>
+    Mode:
+    <select id="formatMode" onchange="convert()">
+      <option value="flat">Flat SDJ String (x1 y1 x2 y2 ...)</option>
+      <option value="lineByLine">Segment Per Line (x1 y1 x2 y2)</option>
+      <option value="columnar">Columnar Pairs (X Y per row)</option>
+    </select>
+  </label>
+  <label>
+    Decimals:
+    <input type="number" id="decimals" value="4" min="0" max="8" style="width:54px" onchange="convert()" />
+  </label>
+  <label>
+    Layer Filter:
+    <input type="text" id="layerFilter" placeholder="ALL" style="width:110px" oninput="convert()" />
+  </label>
+  <label>
+    <input type="checkbox" id="includeZ" onchange="convert()" />
+    Include Z
+  </label>
+  <label>
+    <input type="checkbox" id="dedupeSeq" checked onchange="convert()" />
+    Chain Continuous Vertices
+  </label>
+</div>
+
+<div class="grid">
+  <div class="pane">
+    <div class="pane-header">
+      <span>INPUT: RAW ASCII .DXF</span>
+      <span id="inStats">0 lines</span>
+    </div>
+    <textarea id="dxfInput" placeholder="Paste raw ASCII DXF content here or click LOAD .DXF FILE..." oninput="convert()"></textarea>
+  </div>
+  <div class="pane">
+    <div class="pane-header">
+      <span>OUTPUT: WALLY SDJ STREAM</span>
+      <span id="outStats">0 segments | 0 junctions</span>
+    </div>
+    <textarea id="sdjOutput" readonly placeholder="SDJ coordinate output will appear here..."></textarea>
+  </div>
+</div>
+
+<div class="status">
+  <span id="statusMsg">READY — SUPPORTS LINE, LWPOLYLINE, POLYLINE & POINT ENTITIES</span>
+  <span>WallyCAD Primitive Pipeline</span>
+</div>
+
+<script>
+  function loadFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      document.getElementById('dxfInput').value = ev.target.result;
+      convert();
+      setStatus(`LOADED: ${file.name}`);
+    };
+    reader.readAsText(file);
+  }
+
+  function loadSample() {
+    document.getElementById('dxfInput').value = [
+      "0", "SECTION", "2", "ENTITIES",
+      "0", "LINE", "8", "FRAME",
+      "10", "0.0", "20", "0.0", "30", "0.0",
+      "11", "52.0", "21", "0.0", "31", "0.0",
+      "0", "LINE", "8", "FRAME",
+      "10", "52.0", "20", "0.0", "30", "0.0",
+      "11", "52.0", "21", "36.0", "31", "0.0",
+      "0", "LINE", "8", "FRAME",
+      "10", "52.0", "20", "36.0", "30", "0.0",
+      "11", "0.0", "21", "36.0", "31", "0.0",
+      "0", "LINE", "8", "FRAME",
+      "10", "0.0", "20", "36.0", "30", "0.0",
+      "11", "0.0", "21", "0.0", "31", "0.0",
+      "0", "ENDSEC", "0", "EOF"
+    ].join("\n");
+    convert();
+    setStatus("SAMPLE LOADED (52 x 36 FRAME)");
+  }
+
+  function parseDXF(raw) {
+    const lines = raw.replace(/\r\n/g, '\n').split('\n').map(s => s.trim());
+    const pairs = [];
+    for (let i = 0; i + 1 < lines.length; i += 2) {
+      const code = parseInt(lines[i], 10);
+      if (!isNaN(code)) pairs.push({ code, val: lines[i + 1] });
+    }
+
+    const segments = []; // Array of { p1: [x,y,z], p2: [x,y,z], layer }
+    let inEntities = false;
+    let cur = null;
+    let polyVerts = [];
+    let polyClosed = false;
+    let inPolylineSeq = false;
+
+    const flushEntity = () => {
+      if (!cur) return;
+      if (cur.type === 'LINE' && cur.x1 !== undefined && cur.x2 !== undefined) {
+        segments.push({
+          p1: [cur.x1, cur.y1 || 0, cur.z1 || 0],
+          p2: [cur.x2, cur.y2 || 0, cur.z2 || 0],
+          layer: cur.layer || '0'
+        });
+      } else if (cur.type === 'LWPOLYLINE' && polyVerts.length > 1) {
+        for (let i = 0; i < polyVerts.length - 1; i++) {
+          segments.push({ p1: polyVerts[i], p2: polyVerts[i + 1], layer: cur.layer || '0' });
+        }
+        if (polyClosed && polyVerts.length > 2) {
+          segments.push({ p1: polyVerts[polyVerts.length - 1], p2: polyVerts[0], layer: cur.layer || '0' });
+        }
+      } else if (cur.type === 'POINT' && cur.x1 !== undefined) {
+        const pt = [cur.x1, cur.y1 || 0, cur.z1 || 0];
+        segments.push({ p1: pt, p2: pt, layer: cur.layer || '0' });
+      }
+      cur = null;
+      polyVerts = [];
+      polyClosed = false;
+    };
+
+    for (let i = 0; i < pairs.length; i++) {
+      const { code, val } = pairs[i];
+
+      if (code === 2 && val === 'ENTITIES') {
+        inEntities = true;
+        continue;
+      }
+      if (code === 0 && val === 'ENDSEC' && inEntities) {
+        flushEntity();
+        inEntities = false;
+        continue;
+      }
+      if (!inEntities) continue;
+
+      if (code === 0) {
+        if (val === 'VERTEX' && inPolylineSeq) {
+          polyVerts.push([0, 0, 0]);
+          continue;
+        }
+        if (val === 'SEQEND' && inPolylineSeq) {
+          if (polyVerts.length > 1) {
+            for (let k = 0; k < polyVerts.length - 1; k++) {
+              segments.push({ p1: polyVerts[k], p2: polyVerts[k + 1], layer: cur.layer || '0' });
+            }
+            if (polyClosed && polyVerts.length > 2) {
+              segments.push({ p1: polyVerts[polyVerts.length - 1], p2: polyVerts[0], layer: cur.layer || '0' });
+            }
+          }
+          inPolylineSeq = false;
+          cur = null;
+          polyVerts = [];
+          continue;
+        }
+        flushEntity();
+        cur = { type: val, layer: '0' };
+        if (val === 'POLYLINE') {
+          inPolylineSeq = true;
+          polyVerts = [];
+          polyClosed = false;
+        }
+        continue;
+      }
+
+      if (!cur) continue;
+
+      if (code === 8) cur.layer = val;
+
+      if (cur.type === 'LINE' || cur.type === 'POINT') {
+        if (code === 10) cur.x1 = parseFloat(val);
+        else if (code === 20) cur.y1 = parseFloat(val);
+        else if (code === 30) cur.z1 = parseFloat(val);
+        else if (code === 11) cur.x2 = parseFloat(val);
+        else if (code === 21) cur.y2 = parseFloat(val);
+        else if (code === 31) cur.z2 = parseFloat(val);
+      } else if (cur.type === 'LWPOLYLINE') {
+        if (code === 70) polyClosed = (parseInt(val, 10) & 1) === 1;
+        else if (code === 10) polyVerts.push([parseFloat(val), 0, 0]);
+        else if (code === 20 && polyVerts.length) polyVerts[polyVerts.length - 1][1] = parseFloat(val);
+        else if (code === 30 && polyVerts.length) polyVerts[polyVerts.length - 1][2] = parseFloat(val);
+      } else if (inPolylineSeq) {
+        if (code === 70 && polyVerts.length === 0) polyClosed = (parseInt(val, 10) & 1) === 1;
+        else if (code === 10 && polyVerts.length) polyVerts[polyVerts.length - 1][0] = parseFloat(val);
+        else if (code === 20 && polyVerts.length) polyVerts[polyVerts.length - 1][1] = parseFloat(val);
+        else if (code === 30 && polyVerts.length) polyVerts[polyVerts.length - 1][2] = parseFloat(val);
+      }
+    }
+
+    return segments;
+  }
+
+  function convert() {
+    const raw = document.getElementById('dxfInput').value;
+    document.getElementById('inStats').textContent = `${raw ? raw.split('\n').length : 0} lines`;
+
+    if (!raw.trim()) {
+      document.getElementById('sdjOutput').value = '';
+      document.getElementById('outStats').textContent = '0 segments | 0 junctions';
+      return;
+    }
+
+    const mode = document.getElementById('formatMode').value;
+    const dec = Math.max(0, Math.min(8, parseInt(document.getElementById('decimals').value, 10) || 0));
+    const layerFilter = document.getElementById('layerFilter').value.trim().toUpperCase();
+    const includeZ = document.getElementById('includeZ').checked;
+    const dedupeSeq = document.getElementById('dedupeSeq').checked;
+
+    const fmt = (n) => Number(n.toFixed(dec)).toString();
+    const fmtPt = (p) => includeZ ? `${fmt(p[0])} ${fmt(p[1])} ${fmt(p[2])}` : `${fmt(p[0])} ${fmt(p[1])}`;
+    const samePt = (a, b) => Math.abs(a[0] - b[0]) < 1e-7 && Math.abs(a[1] - b[1]) < 1e-7 && (!includeZ || Math.abs(a[2] - b[2]) < 1e-7);
+
+    let segs = parseDXF(raw);
+    if (layerFilter && layerFilter !== 'ALL') {
+      segs = segs.filter(s => s.layer.toUpperCase() === layerFilter);
+    }
+
+    let output = '';
+    let junctionCount = 0;
+
+    if (mode === 'lineByLine') {
+      const rows = segs.map(s => `${fmtPt(s.p1)} ${fmtPt(s.p2)}`);
+      output = rows.join('\n');
+      junctionCount = segs.length * 2;
+    } else {
+      const pts = [];
+      segs.forEach((s, idx) => {
+        if (idx === 0 || !dedupeSeq || !samePt(pts[pts.length - 1], s.p1)) {
+          pts.push(s.p1);
+        }
+        pts.push(s.p2);
+      });
+      junctionCount = pts.length;
+      if (mode === 'columnar') {
+        output = pts.map(fmtPt).join('\n');
+      } else {
+        output = pts.map(fmtPt).join(' ');
+      }
+    }
+
+    document.getElementById('sdjOutput').value = output;
+    document.getElementById('outStats').textContent = `${segs.length} segments | ${junctionCount} junctions`;
+  }
+
+  function copySDJ() {
+    const out = document.getElementById('sdjOutput').value;
+    if (!out) return;
+    navigator.clipboard.writeText(out).then(() => {
+      setStatus("COPIED SDJ STREAM TO CLIPBOARD");
+    });
+  }
+
+  function downloadSDJ() {
+    const out = document.getElementById('sdjOutput').value;
+    if (!out) return;
+    const blob = new Blob([out], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'wally_converted.sdj';
+    a.click();
+    setStatus("SAVED wally_converted.sdj");
+  }
+
+  function setStatus(msg) {
+    document.getElementById('statusMsg').textContent = msg;
+  }
+</script>
+</body>
+</html>
