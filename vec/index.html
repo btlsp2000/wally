@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WallyCAD // VEC — 2D Vector Math Sandbox</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --border: #2a303c;
+      --text: #e6e9ef;
+      --muted: #8b94a5;
+      --vec-a: #38bdf8;
+      --vec-b: #f472b6;
+      --vec-sum: #34d399;
+      --vec-proj: #fbbf24;
+      --vec-norm: #a78bfa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      color: var(--vec-a);
+    }
+    header span.sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-left: 8px;
+    }
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+    button {
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--vec-a);
+      border: 1px solid var(--vec-a);
+      padding: 5px 10px;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    button:hover {
+      background: var(--vec-a);
+      color: #090d16;
+      font-weight: bold;
+    }
+    .workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    aside {
+      width: 330px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .group {
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.22);
+    }
+    .group h2 {
+      margin: 0 0 8px 0;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .field {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+    .field input {
+      width: 72px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 6px;
+      font-family: inherit;
+      font-size: 12px;
+      text-align: right;
+    }
+    .toggle-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      font-size: 11px;
+    }
+    .toggle-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .swatch {
+      width: 10px;
+      height: 10px;
+      display: inline-block;
+      border-radius: 2px;
+    }
+    .readout {
+      font-size: 11px;
+      line-height: 1.55;
+    }
+    .readout table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .readout td {
+      padding: 3px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .readout td:last-child {
+      text-align: right;
+      font-weight: bold;
+    }
+    main {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+    .hud {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(15, 17, 21, 0.9);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .workspace { flex-direction: column; }
+      aside { width: 100%; height: 48%; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>WALLY // VEC</h1>
+    <span class="sub">INTERACTIVE 2D VECTOR SANDBOX (DRAG HANDLES OR EDIT COORDINATES)</span>
+  </div>
+  <div class="actions">
+    <button onclick="resetVectors()">RESET</button>
+    <button onclick="swapVectors()">SWAP A↔B</button>
+    <button onclick="exportDXF()">EXPORT .DXF</button>
+    <button onclick="exportWally()">EXPORT .WALLY</button>
+  </div>
+</header>
+
+<div class="workspace">
+  <aside>
+    <div class="group">
+      <h2><span>Vector Inputs</span><span style="color:#64748b">SNAP: 0.5</span></h2>
+      <div class="row-2">
+        <div class="field">
+          <label style="color:var(--vec-a)">Ax</label>
+          <input type="number" id="ax" value="6" step="0.5" oninput="syncFromInputs()" />
+        </div>
+        <div class="field">
+          <label style="color:var(--vec-a)">Ay</label>
+          <input type="number" id="ay" value="3" step="0.5" oninput="syncFromInputs()" />
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label style="color:var(--vec-b)">Bx</label>
+          <input type="number" id="bx" value="2" step="0.5" oninput="syncFromInputs()" />
+        </div>
+        <div class="field">
+          <label style="color:var(--vec-b)">By</label>
+          <input type="number" id="by" value="5" step="0.5" oninput="syncFromInputs()" />
+        </div>
+      </div>
+      <div class="field" style="margin-top:6px;">
+        <label>Grid Snap Increment</label>
+        <input type="number" id="snapStep" value="0.5" min="0.1" max="5" step="0.1" />
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Construct Layers</h2>
+      <div class="toggle-list">
+        <label class="toggle-item">
+          <input type="checkbox" id="showSum" checked onchange="render()" />
+          <span class="swatch" style="background:var(--vec-sum)"></span>A + B (Sum)
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="showSub" onchange="render()" />
+          <span class="swatch" style="background:#fb923c"></span>B − A (Diff)
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="showProj" checked onchange="render()" />
+          <span class="swatch" style="background:var(--vec-proj)"></span>Proj A→B
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="showNorm" checked onchange="render()" />
+          <span class="swatch" style="background:var(--vec-norm)"></span>Unit â, b̂
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="showPerp" onchange="render()" />
+          <span class="swatch" style="background:#2dd4bf"></span>Perp A⊥
+        </label>
+      </div>
+    </div>
+
+    <div class="group readout">
+      <h2>Live Algebraic Telemetry</h2>
+      <table id="telemetryTable"></table>
+    </div>
+  </aside>
+
+  <main>
+    <canvas id="vecCanvas"></canvas>
+    <div class="hud" id="hud">CURSOR: (0.00, 0.00) | DRAG TIP A OR TIP B | PRIMITIVES: LINE</div>
+  </main>
+</div>
+
+<script>
+  const canvas = document.getElementById('vecCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // --- PURE VECTOR MATH CORE ---
+  const Vec = {
+    add: (a, b) => [a[0] + b[0], a[1] + b[1]],
+    sub: (a, b) => [a[0] - b[0], a[1] - b[1]],
+    scale: (v, s) => [v[0] * s, v[1] * s],
+    dot: (a, b) => a[0] * b[0] + a[1] * b[1],
+    cross2: (a, b) => a[0] * b[1] - a[1] * b[0],
+    mag: (v) => Math.hypot(v[0], v[1]),
+    norm: (v) => {
+      const m = Math.hypot(v[0], v[1]);
+      return m > 1e-12 ? [v[0] / m, v[1] / m] : [0, 0];
+    },
+    perp: (v) => [-v[1], v[0]],
+    proj: (a, b) => {
+      const bSq = b[0] * b[0] + b[1] * b[1];
+      if (bSq < 1e-12) return [0, 0];
+      const scalar = Vec.dot(a, b) / bSq;
+      return Vec.scale(b, scalar);
+    }
+  };
+
+  let vecA = [6, 3];
+  let vecB = [2, 5];
+  let dragging = null; // 'A' | 'B' | null
+  let linePrimitives = [];
+
+  // Viewport transform state
+  const view = {
+    scale: 38, // pixels per unit
+    originX: 0,
+    originY: 0
+  };
+
+  function toScreen(pt) {
+    return [
+      view.originX + pt[0] * view.scale,
+      view.originY - pt[1] * view.scale
+    ];
+  }
+
+  function toWorld(px, py) {
+    return [
+      (px - view.originX) / view.scale,
+      (view.originY - py) / view.scale
+    ];
+  }
+
+  function syncFromInputs() {
+    vecA = [
+      parseFloat(document.getElementById('ax').value) || 0,
+      parseFloat(document.getElementById('ay').value) || 0
+    ];
+    vecB = [
+      parseFloat(document.getElementById('bx').value) || 0,
+      parseFloat(document.getElementById('by').value) || 0
+    ];
+    render();
+  }
+
+  function syncToInputs() {
+    document.getElementById('ax').value = Number(vecA[0].toFixed(3));
+    document.getElementById('ay').value = Number(vecA[1].toFixed(3));
+    document.getElementById('bx').value = Number(vecB[0].toFixed(3));
+    document.getElementById('by').value = Number(vecB[1].toFixed(3));
+  }
+
+  function resetVectors() {
+    vecA = [6, 3];
+    vecB = [2, 5];
+    syncToInputs();
+    render();
+  }
+
+  function swapVectors() {
+    const tmp = [...vecA];
+    vecA = [...vecB];
+    vecB = tmp;
+    syncToInputs();
+    render();
+  }
+
+  function recordLine(p1, p2, layer) {
+    linePrimitives.push({
+      x1: p1[0], y1: p1[1],
+      x2: p2[0], y2: p2[1],
+      layer
+    });
+  }
+
+  function drawArrow(p1, p2, color, width = 2.2, dashed = false, label = '') {
+    const s1 = toScreen(p1);
+    const s2 = toScreen(p2);
+    const dx = s2[0] - s1[0];
+    const dy = s2[1] - s1[1];
+    const len = Math.hypot(dx, dy);
+
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = width;
+    if (dashed) ctx.setLineDash([5, 4]);
+
+    ctx.beginPath();
+    ctx.moveTo(s1[0], s1[1]);
+    ctx.lineTo(s2[0], s2[1]);
+    ctx.stroke();
+
+    if (len > 8) {
+      ctx.setLineDash([]);
+      const angle = Math.atan2(dy, dx);
+      const headLen = 10;
+      ctx.beginPath();
+      ctx.moveTo(s2[0], s2[1]);
+      ctx.lineTo(
+        s2[0] - headLen * Math.cos(angle - Math.PI / 7),
+        s2[1] - headLen * Math.sin(angle - Math.PI / 7)
+      );
+      ctx.lineTo(
+        s2[0] - headLen * Math.cos(angle + Math.PI / 7),
+        s2[1] - headLen * Math.sin(angle + Math.PI / 7)
+      );
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (label) {
+      ctx.font = 'bold 12px monospace';
+      ctx.fillText(label, s2[0] + 10, s2[1] - 8);
+    }
+    ctx.restore();
+  }
+
+  function drawHandle(pt, color, active) {
+    const [sx, sy] = toScreen(pt);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(sx, sy, active ? 8 : 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#0f1115';
+    ctx.fill();
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function updateTelemetry() {
+    const sum = Vec.add(vecA, vecB);
+    const diff = Vec.sub(vecB, vecA);
+    const dot = Vec.dot(vecA, vecB);
+    const cross = Vec.cross2(vecA, vecB);
+    const magA = Vec.mag(vecA);
+    const magB = Vec.mag(vecB);
+    const normA = Vec.norm(vecA);
+    const normB = Vec.norm(vecB);
+    const projAB = Vec.proj(vecA, vecB);
+
+    let deg = 0;
+    if (magA > 1e-9 && magB > 1e-9) {
+      const cosT = Math.max(-1, Math.min(1, dot / (magA * magB)));
+      deg = Math.acos(cosT) * (180 / Math.PI);
+    }
+
+    const rows = `
+      <tr><td style="color:var(--vec-a)">|A| Magnitude</td><td style="color:var(--vec-a)">${magA.toFixed(4)}</td></tr>
+      <tr><td style="color:var(--vec-b)">|B| Magnitude</td><td style="color:var(--vec-b)">${magB.toFixed(4)}</td></tr>
+      <tr><td style="color:var(--vec-sum)">A + B (Sum)</td><td style="color:var(--vec-sum)">[${sum[0].toFixed(2)}, ${sum[1].toFixed(2)}]</td></tr>
+      <tr><td style="color:#fb923c">B − A (Diff)</td><td style="color:#fb923c">[${diff[0].toFixed(2)}, ${diff[1].toFixed(2)}]</td></tr>
+      <tr><td>A · B (Dot)</td><td style="color:#f8fafc">${dot.toFixed(4)}</td></tr>
+      <tr><td>A × B (2D Det)</td><td style="color:#f8fafc">${cross.toFixed(4)} (${cross >= 0 ? 'CCW' : 'CW'})</td></tr>
+      <tr><td>Angle θ (deg)</td><td style="color:#f8fafc">${deg.toFixed(2)}°</td></tr>
+      <tr><td style="color:var(--vec-norm)">â (Unit A)</td><td style="color:var(--vec-norm)">[${normA[0].toFixed(3)}, ${normA[1].toFixed(3)}]</td></tr>
+      <tr><td style="color:var(--vec-norm)">b̂ (Unit B)</td><td style="color:var(--vec-norm)">[${normB[0].toFixed(3)}, ${normB[1].toFixed(3)}]</td></tr>
+      <tr><td style="color:var(--vec-proj)">Proj A→B</td><td style="color:var(--vec-proj)">[${projAB[0].toFixed(2)}, ${projAB[1].toFixed(2)}]</td></tr>
+    `;
+    document.getElementById('telemetryTable').innerHTML = rows;
+  }
+
+  function render() {
+    linePrimitives = [];
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    view.originX = Math.round(rect.width * 0.42);
+    view.originY = Math.round(rect.height * 0.58);
+
+    // Clear canvas
+    ctx.fillStyle = '#0f1115';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+
+    // Grid lines (1 unit minor, 5 unit major)
+    const minX = Math.floor(-view.originX / view.scale) - 1;
+    const maxX = Math.ceil((rect.width - view.originX) / view.scale) + 1;
+    const minY = Math.floor((view.originY - rect.height) / view.scale) - 1;
+    const maxY = Math.ceil(view.originY / view.scale) + 1;
+
+    for (let gx = minX; gx <= maxX; gx++) {
+      const [sx] = toScreen([gx, 0]);
+      ctx.strokeStyle = gx === 0 ? '#475569' : (gx % 5 === 0 ? '#232936' : '#161a22');
+      ctx.lineWidth = gx === 0 ? 1.5 : 1;
+      ctx.beginPath();
+      ctx.moveTo(sx, 0);
+      ctx.lineTo(sx, rect.height);
+      ctx.stroke();
+    }
+
+    for (let gy = minY; gy <= maxY; gy++) {
+      const [, sy] = toScreen([0, gy]);
+      ctx.strokeStyle = gy === 0 ? '#475569' : (gy % 5 === 0 ? '#232936' : '#161a22');
+      ctx.lineWidth = gy === 0 ? 1.5 : 1;
+      ctx.beginPath();
+      ctx.moveTo(0, sy);
+      ctx.lineTo(rect.width, sy);
+      ctx.stroke();
+    }
+
+    const O = [0, 0];
+    recordLine(O, vecA, 'VEC_A');
+    recordLine(O, vecB, 'VEC_B');
+
+    // Optional Sum Parallelogram & Resultant (A + B)
+    if (document.getElementById('showSum').checked) {
+      const sum = Vec.add(vecA, vecB);
+      drawArrow(vecA, sum, 'rgba(52, 211, 153, 0.35)', 1.2, true);
+      drawArrow(vecB, sum, 'rgba(52, 211, 153, 0.35)', 1.2, true);
+      drawArrow(O, sum, '#34d399', 2.2, false, 'A+B');
+      recordLine(O, sum, 'VEC_SUM');
+      recordLine(vecA, sum, 'CONSTRUCT');
+      recordLine(vecB, sum, 'CONSTRUCT');
+    }
+
+    // Optional Difference (B - A)
+    if (document.getElementById('showSub').checked) {
+      const diff = Vec.sub(vecB, vecA);
+      drawArrow(vecA, vecB, '#fb923c', 1.8, true, 'B−A');
+      drawArrow(O, diff, 'rgba(251, 146, 60, 0.55)', 1.4, true);
+      recordLine(vecA, vecB, 'VEC_DIFF');
+    }
+
+    // Optional Orthogonal Projection of A onto B
+    if (document.getElementById('showProj').checked) {
+      const proj = Vec.proj(vecA, vecB);
+      drawArrow(O, proj, '#fbbf24', 2.4, false, 'Proj');
+      // Drop perpendicular line from Tip A to Proj point
+      const sA = toScreen(vecA);
+      const sP = toScreen(proj);
+      ctx.save();
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.55)';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(sA[0], sA[1]);
+      ctx.lineTo(sP[0], sP[1]);
+      ctx.stroke();
+      ctx.restore();
+      recordLine(O, proj, 'VEC_PROJ');
+      recordLine(vecA, proj, 'CONSTRUCT');
+    }
+
+    // Optional Unit Vectors (â, b̂)
+    if (document.getElementById('showNorm').checked) {
+      const nA = Vec.norm(vecA);
+      const nB = Vec.norm(vecB);
+      // Draw unit circle guide
+      const [ox, oy] = toScreen(O);
+      ctx.save();
+      ctx.strokeStyle = 'rgba(167, 139, 250, 0.25)';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.arc(ox, oy, view.scale, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      drawArrow(O, nA, '#a78bfa', 2.2, false, 'â');
+      drawArrow(O, nB, '#c084fc', 2.2, false, 'b̂');
+      recordLine(O, nA, 'UNIT_VECS');
+      recordLine(O, nB, 'UNIT_VECS');
+    }
+
+    // Optional Left-Hand Perpendicular Normal A⊥
+    if (document.getElementById('showPerp').checked) {
+      const pA = Vec.perp(vecA);
+      drawArrow(O, pA, '#2dd4bf', 1.8, true, 'A⊥');
+      recordLine(O, pA, 'VEC_PERP');
+    }
+
+    // Primary Vectors A & B
+    drawArrow(O, vecA, '#38bdf8', 2.6, false, 'A');
+    drawArrow(O, vecB, '#f472b6', 2.6, false, 'B');
+
+    // Interactive Drag Handles
+    drawHandle(vecA, '#38bdf8', dragging === 'A');
+    drawHandle(vecB, '#f472b6', dragging === 'B');
+
+    updateTelemetry();
+  }
+
+  // --- POINTER INTERACTION (DRAG & WHEEL ZOOM) ---
+  canvas.addEventListener('pointerdown', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+    const sA = toScreen(vecA);
+    const sB = toScreen(vecB);
+
+    if (Math.hypot(px - sA[0], py - sA[1]) < 16) {
+      dragging = 'A';
+      canvas.setPointerCapture(e.pointerId);
+    } else if (Math.hypot(px - sB[0], py - sB[1]) < 16) {
+      dragging = 'B';
+      canvas.setPointerCapture(e.pointerId);
+    }
+    render();
+  });
+
+  canvas.addEventListener('pointermove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+    const [wx, wy] = toWorld(px, py);
+
+    const step = parseFloat(document.getElementById('snapStep').value) || 0.5;
+    const snap = (v) => Math.round(v / step) * step;
+
+    if (dragging === 'A') {
+      vecA = [snap(wx), snap(wy)];
+      syncToInputs();
+      render();
+    } else if (dragging === 'B') {
+      vecB = [snap(wx), snap(wy)];
+      syncToInputs();
+      render();
+    }
+
+    document.getElementById('hud').textContent =
+      `CURSOR: (${wx.toFixed(2)}, ${wy.toFixed(2)}) | SNAP: ${step} | LINE ENTITIES: ${linePrimitives.length}`;
+  });
+
+  canvas.addEventListener('pointerup', (e) => {
+    if (dragging) {
+      dragging = null;
+      canvas.releasePointerCapture(e.pointerId);
+      render();
+    }
+  });
+
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.1 : 0.9;
+    view.scale = Math.max(12, Math.min(140, view.scale * factor));
+    render();
+  }, { passive: false });
+
+  // --- PRIMITIVE LINE EXPORTERS (.DXF & .WALLY) ---
+  function exportDXF() {
+    let dxf = "0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n";
+    linePrimitives.forEach(s => {
+      dxf += `0\nLINE\n8\n${s.layer}\n10\n${s.x1.toFixed(4)}\n20\n${s.y1.toFixed(4)}\n30\n0.0\n11\n${s.x2.toFixed(4)}\n21\n${s.y2.toFixed(4)}\n31\n0.0\n`;
+    });
+    dxf += "0\nENDSEC\n0\nEOF\n";
+    downloadFile(dxf, "wally_vec_construct.dxf", "application/dxf");
+  }
+
+  function exportWally() {
+    const payload = {
+      generator: "WallyCAD_Vec_V1",
+      units: "unitless",
+      vectors: { A: vecA, B: vecB },
+      entities: linePrimitives.map(s => ({
+        type: "LINE",
+        layer: s.layer,
+        p1: [Number(s.x1.toFixed(4)), Number(s.y1.toFixed(4))],
+        p2: [Number(s.x2.toFixed(4)), Number(s.y2.toFixed(4))]
+      }))
+    };
+    downloadFile(JSON.stringify(payload, null, 2), "wally_vec_construct.wally", "application/json");
+  }
+
+  function downloadFile(content, filename, mime) {
+    const blob = new Blob([content], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+  }
+
+  window.addEventListener('resize', render);
+  render();
+</script>
+</body>
+</html>
