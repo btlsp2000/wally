@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Route 2 // WALLY RAIL — Field-to-CAD Presentation</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #161a22;
+      --border: #2a3140;
+      --text: #e6e9ef;
+      --muted: #8b94a5;
+      --accent: #38bdf8;
+      --gold: #fbbf24;
+      --green: #34d399;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: var(--bg);
+      color: var(--text);
+      padding: 28px;
+      line-height: 1.5;
+    }
+    .deck {
+      max-width: 1120px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      background: var(--card);
+      padding: 28px 32px;
+      border-radius: 6px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 14px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .kicker {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 4px 0 0 0;
+      font-size: 24px;
+      letter-spacing: 0.04em;
+      color: #ffffff;
+    }
+    .meta {
+      text-align: right;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin-bottom: 26px;
+    }
+    .node {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 12px 10px;
+      border-radius: 4px;
+      position: relative;
+    }
+    .node.core {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.08);
+    }
+    .node-step {
+      font-size: 10px;
+      color: var(--accent);
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .node-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .node-desc {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+    .panel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .panel h2 {
+      margin: 0 0 12px 0;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+    table.specs {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    table.specs td {
+      padding: 6px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    table.specs td:last-child {
+      text-align: right;
+      color: var(--gold);
+      font-weight: bold;
+    }
+    .svg-box {
+      width: 100%;
+      background: #0b0d11;
+      border: 1px solid var(--border);
+      padding: 10px;
+      margin-top: 8px;
+    }
+    .footer {
+      margin-top: 22px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    button.print-btn {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 4px 10px;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    @media (max-width: 860px) {
+      .pipeline { grid-template-columns: repeat(2, 1fr); }
+      .two-col { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      .deck { border: none; background: #fff; color: #000; padding: 12px; }
+      .node, .panel { background: #fff; border-color: #999; }
+      h1, .node-title { color: #000; }
+      button.print-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <div class="topbar">
+      <div>
+        <div class="kicker">ROUTE 2 DISPATCH // ARCHITECTURE &amp; FIELD WORKFLOW</div>
+        <h1>WALLY RAIL: FIELD SKETCH TO ROUND-TRIP CAD</h1>
+      </div>
+      <div class="meta">
+        <div><strong>BARSTOW BILL TONNESEN</strong></div>
+        <div>wallycad.com/rtwo • Engine v1.0.17</div>
+        <div style="margin-top:4px;"><button class="print-btn" onclick="window.print()">PRINT / SAVE PDF</button></div>
+      </div>
+    </div>
+
+    <!-- 6-Stage Clipboard Workflow Pipeline -->
+    <div class="pipeline">
+      <div class="node">
+        <div class="node-step">01 // INPUT</div>
+        <div class="node-title">FIELD SKETCH</div>
+        <div class="node-desc">Starbucks DT LV patio rail measured on site (36" H × 52" C-to-C).</div>
+      </div>
+      <div class="node core">
+        <div class="node-step">02 // ENGINE</div>
+        <div class="node-title">V17 ↔ GEMINI</div>
+        <div class="node-desc">Parametric rule translation into browser-native HTML5/Canvas module.</div>
+      </div>
+      <div class="node">
+        <div class="node-step">03 // PRIMITIVES</div>
+        <div class="node-title">LINE COMPILER</div>
+        <div class="node-desc">Zero-dependency 2D line segments grouped by structural steel layer.</div>
+      </div>
+      <div class="node">
+        <div class="node-step">04 // EXPORTS</div>
+        <div class="node-title">.WALLY / .DXF / SDJ</div>
+        <div class="node-desc">Simultaneous JSON schema, ASCII DXF, and flat SDJ vector streams.</div>
+      </div>
+      <div class="node">
+        <div class="node-step">05 // ARCHIVE</div>
+        <div class="node-title">FILE STORAGE</div>
+        <div class="node-desc">Portable text artifacts stored in Google Drive &amp; GitHub Pages.</div>
+      </div>
+      <div class="node core">
+        <div class="node-step">06 // LOOP</div>
+        <div class="node-title">REGENERATE</div>
+        <div class="node-desc">Reload saved primitives into /vec, /dxf2sdj, or UTM Zone 11N maps.</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div>
+          <h2>Structural Steel Specification (DT LV Field Spec)</h2>
+          <table class="specs">
+            <tr><td>Overall Railing Height</td><td>36.00" (3'-0")</td></tr>
+            <tr><td>Main Post Spacing (C-to-C)</td><td>52.00" (4'-4")</td></tr>
+            <tr><td>Bottom Sweep Clearance</td><td>4.00" above datum</td></tr>
+            <tr><td>Top Cap Rail Profile</td><td>1-1/2" × 2" Steel Channel (⨅)</td></tr>
+            <tr><td>Main Vertical Posts</td><td>2" × 2" Square Steel Tube (□)</td></tr>
+            <tr><td>Mid-Bay Vertical Stiffener</td><td>3/4" × 3/4" Solid Steel Bar</td></tr>
+            <tr><td>Horizontal Infill Rods</td><td>Ø 1/4" Steel Rod @ 4" O.C. (8 rows)</td></tr>
+            <tr><td>Compiled CAD Output (2 Bays)</td><td>153 Primitive LINE Entities</td></tr>
+          </table>
+        </div>
+        <div style="font-size:11px; color:var(--green); margin-top:12px;">
+          ✓ ZERO EXTERNAL LIBRARIES • SINGLE-FILE PORTABILITY • DIRECT DXF/SDJ INTEROP
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Parametric Elevation Preview (2-Bay Assembly)</h2>
+        <div class="svg-box">
+          <svg viewBox="-12 -8 130 52" width="100%" height="210" xmlns="http://www.w3.org/2000/svg">
+            <!-- Datum Line -->
+            <line x1="-8" y1="36" x2="114" y2="36" stroke="#475569" stroke-width="0.6" />
+            <!-- Cap Channel (Y=0 to 1.5 in SVG top-down) -->
+            <rect x="-1" y="0" width="106" height="1.5" fill="none" stroke="#cbd5e1" stroke-width="0.5" />
+            <!-- Posts (X=0, 52, 104) -->
+            <rect x="-1" y="1.5" width="2" height="34.5" fill="none" stroke="#94a3b8" stroke-width="0.5" />
+            <rect x="51" y="1.5" width="2" height="34.5" fill="none" stroke="#94a3b8" stroke-width="0.5" />
+            <rect x="103" y="1.5" width="2" height="34.5" fill="none" stroke="#94a3b8" stroke-width="0.5" />
+            <!-- Mid Stiffeners (X=26, 78) -->
+            <rect x="25.625" y="1.5" width="0.75" height="30.5" fill="none" stroke="#e2e8f0" stroke-width="0.45" />
+            <rect x="77.625" y="1.5" width="0.75" height="30.5" fill="none" stroke="#e2e8f0" stroke-width="0.45" />
+            <!-- 8 Horizontal Rods @ 4" O.C. -->
+            <g stroke="#38bdf8" stroke-width="0.35">
+              <line x1="1" y1="4" x2="25.625" y2="4" /><line x1="26.375" y1="4" x2="51" y2="4" />
+              <line x1="53" y1="4" x2="77.625" y2="4" /><line x1="78.375" y1="4" x2="103" y2="4" />
+              <line x1="1" y1="8" x2="25.625" y2="8" /><line x1="26.375" y1="8" x2="51" y2="8" />
+              <line x1="53" y1="8" x2="77.625" y2="8" /><line x1="78.375" y1="8" x2="103" y2="8" />
+              <line x1="1" y1="12" x2="25.625" y2="12" /><line x1="26.375" y1="12" x2="51" y2="12" />
+              <line x1="53" y1="12" x2="77.625" y2="12" /><line x1="78.375" y1="12" x2="103" y2="12" />
+              <line x1="1" y1="16" x2="25.625" y2="16" /><line x1="26.375" y1="16" x2="51" y2="16" />
+              <line x1="53" y1="16" x2="77.625" y2="16" /><line x1="78.375" y1="16" x2="103" y2="16" />
+              <line x1="1" y1="20" x2="25.625" y2="20" /><line x1="26.375" y1="20" x2="51" y2="20" />
+              <line x1="53" y1="20" x2="77.625" y2="20" /><line x1="78.375" y1="20" x2="103" y2="20" />
+              <line x1="1" y1="24" x2="25.625" y2="24" /><line x1="26.375" y1="24" x2="51" y2="24" />
+              <line x1="53" y1="24" x2="77.625" y2="24" /><line x1="78.375" y1="24" x2="103" y2="24" />
+              <line x1="1" y1="28" x2="25.625" y2="28" /><line x1="26.375" y1="28" x2="51" y2="28" />
+              <line x1="53" y1="28" x2="77.625" y2="28" /><line x1="78.375" y1="28" x2="103" y2="28" />
+              <line x1="1" y1="32" x2="25.625" y2="32" /><line x1="26.375" y1="32" x2="51" y2="32" />
+              <line x1="53" y1="32" x2="77.625" y2="32" /><line x1="78.375" y1="32" x2="103" y2="32" />
+            </g>
+            <!-- Dimension Callouts -->
+            <text x="26" y="41.5" fill="#fbbf24" font-size="3.2" font-family="monospace" text-anchor="middle">4'-4" (52") C-TO-C</text>
+            <text x="-5.5" y="19" fill="#fbbf24" font-size="3.2" font-family="monospace" text-anchor="middle" transform="rotate(-90 -5.5 19)">36"</text>
+          </svg>
+        </div>
+        <div style="font-size:11px; color:var(--muted); margin-top:8px;">
+          Layers: <code>CAP_CHANNEL</code>, <code>POSTS_2X2</code>, <code>STIFFENER_3_4</code>, <code>RODS_1_4</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>LKA // LAST KNOWN ADDRESS: DOWNTOWN LAS VEGAS, NV (UTM ZONE 11N)</span>
+      <span>WALLYCAD ECOSYSTEM: /rail • /vec • /dxf2sdj • /rtwo</span>
+    </div>
+  </div>
+</body>
+</html>
