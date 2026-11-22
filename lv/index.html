@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WallyCAD // LV-REGIONS — Las Vegas Valley Spatial Index</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --border: #2a303c;
+      --text: #e6e9ef;
+      --muted: #8b94a5;
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }
+    header span.sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-left: 8px;
+    }
+    .actions { display: flex; gap: 8px; }
+    button {
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 5px 10px;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    button:hover {
+      background: var(--accent);
+      color: #090d16;
+      font-weight: bold;
+    }
+    .workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    aside {
+      width: 340px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .region-card {
+      border: 1px solid var(--border);
+      padding: 9px 10px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.22);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .region-card:hover, .region-card.active {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.08);
+    }
+    .region-title {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .badge {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 2px;
+      background: #1e293b;
+      color: #94a3b8;
+    }
+    .region-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    main {
+      flex: 1;
+      position: relative;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .hud {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(15, 17, 21, 0.9);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .workspace { flex-direction: column; }
+      aside { width: 100%; height: 45%; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>WALLY // LV-REGIONS</h1>
+    <span class="sub">LAS VEGAS VALLEY 0–100 COORDINATE MATRIX (NORTH UP)</span>
+  </div>
+  <div class="actions">
+    <button onclick="exportDXF()">EXPORT .DXF</button>
+    <button onclick="exportWally()">EXPORT .WALLY</button>
+  </div>
+</header>
+
+<div class="workspace">
+  <aside id="regionList"></aside>
+  <main>
+    <canvas id="mapCanvas"></canvas>
+    <div class="hud" id="hud">GRID: 0–100 | CLICK REGION TO INSPECT | PRIMITIVES: LINE</div>
+  </main>
+</div>
+
+<script>
+  const canvas = document.getElementById('mapCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // Normalized 0-100 valley geometry (X: West->East, Y: South->North)
+  const REGIONS = [
+    {
+      id: 'DTLV',
+      name: 'Downtown Las Vegas',
+      type: 'City Core',
+      color: '#38bdf8',
+      center: [48, 63],
+      poly: [[42, 58], [55, 58], [55, 68], [42, 68]],
+      notes: 'Fremont St, Arts District (18b), Civic Center, BTC Hub.'
+    },
+    {
+      id: 'PARA',
+      name: 'Paradise (Strip / UNLV)',
+      type: 'Township',
+      color: '#f472b6',
+      center: [47, 45],
+      poly: [[41, 34], [56, 34], [56, 57], [41, 57]],
+      notes: 'Las Vegas Strip, Harry Reid Airport, UNLV, Maryland Pkwy.'
+    },
+    {
+      id: 'SUMM',
+      name: 'Summerlin',
+      type: 'Master-Planned',
+      color: '#34d399',
+      center: [16, 62],
+      poly: [[6, 46], [27, 46], [27, 78], [6, 78]],
+      notes: 'Downtown Summerlin, Red Rock rim, Sun City, The Lakes.'
+    },
+    {
+      id: 'SPRV',
+      name: 'Spring Valley',
+      type: 'Township',
+      color: '#fbbf24',
+      center: [31, 46],
+      poly: [[22, 36], [40, 36], [40, 56], [22, 56]],
+      notes: 'Chinatown (Spring Mountain), Spanish Trail, Rainbow corridor.'
+    },
+    {
+      id: 'ENTR',
+      name: 'Enterprise',
+      type: 'Township',
+      color: '#fb923c',
+      center: [32, 22],
+      poly: [[14, 10], [45, 10], [45, 33], [14, 33]],
+      notes: 'Mountains Edge, Southern Highlands, Blue Diamond Rd.'
+    },
+    {
+      id: 'HEND',
+      name: 'Henderson',
+      type: 'Incorporated City',
+      color: '#a78bfa',
+      center: [72, 24],
+      poly: [[50, 8], [94, 8], [94, 40], [58, 40], [50, 32]],
+      notes: 'Green Valley, Water St District, Anthem, Heritage Park.'
+    },
+    {
+      id: 'NLV',
+      name: 'North Las Vegas',
+      type: 'Incorporated City',
+      color: '#2dd4bf',
+      center: [48, 82],
+      poly: [[29, 69], [66, 69], [66, 94], [29, 94]],
+      notes: 'Aliante, Craig Ranch, Civic Center, I-15 North corridor.'
+    },
+    {
+      id: 'SUNR',
+      name: 'Sunrise Manor',
+      type: 'Township',
+      color: '#f87171',
+      center: [72, 62],
+      poly: [[57, 42], [88, 42], [88, 78], [67, 78], [57, 68]],
+      notes: 'Frenchman Mtn bench, Nellis Blvd, East Bonanza / Lake Mead.'
+    }
+  ];
+
+  const HIGHWAYS = [
+    { name: 'I-15', pts: [[38, 4], [43, 35], [45, 62], [62, 96]] },
+    { name: 'US-95 / I-515', pts: [[12, 92], [35, 68], [52, 64], [65, 42], [86, 12]] },
+    { name: 'I-215 BELTWAY', pts: [[18, 76], [16, 42], [24, 32], [58, 32], [74, 36]] }
+  ];
+
+  let selectedId = 'DTLV';
+  let linePrimitives = [];
+
+  function buildSidebar() {
+    const list = document.getElementById('regionList');
+    list.innerHTML = REGIONS.map(r => `
+      <div class="region-card ${r.id === selectedId ? 'active' : ''}" onclick="selectRegion('${r.id}')">
+        <div class="region-title">
+          <span style="color:${r.color}">■ ${r.name}</span>
+          <span class="badge">${r.type}</span>
+        </div>
+        <div class="region-desc">${r.notes}</div>
+      </div>
+    `).join('');
+  }
+
+  function selectRegion(id) {
+    selectedId = id;
+    buildSidebar();
+    render();
+  }
+
+  function render() {
+    linePrimitives = [];
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = '#0f1115';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+
+    const pad = 44;
+    const size = Math.min(rect.width - pad * 2, rect.height - pad * 2);
+    const ox = (rect.width - size) / 2;
+    const oy = (rect.height - size) / 2;
+
+    const tx = (x) => ox + (x / 100) * size;
+    const ty = (y) => oy + ((100 - y) / 100) * size;
+
+    // 10-unit coordinate grid
+    for (let g = 0; g <= 100; g += 10) {
+      ctx.strokeStyle = g % 50 === 0 ? '#2a3242' : '#181d26';
+      ctx.lineWidth = g % 50 === 0 ? 1.2 : 1;
+      ctx.beginPath();
+      ctx.moveTo(tx(g), ty(0));
+      ctx.lineTo(tx(g), ty(100));
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(tx(0), ty(g));
+      ctx.lineTo(tx(100), ty(g));
+      ctx.stroke();
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '10px monospace';
+      ctx.fillText(g, tx(g) - 6, ty(0) + 14);
+      ctx.fillText(g, tx(0) - 20, ty(g) + 3);
+    }
+
+    // Region polygons
+    REGIONS.forEach(r => {
+      const isSel = r.id === selectedId;
+      ctx.beginPath();
+      r.poly.forEach((pt, idx) => {
+        const sx = tx(pt[0]);
+        const sy = ty(pt[1]);
+        if (idx === 0) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
+
+        const next = r.poly[(idx + 1) % r.poly.length];
+        linePrimitives.push({ x1: pt[0], y1: pt[1], x2: next[0], y2: next[1], layer: `REGION_${r.id}` });
+      });
+      ctx.closePath();
+
+      ctx.fillStyle = isSel ? r.color + '33' : r.color + '14';
+      ctx.fill();
+      ctx.strokeStyle = isSel ? '#ffffff' : r.color;
+      ctx.lineWidth = isSel ? 2.2 : 1.3;
+      ctx.stroke();
+
+      // Label
+      ctx.fillStyle = isSel ? '#ffffff' : r.color;
+      ctx.font = isSel ? 'bold 11px monospace' : '10px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(r.id, tx(r.center[0]), ty(r.center[1]));
+    });
+
+    // Major Highway Arteries
+    HIGHWAYS.forEach(hw => {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.32)';
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      hw.pts.forEach((pt, i) => {
+        if (i === 0) ctx.moveTo(tx(pt[0]), ty(pt[1]));
+        else ctx.lineTo(tx(pt[0]), ty(pt[1]));
+        if (i < hw.pts.length - 1) {
+          linePrimitives.push({
+            x1: pt[0], y1: pt[1],
+            x2: hw.pts[i + 1][0], y2: hw.pts[i + 1][1],
+            layer: 'HIGHWAYS'
+          });
+        }
+      });
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    const active = REGIONS.find(r => r.id === selectedId);
+    document.getElementById('hud').textContent =
+      `SELECTED: ${active.name.toUpperCase()} (${active.type.toUpperCase()}) | CENTER: [${active.center[0]}, ${active.center[1]}] | LINES: ${linePrimitives.length}`;
+  }
+
+  function exportDXF() {
+    let dxf = "0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n";
+    linePrimitives.forEach(s => {
+      dxf += `0\nLINE\n8\n${s.layer}\n10\n${s.x1.toFixed(2)}\n20\n${s.y1.toFixed(2)}\n30\n0.0\n11\n${s.x2.toFixed(2)}\n21\n${s.y2.toFixed(2)}\n31\n0.0\n`;
+    });
+    dxf += "0\nENDSEC\n0\nEOF\n";
+    downloadFile(dxf, "wally_lv_regions.dxf", "application/dxf");
+  }
+
+  function exportWally() {
+    const payload = {
+      generator: "WallyCAD_LV_Regions_V1",
+      scale: "0-100",
+      orientation: "North_Up",
+      entities: linePrimitives.map(s => ({
+        type: "LINE",
+        layer: s.layer,
+        p1: [s.x1, s.y1],
+        p2: [s.x2, s.y2]
+      }))
+    };
+    downloadFile(JSON.stringify(payload, null, 2), "wally_lv_regions.wally", "application/json");
+  }
+
+  function downloadFile(content, filename, mime) {
+    const blob = new Blob([content], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+  }
+
+  window.addEventListener('resize', render);
+  buildSidebar();
+  render();
+</script>
+</body>
+</html>
