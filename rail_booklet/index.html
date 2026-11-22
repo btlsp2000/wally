@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Route 2 Mini-Zine // WALLY RAIL (8-Page Single-Sheet Imposition)</title>
+  <style>
+    @page {
+      size: 11in 8.5in landscape;
+      margin: 0.25in;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #e2e8f0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #111827;
+    }
+    .sheet {
+      width: 10.5in;
+      height: 8in;
+      margin: 12px auto;
+      background: #ffffff;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      border: 1px solid #94a3b8;
+    }
+    .page {
+      border: 1px dashed #cbd5e1;
+      padding: 0.18in;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 8.5pt;
+      line-height: 1.32;
+      overflow: hidden;
+    }
+    /* Top row rotated 180 deg for standard 8-page single-sheet zine fold */
+    .upside-down {
+      transform: rotate(180deg);
+    }
+    .p-head {
+      border-bottom: 1.5px solid #111827;
+      padding-bottom: 3px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 7.5pt;
+      letter-spacing: 0.06em;
+    }
+    .p-foot {
+      border-top: 1px solid #94a3b8;
+      padding-top: 3px;
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 7pt;
+      color: #475569;
+    }
+    h1 {
+      font-size: 15pt;
+      margin: 6px 0;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+    h2 {
+      font-size: 9.5pt;
+      margin: 0 0 5px 0;
+      text-transform: uppercase;
+      background: #111827;
+      color: #fff;
+      padding: 2px 5px;
+    }
+    p { margin: 0 0 6px 0; }
+    ul { margin: 0; padding-left: 14px; }
+    li { margin-bottom: 3px; }
+    .box {
+      border: 1px solid #111827;
+      padding: 5px;
+      background: #f8fafc;
+      font-size: 7.5pt;
+    }
+    code {
+      background: #f1f5f9;
+      padding: 1px 3px;
+      font-size: 7.5pt;
+    }
+    @media print {
+      body { background: #fff; }
+      .sheet { margin: 0; border: none; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="no-print" style="text-align:center; padding:8px; background:#0f1115; color:#38bdf8; font-size:12px;">
+  ROUTE 2 MINI-ZINE IMPOSITION (8.5"×11" LANDSCAPE) —
+  <button onclick="window.print()" style="cursor:pointer; padding:3px 8px;">PRINT / EXPORT PDF</button>
+</div>
+
+<div class="sheet">
+  <!-- TOP ROW (UPSIDE DOWN: PAGES 8, 7, 6, 5) -->
+
+  <!-- PAGE 8: BACK COVER -->
+  <div class="page upside-down">
+    <div>
+      <div class="p-head"><span>ROUTE 2 // LKA</span><span>PG 08</span></div>
+      <h2>DIRECTORY &amp; INDEX</h2>
+      <p><strong>WallyCAD Browser Suite:</strong></p>
+      <ul>
+        <li><code>wallycad.com</code> — Main Engine v1.0.17</li>
+        <li><code>wallycad.com/rail</code> — Steel Rail Gen</li>
+        <li><code>wallycad.com/vec</code> — Vector Sandbox</li>
+        <li><code>wallycad.com/dxf2sdj</code> — DXF Parser</li>
+        <li><code>wallycad.com/rtwo</code> — Route 2 Archive</li>
+        <li><code>wallycad.com/armike</code> — ARMike Portal</li>
+      </ul>
+      <div class="box" style="margin-top:8px;">
+        <strong>LKA DISPATCH NODE:</strong><br/>
+        Downtown Las Vegas, NV<br/>
+        UTM Zone 11N • NAD83<br/>
+        Barstow Bill Tonnesen
+      </div>
+    </div>
+    <div class="p-foot"><span>LAST KNOWN ADDRESS</span><span>NOV 2026</span></div>
+  </div>
+
+  <!-- PAGE 7: ROUND-TRIP REGENERATE -->
+  <div class="page upside-down">
+    <div>
+      <div class="p-head"><span>WORKFLOW // STAGE 06</span><span>PG 07</span></div>
+      <h2>FILE &amp; REGENERATE</h2>
+      <p>The loop closes when exported text artifacts return to the engine:</p>
+      <ul>
+        <li><strong>Archive:</strong> Store lightweight <code>.wally</code> or <code>.dxf</code> files in Google Drive or GitHub.</li>
+        <li><strong>Transform:</strong> Pipe SDJ streams through <code>/vec</code>, <code>/trans-rot</code>, or <code>/mir</code>.</li>
+        <li><strong>Georeference:</strong> Stamp a UTM Zone 11N anchor onto local inch geometry (<code>× 0.0254</code>) for site plans.</li>
+        <li><strong>Regenerate:</strong> Reload parameters to alter bay counts or member profiles on demand.</li>
+      </ul>
+    </div>
+    <div class="p-foot"><span>WALLYCAD V1.0.17</span><span>ROUND-TRIP</span></div>
+  </div>
+
+  <!-- PAGE 6: EXPORTS & SDJ -->
+  <div class="page upside-down">
+    <div>
+      <div class="p-head"><span>WORKFLOW // STAGE 04</span><span>PG 06</span></div>
+      <h2>TYPES OF EXPORTS</h2>
+      <p>Every assembly compiles into pure primitive <code>LINE</code> entities—zero bloated binary wrappers:</p>
+      <div class="box" style="margin-bottom:5px;">
+        <strong>1. .WALLY (JSON):</strong><br/>
+        <code>{"layer":"POSTS_2X2","p1":[-1,0],"p2":[1,0]}</code>
+      </div>
+      <div class="box" style="margin-bottom:5px;">
+        <strong>2. .DXF (ASCII):</strong><br/>
+        Standard AutoCAD group codes (<code>0 LINE / 8 LAYER / 10,20,11,21</code>).
+      </div>
+      <div class="box">
+        <strong>3. .SDJ (STREAM):</strong><br/>
+        Space-Delimited Junctions via <code>/dxf2sdj</code> for instant vector math.
+      </div>
+    </div>
+    <div class="p-foot"><span>PRIMITIVE PIPELINE</span><span>LINE ENTITIES</span></div>
+  </div>
+
+  <!-- PAGE 5: VECTOR MATH CORE -->
+  <div class="page upside-down">
+    <div>
+      <div class="p-head"><span>ENGINE // MATH CORE</span><span>PG 05</span></div>
+      <h2>STANDALONE VECTORS</h2>
+      <p>Pure Cartesian array math (<code>[x, y]</code>) powers every offset, miter, and projection in v1.0.17:</p>
+      <ul>
+        <li><strong>Sum:</strong> <code>[ax + bx, ay + by]</code></li>
+        <li><strong>Dot Product:</strong> <code>ax*bx + ay*by</code></li>
+        <li><strong>2D Cross (Det):</strong> <code>ax*by - ay*bx</code> (CCW vs CW turn test)</li>
+        <li><strong>Normalize:</strong> <code>v / Math.hypot(vx, vy)</code></li>
+      </ul>
+      <p style="margin-top:5px;">Tested live in <code>/vec</code> with drag handles and grid snapping.</p>
+    </div>
+    <div class="p-foot"><span>ZERO DEPENDENCIES</span><span>JS + AUTOLISP</span></div>
+  </div>
+
+  <!-- BOTTOM ROW (RIGHT-SIDE UP: PAGES 1, 2, 3, 4) -->
+
+  <!-- PAGE 1: FRONT COVER -->
+  <div class="page">
+    <div>
+      <div class="p-head"><span>ROUTE 2 // ISSUE DISPATCH</span><span>PG 01</span></div>
+      <div style="font-size:7.5pt; color:#475569; margin-top:4px;">FIELD-TO-CAD CASE STUDY</div>
+      <h1>WALLY RAIL &amp; THE V17 LOOP</h1>
+      <p>From a clipboard pencil sketch in Downtown Las Vegas to parametric steel geometry, DXF/SDJ exports, and full round-trip regeneration.</p>
+      <svg viewBox="-6 -4 116 44" width="100%" height="95" style="border:1px solid #111827; background:#f8fafc; margin-top:4px;">
+        <rect x="-1" y="0" width="106" height="1.5" fill="none" stroke="#111" stroke-width="0.6" />
+        <rect x="-1" y="1.5" width="2" height="34.5" fill="none" stroke="#111" stroke-width="0.6" />
+        <rect x="51" y="1.5" width="2" height="34.5" fill="none" stroke="#111" stroke-width="0.6" />
+        <rect x="103" y="1.5" width="2" height="34.5" fill="none" stroke="#111" stroke-width="0.6" />
+        <line x1="26" y1="1.5" x2="26" y2="32" stroke="#111" stroke-width="0.6" />
+        <line x1="78" y1="1.5" x2="78" y2="32" stroke="#111" stroke-width="0.6" />
+        <line x1="1" y1="8" x2="51" y2="8" stroke="#0284c7" stroke-width="0.4" />
+        <line x1="1" y1="16" x2="51" y2="16" stroke="#0284c7" stroke-width="0.4" />
+        <line x1="1" y1="24" x2="51" y2="24" stroke="#0284c7" stroke-width="0.4" />
+        <line x1="53" y1="8" x2="103" y2="8" stroke="#0284c7" stroke-width="0.4" />
+        <line x1="53" y1="16" x2="103" y2="16" stroke="#0284c7" stroke-width="0.4" />
+        <line x1="53" y1="24" x2="103" y2="24" stroke="#0284c7" stroke-width="0.4" />
+      </svg>
+    </div>
+    <div class="p-foot"><span>BARSTOW BILL TONNESEN</span><span>WALLYCAD.COM</span></div>
+  </div>
+
+  <!-- PAGE 2: THE FIELD SKETCH -->
+  <div class="page">
+    <div>
+      <div class="p-head"><span>WORKFLOW // STAGE 01</span><span>PG 02</span></div>
+      <h2>PIC OF SB'S DT LV RAIL</h2>
+      <p>Every structural detail starts with clean field notes and verified center-to-center datums:</p>
+      <ul>
+        <li><strong>Location:</strong> Starbucks, Downtown Las Vegas</li>
+        <li><strong>Height:</strong> <code>36"</code> overall to top of cap</li>
+        <li><strong>Bay Span:</strong> <code>4'-4"</code> (<code>52"</code>) C-to-C posts</li>
+        <li><strong>Top Cap:</strong> <code>1-1/2" × 2"</code> steel channel (⨅)</li>
+        <li><strong>Posts:</strong> <code>2" × 2"</code> square steel tube (□)</li>
+        <li><strong>Stiffener:</strong> <code>3/4" × 3/4"</code> mid-bay bar</li>
+        <li><strong>Infill:</strong> <code>Ø 1/4"</code> steel rods @ <code>4"</code> O.C.</li>
+      </ul>
+    </div>
+    <div class="p-foot"><span>FIELD MEASUREMENT</span><span>INCH DATUM</span></div>
+  </div>
+
+  <!-- PAGE 3: THE ENGINE LOOP -->
+  <div class="page">
+    <div>
+      <div class="p-head"><span>WORKFLOW // STAGE 02</span><span>PG 03</span></div>
+      <h2>V17 (ENGINE) ↔ GEMINI</h2>
+      <p>Instead of manual point-by-point clicking, structural rules are compiled into a reusable parametric generator:</p>
+      <div class="box" style="margin-bottom:6px;">
+        <strong>Sketch Photo → Rule Set → Single-File HTML5 App</strong>
+      </div>
+      <p>Gemini parses the handwritten callouts into parameterized JavaScript functions paired directly with WallyCAD v1.0.17's coordinate conventions and automated cut-list take-offs.</p>
+    </div>
+    <div class="p-foot"><span>PARAMETRIC DRAFTING</span><span>BROWSER-NATIVE</span></div>
+  </div>
+
+  <!-- PAGE 4: CUT LIST & LAYER DISCIPLINE -->
+  <div class="page">
+    <div>
+      <div class="p-head"><span>FABRICATION // BOM</span><span>PG 04</span></div>
+      <h2>LAYER &amp; CUT TAKE-OFF</h2>
+      <p>For a standard 2-bay assembly (<code>104"</code> C-to-C, <code>106"</code> overall cap length):</p>
+      <ul>
+        <li><code>CAP_CHANNEL</code>: 1 pc @ 106.00"</li>
+        <li><code>POSTS_2X2</code>: 3 pcs @ 34.50"</li>
+        <li><code>STIFFENER_3_4</code>: 2 pcs @ 30.50"</li>
+        <li><code>RODS_1_4</code>: 8 rows (65.7 linear ft total)</li>
+      </ul>
+      <p style="margin-top:5px;">Total primitive output: <strong>153 LINE entities</strong> ready for shop fabrication or CAD overlay.</p>
+    </div>
+    <div class="p-foot"><span>STEEL DETAILING</span><span>153 LINES</span></div>
+  </div>
+</div>
+
+</body>
+</html>
