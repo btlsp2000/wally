@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WallyCAD // RAIL — Structural Steel Railing Generator</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --border: #2a303c;
+      --text: #e6e9ef;
+      --muted: #8b94a5;
+      --accent: #38bdf8;
+      --accent-dim: rgba(56, 189, 248, 0.15);
+      --grid: #1c212b;
+      --steel-post: #94a3b8;
+      --steel-cap: #cbd5e1;
+      --steel-rod: #38bdf8;
+      --dim-color: #fbbf24;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }
+    header span.sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-left: 8px;
+    }
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+    button {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: background 0.15s;
+    }
+    button:hover {
+      background: var(--accent);
+      color: #090d16;
+      font-weight: bold;
+    }
+    .workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    aside {
+      width: 310px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .group {
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .group h2 {
+      margin: 0 0 8px 0;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+    }
+    .field {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    .field:last-child { margin-bottom: 0; }
+    .field label { color: var(--text); }
+    .field input, .field select {
+      width: 90px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 6px;
+      font-family: inherit;
+      font-size: 12px;
+      text-align: right;
+    }
+    .bom {
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text);
+    }
+    .bom table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .bom td {
+      padding: 3px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .bom td:last-child {
+      text-align: right;
+      color: var(--accent);
+    }
+    main {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .hud {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(15, 17, 21, 0.88);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .workspace { flex-direction: column; }
+      aside { width: 100%; height: 42%; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>WALLY // RAIL</h1>
+    <span class="sub">STARBUCKS DT LV FIELD SPEC (36" H × 52" C-TO-C)</span>
+  </div>
+  <div class="actions">
+    <button onclick="exportDXF()">EXPORT .DXF</button>
+    <button onclick="exportWallyJSON()">EXPORT .WALLY</button>
+  </div>
+</header>
+
+<div class="workspace">
+  <aside>
+    <div class="group">
+      <h2>Bay & Height Geometry</h2>
+      <div class="field">
+        <label>Number of Bays</label>
+        <input type="number" id="bays" value="2" min="1" max="12" step="1" onchange="render()" />
+      </div>
+      <div class="field">
+        <label>Post C-to-C (in)</label>
+        <input type="number" id="bayWidth" value="52" min="24" max="96" step="0.5" onchange="render()" />
+      </div>
+      <div class="field">
+        <label>Top Height (in)</label>
+        <input type="number" id="railHeight" value="36" min="24" max="48" step="0.5" onchange="render()" />
+      </div>
+      <div class="field">
+        <label>Bottom Sweep (in)</label>
+        <input type="number" id="bottomClear" value="4" min="0" max="6" step="0.25" onchange="render()" />
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Member Profiles</h2>
+      <div class="field">
+        <label>Post Tube (in)</label>
+        <input type="number" id="postWidth" value="2.0" min="1" max="4" step="0.25" onchange="render()" />
+      </div>
+      <div class="field">
+        <label>Cap Height (in)</label>
+        <input type="number" id="capHeight" value="1.5" min="1" max="3" step="0.25" onchange="render()" />
+      </div>
+      <div class="field">
+        <label>Mid Stiffener (in)</label>
+        <input type="number" id="midBar" value="0.75" min="0" max="1.5" step="0.125" onchange="render()" />
+      </div>
+      <div class="field">
+        <label>Rod O.C. (in)</label>
+        <input type="number" id="rodSpacing" value="4.0" min="2" max="6" step="0.25" onchange="render()" />
+      </div>
+      <div class="field">
+        <label>Rod Dia (in)</label>
+        <input type="number" id="rodDia" value="0.25" min="0.125" max="0.75" step="0.0625" onchange="render()" />
+      </div>
+    </div>
+
+    <div class="group bom">
+      <h2>Cut List & Take-Off</h2>
+      <table id="bomTable"></table>
+    </div>
+  </aside>
+
+  <main>
+    <canvas id="cadCanvas"></canvas>
+    <div class="hud" id="hud">DATUM: (0.00", 0.00") | UNITS: INCHES | PRIMITIVES: LINE</div>
+  </main>
+</div>
+
+<script>
+  const canvas = document.getElementById('cadCanvas');
+  const ctx = canvas.getContext('2d');
+  let lineEntities = []; // Master array of { x1, y1, x2, y2, layer }
+
+  function getParams() {
+    return {
+      bays: Math.max(1, parseInt(document.getElementById('bays').value) || 2),
+      bayWidth: parseFloat(document.getElementById('bayWidth').value) || 52,
+      railHeight: parseFloat(document.getElementById('railHeight').value) || 36,
+      bottomClear: parseFloat(document.getElementById('bottomClear').value) || 4,
+      postWidth: parseFloat(document.getElementById('postWidth').value) || 2.0,
+      capHeight: parseFloat(document.getElementById('capHeight').value) || 1.5,
+      midBar: parseFloat(document.getElementById('midBar').value) || 0.75,
+      rodSpacing: parseFloat(document.getElementById('rodSpacing').value) || 4.0,
+      rodDia: parseFloat(document.getElementById('rodDia').value) || 0.25
+    };
+  }
+
+  function addRectLines(x, y, w, h, layer) {
+    lineEntities.push({ x1: x, y1: y, x2: x + w, y2: y, layer });
+    lineEntities.push({ x1: x + w, y1: y, x2: x + w, y2: y + h, layer });
+    lineEntities.push({ x1: x + w, y1: y + h, x2: x, y2: y + h, layer });
+    lineEntities.push({ x1: x, y1: y + h, x2: x, y2: y, layer });
+  }
+
+  function buildGeometry(p) {
+    lineEntities = [];
+    const totalSpan = p.bays * p.bayWidth;
+    const halfPost = p.postWidth / 2;
+    const capBottom = p.railHeight - p.capHeight;
+
+    // 1. Top Cap Rail (1-1/2" x 2" Steel Channel) - continuous across posts
+    const capStartX = -halfPost;
+    const capTotalW = totalSpan + p.postWidth;
+    addRectLines(capStartX, capBottom, capTotalW, p.capHeight, 'CAP_CHANNEL');
+    // Channel flange thickness line (3/16" web)
+    lineEntities.push({
+      x1: capStartX, y1: p.railHeight - 0.1875,
+      x2: capStartX + capTotalW, y2: p.railHeight - 0.1875,
+      layer: 'CAP_CHANNEL'
+    });
+
+    // 2. Main Posts (2" x 2" Steel Tube)
+    for (let i = 0; i <= p.bays; i++) {
+      const cx = i * p.bayWidth;
+      addRectLines(cx - halfPost, 0, p.postWidth, capBottom, 'POSTS_2X2');
+    }
+
+    // 3. Intermediate Vertical Stiffeners (3/4" x 3/4" Solid Steel Bar)
+    const rodYLevels = [];
+    for (let y = p.bottomClear; y < capBottom - 0.5; y += p.rodSpacing) {
+      rodYLevels.push(y);
+    }
+
+    for (let b = 0; b < p.bays; b++) {
+      const bayStart = b * p.bayWidth + halfPost;
+      const bayEnd = (b + 1) * p.bayWidth - halfPost;
+      const midX = (b + 0.5) * p.bayWidth;
+
+      if (p.midBar > 0) {
+        const halfMid = p.midBar / 2;
+        addRectLines(midX - halfMid, p.bottomClear, p.midBar, capBottom - p.bottomClear, 'STIFFENER_3_4');
+      }
+
+      // 4. Horizontal Infill Rods (Ø 1/4" Steel Rod @ 4" O.C.)
+      const halfRod = p.rodDia / 2;
+      rodYLevels.forEach(ry => {
+        if (p.midBar > 0) {
+          const halfMid = p.midBar / 2;
+          // Left sub-bay rod
+          addRectLines(bayStart, ry - halfRod, (midX - halfMid) - bayStart, p.rodDia, 'RODS_1_4');
+          // Right sub-bay rod
+          addRectLines(midX + halfMid, ry - halfRod, bayEnd - (midX + halfMid), p.rodDia, 'RODS_1_4');
+        } else {
+          addRectLines(bayStart, ry - halfRod, bayEnd - bayStart, p.rodDia, 'RODS_1_4');
+        }
+      });
+    }
+
+    updateBOM(p, capTotalW, capBottom, rodYLevels.length);
+  }
+
+  function updateBOM(p, capLen, postLen, rodRows) {
+    const numPosts = p.bays + 1;
+    const numStiffeners = p.midBar > 0 ? p.bays : 0;
+    const stiffenerLen = capLen - p.bottomClear;
+    const clearBay = p.bayWidth - p.postWidth;
+    const totalRodInches = p.bays * rodRows * (clearBay - p.midBar);
+
+    const html = `
+      <tr><td>Cap Rail (1½×2 ⨅)</td><td>1 pc @ ${capLen.toFixed(2)}"</td></tr>
+      <tr><td>Posts (${p.postWidth}×${p.postWidth} □)</td><td>${numPosts} pcs @ ${postLen.toFixed(2)}"</td></tr>
+      <tr><td>Mid Bar (${p.midBar}×${p.midBar})</td><td>${numStiffeners} pcs @ ${(capLen - p.bottomClear).toFixed(2)}"</td></tr>
+      <tr><td>Infill Rods (Ø${p.rodDia}")</td><td>${rodRows} rows (${(totalRodInches / 12).toFixed(1)} lf)</td></tr>
+      <tr><td>Total LINE Entities</td><td>${lineEntities.length}</td></tr>
+    `;
+    document.getElementById('bomTable').innerHTML = html;
+  }
+
+  function render() {
+    const p = getParams();
+    buildGeometry(p);
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = '#0f1115';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+
+    const totalW = p.bays * p.bayWidth + p.postWidth;
+    const totalH = p.railHeight;
+
+    const padX = 75;
+    const padY = 65;
+    const scaleX = (rect.width - padX * 2) / totalW;
+    const scaleY = (rect.height - padY * 2) / totalH;
+    const scale = Math.min(scaleX, scaleY);
+
+    const originX = (rect.width - totalW * scale) / 2 + (p.postWidth / 2) * scale;
+    const originY = rect.height - padY;
+
+    const toScreenX = (x) => originX + x * scale;
+    const toScreenY = (y) => originY - y * scale;
+
+    // Background 4" Grid
+    ctx.strokeStyle = '#191e27';
+    ctx.lineWidth = 1;
+    for (let gx = -4; gx <= totalW + 4; gx += 4) {
+      ctx.beginPath();
+      ctx.moveTo(toScreenX(gx), 0);
+      ctx.lineTo(toScreenX(gx), rect.height);
+      ctx.stroke();
+    }
+    for (let gy = 0; gy <= totalH + 8; gy += 4) {
+      ctx.beginPath();
+      ctx.moveTo(0, toScreenY(gy));
+      ctx.lineTo(rect.width, toScreenY(gy));
+      ctx.stroke();
+    }
+
+    // Floor datum line
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(toScreenX(-8), toScreenY(0));
+    ctx.lineTo(toScreenX(totalW + 4), toScreenY(0));
+    ctx.stroke();
+
+    // Draw CAD LINE primitives
+    const layerColors = {
+      CAP_CHANNEL: '#cbd5e1',
+      POSTS_2X2: '#94a3b8',
+      STIFFENER_3_4: '#e2e8f0',
+      RODS_1_4: '#38bdf8'
+    };
+
+    lineEntities.forEach(seg => {
+      ctx.strokeStyle = layerColors[seg.layer] || '#ffffff';
+      ctx.lineWidth = seg.layer === 'RODS_1_4' ? 1.1 : 1.5;
+      ctx.beginPath();
+      ctx.moveTo(toScreenX(seg.x1), toScreenY(seg.y1));
+      ctx.lineTo(toScreenX(seg.x2), toScreenY(seg.y2));
+      ctx.stroke();
+    });
+
+    // Engineering Dimensions
+    drawDimensions(p, toScreenX, toScreenY);
+    document.getElementById('hud').textContent =
+      `SPAN: ${(p.bays * p.bayWidth).toFixed(1)}" C-TO-C | HEIGHT: ${p.railHeight}" | LINE ENTITIES: ${lineEntities.length}`;
+  }
+
+  function drawDimensions(p, tx, ty) {
+    ctx.strokeStyle = '#fbbf24';
+    ctx.fillStyle = '#fbbf24';
+    ctx.font = '11px monospace';
+    ctx.lineWidth = 1;
+
+    // Overall Height Dimension (Left)
+    const dimX = tx(-p.postWidth / 2 - 4);
+    ctx.beginPath();
+    ctx.moveTo(dimX, ty(0));
+    ctx.lineTo(dimX, ty(p.railHeight));
+    ctx.moveTo(dimX - 4, ty(0));
+    ctx.lineTo(dimX + 4, ty(0));
+    ctx.moveTo(dimX - 4, ty(p.railHeight));
+    ctx.lineTo(dimX + 4, ty(p.railHeight));
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(dimX - 8, ty(p.railHeight / 2));
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center';
+    ctx.fillText(`${p.railHeight}"`, 0, 0);
+    ctx.restore();
+
+    // Bay C-to-C Dimension (Bottom, Bay 1)
+    const dimY = ty(-3.5);
+    const x0 = tx(0);
+    const x1 = tx(p.bayWidth);
+    ctx.beginPath();
+    ctx.moveTo(x0, ty(0));
+    ctx.lineTo(x0, dimY - 4);
+    ctx.moveTo(x1, ty(0));
+    ctx.lineTo(x1, dimY - 4);
+    ctx.moveTo(x0, dimY);
+    ctx.lineTo(x1, dimY);
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    const ft = Math.floor(p.bayWidth / 12);
+    const remIn = p.bayWidth % 12;
+    const label = remIn === 0 ? `${ft}'-0" C-TO-C` : `${ft}'-${remIn}" (${p.bayWidth}") C-TO-C`;
+    ctx.fillText(label, (x0 + x1) / 2, dimY + 13);
+  }
+
+  function exportDXF() {
+    let dxf = "0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n";
+    lineEntities.forEach(s => {
+      dxf += `0\nLINE\n8\n${s.layer}\n10\n${s.x1.toFixed(4)}\n20\n${s.y1.toFixed(4)}\n30\n0.0\n11\n${s.x2.toFixed(4)}\n21\n${s.y2.toFixed(4)}\n31\n0.0\n`;
+    });
+    dxf += "0\nENDSEC\n0\nEOF\n";
+    downloadFile(dxf, "wally_rail_dtlv.dxf", "application/dxf");
+  }
+
+  function exportWallyJSON() {
+    const payload = {
+      generator: "WallyCAD_Rail_V1",
+      reference: "Starbucks DT LV Rail",
+      units: "inches",
+      params: getParams(),
+      entities: lineEntities.map(s => ({
+        type: "LINE",
+        layer: s.layer,
+        p1: [Number(s.x1.toFixed(4)), Number(s.y1.toFixed(4))],
+        p2: [Number(s.x2.toFixed(4)), Number(s.y2.toFixed(4))]
+      }))
+    };
+    downloadFile(JSON.stringify(payload, null, 2), "wally_rail_dtlv.wally", "application/json");
+  }
+
+  function downloadFile(content, filename, mime) {
+    const blob = new Blob([content], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+  }
+
+  window.addEventListener('resize', render);
+  render();
+</script>
+</body>
+</html>
