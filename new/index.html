@@ -13,6 +13,7 @@
             --text-dim: #aaaaaa;
             --border: #444444;
             --highlight: #61afef;
+            --dispatch: #e5c07b;
         }
         body {
             margin: 0;
@@ -78,6 +79,7 @@
             font-weight: bold;
         }
         .card-tag.core { background-color: var(--highlight); }
+        .card-tag.dispatch { background-color: var(--dispatch); }
         .card h2 {
             margin: 0 0 10px 0;
             font-size: 18px;
@@ -111,17 +113,65 @@
 <body>
     <div class="header">
         <h1>WHAT'S NEW AT WALLYCAD</h1>
-        <p>Latest Protocol Updates & Standalone Modules</p>
+        <p>Latest Protocol Updates, Standalone Modules &amp; Dispatches</p>
     </div>
 
     <div class="grid-container">    
 
-                <!-- V17 CORE ENGINE -->
+        <!-- V17 CORE ENGINE -->
         <a href="https://wallycad.com/v17" class="card">
             <span class="card-tag core">CORE ENGINE UPDATE</span>
             <h2>WallyCAD v1.0.17</h2>
-            <p>The flagship update. Features the new Smart Dimensioning system (auto-bounding DIM, DIMH, DIMV), bulletproof SDJ string parsing, and physical Delete/Backspace keyboard integration.</p>
+            <p>The flagship update. Features the Smart Dimensioning system (auto-bounding DIM, DIMH, DIMV), bulletproof SDJ string parsing, and physical Delete/Backspace keyboard integration.</p>
             <div class="card-url">wallycad.com/v17</div>
+        </a>
+
+        <!-- STRUCTURAL STEEL RAILING GENERATOR (NEW) -->
+        <a href="https://wallycad.com/rail" class="card">
+            <span class="card-tag">NEW MODULE</span>
+            <h2>Wally Rail Generator</h2>
+            <p>Parametric structural steel railing builder engineered from DT LV field specs (36" H × 52" C-to-C). Generates automated linear-footage cut lists and layered .DXF / .WALLY LINE primitives.</p>
+            <div class="card-url">wallycad.com/rail</div>
+        </a>
+
+        <!-- 2D VECTOR SANDBOX (NEW) -->
+        <a href="https://wallycad.com/vec" class="card">
+            <span class="card-tag">NEW MODULE</span>
+            <h2>2D Vector Math Sandbox</h2>
+            <p>Interactive Cartesian canvas with grid-snapping drag handles. Computes live vector sums, dot products, 2D cross determinants, orthogonal projections, and unit circle normalization.</p>
+            <div class="card-url">wallycad.com/vec</div>
+        </a>
+
+        <!-- DXF TO SDJ CONVERTER (NEW) -->
+        <a href="https://wallycad.com/dxf2sdj" class="card">
+            <span class="card-tag core">NEW CONVERTER</span>
+            <h2>DXF to SDJ Converter</h2>
+            <p>Standalone ASCII .DXF parser supporting LINE, LWPOLYLINE, POLYLINE, and POINT entities. Outputs flat, segmented, or columnar SDJ coordinate streams with layer filtering and vertex chaining.</p>
+            <div class="card-url">wallycad.com/dxf2sdj</div>
+        </a>
+
+        <!-- ROUTE 2 DISPATCHES & MINI-ZINES (NEW) -->
+        <a href="https://wallycad.com/rtwo" class="card">
+            <span class="card-tag dispatch">DISPATCH &amp; PRINT</span>
+            <h2>Route 2 (/rtwo)</h2>
+            <p>Field-to-CAD broadsheet dispatches, presentation decks, and single-sheet 8.5" × 11" landscape 8-page foldable mini-zine impositions documenting the v17 round-trip workflow.</p>
+            <div class="card-url">wallycad.com/rtwo</div>
+        </a>
+
+        <!-- LAS VEGAS VALLEY SPATIAL INDEX (NEW) -->
+        <a href="https://wallycad.com/lvmap" class="card">
+            <span class="card-tag">SPATIAL UTILITY</span>
+            <h2>LV Valley Region Matrix</h2>
+            <p>Normalized 0–100 North-Up coordinate map indexing Las Vegas Valley municipalities, townships, and I-15 / US-95 / I-215 corridors with direct .DXF and .WALLY export.</p>
+            <div class="card-url">wallycad.com/lvmap</div>
+        </a>
+
+        <!-- PERSONAL HEALTH MANAGER (NEW) -->
+        <a href="https://wallycad.com/health" class="card">
+            <span class="card-tag">PERSONAL UTILITY</span>
+            <h2>Personal Health Manager</h2>
+            <p>Zero-dependency JSON health tracker managing vitals, daily medications and refill alerts, chronic conditions, and an RTC transit-indexed provider and pharmacy directory.</p>
+            <div class="card-url">wallycad.com/health</div>
         </a>
         
         <!-- S2 MASTER VIEWPORT -->
@@ -136,14 +186,11 @@
         <a href="https://wallycad.com/wheel" class="card">
             <span class="card-tag">STANDALONE MODULE</span>
             <h2>Ferris Wheel Kinematics Engine</h2>
-  <p>
-    Parametric wheel generator enforcing plumb gravity orientation ($-\theta$) for suspended gondolas. 
-    Supports single-detail sketch mode at $\theta = 23^\circ$ or multi-car circular arrays with live SDJ, DXF, and SVG vector output.
-  </p>
+            <p>Parametric wheel generator enforcing plumb gravity orientation (-&theta;) for suspended gondolas. Supports single-detail sketch mode at &theta; = 23&deg; or multi-car circular arrays with live SDJ, DXF, and SVG output.</p>
             <div class="card-url">wallycad.com/wheel</div>
         </a>
 
-        <!-- UNIVERSAL TRANSLATION MATRIX (NEW) -->
+        <!-- UNIVERSAL TRANSLATION MATRIX -->
         <a href="https://wallycad.com/utm" class="card">
             <span class="card-tag core">CORE UTILITY</span>
             <h2>Universal Translation Matrix</h2>
