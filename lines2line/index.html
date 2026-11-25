@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WallyCAD // EXPLODE &amp; JOIN — Bidirectional Line Tuple Reducer</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --panel: #1e1e1e;
+      --border: #3a3a3a;
+      --text: #eeeeee;
+      --muted: #9a9a9a;
+      --accent: #00ff00;
+      --highlight: #61afef;
+      --warn: #e5c07b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Consolas', 'Courier New', monospace;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      background: var(--panel);
+      border-bottom: 2px solid var(--accent);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: 1.5px;
+      color: var(--accent);
+    }
+    header span.sub {
+      color: var(--highlight);
+      font-size: 11px;
+      margin-left: 8px;
+      text-transform: uppercase;
+    }
+    .mode-switch {
+      display: inline-flex;
+      border: 1px solid var(--accent);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .mode-btn {
+      background: transparent;
+      color: var(--accent);
+      border: none;
+      padding: 5px 12px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: var(--accent);
+      color: #000;
+    }
+    .toolbar {
+      background: #171717;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      font-size: 12px;
+    }
+    .toolbar label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    select, input[type="number"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 6px;
+      font-family: inherit;
+      font-size: 12px;
+    }
+    button.action {
+      background: rgba(0, 255, 0, 0.12);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 5px 11px;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button.action:hover {
+      background: var(--accent);
+      color: #000;
+    }
+    button.alt {
+      background: rgba(97, 175, 239, 0.12);
+      color: var(--highlight);
+      border-color: var(--highlight);
+    }
+    button.alt:hover {
+      background: var(--highlight);
+      color: #000;
+    }
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.1fr;
+      flex: 1;
+      overflow: hidden;
+    }
+    .pane {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .pane:last-child { border-right: none; }
+    .pane-head {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 12px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    textarea {
+      flex: 1;
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      border: none;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 12px;
+      line-height: 1.45;
+      resize: none;
+      outline: none;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #0c0c0c;
+    }
+    .status {
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+      padding: 6px 16px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+    @media (max-width: 900px) {
+      .workspace { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr 1fr; }
+      .pane { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+    <div>
+      <h1>WALLY // EXPLODE &amp; JOIN</h1>
+      <span class="sub">Bidirectional Polyline &amp; Line Tuple Engine</span>
+    </div>
+    <div class="mode-switch">
+      <button id="btnModeExplode" class="mode-btn active" onclick="setMode('explode')">EXPLODE (POLY → TUPLES)</button>
+      <button id="btnModeJoin" class="mode-btn" onclick="setMode('join')">JOIN (TUPLES → POLY)</button>
+    </div>
+  </div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <button class="action alt" onclick="loadSample()">LOAD SAMPLE</button>
+    <button class="action alt" onclick="pipeOutputToInput()">SWAP OUT → IN</button>
+    <button class="action" onclick="copyOutput()">COPY OUTPUT</button>
+    <button class="action" onclick="exportWally()">EXPORT .WALLY</button>
+    <button class="action" onclick="exportDXF()">EXPORT .DXF</button>
+  </div>
+</header>
+
+<div class="toolbar">
+  <label>
+    Output Format:
+    <select id="outFormat" onchange="process()"></select>
+  </label>
+  <label>
+    Decimals:
+    <input type="number" id="decimals" value="4" min="0" max="8" style="width:52px" onchange="process()" />
+  </label>
+  <label id="lblCloseLoop">
+    <input type="checkbox" id="closeLoop" onchange="process()" />
+    Close Loop (Pn → P0)
+  </label>
+  <label id="lblDropZero">
+    <input type="checkbox" id="dropZeroLen" checked onchange="process()" />
+    Drop Zero-Length
+  </label>
+  <label id="lblWeldTol" style="display:none;">
+    Weld Tolerance:
+    <input type="number" id="weldTol" value="0.001" min="0" max="1" step="0.001" style="width:74px" onchange="process()" />
+  </label>
+</div>
+
+<div class="workspace">
+  <div class="pane">
+    <div class="pane-head">
+      <span id="inHeader">INPUT: MULTILINE (SDJ / TUPLES / JSON)</span>
+      <span id="inCount">0 items</span>
+    </div>
+    <textarea id="rawInput" placeholder="Paste geometry here..." oninput="process()"></textarea>
+  </div>
+
+  <div class="pane">
+    <div class="pane-head">
+      <span id="outHeader">OUTPUT: SINGLE LINE TUPLES</span>
+      <span id="outCount">0 items</span>
+    </div>
+    <textarea id="tupleOutput" readonly placeholder="Processed output appears here..."></textarea>
+  </div>
+
+  <div class="pane">
+    <div class="pane-head">
+      <span>VIEWPORT: TOPOLOGY VERIFICATION</span>
+      <span id="vpLegend" style="color:var(--warn)">SEGMENT INDEXES</span>
+    </div>
+    <canvas id="previewCanvas"></canvas>
+  </div>
+</div>
+
+<div class="status">
+  <span id="statusMsg">READY — BIDIRECTIONAL MULTILINE / LINE-TUPLE REDUCER</span>
+  <span>WallyCAD Topology Pipeline</span>
+</div>
+
+<script>
+  const canvas = document.getElementById('previewCanvas');
+  const ctx = canvas.getContext('2d');
+
+  let currentMode = 'explode'; // 'explode' | 'join'
+  let renderSegments = [];     // Array of { p1: [x,y], p2: [x,y], chainIdx: number, segIdx: number }
+  let joinedChains = [];       // Array of [[x,y], [x,y], ...] for join mode
+
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('btnModeExplode').classList.toggle('active', mode === 'explode');
+    document.getElementById('btnModeJoin').classList.toggle('active', mode === 'join');
+
+    const fmtSel = document.getElementById('outFormat');
+    if (mode === 'explode') {
+      document.getElementById('inHeader').textContent = 'INPUT: MULTILINE (SDJ / TUPLES / JSON)';
+      document.getElementById('outHeader').textContent = 'OUTPUT: SINGLE LINE TUPLES';
+      document.getElementById('vpLegend').textContent = 'LINE SEGMENT INDEXES';
+      document.getElementById('lblCloseLoop').style.display = 'flex';
+      document.getElementById('lblDropZero').style.display = 'flex';
+      document.getElementById('lblWeldTol').style.display = 'none';
+      fmtSel.innerHTML = `
+        <option value="jsonTuples">2-Point Tuple Array [[[x1,y1],[x2,y2]], ...]</option>
+        <option value="lineTuples">Tuple Per Row ([[x1, y1], [x2, y2]])</option>
+        <option value="sdjLines">SDJ Segment Per Line (x1 y1 x2 y2)</option>
+        <option value="wallyEntities">.WALLY LINE Entities JSON</option>
+      `;
+    } else {
+      document.getElementById('inHeader').textContent = 'INPUT: UNORDERED LINE TUPLES / SDJ SEGMENTS';
+      document.getElementById('outHeader').textContent = 'OUTPUT: JOINED POLYLINES';
+      document.getElementById('vpLegend').textContent = 'CHAIN ID + VERTEX ORDER';
+      document.getElementById('lblCloseLoop').style.display = 'none';
+      document.getElementById('lblDropZero').style.display = 'none';
+      document.getElementById('lblWeldTol').style.display = 'flex';
+      fmtSel.innerHTML = `
+        <option value="sdjChains">SDJ Polyline Per Row (x0 y0 x1 y1 x2 y2 ...)</option>
+        <option value="jsonPolys">JSON Polyline Arrays [[[x0,y0],[x1,y1],...]]</option>
+        <option value="flatVertices">Single Vertex List [[x0,y0], [x1,y1], ...]</option>
+        <option value="wallyPolys">.WALLY LWPOLYLINE JSON</option>
+      `;
+    }
+    loadSample();
+  }
+
+  /* ==========================================================================
+     1. EXPLODE ENGINE: Multiline Vertices -> Atomic 2-Point Line Tuples
+     ========================================================================== */
+  function parseMultilineVertices(text) {
+    const trimmed = text.trim();
+    if (!trimmed) return [];
+
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (parsed && Array.isArray(parsed.entities)) {
+          const pts = [];
+          parsed.entities.forEach((e, idx) => {
+            if (Array.isArray(e.vertices)) {
+              e.vertices.forEach(v => pts.push([Number(v[0]), Number(v[1])]));
+            } else if (e.p1 && e.p2) {
+              if (idx === 0) pts.push([Number(e.p1[0]), Number(e.p1[1])]);
+              pts.push([Number(e.p2[0]), Number(e.p2[1])]);
+            }
+          });
+          return pts;
+        }
+        if (Array.isArray(parsed) && parsed.length > 0 && Array.isArray(parsed[0])) {
+          if (Array.isArray(parsed[0][0])) {
+            const pts = [];
+            parsed.forEach((seg, idx) => {
+              if (idx === 0) pts.push([Number(seg[0][0]), Number(seg[0][1])]);
+              pts.push([Number(seg[1][0]), Number(seg[1][1])]);
+            });
+            return pts;
+          }
+          return parsed.filter(p => p.length >= 2).map(p => [Number(p[0]), Number(p[1])]);
+        }
+        if (Array.isArray(parsed) && typeof parsed[0] === 'number') {
+          const pts = [];
+          for (let i = 0; i + 1 < parsed.length; i += 2) {
+            pts.push([Number(parsed[i]), Number(parsed[i + 1])]);
+          }
+          return pts;
+        }
+      } catch (e) {}
+    }
+
+    const nums = trimmed
+      .replace(/[\[\]\(\),;]+/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .map(Number)
+      .filter(n => !isNaN(n));
+
+    const vertices = [];
+    for (let i = 0; i + 1 < nums.length; i += 2) {
+      vertices.push([nums[i], nums[i + 1]]);
+    }
+    return vertices;
+  }
+
+  function explodeVerticesToLineTuples(vertices, { closeLoop, dropZeroLen, decimals }) {
+    const round = (n) => Number(Number(n).toFixed(decimals));
+    const clean = vertices.map(pt => [round(pt[0]), round(pt[1])]);
+    if (clean.length < 2) return [];
+
+    const tuples = [];
+    for (let i = 0; i < clean.length - 1; i++) {
+      const a = clean[i], b = clean[i + 1];
+      if (dropZeroLen && Math.hypot(b[0] - a[0], b[1] - a[1]) < 1e-9) continue;
+      tuples.push([a, b]);
+    }
+
+    if (closeLoop && clean.length > 2) {
+      const first = clean[0], last = clean[clean.length - 1];
+      if (!dropZeroLen || Math.hypot(first[0] - last[0], first[1] - last[1]) >= 1e-9) {
+        tuples.push([last, first]);
+      }
+    }
+    return tuples;
+  }
+
+  /* ==========================================================================
+     2. JOIN ENGINE: Unordered Line Tuples -> Continuous Polyline Chains
+     ========================================================================== */
+  function parseRawLineTuples(text) {
+    const trimmed = text.trim();
+    if (!trimmed) return [];
+
+    // Try JSON formats first
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (parsed && Array.isArray(parsed.entities)) {
+          return parsed.entities
+            .filter(e => e.p1 && e.p2)
+            .map(e => [[Number(e.p1[0]), Number(e.p1[1])], [Number(e.p2[0]), Number(e.p2[1])]]);
+        }
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Array of entities [{p1, p2}, ...]
+          if (parsed[0] && parsed[0].p1 && parsed[0].p2) {
+            return parsed.map(e => [[Number(e.p1[0]), Number(e.p1[1])], [Number(e.p2[0]), Number(e.p2[1])]]);
+          }
+          // Array of 2-point tuples [[[x1,y1],[x2,y2]], ...]
+          if (Array.isArray(parsed[0]) && Array.isArray(parsed[0][0])) {
+            return parsed
+              .filter(s => s.length >= 2 && s[0].length >= 2 && s[1].length >= 2)
+              .map(s => [[Number(s[0][0]), Number(s[0][1])], [Number(s[1][0]), Number(s[1][1])]]);
+          }
+        }
+      } catch (e) {}
+    }
+
+    // Fallback: Parse line-by-line or flat 4-number groups (x1 y1 x2 y2)
+    const lines = trimmed.split('\n').map(l => l.trim()).filter(Boolean);
+    const tuples = [];
+
+    // Check if each line contains at least 4 numbers (x1 y1 x2 y2)
+    const parsedRows = lines.map(line =>
+      line.replace(/[\[\]\(\),;]+/g, ' ').trim().split(/\s+/).map(Number).filter(n => !isNaN(n))
+    );
+
+    if (parsedRows.every(r => r.length >= 4)) {
+      parsedRows.forEach(r => {
+        tuples.push([[r[0], r[1]], [r[2], r[3]]]);
+      });
+      return tuples;
+    }
+
+    // Otherwise flatten all numbers and chunk by 4
+    const allNums = parsedRows.flat();
+    for (let i = 0; i + 3 < allNums.length; i += 4) {
+      tuples.push([[allNums[i], allNums[i + 1]], [allNums[i + 2], allNums[i + 3]]]);
+    }
+    return tuples;
+  }
+
+  /**
+   * Greedy Endpoint-Welding Polyline Joiner:
+   * Chains unordered segments [A, B] into maximal continuous vertex sequences,
+   * automatically reversing segment orientation when needed.
+   */
+  function joinLineTuplesToPolylines(rawTuples, { tol = 0.001, decimals = 4 }) {
+    const round = (n) => Number(Number(n).toFixed(decimals));
+    const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+
+    const pool = rawTuples
+      .map(([p1, p2]) => [[round(p1[0]), round(p1[1])], [round(p2[0]), round(p2[1])]])
+      .filter(([p1, p2]) => dist(p1, p2) > 1e-9);
+
+    const used = new Array(pool.length).fill(false);
+    const chains = [];
+
+    for (let i = 0; i < pool.length; i++) {
+      if (used[i]) continue;
+      used[i] = true;
+      const chain = [pool[i][0], pool[i][1]];
+
+      // Extend forward from chain tail
+      let extended = true;
+      while (extended) {
+        extended = false;
+        const tail = chain[chain.length - 1];
+        for (let j = 0; j < pool.length; j++) {
+          if (used[j]) continue;
+          const [sA, sB] = pool[j];
+          if (dist(tail, sA) <= tol) {
+            chain.push(sB);
+            used[j] = true;
+            extended = true;
+            break;
+          } else if (dist(tail, sB) <= tol) {
+            chain.push(sA);
+            used[j] = true;
+            extended = true;
+            break;
+          }
+        }
+      }
+
+      // Extend backward from chain head
+      extended = true;
+      while (extended) {
+        extended = false;
+        const head = chain[0];
+        for (let j = 0; j < pool.length; j++) {
+          if (used[j]) continue;
+          const [sA, sB] = pool[j];
+          if (dist(head, sB) <= tol) {
+            chain.unshift(sA);
+            used[j] = true;
+            extended = true;
+            break;
+          } else if (dist(head, sA) <= tol) {
+            chain.unshift(sB);
+            used[j] = true;
+            extended = true;
+            break;
+          }
+        }
+      }
+
+      chains.push(chain);
+    }
+
+    return chains;
+  }
+
+  /* ==========================================================================
+     3. MASTER PROCESSOR & FORMATTERS
+     ========================================================================== */
+  function process() {
+    const raw = document.getElementById('rawInput').value;
+    const format = document.getElementById('outFormat').value;
+    const decimals = Math.max(0, Math.min(8, parseInt(document.getElementById('decimals').value, 10) || 0));
+
+    renderSegments = [];
+    joinedChains = [];
+    let outText = '';
+
+    if (currentMode === 'explode') {
+      const closeLoop = document.getElementById('closeLoop').checked;
+      const dropZeroLen = document.getElementById('dropZeroLen').checked;
+      const vertices = parseMultilineVertices(raw);
+
+      document.getElementById('inCount').textContent = `${vertices.length} vertices`;
+      const tuples = explodeVerticesToLineTuples(vertices, { closeLoop, dropZeroLen, decimals });
+      document.getElementById('outCount').textContent = `${tuples.length} line tuples`;
+
+      tuples.forEach(([p1, p2], idx) => {
+        renderSegments.push({ p1, p2, chainIdx: 0, segIdx: idx });
+      });
+
+      if (tuples.length > 0) {
+        if (format === 'jsonTuples') {
+          outText = JSON.stringify(tuples, null, 2);
+        } else if (format === 'lineTuples') {
+          outText = tuples.map(t => `[[${t[0][0]}, ${t[0][1]}], [${t[1][0]}, ${t[1][1]}]]`).join('\n');
+        } else if (format === 'sdjLines') {
+          outText = tuples.map(t => `${t[0][0]} ${t[0][1]} ${t[1][0]} ${t[1][1]}`).join('\n');
+        } else if (format === 'wallyEntities') {
+          outText = JSON.stringify(tuples.map(t => ({
+            type: 'LINE',
+            layer: 'EXPLODED',
+            p1: t[0],
+            p2: t[1]
+          })), null, 2);
+        }
+      }
+    } else {
+      const tol = Math.max(0, parseFloat(document.getElementById('weldTol').value) || 0.001);
+      const tuples = parseRawLineTuples(raw);
+      document.getElementById('inCount').textContent = `${tuples.length} line tuples`;
+
+      joinedChains = joinLineTuplesToPolylines(tuples, { tol, decimals });
+      const totalVerts = joinedChains.reduce((acc, c) => acc + c.length, 0);
+      document.getElementById('outCount').textContent = `${joinedChains.length} polyline(s) | ${totalVerts} pts`;
+
+      joinedChains.forEach((chain, cIdx) => {
+        for (let k = 0; k < chain.length - 1; k++) {
+          renderSegments.push({ p1: chain[k], p2: chain[k + 1], chainIdx: cIdx, segIdx: k });
+        }
+      });
+
+      if (joinedChains.length > 0) {
+        if (format === 'sdjChains') {
+          outText = joinedChains.map(chain => chain.map(pt => `${pt[0]} ${pt[1]}`).join(' ')).join('\n');
+        } else if (format === 'jsonPolys') {
+          outText = JSON.stringify(joinedChains, null, 2);
+        } else if (format === 'flatVertices') {
+          outText = JSON.stringify(joinedChains.flat(), null, 2);
+        } else if (format === 'wallyPolys') {
+          outText = JSON.stringify({
+            generator: 'WallyCAD_Join_V1',
+            entities: joinedChains.map((chain, idx) => ({
+              type: 'LWPOLYLINE',
+              layer: `CHAIN_${idx + 1}`,
+              closed: chain.length > 2 && Math.hypot(chain[0][0] - chain[chain.length - 1][0], chain[0][1] - chain[chain.length - 1][1]) <= tol,
+              vertices: chain
+            }))
+          }, null, 2);
+        }
+      }
+    }
+
+    document.getElementById('tupleOutput').value = outText;
+    renderPreview();
+  }
+
+  function renderPreview() {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = '#0c0c0c';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+
+    if (renderSegments.length === 0) return;
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    renderSegments.forEach(({ p1, p2 }) => {
+      minX = Math.min(minX, p1[0], p2[0]);
+      minY = Math.min(minY, p1[1], p2[1]);
+      maxX = Math.max(maxX, p1[0], p2[0]);
+      maxY = Math.max(maxY, p1[1], p2[1]);
+    });
+
+    const spanX = Math.max(maxX - minX, 1);
+    const spanY = Math.max(maxY - minY, 1);
+    const pad = 40;
+    const scale = Math.min((rect.width - pad * 2) / spanX, (rect.height - pad * 2) / spanY);
+
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+    const tx = (x) => rect.width / 2 + (x - cx) * scale;
+    const ty = (y) => rect.height / 2 - (y - cy) * scale;
+
+    const palette = ['#00ff00', '#61afef', '#e5c07b', '#c678dd', '#56b6c2', '#e06c75'];
+
+    renderSegments.forEach(({ p1, p2, chainIdx, segIdx }) => {
+      const x1 = tx(p1[0]), y1 = ty(p1[1]);
+      const x2 = tx(p2[0]), y2 = ty(p2[1]);
+
+      const color = currentMode === 'explode'
+        ? (segIdx % 2 === 0 ? '#00ff00' : '#61afef')
+        : palette[chainIdx % palette.length];
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(x1, y1, 2.8, 0, Math.PI * 2);
+      ctx.arc(x2, y2, 2.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      const mx = (x1 + x2) / 2;
+      const my = (y1 + y2) / 2;
+      ctx.fillStyle = '#e5c07b';
+      ctx.font = '11px monospace';
+      const tag = currentMode === 'explode' ? `L${segIdx + 1}` : `C${chainIdx + 1}.${segIdx + 1}`;
+      ctx.fillText(tag, mx + 4, my - 4);
+    });
+  }
+
+  function pipeOutputToInput() {
+    const out = document.getElementById('tupleOutput').value;
+    if (!out) return;
+    const nextMode = currentMode === 'explode' ? 'join' : 'explode';
+    setMode(nextMode);
+    document.getElementById('rawInput').value = out;
+    process();
+    setStatus(`PIPED OUTPUT TO ${nextMode.toUpperCase()} INPUT`);
+  }
+
+  function loadSample() {
+    if (currentMode === 'explode') {
+      document.getElementById('rawInput').value = "0 0 52 0 52 36 0 36";
+      document.getElementById('closeLoop').checked = true;
+    } else {
+      // Shuffled & partially reversed line tuples forming a closed 52x36 frame + inner diagonal
+      document.getElementById('rawInput').value = JSON.stringify([
+        [[52, 36], [52, 0]],
+        [[0, 0], [52, 0]],
+        [[0, 36], [0, 0]],
+        [[52, 36], [0, 36]]
+      ], null, 2);
+    }
+    process();
+    setStatus(`LOADED ${currentMode.toUpperCase()} SAMPLE`);
+  }
+
+  function copyOutput() {
+    const out = document.getElementById('tupleOutput').value;
+    if (!out) return;
+    navigator.clipboard.writeText(out).then(() => setStatus("COPIED TO CLIPBOARD"));
+  }
+
+  function exportWally() {
+    if (!renderSegments.length) return;
+    const payload = {
+      generator: `WallyCAD_${currentMode.toUpperCase()}_V1`,
+      entities: renderSegments.map(s => ({
+        type: 'LINE',
+        layer: currentMode === 'explode' ? 'EXPLODED' : `JOINED_CHAIN_${s.chainIdx + 1}`,
+        p1: s.p1,
+        p2: s.p2
+      }))
+    };
+    downloadFile(JSON.stringify(payload, null, 2), `wally_${currentMode}.wally`, 'application/json');
+  }
+
+  function exportDXF() {
+    if (!renderSegments.length) return;
+    let dxf = "0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n";
+    renderSegments.forEach(s => {
+      const layer = currentMode === 'explode' ? 'EXPLODED' : `CHAIN_${s.chainIdx + 1}`;
+      dxf += `0\nLINE\n8\n${layer}\n10\n${s.p1[0]}\n20\n${s.p1[1]}\n30\n0.0\n11\n${s.p2[0]}\n21\n${s.p2[1]}\n31\n0.0\n`;
+    });
+    dxf += "0\nENDSEC\n0\nEOF\n";
+    downloadFile(dxf, `wally_${currentMode}.dxf`, 'application/dxf');
+  }
+
+  function downloadFile(content, filename, mime) {
+    const blob = new Blob([content], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    setStatus(`EXPORTED ${filename}`);
+  }
+
+  function setStatus(msg) {
+    document.getElementById('statusMsg').textContent = msg;
+  }
+
+  window.addEventListener('resize', renderPreview);
+  setMode('explode');
+</script>
+</body>
+</html>
