@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WallyCAD // EXPLODE — Multiline to Line Tuples</title>
+  <title>WallyCAD // TUPLE INGEST — Multiline to Wally Engine Tuples</title>
   <style>
     :root {
       --bg: #121212;
@@ -64,7 +64,7 @@
       gap: 6px;
       cursor: pointer;
     }
-    select, input[type="number"] {
+    select, input[type="number"], input[type="text"] {
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--text);
@@ -156,26 +156,27 @@
 
 <header>
   <div>
-    <h1>WALLY // EXPLODE</h1>
-    <span class="sub">Multiline &amp; Polyline to Atomic Line Tuples</span>
+    <h1>WALLY // TUPLE INGEST</h1>
+    <span class="sub">Reduce Multiline Elements to Engine-Ready Line Tuples</span>
   </div>
   <div style="display:flex; gap:8px; flex-wrap:wrap;">
     <button class="alt" onclick="loadSample('sdj')">SAMPLE: SDJ POLY</button>
-    <button class="alt" onclick="loadSample('tuples')">SAMPLE: VERTEX CHAIN</button>
-    <button onclick="copyOutput()">COPY TUPLES</button>
+    <button class="alt" onclick="loadSample('wally')">SAMPLE: .WALLY JSON</button>
+    <button onclick="copyOutput()">COPY FOR WALLY</button>
     <button onclick="exportWally()">EXPORT .WALLY</button>
-    <button onclick="exportDXF()">EXPORT .DXF</button>
+    <button onclick="exportTXT()">EXPORT .TXT</button>
   </div>
 </header>
 
 <div class="toolbar">
   <label>
-    Output Format:
+    Wally Ingest Format:
     <select id="outFormat" onchange="process()">
-      <option value="jsonTuples">2-Point Tuple Array [[[x1,y1],[x2,y2]], ...]</option>
-      <option value="lineTuples">Tuple Per Row ([x1, y1], [x2, y2])</option>
-      <option value="sdjLines">SDJ Segment Per Line (x1 y1 x2 y2)</option>
-      <option value="wallyEntities">.WALLY LINE Entities JSON</option>
+      <option value="compactTuples">Compact Tuple Array [[[x1,y1],[x2,y2]],...] (Single-Line)</option>
+      <option value="prettyTuples">Formatted Tuple Array (Multi-Line JSON)</option>
+      <option value="wallyCmds">Wally CLI Commands (LINE x1,y1 x2,y2)</option>
+      <option value="sdjPairs">SDJ Tuple Stream (x1 y1 x2 y2)</option>
+      <option value="wallyRoot">Root .WALLY File Object (v1.0.17)</option>
     </select>
   </label>
   <label>
@@ -183,44 +184,48 @@
     <input type="number" id="decimals" value="4" min="0" max="8" style="width:52px" onchange="process()" />
   </label>
   <label>
+    Layer:
+    <input type="text" id="layerName" value="INGEST" style="width:84px" oninput="process()" />
+  </label>
+  <label>
     <input type="checkbox" id="closeLoop" onchange="process()" />
     Close Loop (Pn → P0)
   </label>
   <label>
-    <input type="checkbox" id="dropZeroLen" checked onchange="process()" />
-    Drop Zero-Length
+    <input type="checkbox" id="dedupeSet" checked onchange="process()" />
+    Unique Tuple Set
   </label>
 </div>
 
 <div class="workspace">
   <div class="pane">
     <div class="pane-head">
-      <span>INPUT: MULTILINE (SDJ / TUPLES / JSON)</span>
+      <span>INPUT: MULTILINE (SDJ / POLY / .WALLY / CSV)</span>
       <span id="inVertCount">0 vertices</span>
     </div>
-    <textarea id="rawInput" placeholder="Paste SDJ string (0 0 10 0 10 5 0 5), vertex tuples [[0,0],[10,0],[10,5]], or .wally JSON..." oninput="process()"></textarea>
+    <textarea id="rawInput" placeholder="Paste SDJ string (0 0 10 0 10 5 0 5), vertex list [[0,0],[10,0],[10,5]], or .wally JSON..." oninput="process()"></textarea>
   </div>
 
   <div class="pane">
     <div class="pane-head">
-      <span>OUTPUT: SINGLE LINE TUPLES</span>
+      <span>OUTPUT: WALLY ENGINE INGEST PAYLOAD</span>
       <span id="outSegCount">0 line tuples</span>
     </div>
-    <textarea id="tupleOutput" readonly placeholder="Decomposed single-line tuples appear here..."></textarea>
+    <textarea id="tupleOutput" readonly placeholder="Engine-ready tuple output appears here..."></textarea>
   </div>
 
   <div class="pane">
     <div class="pane-head">
-      <span>VIEWPORT: SEGMENT VERIFICATION</span>
-      <span style="color:var(--warn)">MIDPOINT INDEXES</span>
+      <span>VIEWPORT: ATOMIC LINE VERIFICATION</span>
+      <span style="color:var(--warn)">TUPLE INDEXES</span>
     </div>
     <canvas id="previewCanvas"></canvas>
   </div>
 </div>
 
 <div class="status">
-  <span id="statusMsg">READY — ACCEPTS FLAT SDJ, POINT ARRAYS, OR MULTI-VERTEX POLYLINES</span>
-  <span>WallyCAD Primitive Reducer</span>
+  <span id="statusMsg">READY — REDUCES MULTILINE PATHS TO ATOMIC 2-POINT WALLY ENGINE TUPLES</span>
+  <span>WallyCAD v1.0.17 Ingest Pipeline</span>
 </div>
 
 <script>
@@ -229,70 +234,84 @@
   let currentLineTuples = []; // Array of [[x1, y1], [x2, y2]]
 
   /**
-   * Core Reducer: Takes an ordered array of N vertices [P0, P1, ..., Pn-1]
-   * and returns (N - 1) atomic two-point line tuples [[P0, P1], [P1, P2], ...].
+   * Core Reducer: Decomposes an ordered polyline [P0, P1, ..., Pn-1]
+   * into atomic 2-point tuples [[x1, y1], [x2, y2]] with optional unique-set deduplication.
    */
-  function explodeVerticesToLineTuples(vertices, options = {}) {
-    const { closeLoop = false, dropZeroLen = true, decimals = 4 } = options;
+  function reduceToEngineTuples(vertices, options = {}) {
+    const { closeLoop = false, dedupeSet = true, decimals = 4 } = options;
     const round = (n) => Number(Number(n).toFixed(decimals));
     const clean = vertices.map(pt => [round(pt[0]), round(pt[1])]);
 
     if (clean.length < 2) return [];
 
-    const tuples = [];
+    const rawPairs = [];
     for (let i = 0; i < clean.length - 1; i++) {
-      const a = clean[i];
-      const b = clean[i + 1];
-      if (dropZeroLen && Math.hypot(b[0] - a[0], b[1] - a[1]) < 1e-9) continue;
-      tuples.push([a, b]);
+      rawPairs.push([clean[i], clean[i + 1]]);
     }
 
     if (closeLoop && clean.length > 2) {
-      const first = clean[0];
-      const last = clean[clean.length - 1];
-      if (!dropZeroLen || Math.hypot(first[0] - last[0], first[1] - last[1]) >= 1e-9) {
-        tuples.push([last, first]);
-      }
+      rawPairs.push([clean[clean.length - 1], clean[0]]);
     }
 
-    return tuples;
+    const seen = new Set();
+    const result = [];
+
+    for (const [a, b] of rawPairs) {
+      // Drop zero-length degenerate segments
+      if (Math.hypot(b[0] - a[0], b[1] - a[1]) < 1e-9) continue;
+
+      if (dedupeSet) {
+        // Canonical undirected edge key so [A, B] and [B, A] collapse to one unique tuple
+        const k1 = `${a[0]},${a[1]}|${b[0]},${b[1]}`;
+        const k2 = `${b[0]},${b[1]}|${a[0]},${a[1]}`;
+        if (seen.has(k1) || seen.has(k2)) continue;
+        seen.add(k1);
+      }
+
+      result.push([a, b]);
+    }
+
+    return result;
   }
 
   /**
-   * Universal Input Parser: Accepts SDJ flat numbers, JSON vertex lists, or .wally JSON
+   * Universal Multiline Parser: Extracts ordered vertex sequences from SDJ, JSON arrays, or .wally files
    */
   function parseInputVertices(text) {
     const trimmed = text.trim();
     if (!trimmed) return [];
 
-    // 1. Try JSON parsing first
     if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
       try {
         const parsed = JSON.parse(trimmed);
-        // .wally object with entities
+
+        // .wally root object with entities
         if (parsed && Array.isArray(parsed.entities)) {
           const pts = [];
           parsed.entities.forEach((e, idx) => {
-            if (e.p1 && e.p2) {
-              if (idx === 0) pts.push(e.p1);
-              pts.push(e.p2);
+            if (Array.isArray(e.vertices)) {
+              e.vertices.forEach(v => pts.push([Number(v[0]), Number(v[1])]));
+            } else if (e.p1 && e.p2) {
+              if (idx === 0) pts.push([Number(e.p1[0]), Number(e.p1[1])]);
+              pts.push([Number(e.p2[0]), Number(e.p2[1])]);
             }
           });
           return pts;
         }
-        // Array of [x, y] points
+
+        // Array of points [[x,y], ...] or array of segments [[[x1,y1],[x2,y2]], ...]
         if (Array.isArray(parsed) && parsed.length > 0 && Array.isArray(parsed[0])) {
-          // Check if already array of segments [[[x1,y1],[x2,y2]], ...]
           if (Array.isArray(parsed[0][0])) {
             const pts = [];
             parsed.forEach((seg, idx) => {
-              if (idx === 0) pts.push(seg[0]);
-              pts.push(seg[1]);
+              if (idx === 0) pts.push([Number(seg[0][0]), Number(seg[0][1])]);
+              pts.push([Number(seg[1][0]), Number(seg[1][1])]);
             });
             return pts;
           }
           return parsed.filter(p => p.length >= 2).map(p => [Number(p[0]), Number(p[1])]);
         }
+
         // Flat JSON number array [x0, y0, x1, y1, ...]
         if (Array.isArray(parsed) && typeof parsed[0] === 'number') {
           const pts = [];
@@ -302,11 +321,11 @@
           return pts;
         }
       } catch (e) {
-        // Fall through to token parser
+        // Fall back to token extraction
       }
     }
 
-    // 2. Fallback: Space/Comma/Newline-delimited numeric stream (SDJ / CSV)
+    // Space / Comma / Semicolon / Newline-delimited numeric stream (SDJ / CSV)
     const nums = trimmed
       .replace(/[\[\]\(\),;]+/g, ' ')
       .trim()
@@ -325,35 +344,43 @@
     const raw = document.getElementById('rawInput').value;
     const format = document.getElementById('outFormat').value;
     const decimals = Math.max(0, Math.min(8, parseInt(document.getElementById('decimals').value, 10) || 0));
+    const layer = (document.getElementById('layerName').value.trim() || 'INGEST').toUpperCase();
     const closeLoop = document.getElementById('closeLoop').checked;
-    const dropZeroLen = document.getElementById('dropZeroLen').checked;
+    const dedupeSet = document.getElementById('dedupeSet').checked;
 
     const vertices = parseInputVertices(raw);
     document.getElementById('inVertCount').textContent = `${vertices.length} vertices`;
 
-    currentLineTuples = explodeVerticesToLineTuples(vertices, { closeLoop, dropZeroLen, decimals });
+    currentLineTuples = reduceToEngineTuples(vertices, { closeLoop, dedupeSet, decimals });
     document.getElementById('outSegCount').textContent = `${currentLineTuples.length} line tuples`;
 
     let outText = '';
     if (currentLineTuples.length > 0) {
-      if (format === 'jsonTuples') {
+      if (format === 'compactTuples') {
+        // Single-line compact JSON tuple array for direct Wally engine / UTM ingestion
+        outText = JSON.stringify(currentLineTuples);
+      } else if (format === 'prettyTuples') {
         outText = JSON.stringify(currentLineTuples, null, 2);
-      } else if (format === 'lineTuples') {
+      } else if (format === 'wallyCmds') {
         outText = currentLineTuples
-          .map(t => `[[${t[0][0]}, ${t[0][1]}], [${t[1][0]}, ${t[1][1]}]]`)
+          .map(t => `LINE ${t[0][0]},${t[0][1]} ${t[1][0]},${t[1][1]}`)
           .join('\n');
-      } else if (format === 'sdjLines') {
+      } else if (format === 'sdjPairs') {
         outText = currentLineTuples
           .map(t => `${t[0][0]} ${t[0][1]} ${t[1][0]} ${t[1][1]}`)
           .join('\n');
-      } else if (format === 'wallyEntities') {
-        const entities = currentLineTuples.map(t => ({
-          type: 'LINE',
-          layer: 'EXPLODED',
-          p1: t[0],
-          p2: t[1]
-        }));
-        outText = JSON.stringify(entities, null, 2);
+      } else if (format === 'wallyRoot') {
+        const rootObj = {
+          generator: 'WallyCAD_TupleIngest_V1',
+          units: 'inches',
+          entities: currentLineTuples.map(t => ({
+            type: 'LINE',
+            layer,
+            p1: t[0],
+            p2: t[1]
+          }))
+        };
+        outText = JSON.stringify(rootObj, null, 2);
       }
     }
 
@@ -373,7 +400,6 @@
 
     if (currentLineTuples.length === 0) return;
 
-    // Compute bounding box
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     currentLineTuples.forEach(([p1, p2]) => {
       minX = Math.min(minX, p1[0], p2[0]);
@@ -384,7 +410,7 @@
 
     const spanX = Math.max(maxX - minX, 1);
     const spanY = Math.max(maxY - minY, 1);
-    const pad = 36;
+    const pad = 38;
     const scale = Math.min((rect.width - pad * 2) / spanX, (rect.height - pad * 2) / spanY);
 
     const cx = (minX + maxX) / 2;
@@ -392,31 +418,28 @@
     const tx = (x) => rect.width / 2 + (x - cx) * scale;
     const ty = (y) => rect.height / 2 - (y - cy) * scale;
 
-    // Draw each decomposed single line segment with index label
     currentLineTuples.forEach(([p1, p2], idx) => {
       const x1 = tx(p1[0]), y1 = ty(p1[1]);
       const x2 = tx(p2[0]), y2 = ty(p2[1]);
 
       ctx.strokeStyle = idx % 2 === 0 ? '#00ff00' : '#61afef';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.2;
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
       ctx.stroke();
 
-      // Endpoint nodes
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
       ctx.arc(x1, y1, 2.8, 0, Math.PI * 2);
       ctx.arc(x2, y2, 2.8, 0, Math.PI * 2);
       ctx.fill();
 
-      // Segment index badge at midpoint
       const mx = (x1 + x2) / 2;
       const my = (y1 + y2) / 2;
       ctx.fillStyle = '#e5c07b';
       ctx.font = '11px monospace';
-      ctx.fillText(`L${idx + 1}`, mx + 4, my - 4);
+      ctx.fillText(`T${idx}`, mx + 4, my - 4);
     });
   }
 
@@ -425,9 +448,12 @@
       document.getElementById('rawInput').value = "0 0 52 0 52 36 0 36";
       document.getElementById('closeLoop').checked = true;
     } else {
-      document.getElementById('rawInput').value = JSON.stringify([
-        [0, 0], [12, 0], [18, 8], [30, 8], [36, 0], [48, 0]
-      ], null, 2);
+      document.getElementById('rawInput').value = JSON.stringify({
+        generator: "WallyCAD_Polyline_Test",
+        entities: [
+          { type: "LWPOLYLINE", vertices: [[0, 0], [12, 0], [18, 8], [30, 8], [36, 0], [48, 0]] }
+        ]
+      }, null, 2);
       document.getElementById('closeLoop').checked = false;
     }
     process();
@@ -437,31 +463,29 @@
   function copyOutput() {
     const out = document.getElementById('tupleOutput').value;
     if (!out) return;
-    navigator.clipboard.writeText(out).then(() => setStatus("COPIED LINE TUPLES TO CLIPBOARD"));
+    navigator.clipboard.writeText(out).then(() => setStatus("COPIED ENGINE TUPLES TO CLIPBOARD"));
   }
 
   function exportWally() {
     if (!currentLineTuples.length) return;
+    const layer = (document.getElementById('layerName').value.trim() || 'INGEST').toUpperCase();
     const payload = {
-      generator: "WallyCAD_Explode_V1",
+      generator: "WallyCAD_TupleIngest_V1",
+      units: "inches",
       entities: currentLineTuples.map(t => ({
         type: "LINE",
-        layer: "EXPLODED",
+        layer,
         p1: t[0],
         p2: t[1]
       }))
     };
-    downloadFile(JSON.stringify(payload, null, 2), "wally_exploded_lines.wally", "application/json");
+    downloadFile(JSON.stringify(payload, null, 2), "wally_engine_tuples.wally", "application/json");
   }
 
-  function exportDXF() {
-    if (!currentLineTuples.length) return;
-    let dxf = "0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n";
-    currentLineTuples.forEach(([p1, p2]) => {
-      dxf += `0\nLINE\n8\nEXPLODED\n10\n${p1[0]}\n20\n${p1[1]}\n30\n0.0\n11\n${p2[0]}\n21\n${p2[1]}\n31\n0.0\n`;
-    });
-    dxf += "0\nENDSEC\n0\nEOF\n";
-    downloadFile(dxf, "wally_exploded_lines.dxf", "application/dxf");
+  function exportTXT() {
+    const out = document.getElementById('tupleOutput').value;
+    if (!out) return;
+    downloadFile(out, "wally_engine_tuples.txt", "text/plain");
   }
 
   function downloadFile(content, filename, mime) {
