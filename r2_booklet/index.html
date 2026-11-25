@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WallyCAD | Families of Discord — Q2-3 Spread</title>
+<style>
+  :root {
+    --cad-black: #121212;
+    --cad-accent: #00ff00;
+    --cad-panel: #f4f4f4;
+  }
+  * { box-sizing: border-box; border-radius: 0 !important; }
+  body {
+    margin: 0;
+    padding: 0;
+    background: #e5e7eb;
+    color: var(--cad-black);
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .sheet {
+    width: 11in;
+    height: 8.5in;
+    background: #ffffff;
+    display: grid;
+    grid-template-columns: 5.5in 5.5in;
+    grid-template-rows: 8.5in;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .crosshair-vert {
+    position: absolute;
+    top: 0;
+    left: 5.5in;
+    width: 1px;
+    height: 8.5in;
+    border-left: 1px dashed #999999;
+    z-index: 10;
+  }
+  .quadrant {
+    padding: 0.42in 0.48in;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .top-tag {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .badge-dark {
+    font-size: 8pt;
+    font-weight: bold;
+    background: var(--cad-black);
+    color: #ffffff;
+    padding: 3px 7px;
+  }
+  .badge-accent {
+    font-size: 8pt;
+    font-weight: bold;
+    background: var(--cad-black);
+    color: var(--cad-accent);
+    padding: 3px 7px;
+  }
+  h1 {
+    font-size: 14.5pt;
+    font-weight: bold;
+    border-bottom: 2px solid var(--cad-black);
+    margin: 0 0 7px 0;
+    padding-bottom: 3px;
+    text-transform: uppercase;
+  }
+  h2 {
+    font-size: 9.8pt;
+    font-weight: bold;
+    margin: 8px 0 4px 0;
+    text-transform: uppercase;
+    background: var(--cad-panel);
+    border-left: 3px solid var(--cad-black);
+    padding: 2px 6px;
+  }
+  p, li {
+    font-size: 8.1pt;
+    line-height: 1.36;
+    margin: 0 0 5px 0;
+    text-align: justify;
+  }
+  .epigraph {
+    border-left: 3px solid var(--cad-black);
+    background: var(--cad-panel);
+    padding: 5px 8px;
+    font-size: 8pt;
+    font-weight: bold;
+    margin: 0 0 7px 0;
+    line-height: 1.35;
+  }
+  table.grid-spec {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4px 0 7px 0;
+    font-size: 7.5pt;
+  }
+  table.grid-spec th, table.grid-spec td {
+    border: 1px solid var(--cad-black);
+    padding: 3px 5px;
+    text-align: left;
+    vertical-align: top;
+  }
+  table.grid-spec th {
+    background: var(--cad-black);
+    color: var(--cad-accent);
+    text-transform: uppercase;
+  }
+  .code-block {
+    background: var(--cad-black);
+    color: var(--cad-accent);
+    border: 1px solid var(--cad-black);
+    padding: 5px 7px;
+    font-size: 7.5pt;
+    font-weight: bold;
+    margin: 4px 0 6px 0;
+    display: block;
+    white-space: pre-wrap;
+  }
+  .footer-strip {
+    margin-top: auto;
+    border-top: 1.5px solid var(--cad-black);
+    padding-top: 4px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 7.6pt;
+    font-weight: bold;
+  }
+  @media print {
+    @page { size: letter landscape; margin: 0; }
+    body { background: none; }
+    .sheet { box-shadow: none; border: none; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="crosshair-vert"></div>
+
+  <!-- QUADRANT 2 (INSIDE LEFT): ROUTE 2 ESSAY TEXT -->
+  <div class="quadrant" style="border-right: 1px solid #dddddd;">
+    <div class="top-tag">
+      <span class="badge-dark">PILLAR 1 // ROUTE 2 &amp; WIB</span>
+      <span class="badge-accent">FOD1 // NOV 25, 2026</span>
+    </div>
+
+    <h1>FAMILIES OF DISCORD</h1>
+    <div class="epigraph">
+      “From Grandma Pearl’s to his own family’s and others, Bill has sat and lived and dined and slept in many and varied spaces, assembling and disassembling and negotiating the long and constantly changing passage...”
+    </div>
+
+    <p>A life mapped across the West reads like a structural field log—columns erected, bearing plates bolted down, rooms occupied for a season, and unbolted back into the transit stream when the ground shifts beneath the slab. The geometry of a household is governed less by the walls holding it up than by the unseen tensions running through the people sitting around its table.</p>
+
+    <p>The baseline coordinate sits in Long Beach (1967–1968) at Grandma Pearl’s house on Bermuda Street between Cherry and Orange—walking to the 3rd Street Library, studying <em>Machinery’s Handbook</em>, and drafting at Poly High without institutional negotiation. From Firmona Avenue and Vista Garden (“Cockroach Heaven”) to thirteen years in San Diego North County raising Wesley, Malcolm, and Justin, each address carried its own floor plan of discord and survival.</p>
+
+    <p>Even at family gatherings, selective compliance held the frame together—like Betty Jo pulling a full Thanksgiving turkey out of the oven in Colton while Lydia sat across the table quietly aghast, waiting to whisper her protest in private.</p>
+
+    <div class="footer-strip">
+      <span>DWN: BEI // APT 219, CARSON SUITES</span>
+      <span>WALLYCAD.COM/RTWO</span>
+    </div>
+  </div>
+
+  <!-- QUADRANT 3 (INSIDE RIGHT): STRUCTURAL PASSAGE & COORDINATE MATRIX -->
+  <div class="quadrant">
+    <div class="top-tag">
+      <span class="badge-accent">WHERE BILL HAS BEEN</span>
+      <span class="badge-dark">Q2-3 COMPILABLE</span>
+    </div>
+
+    <h1>THE LONG PASSAGE (1967–2026)</h1>
+    <p>Post-1997 disassembly turned the passage north and east across the High Desert, Great Basin, and Pacific Northwest before settling in Downtown Las Vegas.</p>
+
+    <table class="grid-spec">
+      <thead>
+        <tr>
+          <th>Era / Node</th>
+          <th>Coordinates &amp; Structural Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1967–1968</strong></td>
+          <td>Grandma Pearl’s (Bermuda St., Long Beach) — Baseline reference datum</td>
+        </tr>
+        <tr>
+          <td><strong>1984–1997</strong></td>
+          <td>San Diego North County (San Marcos, Carlsbad, Vista) — Family household</td>
+        </tr>
+        <tr>
+          <td><strong>1999–2007</strong></td>
+          <td>Carson City &amp; Fallon, NV — Monday dinners with Bob &amp; Jeri Kaster</td>
+        </tr>
+        <tr>
+          <td><strong>2015–2026</strong></td>
+          <td>The Metropolitan (Portland, OR) &amp; Western transit (Amtrak / FlixBus / RTC)</td>
+        </tr>
+        <tr>
+          <td><strong>NOV 2026</strong></td>
+          <td>Apt 219, Carson Suites (Las Vegas) &amp; Heritage Park rail (Henderson, NV)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Permanent &amp; Open Coordinates</h2>
+    <p>Dale (1989), Betty Jo (2011), Wesley (2022), and Mike (June 2026) remain anchored in the archive (<code>/ARMike</code>); David in Riverside stands completely clear of institutional guardrails as an open potential.</p>
+
+    <span class="code-block">STATUS: CLEAN CUPBOARDS // SQUARE BOARD // APT 219</span>
+
+    <div class="footer-strip">
+      <span>PILLAR 1 (R2) × PILLAR 3 (WIB)</span>
+      <span>FAMILIES-OF-DISCORD-Q2-3</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
