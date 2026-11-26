@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Route 2: The New Family Times // wallycad.com/rtwo</title>
+<style>
+  :root {
+    --paper: #fffdf9;
+    --paper-broadsheet: #F9F9F9;
+    --paper-alt: #f5f1e8;
+    --ink: #1a1917;
+    --ink-muted: #5a554c;
+    --border: #2b2925;
+    --route-red: #9C2A20;
+    --olive: #697A21;
+    --plum: #3E363F;
+    --cad-black: #121212;
+    --cad-green: #00ff00;
+  }
+
+  * {
+    box-sizing: border-box;
+    border-radius: 0 !important;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: #e6e1d6;
+    color: var(--ink);
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 1.5;
+  }
+
+  /* =========================================================
+     1. BROADSHEET MASTHEAD (MERGED RTWO + RTWO2)
+     ========================================================= */
+  header.masthead {
+    background: var(--paper-broadsheet);
+    color: var(--ink);
+    border-bottom: 3px solid var(--route-red);
+    padding: 1.4rem 1.25rem 1.25rem 1.25rem;
+    text-align: center;
+  }
+
+  .masthead-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+
+  .masthead-top-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: bold;
+    border-bottom: 1.5px solid var(--border);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    color: var(--ink-muted);
+  }
+
+  .masthead-top-strip span.live-badge {
+    background: var(--cad-black);
+    color: var(--cad-green);
+    padding: 2px 7px;
+  }
+
+  .masthead-title-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .masthead h1 {
+    margin: 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    letter-spacing: 0.1em;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .subhead {
+    margin: 6px 0 0 0;
+    font-family: 'Georgia', serif;
+    font-size: 1.05rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--route-red);
+  }
+
+  .directory-anchor {
+    margin-top: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .armike-link {
+    color: var(--route-red);
+    text-decoration: none;
+    font-weight: bold;
+    border-bottom: 1px dotted var(--route-red);
+  }
+
+  .armike-link:hover {
+    color: var(--ink);
+    border-bottom: 1px solid var(--ink);
+  }
+
+  /* =========================================================
+     2. MASTER SHELL CONTAINER & CONTROL BAR
+     ========================================================= */
+  .shell-wrap {
+    max-width: 1160px;
+    margin: 18px auto 36px auto;
+    padding: 0 14px;
+  }
+
+  .control-bar {
+    background: var(--paper);
+    border: 2px solid var(--border);
+    padding: 12px 14px;
+    margin-bottom: 18px;
+  }
+
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .filter-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  button.tab-btn {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11.5px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border: 1.5px solid var(--border);
+    background: var(--paper-alt);
+    color: var(--ink);
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
+  button.tab-btn:hover,
+  button.tab-btn.active {
+    background: var(--cad-black);
+    color: var(--cad-green);
+  }
+
+  select, input[type="text"] {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px 9px;
+    border: 1.5px solid var(--border);
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  input[type="text"] {
+    min-width: 250px;
+  }
+
+  .stats-strip {
+    font-size: 11.5px;
+    font-weight: bold;
+    color: var(--ink-muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-top: 1px dashed var(--border);
+    padding-top: 8px;
+    margin-top: 8px;
+  }
+
+  /* =========================================================
+     3. FRONT PAGE BROADSHEET STAGE (RTWO2 FLEXBOX GEOMETRY)
+     ========================================================= */
+  .frontpage-stage {
+    background: var(--paper-broadsheet);
+    border: 2px solid var(--border);
+    padding: 20px 22px;
+    margin-bottom: 20px;
+    box-shadow: 4px 4px 0 rgba(26, 25, 23, 0.14);
+  }
+
+  .stage-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--route-red);
+    padding-bottom: 6px;
+    margin-bottom: 16px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+
+  .content-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.2rem;
+    align-items: flex-start;
+  }
+
+  .feature-story {
+    flex: 2 1 58%;
+    font-family: 'Georgia', serif;
+  }
+
+  .editorial-column {
+    flex: 1 1 32%;
+    border-left: 1.5px solid #cccccc;
+    padding-left: 1.8rem;
+    font-family: 'Georgia', serif;
+  }
+
+  .broadsheet-headline {
+    font-family: 'Georgia', serif;
+    font-size: 1.85rem;
+    margin: 0 0 0.6rem 0;
+    line-height: 1.18;
+    color: var(--ink);
+  }
+
+  .broadsheet-kicker {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--route-red);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .feature-story p,
+  .editorial-column p {
+    font-size: 1rem;
+    line-height: 1.62;
+    margin: 0 0 0.9rem 0;
+  }
+
+  .broadsheet-quote {
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--route-red);
+    border-left: 4px solid var(--route-red);
+    padding-left: 1.2rem;
+    margin: 1.2rem 0;
+  }
+
+  .drop-cap {
+    float: left;
+    font-size: 3.4rem;
+    line-height: 0.82;
+    padding-right: 0.45rem;
+    color: var(--route-red);
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+  }
+
+  .read-more-btn {
+    display: inline-block;
+    margin-top: 0.4rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11.5px;
+    font-weight: bold;
+    color: var(--route-red);
+    background: none;
+    border: none;
+    border-bottom: 1.5px dotted var(--route-red);
+    padding: 0;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
+  .read-more-btn:hover {
+    color: var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+  }
+
+  @media (max-width: 800px) {
+    .editorial-column {
+      border-left: none;
+      padding-left: 0;
+      border-top: 2px solid var(--border);
+      padding-top: 1.4rem;
+    }
+  }
+
+  /* =========================================================
+     4. DISPATCH FUNNEL CARDS (/RTWO ENGINE)
+     ========================================================= */
+  .dispatch-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  article.dispatch-card {
+    background: var(--paper);
+    border: 2px solid var(--border);
+    padding: 18px 20px;
+    box-shadow: 4px 4px 0 rgba(26, 25, 23, 0.14);
+  }
+
+  .card-meta-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .tag-badge {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 7px;
+    background: var(--cad-black);
+    color: var(--cad-green);
+    text-transform: uppercase;
+  }
+
+  .tag-domain {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 7px;
+    background: var(--route-red);
+    color: #ffffff;
+    text-transform: uppercase;
+  }
+
+  .tag-quadrant {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 7px;
+    background: var(--paper-alt);
+    border: 1px solid var(--border);
+    color: var(--ink);
+  }
+
+  .card-title {
+    margin: 4px 0 4px 0;
+    font-size: 19px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .card-dateline {
+    font-size: 11.5px;
+    font-weight: bold;
+    color: var(--ink-muted);
+    margin-bottom: 10px;
+  }
+
+  .card-deck {
+    font-size: 13px;
+    font-weight: bold;
+    background: var(--paper-alt);
+    border-left: 4px solid var(--route-red);
+    padding: 8px 12px;
+    margin-bottom: 14px;
+  }
+
+  .section-label {
+    font-size: 11.5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    background: var(--cad-black);
+    color: #ffffff;
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 8px 0 6px 0;
+  }
+
+  .narrative-block p {
+    margin: 0 0 10px 0;
+    font-family: 'Georgia', serif;
+    font-size: 14.5px;
+    line-height: 1.62;
+  }
+
+  ul.ledger-list {
+    margin: 4px 0 12px 0;
+    padding-left: 20px;
+  }
+
+  ul.ledger-list li {
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  .blurb-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+
+  .pull-quote {
+    border: 1.5px solid var(--border);
+    border-left: 4px solid var(--olive);
+    background: var(--paper-alt);
+    padding: 8px 12px;
+    font-size: 12.5px;
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  .svg-frame {
+    margin: 14px 0 10px 0;
+    border: 1.5px solid var(--border);
+    background: var(--paper);
+    padding: 8px;
+  }
+
+  .svg-caption {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--ink-muted);
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  .terms-bar {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .term-chip {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+    background: var(--paper-alt);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .term-chip:hover {
+    background: var(--route-red);
+    color: #ffffff;
+  }
+
+  /* =========================================================
+     5. TIMELINE & INDEX VIEWS
+     ========================================================= */
+  .panel-box {
+    background: var(--paper);
+    border: 2px solid var(--border);
+    padding: 16px 18px;
+  }
+
+  .timeline-row {
+    border-left: 3px solid var(--route-red);
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    background: var(--paper-alt);
+  }
+
+  .index-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px;
+  }
+
+  .index-item {
+    border: 1.5px solid var(--border);
+    padding: 6px 9px;
+    background: var(--paper-alt);
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+
+  .index-item:hover {
+    background: var(--cad-black);
+    color: var(--cad-green);
+  }
+
+  /* =========================================================
+     6. COLOPHON / BROADSHEET CREDITS (FROM RTWO2)
+     ========================================================= */
+  footer.broadsheet-credits {
+    max-width: 1160px;
+    margin: 28px auto 30px auto;
+    padding: 18px 14px 10px 14px;
+    border-top: 2px solid var(--border);
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.85rem;
+    color: var(--ink);
+    letter-spacing: 0.05em;
+  }
+
+  footer.broadsheet-credits p {
+    margin: 0 0 6px 0;
+  }
+
+  .credit-title {
+    color: var(--route-red);
+    font-weight: bold;
+  }
+
+  .copyright {
+    margin-top: 12px !important;
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+  }
+
+  @media print {
+    body { background: #ffffff; }
+    .control-bar { display: none !important; }
+    article.dispatch-card, .frontpage-stage { box-shadow: none; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MERGED BROADSHEET MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-top-strip">
+      <span class="live-badge">MERGED SHELL: /RTWO × RTWO2</span>
+      <span>DATELINE: NOV 26, 2026 • APT 219, CARSON SUITES • LAS VEGAS, NV</span>
+      <span>PILLAR 1 (R2) × PILLAR 3 (WIB)</span>
+    </div>
+
+    <div class="masthead-title-row">
+      <!-- Route 2 5x5 Interlocking R2 Monogram -->
+      <svg width="52" height="52" viewBox="-2.5 -2.5 5 5" aria-label="Route 2 Logo">
+        <circle cx="0" cy="0" r="2.0" fill="#121212" stroke="#9C2A20" stroke-width="0.24"/>
+        <path d="M -1.1 1.1 L -1.1 -1.1 L 0.1 -1.1 L 0.1 -0.1 L -1.1 -0.1 M -0.3 -0.1 L 0.4 1.1" fill="none" stroke="#ffffff" stroke-width="0.24" stroke-linecap="square"/>
+        <path d="M 0.1 -0.7 L 1.1 -0.7 L 1.1 0.1 L 0.1 0.1 L 0.1 1.1 L 1.2 1.1" fill="none" stroke="#00ff00" stroke-width="0.24" stroke-linecap="square"/>
+      </svg>
+      <div>
+        <h1>ROUTE 2</h1>
+        <p class="subhead">THE NEW FAMILY TIMES</p>
+      </div>
+    </div>
+
+    <div class="directory-anchor">
+      <a href="https://wallycad.com/armike" class="armike-link">wallycad.com/armike</a>
+      <span>•</span>
+      <a href="https://wallycad.com/routetwo" class="armike-link">wallycad.com/routetwo</a>
+      <span>•</span>
+      <a href="https://wallycad.com/wib" class="armike-link">wallycad.com/wib</a>
+    </div>
+  </div>
+</header>
+
+<main class="shell-wrap">
+  <!-- UNIFIED FILTER & VIEW CONTROLS (/RTWO ENGINE) -->
+  <section class="control-bar">
+    <div class="filter-row">
+      <div class="btn-group" id="viewTabs">
+        <button class="tab-btn active" data-view="broadsheet">[BROADSHEET + FEED]</button>
+        <button class="tab-btn" data-view="dispatches">[FUNNEL FEED ONLY]</button>
+        <button class="tab-btn" data-view="timeline">[CHRONOLOGICAL TIMELINE]</button>
+        <button class="tab-btn" data-view="index">[MASTER INDEX]</button>
+      </div>
+
+      <div class="btn-group">
+        <select id="domainFilter" aria-label="Filter by Domain">
+          <option value="ALL">DOMAIN: ALL PILLARS</option>
+          <option value="ROUTE 2">DOMAIN: ROUTE 2</option>
+          <option value="WHERE IS BILL">DOMAIN: WHERE IS BILL (WIB)</option>
+        </select>
+
+        <select id="quadrantFilter" aria-label="Filter by Quadrant">
+          <option value="ALL">QUADRANT: ALL (Q1–Q4)</option>
+          <option value="Q1">Q1: PORTLAND &amp; PNW</option>
+          <option value="Q2">Q2: CALIFORNIA &amp; HIGH DESERT</option>
+          <option value="Q3">Q3: GREAT BASIN &amp; FALLON</option>
+          <option value="Q4">Q4: MOJAVE &amp; LAS VEGAS</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <div class="btn-group">
+        <input type="text" id="searchInput" placeholder="Search names, towns, IDs (e.g. Sheri, Mike, Vivian, COB2)...">
+        <button class="tab-btn" onclick="resetFilters()">[RESET]</button>
+      </div>
+      <div class="btn-group">
+        <button class="tab-btn" onclick="window.print()">[PRINT BROADSHEET]</button>
+        <button class="tab-btn" onclick="exportFunnelJSON()">[EXPORT FUNNEL .JSON]</button>
+      </div>
+    </div>
+
+    <div class="stats-strip">
+      <span id="resultCount">SHOWING 6 MERGED ENTRIES</span>
+      <span>ENDPOINTS: /RTWO · /RTWO2 · /ROUTETWO · /ARMIKE · /MASTER-BOOK</span>
+    </div>
+  </section>
+
+  <!-- FRONT-PAGE BROADSHEET STAGE (FROM RTWO2) -->
+  <section class="frontpage-stage" id="frontpageStage">
+    <div class="stage-banner">
+      <span>FRONT PAGE BROADSHEET // CLASSIC EDITION</span>
+      <span>REGISTRY: WALLYCAD.COM/ARMIKE</span>
+    </div>
+
+    <div class="content-grid">
+      <!-- MAIN FEATURE STORY -->
+      <article class="feature-story">
+        <span class="broadsheet-kicker">FRONT PAGE FEATURE // “THAT WAS NICE.”</span>
+        <h2 class="broadsheet-headline">“The Bystander”</h2>
+
+        <!-- Vector Broadsheet Registry Plate -->
+        <div class="svg-frame" style="margin: 12px 0 16px 0;">
+          <svg viewBox="0 0 600 106" width="100%" style="display:block;">
+            <rect x="8" y="8" width="584" height="90" fill="#1A1A1A" stroke="#9C2A20" stroke-width="2"/>
+            <line x1="24" y1="36" x2="576" y2="36" stroke="#9C2A20" stroke-width="1.5"/>
+            <text x="300" y="27" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#00ff00">PHOTO &amp; FIELD DISPATCH REGISTRY // WALLYCAD.COM/ARMIKE</text>
+            <text x="300" y="58" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-style="italic" fill="#F9F9F9">“Three bills folded. An offer of a blanket from the fire department across the street.”</text>
+            <text x="300" y="82" text-anchor="middle" font-family="monospace" font-size="9.5" fill="#cccccc">VERIFIED STREET ENCOUNTER // SHERI &amp; BILL // UNCONDITIONED DECENCY</text>
+          </svg>
+          <div class="svg-caption">PLATE I // WALLYCAD.COM/ARMIKE REGISTRY</div>
+        </div>
+
+        <p><span class="drop-cap">U</span>NDERSTOOD. Sheri meets Bill. She’s seen him walking on the street, paying attention when others look past.</p>
+
+        <blockquote class="broadsheet-quote">
+          “Are you alright, are you sure? Can I give you some money?”
+        </blockquote>
+
+        <p>She hands Bill 3 bills folded. “Do you need a blanket, I know the fire dept well across the street, I’ll ask for a blanket.”</p>
+
+        <button class="read-more-btn" onclick="jumpToCard('R2_BYSTANDER')">Inspect Full Funnel Entry [R2_BYSTANDER] &raquo;</button>
+      </article>
+
+      <!-- SIDEBAR EDITORIAL COLUMN -->
+      <aside class="editorial-column">
+        <span class="broadsheet-kicker">EDITORIAL COLUMN</span>
+        <h2 class="broadsheet-headline">Mike: A Lesson in Brother</h2>
+
+        <p><span class="drop-cap">W</span>hen the traditional structures break down, what remains between two brothers is the unedited record of the road—the miles driven, the letters sent, and the quiet loyalty that survives every institutional storm.</p>
+
+        <p>From early rooms in Southern California to Coquille, Oregon and the permanent archive at <code>wallycad.com/armike</code>, Mike’s life stands as a direct lesson in brotherhood without pretense.</p>
+
+        <button class="read-more-btn" onclick="jumpToCard('R2_MIKE')">Inspect Full Funnel Entry [R2_MIKE] &raquo;</button>
+      </aside>
+    </div>
+  </section>
+
+  <!-- DYNAMIC FUNNEL VIEWPORT -->
+  <section id="appViewport"></section>
+</main>
+
+<!-- BROADSHEET COLOPHON / CREDITS (FROM RTWO2) -->
+<footer class="broadsheet-credits">
+  <p><span class="credit-title">ARCHITECT &amp; PUBLISHER:</span> Bill Tonnesen</p>
+  <p><span class="credit-title">SYSTEMS &amp; TYPESETTING:</span> WallyCAD Engine / SquareFont</p>
+  <p><span class="credit-title">ARCHIVE &amp; REGISTRY:</span> Rainy Day Crafts (LKA / BTLSP)</p>
+  <p class="copyright">&copy; 2026. All routes reserved.</p>
+</footer>
+
+<script>
+  const FUNNEL = [
+    {
+      domain: "ROUTE 2",
+      id: "R2_BYSTANDER",
+      label: "R2_BYSTANDER • “That Was Nice.” — The Bystander (Sheri)",
+      sortYear: 2026,
+      date: "Nov 17, 2026 (Broadsheet Front Page)",
+      place: "Street Corridor // wallycad.com/armike Registry",
+      quadrant: "Q1 & Q2: Western Transit Corridor",
+      terms: [
+        "The Bystander", "That Was Nice", "Sheri", "Fire Department",
+        "Three Bills Folded", "Blanket", "wallycad.com/armike", "rtwo2"
+      ],
+      title: "“That Was Nice.” — The Bystander",
+      deck: "Sheri meets Bill on the street—three folded bills, an offer of a blanket from the fire department across the street, and direct human decency.",
+      essay: [
+        "UNDERSTOOD. Sheri meets Bill. She’s seen him walking on the street, noticing the person rather than walking past.",
+        "“Are you alright, are you sure? Can I give you some money?”",
+        "She hands Bill 3 bills folded. “Do you need a blanket, I know the fire dept well across the street, I’ll ask for a blanket.”"
+      ],
+      intake: [
+        "Front-page broadsheet feature from rtwo2 anchored to the wallycad.com/armike registry.",
+        "Documents an unscripted street encounter with Sheri offering three folded bills and coordinating a blanket from the fire station across the street."
+      ],
+      interpretation: [
+        "Real civic solidarity happens face-to-face on the sidewalk without bureaucracy, forms, or doctrinal conditions.",
+        "Paired with the broader Route 2 thesis, Sheri's gesture stands as concrete proof of everyday grace outside formal institutions."
+      ],
+      blurbs: [
+        "Are you alright, are you sure? Can I give you some money?",
+        "She hands Bill 3 bills folded. 'Do you need a blanket, I know the fire dept well across the street, I'll ask for a blanket.'"
+      ],
+      visuals: []
+    },
+    {
+      domain: "ROUTE 2",
+      id: "R2_MIKE",
+      label: "R2_MIKE • Mike: A Lesson in Brother (ARMike Archive)",
+      sortYear: 2026,
+      date: "June 3, 2026 – Nov 2026",
+      place: "Southern California → Coquille, OR → wallycad.com/armike",
+      quadrant: "Q1 & Q2: Oregon & California",
+      terms: [
+        "Mike", "Mike Tonnesen", "A Lesson in Brother", "ARMike",
+        "Coquille", "Ralph", "AdventureRoad-Trips", "rtwo2"
+      ],
+      title: "Mike: A Lesson in Brother",
+      deck: "When traditional structures break down, brotherhood endures in the unedited record of road trips, photographs, and transcribed dispatches.",
+      essay: [
+        "When the traditional structures break down, what remains between two brothers is the unedited record of the road—the miles driven, the letters sent, and the quiet loyalty that survives every institutional storm.",
+        "Following Mike’s passing on June 3, 2026, the ARMike portal (wallycad.com/armike) and the @AdventureRoad-Trips archive preserve his photographs, dispatches, and twelve years in Coquille, Oregon alongside neighbor Ralph."
+      ],
+      intake: [
+        "Editorial column from rtwo2 honoring late brother Mike Tonnesen (d. June 3, 2026).",
+        "Links directly to the wallycad.com/armike biographical and photographic archive."
+      ],
+      interpretation: [
+        "Brotherhood outlasts organizational walls and geographic distance when preserved in an honest, primary-source archive.",
+        "Serves as the emotional anchor for both Route 2 and the ARMike historical registry."
+      ],
+      blurbs: [
+        "When the traditional structures break down, what remains between two brothers is the unedited record of the road."
+      ],
+      visuals: []
+    },
+    {
+      domain: "ROUTE 2",
+      id: "COB1",
+      label: "COB1 • Coordinates of Belief — Institutional Perimeter vs. Sovereignty",
+      sortYear: 2026,
+      date: "Nov 2026",
+      place: "Firmona Ave → San Diego North County → Las Vegas, NV",
+      quadrant: "Q2 & Q4: SoCal / Las Vegas",
+      terms: [
+        "Coordinates of Belief", "COB1", "Institutional Perimeter", "Firmona Avenue",
+        "San Diego North County", "Lydia", "Betty Jo", "David", "Riverside", "Sovereignty"
+      ],
+      title: "Coordinates of Belief",
+      deck: "Mapping the invisible chalk lines drawn across domestic rooms—and what remains standing when the scaffolding comes down.",
+      essay: [
+        "Every belief system claims to offer an eternal blueprint, yet on the ground it operates through local boundaries: who sits at which table, which holiday passes unacknowledged, and how high a fence gets built between neighbors.",
+        "Across thirteen years in San Diego North County and decades of family history from Firmona Avenue to Colton, doctrine functioned less as abstract theology and more as an architectural partition—dividing kitchens, shaping marriages, and dictating who belonged inside the perimeter.",
+        "Stepping outside those guardrails—as David eventually did down in Riverside, and as this ledger records without bitterness—strips away the institutional script and leaves only verifiable human coordinates: honest work, clear sightlines, and unconditioned hospitality."
+      ],
+      intake: [
+        "Traces how imported organizational rules draw invisible boundaries inside ordinary family living rooms.",
+        "Contrasts institutional compliance against direct, unmediated human decency observed outside the perimeter."
+      ],
+      interpretation: [
+        "When the organizational scaffolding is removed, relationships either stand on genuine character or fall away cleanly.",
+        "Sovereignty begins the moment a person stops auditing their own kitchen against an outside rulebook."
+      ],
+      blurbs: [
+        "Doctrine functioned less as abstract theology and more as an architectural partition across the living room floor.",
+        "Sovereignty begins the moment you stop auditing your own life against someone else's perimeter."
+      ],
+      visuals: [
+        {
+          caption: "FIG. COB1 — Structural Partition vs. Open Horizon",
+          svg: `<svg viewBox="0 0 600 118" width="100%" style="display:block;">
+                  <rect x="20" y="12" width="560" height="94" fill="#fffdf9" stroke="#2b2925" stroke-width="1.5"/>
+                  <rect x="44" y="28" width="210" height="54" fill="#f5f1e8" stroke="#9C2A20" stroke-width="2" stroke-dasharray="5,3"/>
+                  <text x="149" y="51" text-anchor="middle" font-family="monospace" font-size="9.5" font-weight="bold" fill="#9C2A20">INSTITUTIONAL PERIMETER</text>
+                  <text x="149" y="66" text-anchor="middle" font-family="monospace" font-size="8" fill="#5a554c">Chalk Lines &amp; Selective Rules</text>
+                  <line x1="254" y1="55" x2="346" y2="55" stroke="#1a1917" stroke-width="2"/>
+                  <polygon points="346,50 356,55 346,60" fill="#1a1917"/>
+                  <rect x="356" y="28" width="200" height="54" fill="#fffdf9" stroke="#697A21" stroke-width="2"/>
+                  <text x="456" y="51" text-anchor="middle" font-family="monospace" font-size="9.5" font-weight="bold" fill="#697A21">OPEN HORIZON</text>
+                  <text x="456" y="66" text-anchor="middle" font-family="monospace" font-size="8" fill="#1a1917">Unconditioned Hospitality</text>
+                  <text x="300" y="98" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">COB1 // COORDINATES OF BELIEF // ROUTE 2</text>
+                </svg>`
+        }
+      ]
+    },
+    {
+      domain: "ROUTE 2",
+      id: "COB2",
+      label: "COB2 • The Clean Room & The Thanksgiving Turkey (Apt 219)",
+      sortYear: 2026,
+      date: "Nov 25, 2026 (Thanksgiving Eve)",
+      place: "Apt 219, Carson Suites • Downtown Las Vegas, NV",
+      quadrant: "Q4: Mojave & Las Vegas",
+      terms: [
+        "Apartment 219", "Carson Suites", "Vista Garden", "Cockroach Heaven",
+        "Thanksgiving Turkey", "Betty Jo", "Lydia", "Mike", "Wesley"
+      ],
+      title: "The Clean Room and the Thanksgiving Turkey",
+      deck: "Thanksgiving Eve in Apartment 219—measuring the quiet distance from Vista Garden and recalling Betty Jo's unscripted holiday turkey.",
+      essay: [
+        "I sit in Apartment 219 at Carson Suites on the morning before the world’s Thanksgiving Day, 2026. The room is quiet. Outside the door and inside the bathroom cupboards, there are no roaches anywhere.",
+        "It is impossible to sit in a clean, silent room on a holiday eve without measuring the distance behind you. Mike is gone. Wesley is gone. The mind drifts back without asking permission to Vista Garden—what we called Cockroach Heaven—and you sit still and ponder the sheer arithmetic of survival, the long string of rooms, roads, and years between then and now.",
+        "Tomorrow’s date pulls another scene up from the ledger: the year Mom invited the two of us—Lydia and me—over for dinner on a Thanksgiving Day.",
+        "We walked in, and there it was: in the oven and out on the plate, a full Thanksgiving turkey. Mom, the faithful hall-attender, serving the holiday bird without blinking. Across the table, Lydia sat quietly aghast, horrified by the doctrinal breach, waiting until she had me alone to whisper her protest in private—as though I were supposed to audit the orthodoxy of my own mother’s kitchen.",
+        "What could I say?",
+        "You sit between the woman who baked the bird and the woman counting the rules, and you realize the whole architecture is held together by selective compliance and quiet theater. Now, decades later, the table is cleared, the cupboards are clean, and Apartment 219 holds its own peace."
+      ],
+      intake: [
+        "Sitting in a spotless, silent room at Apartment 219, Carson Suites on November 25, 2026—with no roaches outside the door or inside the bathroom cupboards—and looking back across the years to Vista Garden ('Cockroach Heaven') while carrying the absence of Mike and Wesley.",
+        "Recalling the Thanksgiving Day dinner hosted by mother Betty Jo for Bill and Lydia, where a full holiday turkey emerged from the oven onto the plate—leaving Lydia quietly aghast in private while Bill sat between the woman who baked the bird and the woman auditing the rules."
+      ],
+      interpretation: [
+        "Selective compliance and quiet domestic theater often hold rigid belief systems together in practice far more than official doctrine admits.",
+        "Decades after the meal is cleared, survival reduces to simple, verifiable coordinates: a clean room, quiet cupboards, and an unedited record of how life was actually lived."
+      ],
+      blurbs: [
+        "What could I say?",
+        "Now, decades later, the table is cleared, the cupboards are clean, and Apartment 219 holds its own peace."
+      ],
+      visuals: [
+        {
+          caption: "FIG. COB2 — Temporal & Spatial Ledger: Vista Garden → Betty Jo's Table → Apt 219",
+          svg: `<svg viewBox="0 0 600 120" width="100%" style="display:block;">
+                  <rect x="20" y="14" width="560" height="92" fill="#fffdf9" stroke="#2b2925" stroke-width="1.5"/>
+                  <rect x="38" y="34" width="150" height="44" fill="#fffdf9" stroke="#3E363F" stroke-width="1.5"/>
+                  <text x="113" y="53" text-anchor="middle" font-family="monospace" font-size="9.5" font-weight="bold" fill="#1a1917">VISTA GARDEN</text>
+                  <text x="113" y="68" text-anchor="middle" font-family="monospace" font-size="8" fill="#5a554c">Baseline // Survival</text>
+                  <line x1="188" y1="56" x2="225" y2="56" stroke="#9C2A20" stroke-width="2.5"/>
+                  <rect x="225" y="34" width="150" height="44" fill="#fffdf9" stroke="#9C2A20" stroke-width="1.8"/>
+                  <text x="300" y="53" text-anchor="middle" font-family="monospace" font-size="9.5" font-weight="bold" fill="#9C2A20">BETTY JO'S TABLE</text>
+                  <text x="300" y="68" text-anchor="middle" font-family="monospace" font-size="8" fill="#5a554c">Thanksgiving Turkey</text>
+                  <line x1="375" y1="56" x2="412" y2="56" stroke="#9C2A20" stroke-width="2.5"/>
+                  <rect x="412" y="34" width="150" height="44" fill="#fffdf9" stroke="#3E363F" stroke-width="1.5"/>
+                  <text x="487" y="53" text-anchor="middle" font-family="monospace" font-size="9.5" font-weight="bold" fill="#697A21">APT 219 // 2026</text>
+                  <text x="487" y="68" text-anchor="middle" font-family="monospace" font-size="8" fill="#5a554c">Clean Room &amp; Peace</text>
+                  <text x="300" y="96" text-anchor="middle" font-family="monospace" font-size="8.5" font-weight="bold" fill="#1a1917">ROUTE 2 DISPATCH // NOV 25, 2026 // DOWNTOWN LAS VEGAS</text>
+                </svg>`
+        }
+      ]
+    },
+    {
+      domain: "ROUTE 2",
+      id: "FOD1",
+      label: "FOD1 • Families of Discord — Where Bill Has Been (1967–2026)",
+      sortYear: 2026,
+      date: "Nov 25, 2026",
+      place: "Grandma Pearl's (Long Beach) → Apt 219, Carson Suites (Las Vegas)",
+      quadrant: "Q1–Q4: Full Western Traverse",
+      terms: [
+        "Families of Discord", "Grandma Pearl", "Bermuda Street", "Firmona Avenue",
+        "Vista Garden", "San Diego North County", "Fallon", "Bob and Jeri Kaster",
+        "The Metropolitan", "Apartment 219", "Carson Suites", "Heritage Park"
+      ],
+      title: "Families of Discord — Where Bill Has Been",
+      deck: "From Grandma Pearl's to his own family's and others—assembling, disassembling, and negotiating a lifetime of spaces across the West.",
+      essay: [
+        "From Grandma Pearl’s to his own family’s and others, Bill has sat and lived and dined and slept in many and varied spaces, assembling and disassembling and negotiating the long and constantly changing passage.",
+        "A life mapped across the West does not read like a single unbroken blueprint. It reads like a structural field log—columns erected, bearing plates bolted down, rooms occupied for a season, and then unbolted and packed back into the transit stream when the ground shifts beneath the slab. You learn early that a roof is rarely permanent, and that the geometry of a household is governed less by the walls holding it up than by the unseen tensions running through the people sitting around its table.",
+        "The baseline coordinate sits back in Long Beach in 1967 and 1968, at Grandma Pearl’s house on Bermuda Street between Cherry and Orange. In that quiet stretch before the long drift began, the rules were simple: walk down to the 3rd Street Library, study the plates in Machinery’s Handbook, learn clean line weights in summer drafting at Poly High, and come home to a house where nothing had to be negotiated through institutional doctrine. It was the reference datum against which every subsequent room would eventually be measured.",
+        "From there, the passage widens across decades and state lines, each address carrying its own distinct floor plan of discord and survival. There were the shared bedrooms on Firmona Avenue before the 1966 uprooting, and later the thin-walled survival of Vista Garden—what we called Cockroach Heaven—where you learned to keep your bearings when nothing outside the door stayed still. There were the thirteen years across San Diego North County—San Marcos, Carlsbad, Vista, Escondido—building a household of his own family’s, raising Wesley, Malcolm, and Justin while working drafting boards and survey lines by day and watching an imported belief system slowly draw invisible chalk lines across the living room floor.",
+        "When that structure finally disassembled in 1997, the passage turned north and east into the high desert and the Great Basin. Apple Valley and Victorville, Mammoth Lakes, Carson City, and the cold winter mornings in Fallon—where Bob and Jeri Kaster opened their door for Monday dinners between 2003 and 2007, proving that hospitality outside bloodlines and outside organizations could be straightforward, unconditioned, and real. Then up through Redding, Hayfork, and Coquille, into twelve years at The Metropolitan in Portland, and out onto the mountain and desert roads—pitching the modified 1/4Dome rain fly in Wrightwood, riding Amtrak and FlixBus across state borders, and watching the road from the extreme left edge facing oncoming traffic so nothing approaches unseen.",
+        "Along the way, some coordinates dropped off the map permanently—Dale in 1989, Betty Jo in 2011, Wesley in April 2022, and Mike in June 2026—leaving behind silent rooms and digital archives on wallycad.com/ARMike to hold the record straight. Others—like David down in Riverside, having walked all the way out from behind the institutional guardrails—remain open potentials on the horizon, requiring no forced construction today.",
+        "Now, on the morning before Thanksgiving 2026, the passage rests in Apartment 219 at Carson Suites in Downtown Las Vegas. Inside Apartment 219, the cupboards are clean, the ledger is balanced, and the drafting board is square. After a lifetime of assembling and disassembling spaces across every family’s roof and every highway corridor in the West, the structure standing today requires no translation and no apology."
+      ],
+      intake: [
+        "Baseline datum in Long Beach (1967–1968) at Grandma Pearl's house on Bermuda Street between Cherry and Orange—walking to the 3rd Street Library, studying Machinery's Handbook, and drafting at Poly High without institutional negotiation.",
+        "Decades of domestic assembly and disassembly across Firmona Avenue, Vista Garden ('Cockroach Heaven'), thirteen years in San Diego North County raising Wesley, Malcolm, and Justin, and unscripted Thanksgiving hospitality at Betty Jo's table.",
+        "Post-1997 Northern & Great Basin transit through Apple Valley, Victorville, Mammoth Lakes, Carson City, Fallon (Monday dinners with Bob and Jeri Kaster, 2003–2007), Redding, Hayfork, Coquille, twelve years at The Metropolitan in Portland, and Apartment 219 at Carson Suites."
+      ],
+      interpretation: [
+        "A life across the West operates like a structural field log: columns erected, bearing plates bolted down, rooms occupied for a season, and cleanly unbolted when the ground shifts.",
+        "Hospitality outside bloodlines and outside institutional rules—from Grandma Pearl's kitchen to Bob and Jeri Kaster's table in Fallon and the Heritage Park rail in Henderson—proves that human connection needs no doctrinal credentials."
+      ],
+      blurbs: [
+        "From Grandma Pearl's to his own family's and others, Bill has sat and lived and dined and slept in many and varied spaces...",
+        "Assembling and disassembling and negotiating the long and constantly changing passage..."
+      ],
+      visuals: [
+        {
+          caption: "FIG. FOD1 — Structural Passage Datum: 1967 Long Beach → Great Basin → 2026 Las Vegas",
+          svg: `<svg viewBox="0 0 600 124" width="100%" style="display:block;">
+                  <rect x="20" y="14" width="560" height="96" fill="#fffdf9" stroke="#2b2925" stroke-width="1.5"/>
+                  <line x1="45" y1="60" x2="555" y2="60" stroke="#9C2A20" stroke-width="2" stroke-dasharray="4,3"/>
+                  <circle cx="75"  cy="60" r="7" fill="#697A21"/><text x="75"  y="44" text-anchor="middle" font-family="monospace" font-size="8.5" font-weight="bold" fill="#1a1917">1967 LB</text><text x="75"  y="80" text-anchor="middle" font-family="monospace" font-size="7.5" fill="#5a554c">Grandma Pearl</text>
+                  <circle cx="185" cy="60" r="7" fill="#3E363F"/><text x="185" y="44" text-anchor="middle" font-family="monospace" font-size="8.5" font-weight="bold" fill="#1a1917">1984–97</text><text x="185" y="80" text-anchor="middle" font-family="monospace" font-size="7.5" fill="#5a554c">SD North Co.</text>
+                  <circle cx="300" cy="60" r="7" fill="#3E363F"/><text x="300" y="44" text-anchor="middle" font-family="monospace" font-size="8.5" font-weight="bold" fill="#1a1917">1999–07</text><text x="300" y="80" text-anchor="middle" font-family="monospace" font-size="7.5" fill="#5a554c">Fallon / NV</text>
+                  <circle cx="415" cy="60" r="7" fill="#3E363F"/><text x="415" y="44" text-anchor="middle" font-family="monospace" font-size="8.5" font-weight="bold" fill="#1a1917">2015–26</text><text x="415" y="80" text-anchor="middle" font-family="monospace" font-size="7.5" fill="#5a554c">PDX / Metro</text>
+                  <circle cx="525" cy="60" r="8" fill="#9C2A20"/><text x="525" y="44" text-anchor="middle" font-family="monospace" font-size="8.5" font-weight="bold" fill="#9C2A20">NOV 2026</text><text x="525" y="80" text-anchor="middle" font-family="monospace" font-size="7.5" fill="#1a1917">Apt 219 LV</text>
+                  <text x="300" y="101" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">ASSEMBLING &amp; DISASSEMBLING THE LONG PASSAGE // ROUTE 2 &amp; WIB</text>
+                </svg>`
+        }
+      ]
+    },
+    {
+      domain: "WHERE IS BILL",
+      id: "WIB_ARC10",
+      label: "WIB_ARC10 • Ten-Node Passage Ledger (1956–2026)",
+      sortYear: 2026,
+      date: "1956 – Nov 26, 2026",
+      place: "El Monte → Lennox → Colton → Westminster → Carson City → Fallon → Redding → Las Vegas → Portland",
+      quadrant: "Q1–Q4: Full Western Traverse",
+      terms: [
+        "Vivian", "Jeanie", "Pamela Bills", "Debbie", "Maryann",
+        "Lorraine", "Sylvia", "Holly", "Hanna", "Aubrey", "Aubrie", "Sandra",
+        "Valley Lindo", "Firmona Avenue", "Hal Kelly's", "CONRAC", "SMI-Joist", "Talk of the Town", "Holiday Inn Express"
+      ],
+      title: "Ten-Node Passage Ledger (1956–2026)",
+      deck: "Ten civilian waypoints anchoring seventy years of Western geography—from first grade in El Monte to Portland and Las Vegas.",
+      essay: [
+        "Mapped across seventy years from 1956 to 2026, ten civilian waypoints anchor the geographic backbone of Where Is Bill—each pinned to an exact town, year, and turning point outside family politics and institutional scripts."
+      ],
+      intake: [
+        "1956 — VIVIAN (El Monte, CA): Valley Lindo Elementary School, 1st Grade—the opening coordinate on the map, later echoed in Colton and the Vivian Creek Trail up San Gorgonio.",
+        "1960 — JEANIE / Pamela Bills (Lennox, CA): Next-door neighbor on Firmona Avenue, 7th-grade student government peer, and early exit from the institutional perimeter.",
+        "1972 — DEBBIE (Colton, CA): Hal Kelly's Grain & Milling dock, VW Bug rides, and the pre-Lydia inflection point leading back into engineering.",
+        "1979–1984 — MARYANN (Westminster, CA): Orange County machine-tool drafting chapter at CONRAC prior to the San Diego North County move.",
+        "1999 — LORRAINE (Carson City, NV): Fifth-wheel park neighbor whose Ford Ranger drives across three counties to SMI-Joist in Fallon launched the Great Basin run.",
+        "2006 — SYLVIA (Fallon, NV): Afternoon DVDs, Tuesday night NCIS dinners, and the San Diego wedding trip during the Fallon detailing years.",
+        "2013 — HOLLY (Portland, OR / Seattle / Vancouver BC): Multnomah Village Senior Center connection anchoring the northern Pacific Northwest arc.",
+        "2014 — HANNA (Northern California): Redding / Northern California leg alongside Tanya and Tia before turning toward Nevada.",
+        "2014–2015 — AUBREY / Aubrie (Las Vegas, NV & Southern California): Talk of the Town in Las Vegas and the 2015 Southern California vector.",
+        "2015+ — SANDRA / Lissette Figueroa (Portland, OR): Holiday Inn Express (PDX) coworker and long-running civilian correspondence."
+      ],
+      interpretation: [
+        "Every node in the ten-point traverse marks a real human waypoint outside family politics and institutional scripts.",
+        "Mapped chronologically from 1956 to 2026, the ten coordinates verify the complete geographic backbone of Where Is Bill (Q1 through Q4)."
+      ],
+      blurbs: [
+        "Ten coordinates across seventy years—each pinned to an exact town, year, and turning point.",
+        "From Valley Lindo Elementary in 1956 to Apartment 219 in 2026, the line holds."
+      ],
+      visuals: [
+        {
+          caption: "FIG. WIB_ARC10 — Seventy-Year Ten-Node Passage Vector (1956–2026)",
+          svg: `<svg viewBox="0 0 600 136" width="100%" style="display:block;">
+                  <rect x="16" y="12" width="568" height="112" fill="#fffdf9" stroke="#2b2925" stroke-width="1.5"/>
+                  <line x1="42" y1="54" x2="558" y2="54" stroke="#9C2A20" stroke-width="2"/>
+                  <line x1="42" y1="92" x2="558" y2="92" stroke="#3E363F" stroke-width="2"/>
+                  <circle cx="65"  cy="54" r="5" fill="#697A21"/><text x="65"  y="42" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">56:VIVIAN</text>
+                  <circle cx="180" cy="54" r="5" fill="#3E363F"/><text x="180" y="42" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">60:JEANIE</text>
+                  <circle cx="300" cy="54" r="5" fill="#3E363F"/><text x="300" y="42" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">72:DEBBIE</text>
+                  <circle cx="420" cy="54" r="5" fill="#3E363F"/><text x="420" y="42" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">79:MARYANN</text>
+                  <circle cx="535" cy="54" r="5" fill="#9C2A20"/><text x="535" y="42" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">99:LORRAINE</text>
+                  <circle cx="65"  cy="92" r="5" fill="#3E363F"/><text x="65"  y="80" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">06:SYLVIA</text>
+                  <circle cx="180" cy="92" r="5" fill="#3E363F"/><text x="180" y="80" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">13:HOLLY</text>
+                  <circle cx="300" cy="92" r="5" fill="#3E363F"/><text x="300" y="80" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">14:HANNA</text>
+                  <circle cx="420" cy="92" r="5" fill="#9C2A20"/><text x="420" y="80" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">15:AUBREY</text>
+                  <circle cx="535" cy="92" r="6" fill="#697A21"/><text x="535" y="80" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#697A21">15+:SANDRA</text>
+                  <text x="300" y="115" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">WIB_ARC10 // TEN CIVILIAN WAYPOINTS (1956–2026) // WALLYCAD.COM/RTWO</text>
+                </svg>`
+        }
+      ]
+    }
+  ];
+
+  let currentView = 'broadsheet';
+
+  function getFilteredItems() {
+    const domain = document.getElementById('domainFilter').value;
+    const quad = document.getElementById('quadrantFilter').value;
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+
+    return FUNNEL.filter(item => {
+      if (domain !== 'ALL' && item.domain !== domain) return false;
+      if (quad !== 'ALL') {
+        const matchesQuad = item.quadrant.includes(quad) || item.quadrant.includes('Q1–Q4');
+        if (!matchesQuad) return false;
+      }
+      if (q) {
+        const haystack = [
+          item.id, item.domain, item.title, item.deck, item.place, item.date,
+          ...(item.terms || []),
+          ...(item.essay || []),
+          ...(item.intake || [])
+        ].join(' ').toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  function jumpToCard(id) {
+    resetFilters();
+    currentView = 'broadsheet';
+    updateActiveTab();
+    render();
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function filterByTerm(term) {
+    document.getElementById('searchInput').value = term;
+    currentView = 'dispatches';
+    updateActiveTab();
+    render();
+  }
+
+  function resetFilters() {
+    document.getElementById('domainFilter').value = 'ALL';
+    document.getElementById('quadrantFilter').value = 'ALL';
+    document.getElementById('searchInput').value = '';
+    render();
+  }
+
+  function updateActiveTab() {
+    document.querySelectorAll('#viewTabs .tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.view === currentView);
+    });
+  }
+
+  function exportFunnelJSON() {
+    const blob = new Blob([JSON.stringify(FUNNEL, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'rtwo_merged_funnel_2026-11-26.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function renderDispatches(items) {
+    if (!items.length) {
+      return `<div class="panel-box"><strong>NO MATCHING DISPATCH BLOCKS.</strong> Adjust domain, quadrant, or search query.</div>`;
+    }
+
+    return `<div class="dispatch-grid">` + items.map(item => `
+      <article class="dispatch-card" id="${item.id}">
+        <div class="card-meta-top">
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <span class="tag-badge">${item.id}</span>
+            <span class="tag-domain">${item.domain}</span>
+          </div>
+          <span class="tag-quadrant">${item.quadrant}</span>
+        </div>
+
+        <h2 class="card-title">${item.title}</h2>
+        <div class="card-dateline">${item.date} // ${item.place}</div>
+        <div class="card-deck">${item.deck}</div>
+
+        ${item.essay && item.essay.length ? `
+          <div class="section-label">DISPATCH NARRATIVE</div>
+          <div class="narrative-block">
+            ${item.essay.map(p => `<p>${p}</p>`).join('')}
+          </div>
+        ` : ''}
+
+        <div class="section-label">STRUCTURAL INTAKE &amp; WAYPOINTS</div>
+        <ul class="ledger-list">
+          ${item.intake.map(line => `<li>${line}</li>`).join('')}
+        </ul>
+
+        <div class="section-label">INTERPRETATION</div>
+        <ul class="ledger-list">
+          ${item.interpretation.map(line => `<li>${line}</li>`).join('')}
+        </ul>
+
+        ${item.blurbs && item.blurbs.length ? `
+          <div class="blurb-row">
+            ${item.blurbs.map(b => `<div class="pull-quote">“${b}”</div>`).join('')}
+          </div>
+        ` : ''}
+
+        ${(item.visuals || []).map(v => `
+          <div class="svg-frame">
+            ${v.svg}
+            <div class="svg-caption">${v.caption}</div>
+          </div>
+        `).join('')}
+
+        <div class="terms-bar">
+          <strong style="font-size:11px;">INDEX TERMS:</strong>
+          ${item.terms.map(t => `<button class="term-chip" onclick="filterByTerm('${t.replace(/'/g, "\\'")}')">${t}</button>`).join('')}
+        </div>
+      </article>
+    `).join('') + `</div>`;
+  }
+
+  function renderTimeline(items) {
+    const sorted = [...items].sort((a, b) => b.sortYear - a.sortYear);
+    return `
+      <div class="panel-box">
+        <div class="section-label" style="margin-top:0;">CHRONOLOGICAL FUNNEL TIMELINE</div>
+        ${sorted.map(item => `
+          <div class="timeline-row">
+            <div><strong>[${item.id}] ${item.date}</strong> — ${item.title} (${item.domain})</div>
+            <div style="font-size:12px; color:#5a554c; margin:3px 0;">${item.place} | ${item.quadrant}</div>
+            <div style="font-size:12.5px;">${item.deck}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function renderIndex(items) {
+    const counts = {};
+    items.forEach(item => {
+      (item.terms || []).forEach(t => {
+        counts[t] = (counts[t] || 0) + 1;
+      });
+    });
+    const keys = Object.keys(counts).sort((a, b) => a.localeCompare(b));
+    return `
+      <div class="panel-box">
+        <div class="section-label" style="margin-top:0;">MASTER TERM &amp; WAYPOINT INDEX (${keys.length} ENTRIES)</div>
+        <p style="font-size:12px; margin-bottom:12px;">Click any term to filter the Dispatch Feed.</p>
+        <div class="index-grid">
+          ${keys.map(k => `
+            <div class="index-item" onclick="filterByTerm('${k.replace(/'/g, "\\'")}')">
+              <strong>${k}</strong>
+              <span>[${counts[k]}]</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function render() {
+    const items = getFilteredItems();
+    document.getElementById('resultCount').textContent = `SHOWING ${items.length} OF ${FUNNEL.length} MERGED ENTRIES`;
+
+    const frontpage = document.getElementById('frontpageStage');
+    frontpage.style.display = (currentView === 'broadsheet') ? 'block' : 'none';
+
+    const vp = document.getElementById('appViewport');
+    if (currentView === 'broadsheet' || currentView === 'dispatches') {
+      vp.innerHTML = renderDispatches(items);
+    } else if (currentView === 'timeline') {
+      vp.innerHTML = renderTimeline(items);
+    } else {
+      vp.innerHTML = renderIndex(items);
+    }
+  }
+
+  document.querySelectorAll('#viewTabs .tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentView = btn.dataset.view;
+      updateActiveTab();
+      render();
+    });
+  });
+
+  document.getElementById('domainFilter').addEventListener('change', render);
+  document.getElementById('quadrantFilter').addEventListener('change', render);
+  document.getElementById('searchInput').addEventListener('input', render);
+
+  render();
+</script>
+</body>
+</html>
