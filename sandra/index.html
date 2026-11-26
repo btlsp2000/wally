@@ -210,16 +210,18 @@
       text-decoration: underline;
     }
 
-    /* Bottom Portrait Frame */
+    /* Bottom Portrait Frame (Full Uncropped Aspect Ratio) */
     .portrait-frame {
       margin: 0;
+      text-align: center;
     }
 
     .portrait-frame img {
       display: block;
-      width: 100%;
-      max-height: 460px;
-      object-fit: cover;
+      max-width: 100%;
+      width: auto;
+      height: auto;
+      margin: 0 auto;
       border-radius: 4px;
       border: 1px solid var(--rule);
     }
@@ -233,6 +235,7 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 0.4rem;
+      text-align: left;
     }
 
     footer {
