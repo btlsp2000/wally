@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SANDRA | WallyCAD /sandra</title>
+  <style>
+    :root {
+      --bg: #f4f4f1;
+      --paper: #ffffff;
+      --ink: #1a1d20;
+      --muted: #57606a;
+      --rule: #d0d7de;
+      --bar: #161b22;
+      --accent: #b45309;
+      --accent-soft: #fef3c7;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.55;
+      padding-bottom: 3rem;
+    }
+
+    /* Top Masthead (/rtwo pattern) */
+    .masthead {
+      background: var(--bar);
+      color: #f8fafc;
+      border-bottom: 3px solid var(--accent);
+      padding: 1.25rem 1rem;
+    }
+
+    .masthead-inner {
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .masthead h1 {
+      font-family: var(--mono);
+      font-size: 1.35rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .masthead .route-tag {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: #fbbf24;
+    }
+
+    /* Metadata / Quick-Index Strip */
+    .meta-strip {
+      background: #e9ecef;
+      border-bottom: 1px solid var(--rule);
+      padding: 0.55rem 1rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .meta-inner {
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem 1.25rem;
+    }
+
+    /* Container */
+    .wrap {
+      max-width: 820px;
+      margin: 1.25rem auto 0;
+      padding: 0 1rem;
+    }
+
+    /* Filter / Section Bar */
+    .nav-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .nav-btn {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      padding: 0.35rem 0.7rem;
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      background: var(--bar);
+      color: #ffffff;
+      border-color: var(--bar);
+    }
+
+    /* Dispatch / Profile Blocks */
+    .block {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-left: 4px solid var(--bar);
+      border-radius: 4px;
+      padding: 1.15rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .block.highlight {
+      border-left-color: var(--accent);
+    }
+
+    .block-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 0.45rem;
+      margin-bottom: 0.75rem;
+      gap: 0.5rem;
+    }
+
+    .block-title {
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .block-stamp {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* Profile Grid */
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.65rem 1rem;
+      font-size: 0.92rem;
+    }
+
+    .spec-item strong {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Dispatch Log Entries */
+    .entry-list {
+      list-style: none;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .entry-list li {
+      padding-left: 0.75rem;
+      border-left: 2px solid var(--rule);
+    }
+
+    .entry-date {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Media / Reference Link Box */
+    .ref-box {
+      margin-top: 0.75rem;
+      padding: 0.75rem 0.9rem;
+      background: #f8fafc;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .ref-box a {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .ref-box a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      max-width: 820px;
+      margin: 1.5rem auto 0;
+      padding: 0 1rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    footer a {
+      color: var(--ink);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <div class="masthead-inner">
+      <h1>SANDRA // PROFILE &amp; DISPATCH</h1>
+      <span class="route-tag">wallycad.com/sandra</span>
+    </div>
+  </header>
+
+  <div class="meta-strip">
+    <div class="meta-inner">
+      <span>NODE: PORTLAND, OR</span>
+      <span>FORMAT: SINGLE-FILE HTML5</span>
+      <span>SERIES: ROUTE 2 / LKA</span>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <!-- Filter Tabs -->
+    <nav class="nav-bar" aria-label="Section filter">
+      <button class="nav-btn active" data-filter="all">ALL BLOCKS</button>
+      <button class="nav-btn" data-filter="bio">PROFILE</button>
+      <button class="nav-btn" data-filter="dispatch">DISPATCHES</button>
+      <button class="nav-btn" data-filter="clips">CLIPS &amp; NOTES</button>
+    </nav>
+
+    <!-- Block 01: Core Profile -->
+    <section class="block highlight" data-cat="bio">
+      <div class="block-head">
+        <span class="block-title">01 // Profile Sheet</span>
+        <span class="block-stamp">PORTLAND METRO</span>
+      </div>
+      <div class="spec-grid">
+        <div class="spec-item">
+          <strong>Name</strong>
+          Sandra Figueroa
+        </div>
+        <div class="spec-item">
+          <strong>Base</strong>
+          Portland, Oregon
+        </div>
+        <div class="spec-item">
+          <strong>Connection</strong>
+          PDX Airport Corridor / HIE Alumni
+        </div>
+        <div class="spec-item">
+          <strong>Focus</strong>
+          Community Notes, Local News &amp; Correspondence
+        </div>
+      </div>
+    </section>
+
+    <!-- Block 02: Bio / Summary Note -->
+    <section class="block" data-cat="bio">
+      <div class="block-head">
+        <span class="block-title">02 // Overview</span>
+        <span class="block-stamp">NOTES</span>
+      </div>
+      <p>
+        Dedicated profile and dispatch page in the Route 2 network—built for sharing Portland updates, local news clips, and direct correspondence without heavy scripts or external dependencies.
+      </p>
+    </section>
+
+    <!-- Block 03: Dispatch Log -->
+    <section class="block" data-cat="dispatch">
+      <div class="block-head">
+        <span class="block-title">03 // Dispatch Log</span>
+        <span class="block-stamp">CHRONOLOGICAL</span>
+      </div>
+      <ul class="entry-list">
+        <li>
+          <div class="entry-date">DISPATCH 01 &bull; PORTLAND DAY CENTER REPORT</div>
+          <p>
+            KGW News coverage on <strong>PDX Saints Love</strong> off SE 82nd Avenue—serving 2,000+ unhoused residents and families while working to raise $50,000 to stay open through December after missing out on the city's $3.7M day-center procurement round, alongside plans for the new Old Town outdoor center ("The Oasis") at 6th &amp; NW Glisan.
+          </p>
+          <div class="ref-box">
+            SOURCE CLIP: <a href="http://www.youtube.com/watch?v=iaFgg84r8PQ" target="_blank" rel="noopener noreferrer">KGW News — Homeless day center in Southeast Portland faces closure [00:00:00]</a>
+          </div>
+        </li>
+        <li>
+          <div class="entry-date">DISPATCH 02 &bull; OPEN SLOT</div>
+          <p>
+            Additional updates, photos, or neighborhood notes can be appended directly as new <code>&lt;li&gt;</code> blocks here.
+          </p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Block 04: Links / Clips -->
+    <section class="block" data-cat="clips">
+      <div class="block-head">
+        <span class="block-title">04 // Saved Clips &amp; Links</span>
+        <span class="block-stamp">ARCHIVE</span>
+      </div>
+      <ul class="entry-list">
+        <li>
+          <div class="entry-date">VIDEO // KGW NEWS (AUG 6, 2025)</div>
+          <p>
+            <a href="http://www.youtube.com/watch?v=iaFgg84r8PQ" target="_blank" rel="noopener noreferrer">http://www.youtube.com/watch?v=iaFgg84r8PQ</a> — PDX Saints Love (SE 82nd Ave), Mayor Keith Wilson campaign ties, and Old Town outdoor day shelter announcement.
+          </p>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <span>WALLYCAD // /SANDRA</span>
+    <span><a href="/routetwo">&larr; ROUTE 2 INDEX</a></span>
+  </footer>
+
+  <script>
+    (function () {
+      const buttons = document.querySelectorAll('.nav-btn');
+      const blocks = document.querySelectorAll('.block');
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          buttons.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const filter = btn.getAttribute('data-filter');
+          blocks.forEach((block) => {
+            if (filter === 'all' || block.getAttribute('data-cat') === filter) {
+              block.style.display = 'block';
+            } else {
+              block.style.display = 'none';
+            }
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
