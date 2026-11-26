@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Theater Gallery Slideshow</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Font Awesome for crisp UI icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="bg-neutral-950 text-neutral-100 font-sans antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden min-h-screen flex flex-col">
+
+  <!-- Top Control Bar -->
+  <header class="w-full bg-neutral-900/90 backdrop-blur-md border-b border-neutral-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3 z-30">
+    <!-- Brand / Slide Counter -->
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+        <i class="fa-solid fa-images"></i>
+      </div>
+      <div>
+        <h1 class="text-sm sm:text-base font-semibold tracking-tight text-white">Theater Slideshow</h1>
+        <p id="slideCounter" class="text-xs text-neutral-400">Slide 1 of 5</p>
+      </div>
+    </div>
+
+    <!-- Center Playback Controls -->
+    <div class="flex items-center gap-2 bg-neutral-950/80 border border-neutral-800 rounded-xl p-1.5">
+      <button id="playPauseBtn" type="button" title="Play / Pause Slideshow (Space)" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-medium flex items-center gap-2 transition">
+        <i id="playPauseIcon" class="fa-solid fa-play"></i>
+        <span id="playPauseLabel">Play</span>
+      </button>
+
+      <div class="flex items-center gap-1.5 px-2 border-l border-neutral-800">
+        <label for="intervalSelect" class="text-xs text-neutral-400 hidden sm:inline">Interval:</label>
+        <select id="intervalSelect" aria-label="Auto-advance interval" class="bg-neutral-900 border border-neutral-700 text-neutral-200 text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-500 cursor-pointer">
+          <option value="3000">3s</option>
+          <option value="5000" selected>5s</option>
+          <option value="8000">8s</option>
+        </select>
+      </div>
+
+      <!-- Progress Bar Indicator -->
+      <div class="w-16 sm:w-24 h-1.5 bg-neutral-800 rounded-full overflow-hidden hidden md:block mr-1">
+        <div id="autoProgressBar" class="h-full bg-indigo-500 w-0 transition-all duration-100 ease-linear"></div>
+      </div>
+    </div>
+
+    <!-- Right Action Buttons -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Local File Picker -->
+      <label for="fileInput" class="cursor-pointer px-3 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-neutral-100 text-xs sm:text-sm font-medium flex items-center gap-2 transition" title="Load photos from your device">
+        <i class="fa-solid fa-folder-open text-indigo-400"></i>
+        <span>Load Photos</span>
+        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp,image/*" multiple class="hidden" />
+      </label>
+
+      <!-- Export Config Modal Trigger -->
+      <button id="exportBtn" type="button" class="px-3 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-neutral-100 text-xs sm:text-sm font-medium flex items-center gap-2 transition" title="Export standalone HTML snippet">
+        <i class="fa-solid fa-code text-emerald-400"></i>
+        <span class="hidden sm:inline">Export Snippet</span>
+      </button>
+
+      <!-- Fullscreen Toggle -->
+      <button id="fullscreenBtn" type="button" class="p-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-neutral-200 transition" title="Toggle Fullscreen (F)">
+        <i id="fullscreenIcon" class="fa-solid fa-expand"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Theater Stage -->
+  <main id="theaterStage" class="relative flex-1 flex flex-col items-center justify-center bg-black overflow-hidden select-none min-h-[55vh] sm:min-h-[65vh]">
+    
+    <!-- Crossfade Image Layers (Double-buffered for smooth transitions) -->
+    <div id="stageContainer" class="relative w-full h-full flex-1 flex items-center justify-center overflow-hidden">
+      <img id="slideLayerA" src="" alt="Slideshow image layer A" class="absolute inset-0 w-full h-full object-contain transition-opacity duration-700 ease-in-out opacity-100 pointer-events-none p-2 sm:p-6" />
+      <img id="slideLayerB" src="" alt="Slideshow image layer B" class="absolute inset-0 w-full h-full object-contain transition-opacity duration-700 ease-in-out opacity-0 pointer-events-none p-2 sm:p-6" />
+    </div>
+
+    <!-- Previous Slide Button -->
+    <button id="prevBtn" type="button" aria-label="Previous slide" class="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-neutral-900/75 hover:bg-neutral-800/95 border border-neutral-700/80 text-white flex items-center justify-center backdrop-blur-md shadow-xl transition active:scale-95">
+      <i class="fa-solid fa-chevron-left text-base sm:text-lg"></i>
+    </button>
+
+    <!-- Next Slide Button -->
+    <button id="nextBtn" type="button" aria-label="Next slide" class="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-neutral-900/75 hover:bg-neutral-800/95 border border-neutral-700/80 text-white flex items-center justify-center backdrop-blur-md shadow-xl transition active:scale-95">
+      <i class="fa-solid fa-chevron-right text-base sm:text-lg"></i>
+    </button>
+
+    <!-- Editable Title & Caption Overlay -->
+    <div class="absolute bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 w-[92%] max-w-2xl bg-neutral-950/80 hover:bg-neutral-950/90 backdrop-blur-md border border-neutral-800/90 rounded-2xl p-3.5 sm:p-4 shadow-2xl transition">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex-1 min-w-0">
+          <!-- Editable Title -->
+          <input
+            id="slideTitleInput"
+            type="text"
+            placeholder="Click to add slide title..."
+            aria-label="Slide Title"
+            class="w-full bg-transparent text-white font-semibold text-base sm:text-lg tracking-tight border-b border-transparent hover:border-neutral-700 focus:border-indigo-500 focus:outline-none pb-0.5 transition truncate"
+          />
+          <!-- Editable Caption -->
+          <input
+            id="slideCaptionInput"
+            type="text"
+            placeholder="Click to add a caption or description..."
+            aria-label="Slide Caption"
+            class="w-full bg-transparent text-neutral-300 text-xs sm:text-sm mt-1 border-b border-transparent hover:border-neutral-700 focus:border-indigo-500 focus:outline-none pb-0.5 transition"
+          />
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0 pt-1">
+          <span id="fileNameBadge" class="hidden sm:inline-block text-[11px] font-mono bg-neutral-900 border border-neutral-800 text-neutral-400 px-2 py-1 rounded-lg max-w-[140px] truncate" title="Source filename">
+            preset-01.jpg
+          </span>
+          <button id="deleteSlideBtn" type="button" title="Remove current slide" class="p-2 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-neutral-900 transition">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Thumbnail Filmstrip -->
+  <footer class="w-full bg-neutral-900 border-t border-neutral-800 px-4 py-3 z-30">
+    <div class="max-w-6xl mx-auto flex items-center gap-3">
+      <div id="filmstrip" class="flex-1 flex items-center gap-2.5 overflow-x-auto py-1 px-1 scroll-smooth">
+        <!-- Thumbnails dynamically injected here -->
+      </div>
+      <button id="resetPresetBtn" type="button" class="shrink-0 px-3 py-2 rounded-xl bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 text-xs text-neutral-400 hover:text-neutral-200 transition" title="Restore default preset gallery">
+        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Demo
+      </button>
+    </div>
+  </footer>
+
+  <!-- Export HTML Snippet Modal -->
+  <div id="exportModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="bg-neutral-900 border border-neutral-800 rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-white">Standalone Slideshow Snippet</h2>
+          <p class="text-xs text-neutral-400 mt-0.5">Copy this HTML/JS configuration to host your gallery with your image filenames and captions.</p>
+        </div>
+        <button id="closeModalBtn" type="button" class="w-8 h-8 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="relative">
+        <textarea id="exportCodeArea" readonly rows="12" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3.5 text-xs font-mono text-emerald-300 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+      </div>
+
+      <div class="flex items-center justify-between gap-3">
+        <span id="copyFeedback" class="text-xs text-emerald-400 opacity-0 transition-opacity duration-300">
+          <i class="fa-solid fa-check mr-1"></i> Copied to clipboard!
+        </span>
+        <div class="flex items-center gap-2">
+          <button id="closeModalBtn2" type="button" class="px-4 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-xs sm:text-sm font-medium text-neutral-200 transition">
+            Close
+          </button>
+          <button id="copySnippetBtn" type="button" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs sm:text-sm font-medium text-white flex items-center gap-2 transition">
+            <i class="fa-regular fa-copy"></i>
+            <span>Copy Snippet</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Banner (Replaces alert()) -->
+  <div id="toastBanner" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 bg-neutral-900 border border-neutral-700 text-neutral-100 text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2">
+    <i class="fa-solid fa-circle-info text-indigo-400"></i>
+    <span id="toastMessage">Notification</span>
+  </div>
+
+  <script>
+    /**
+     * Theater Gallery Slideshow Controller
+     * Manages state, double-buffered crossfade rendering, local file loading,
+     * editable captions, touch swipe navigation, and HTML snippet export.
+     */
+    (function () {
+      // Preset placeholder gallery using reliable placehold.co URLs with rich dark-theater styling
+      const PRESET_SLIDES = [
+        {
+          src: 'https://placehold.co/1600x900/111827/e5e7eb?text=01+%E2%80%A2+Alpine+Dawn',
+          filename: 'alpine-dawn.jpg',
+          title: 'Alpine Dawn Over the Ridge',
+          caption: 'First golden light breaking across the northern peaks at 5:45 AM.'
+        },
+        {
+          src: 'https://placehold.co/1600x900/1e1b4b/c7d2fe?text=02+%E2%80%A2+Coastal+Mist',
+          filename: 'coastal-mist.jpg',
+          title: 'Pacific Coastal Mist',
+          caption: 'Low marine fog drifting through sea stacks along the Oregon shoreline.'
+        },
+        {
+          src: 'https://placehold.co/1600x900/0f172a/93c5fd?text=03+%E2%80%A2+Architectural+Geometry',
+          filename: 'architectural-geometry.webp',
+          title: 'Modernist Steel & Glass',
+          caption: 'Afternoon reflections creating clean geometric shadows in the atrium.'
+        },
+        {
+          src: 'https://placehold.co/1600x900/18181b/fcd34d?text=04+%E2%80%A2+Desert+Twilight',
+          filename: 'desert-twilight.jpg',
+          title: 'Mojave Twilight Horizon',
+          caption: 'Deep indigo sky settling over sandstone formations after sunset.'
+        },
+        {
+          src: 'https://placehold.co/1600x900/090d16/6ee7b7?text=05+%E2%80%A2+Botanical+Study',
+          filename: 'botanical-study.png',
+          title: 'Rainforest Canopy Macro',
+          caption: 'Morning dew captured on fern fronds following an overnight shower.'
+        }
+      ];
+
+      // Application State
+      let slides = [];
+      let currentIndex = 0;
+      let activeLayer = 'A'; // Toggles between 'A' and 'B' for smooth crossfade
+      let isPlaying = false;
+      let intervalMs = 5000;
+      let autoTimer = null;
+      let progressTimer = null;
+      let progressElapsed = 0;
+      let objectUrls = []; // Track blob URLs to revoke on reset
+
+      // DOM Elements
+      const slideLayerA = document.getElementById('slideLayerA');
+      const slideLayerB = document.getElementById('slideLayerB');
+      const slideCounter = document.getElementById('slideCounter');
+      const slideTitleInput = document.getElementById('slideTitleInput');
+      const slideCaptionInput = document.getElementById('slideCaptionInput');
+      const fileNameBadge = document.getElementById('fileNameBadge');
+      const filmstrip = document.getElementById('filmstrip');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const playPauseBtn = document.getElementById('playPauseBtn');
+      const playPauseIcon = document.getElementById('playPauseIcon');
+      const playPauseLabel = document.getElementById('playPauseLabel');
+      const intervalSelect = document.getElementById('intervalSelect');
+      const autoProgressBar = document.getElementById('autoProgressBar');
+      const fileInput = document.getElementById('fileInput');
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+      const fullscreenIcon = document.getElementById('fullscreenIcon');
+      const deleteSlideBtn = document.getElementById('deleteSlideBtn');
+      const resetPresetBtn = document.getElementById('resetPresetBtn');
+      const exportBtn = document.getElementById('exportBtn');
+      const exportModal = document.getElementById('exportModal');
+      const exportCodeArea = document.getElementById('exportCodeArea');
+      const copySnippetBtn = document.getElementById('copySnippetBtn');
+      const copyFeedback = document.getElementById('copyFeedback');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const closeModalBtn2 = document.getElementById('closeModalBtn2');
+      const theaterStage = document.getElementById('theaterStage');
+      const toastBanner = document.getElementById('toastBanner');
+      const toastMessage = document.getElementById('toastMessage');
+
+      let toastTimeout = null;
+
+      /**
+       * Display a brief, non-intrusive toast message
+       */
+      function showToast(msg) {
+        toastMessage.textContent = msg;
+        toastBanner.classList.remove('opacity-0', '-translate-y-2');
+        toastBanner.classList.add('opacity-100', 'translate-y-0');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          toastBanner.classList.remove('opacity-100', 'translate-y-0');
+          toastBanner.classList.add('opacity-0', '-translate-y-2');
+        }, 2800);
+      }
+
+      /**
+       * Initialize slides from preset gallery
+       */
+      function loadPresetGallery() {
+        // Revoke any previously created object URLs
+        objectUrls.forEach((url) => URL.revokeObjectURL(url));
+        objectUrls = [];
+
+        slides = PRESET_SLIDES.map((item) => ({ ...item }));
+        currentIndex = 0;
+        renderFilmstrip();
+        showSlide(0, true);
+      }
+
+      /**
+       * Render the bottom thumbnail filmstrip
+       */
+      function renderFilmstrip() {
+        filmstrip.innerHTML = '';
+
+        slides.forEach((slide, idx) => {
+          const thumbBtn = document.createElement('button');
+          thumbBtn.type = 'button';
+          thumbBtn.setAttribute('aria-label', `Go to slide ${idx + 1}: ${slide.title || slide.filename}`);
+          thumbBtn.className = `relative shrink-0 w-16 h-11 sm:w-20 sm:h-14 rounded-lg overflow-hidden border-2 transition-all focus:outline-none ${
+            idx === currentIndex
+              ? 'border-indigo-500 scale-105 shadow-lg shadow-indigo-500/20 opacity-100'
+              : 'border-transparent opacity-55 hover:opacity-90'
+          }`;
+
+          const img = document.createElement('img');
+          img.src = slide.src;
+          img.alt = slide.title || `Thumbnail ${idx + 1}`;
+          img.className = 'w-full h-full object-cover';
+          img.onerror = function () {
+            this.src = `https://placehold.co/160x100/1f2937/9ca3af?text=${idx + 1}`;
+          };
+
+          const badge = document.createElement('span');
+          badge.className = 'absolute bottom-0.5 right-1 text-[10px] font-semibold bg-black/75 text-white px-1 rounded';
+          badge.textContent = idx + 1;
+
+          thumbBtn.appendChild(img);
+          thumbBtn.appendChild(badge);
+
+          thumbBtn.addEventListener('click', () => {
+            showSlide(idx);
+            resetAutoAdvanceTimer();
+          });
+
+          filmstrip.appendChild(thumbBtn);
+        });
+      }
+
+      /**
+       * Update active thumbnail highlight and scroll into view
+       */
+      function updateFilmstripSelection() {
+        const buttons = filmstrip.querySelectorAll('button');
+        buttons.forEach((btn, idx) => {
+          if (idx === currentIndex) {
+            btn.className = 'relative shrink-0 w-16 h-11 sm:w-20 sm:h-14 rounded-lg overflow-hidden border-2 transition-all focus:outline-none border-indigo-500 scale-105 shadow-lg shadow-indigo-500/20 opacity-100';
+            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          } else {
+            btn.className = 'relative shrink-0 w-16 h-11 sm:w-20 sm:h-14 rounded-lg overflow-hidden border-2 transition-all focus:outline-none border-transparent opacity-55 hover:opacity-90';
+          }
+        });
+      }
+
+      /**
+       * Display a slide with smooth crossfade between layer A and layer B
+       */
+      function showSlide(index, instant = false) {
+        if (!slides.length) {
+          slideLayerA.src = 'https://placehold.co/1200x800/111827/6b7280?text=No+Images+Loaded';
+          slideLayerA.style.opacity = '1';
+          slideLayerB.style.opacity = '0';
+          slideCounter.textContent = '0 slides';
+          slideTitleInput.value = '';
+          slideCaptionInput.value = '';
+          fileNameBadge.textContent = 'empty';
+          return;
+        }
+
+        // Wrap index safely
+        currentIndex = ((index % slides.length) + slides.length) % slides.length;
+        const slide = slides[currentIndex];
+
+        const incomingLayer = activeLayer === 'A' ? slideLayerB : slideLayerA;
+        const outgoingLayer = activeLayer === 'A' ? slideLayerA : slideLayerB;
+
+        incomingLayer.onerror = function () {
+          this.src = `https://placehold.co/1600x900/1f2937/e5e7eb?text=${encodeURIComponent(slide.filename || 'Image')}`;
+        };
+
+        incomingLayer.src = slide.src;
+
+        if (instant) {
+          incomingLayer.style.transition = 'none';
+          outgoingLayer.style.transition = 'none';
+          incomingLayer.style.opacity = '1';
+          outgoingLayer.style.opacity = '0';
+          // Force reflow then restore transition
+          void incomingLayer.offsetWidth;
+          incomingLayer.style.transition = '';
+          outgoingLayer.style.transition = '';
+        } else {
+          incomingLayer.style.opacity = '1';
+          outgoingLayer.style.opacity = '0';
+        }
+
+        activeLayer = activeLayer === 'A' ? 'B' : 'A';
+
+        // Update UI Metadata & Inputs
+        slideCounter.textContent = `Slide ${currentIndex + 1} of ${slides.length}`;
+        slideTitleInput.value = slide.title || '';
+        slideCaptionInput.value = slide.caption || '';
+        fileNameBadge.textContent = slide.filename || `slide-${currentIndex + 1}.jpg`;
+        fileNameBadge.title = slide.filename || '';
+
+        updateFilmstripSelection();
+      }
+
+      /**
+       * Navigation helpers
+       */
+      function nextSlide() {
+        if (!slides.length) return;
+        showSlide(currentIndex + 1);
+        resetAutoAdvanceTimer();
+      }
+
+      function prevSlide() {
+        if (!slides.length) return;
+        showSlide(currentIndex - 1);
+        resetAutoAdvanceTimer();
+      }
+
+      /**
+       * Auto-advance Playback Controls
+       */
+      function startAutoAdvance() {
+        if (slides.length <= 1) {
+          showToast('Add at least 2 slides to auto-play.');
+          return;
+        }
+        isPlaying = true;
+        playPauseIcon.className = 'fa-solid fa-pause';
+        playPauseLabel.textContent = 'Pause';
+        playPauseBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
+        playPauseBtn.classList.add('bg-amber-600', 'hover:bg-amber-500');
+        resetAutoAdvanceTimer();
+      }
+
+      function stopAutoAdvance() {
+        isPlaying = false;
+        playPauseIcon.className = 'fa-solid fa-play';
+        playPauseLabel.textContent = 'Play';
+        playPauseBtn.classList.remove('bg-amber-600', 'hover:bg-amber-500');
+        playPauseBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
+        clearInterval(autoTimer);
+        clearInterval(progressTimer);
+        progressElapsed = 0;
+        autoProgressBar.style.width = '0%';
+      }
+
+      function resetAutoAdvanceTimer() {
+        clearInterval(autoTimer);
+        clearInterval(progressTimer);
+        progressElapsed = 0;
+        autoProgressBar.style.width = '0%';
+
+        if (!isPlaying) return;
+
+        const stepMs = 100;
+        progressTimer = setInterval(() => {
+          progressElapsed += stepMs;
+          const pct = Math.min(100, (progressElapsed / intervalMs) * 100);
+          autoProgressBar.style.width = `${pct}%`;
+        }, stepMs);
+
+        autoTimer = setInterval(() => {
+          progressElapsed = 0;
+          autoProgressBar.style.width = '0%';
+          showSlide(currentIndex + 1);
+        }, intervalMs);
+      }
+
+      /**
+       * Local File Picker Handler
+       */
+      fileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []).filter((f) => f.type.startsWith('image/'));
+        if (!files.length) {
+          showToast('Please select valid image files (JPG, PNG, WebP).');
+          return;
+        }
+
+        // Revoke old local URLs
+        objectUrls.forEach((url) => URL.revokeObjectURL(url));
+        objectUrls = [];
+
+        slides = files.map((file, idx) => {
+          const url = URL.createObjectURL(file);
+          objectUrls.push(url);
+          // Generate clean default title from filename
+          const cleanTitle = file.name
+            .replace(/\.[^/.]+$/, '')
+            .replace(/[-_]+/g, ' ')
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+
+          return {
+            src: url,
+            filename: file.name,
+            title: cleanTitle || `Photo ${idx + 1}`,
+            caption: `Local image • ${(file.size / 1024).toFixed(0)} KB`
+          };
+        });
+
+        currentIndex = 0;
+        renderFilmstrip();
+        showSlide(0, true);
+        resetAutoAdvanceTimer();
+        showToast(`Loaded ${slides.length} photo${slides.length > 1 ? 's' : ''} from your device.`);
+        fileInput.value = '';
+      });
+
+      /**
+       * Editable Title & Caption Listeners
+       */
+      slideTitleInput.addEventListener('input', (e) => {
+        if (slides[currentIndex]) {
+          slides[currentIndex].title = e.target.value;
+        }
+      });
+
+      slideCaptionInput.addEventListener('input', (e) => {
+        if (slides[currentIndex]) {
+          slides[currentIndex].caption = e.target.value;
+        }
+      });
+
+      /**
+       * Delete Current Slide
+       */
+      deleteSlideBtn.addEventListener('click', () => {
+        if (!slides.length) return;
+        if (slides.length === 1) {
+          showToast('At least one slide must remain in the gallery.');
+          return;
+        }
+        slides.splice(currentIndex, 1);
+        if (currentIndex >= slides.length) {
+          currentIndex = slides.length - 1;
+        }
+        renderFilmstrip();
+        showSlide(currentIndex, true);
+        resetAutoAdvanceTimer();
+        showToast('Slide removed.');
+      });
+
+      /**
+       * Generate Standalone HTML/JS Snippet for GitHub Pages / Static Hosting
+       */
+      function generateExportSnippet() {
+        const configArray = slides.map((s) => ({
+          image: `./images/${s.filename}`,
+          title: s.title,
+          caption: s.caption
+        }));
+
+        return `<!-- Standalone Slideshow Configuration (Place your images in ./images/) -->
+<div id="wally-slideshow" style="max-width:1100px;margin:2rem auto;background:#09090b;color:#f4f4f5;border-radius:16px;overflow:hidden;font-family:system-ui,sans-serif;box-shadow:0 20px 40px rgba(0,0,0,0.6);">
+  <div style="position:relative;aspect-ratio:16/9;background:#000;display:flex;align-items:center;justify-content:center;">
+    <img id="ws-img" src="" alt="" style="width:100%;height:100%;object-fit:contain;transition:opacity 0.5s ease;" />
+    <button onclick="wsNav(-1)" aria-label="Previous" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);background:rgba(24,24,27,0.8);color:#fff;border:1px solid #3f3f46;border-radius:999px;width:40px;height:40px;cursor:pointer;">&#10094;</button>
+    <button onclick="wsNav(1)" aria-label="Next" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(24,24,27,0.8);color:#fff;border:1px solid #3f3f46;border-radius:999px;width:40px;height:40px;cursor:pointer;">&#10095;</button>
+  </div>
+  <div style="padding:16px 20px;background:#18181b;border-top:1px solid #27272a;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+    <div>
+      <h3 id="ws-title" style="margin:0;font-size:1.1rem;font-weight:600;"></h3>
+      <p id="ws-caption" style="margin:4px 0 0;font-size:0.9rem;color:#a1a1aa;"></p>
+    </div>
+    <span id="ws-count" style="font-size:0.8rem;color:#71717a;white-space:nowrap;"></span>
+  </div>
+</div>
+<script>
+  const SLIDES_CONFIG = ${JSON.stringify(configArray, null, 2)};
+  let wsIdx = 0;
+  function wsRender() {
+    const s = SLIDES_CONFIG[wsIdx];
+    document.getElementById('ws-img').src = s.image;
+    document.getElementById('ws-title').textContent = s.title;
+    document.getElementById('ws-caption').textContent = s.caption;
+    document.getElementById('ws-count').textContent = (wsIdx + 1) + ' / ' + SLIDES_CONFIG.length;
+  }
+  function wsNav(dir) {
+    wsIdx = (wsIdx + dir + SLIDES_CONFIG.length) % SLIDES_CONFIG.length;
+    wsRender();
+  }
+  wsRender();
+  setInterval(() => wsNav(1), ${intervalMs});
+<\/script>`;
+      }
+
+      /**
+       * Export Modal & Clipboard Copy (using document.execCommand for iframe compatibility)
+       */
+      exportBtn.addEventListener('click', () => {
+        exportCodeArea.value = generateExportSnippet();
+        copyFeedback.classList.add('opacity-0');
+        exportModal.classList.remove('hidden');
+        exportModal.classList.add('flex');
+      });
+
+      function closeExportModal() {
+        exportModal.classList.add('hidden');
+        exportModal.classList.remove('flex');
+      }
+
+      closeModalBtn.addEventListener('click', closeExportModal);
+      closeModalBtn2.addEventListener('click', closeExportModal);
+      exportModal.addEventListener('click', (e) => {
+        if (e.target === exportModal) closeExportModal();
+      });
+
+      copySnippetBtn.addEventListener('click', () => {
+        exportCodeArea.select();
+        exportCodeArea.setSelectionRange(0, 99999);
+        try {
+          document.execCommand('copy');
+          copyFeedback.classList.remove('opacity-0');
+          setTimeout(() => copyFeedback.classList.add('opacity-0'), 2500);
+        } catch (err) {
+          showToast('Press Ctrl+C / Cmd+C to copy the highlighted code.');
+        }
+      });
+
+      /**
+       * Fullscreen Toggle
+       */
+      fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {
+            showToast('Fullscreen mode is blocked by browser permissions.');
+          });
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+
+      document.addEventListener('fullscreenchange', () => {
+        if (document.fullscreenElement) {
+          fullscreenIcon.className = 'fa-solid fa-compress';
+        } else {
+          fullscreenIcon.className = 'fa-solid fa-expand';
+        }
+      });
+
+      /**
+       * Button & Keyboard Event Bindings
+       */
+      prevBtn.addEventListener('click', prevSlide);
+      nextBtn.addEventListener('click', nextSlide);
+
+      playPauseBtn.addEventListener('click', () => {
+        if (isPlaying) {
+          stopAutoAdvance();
+        } else {
+          startAutoAdvance();
+        }
+      });
+
+      intervalSelect.addEventListener('change', (e) => {
+        intervalMs = Number(e.target.value);
+        if (isPlaying) {
+          resetAutoAdvanceTimer();
+        }
+      });
+
+      resetPresetBtn.addEventListener('click', () => {
+        stopAutoAdvance();
+        loadPresetGallery();
+        showToast('Restored preset demo gallery.');
+      });
+
+      // Keyboard navigation (ignore when typing inside inputs/textarea)
+      document.addEventListener('keydown', (e) => {
+        const tag = document.activeElement?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          nextSlide();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          prevSlide();
+        } else if (e.key === ' ') {
+          e.preventDefault();
+          isPlaying ? stopAutoAdvance() : startAutoAdvance();
+        } else if (e.key.toLowerCase() === 'f') {
+          e.preventDefault();
+          fullscreenBtn.click();
+        } else if (e.key === 'Escape' && !exportModal.classList.contains('hidden')) {
+          closeExportModal();
+        }
+      });
+
+      // Touch swipe support on the theater stage for mobile devices
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      theaterStage.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      theaterStage.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const deltaX = touchEndX - touchStartX;
+        if (Math.abs(deltaX) > 45) {
+          if (deltaX < 0) {
+            nextSlide();
+          } else {
+            prevSlide();
+          }
+        }
+      }, { passive: true });
+
+      // Boot application on window load
+      window.addEventListener('load', () => {
+        loadPresetGallery();
+      });
+    })();
+  </script>
+</body>
+</html>
