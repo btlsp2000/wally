@@ -169,6 +169,54 @@
       color: var(--muted);
     }
 
+    /* Roster Toolbar */
+    .roster-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      padding: 0.55rem 0.7rem;
+      background: #f8fafc;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+    }
+
+    .roster-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .action-btn {
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid var(--rule);
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .action-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .action-btn:hover {
+      opacity: 0.9;
+    }
+
+    .roster-count {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
     /* Roster / Table */
     .roster-table {
       width: 100%;
@@ -179,16 +227,33 @@
     .roster-table th,
     .roster-table td {
       text-align: left;
-      padding: 0.5rem 0.6rem;
+      padding: 0.48rem 0.55rem;
       border-bottom: 1px solid var(--rule);
     }
 
     .roster-table th {
       font-family: var(--mono);
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       text-transform: uppercase;
       color: var(--muted);
       background: #f8fafc;
+    }
+
+    .roster-table tr.is-checked {
+      background: var(--accent-soft);
+    }
+
+    .roster-table input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      vertical-align: middle;
+    }
+
+    .note-muted {
+      color: var(--muted);
+      font-size: 0.85rem;
     }
 
     /* Dispatch Log Entries */
@@ -307,50 +372,146 @@
       </div>
     </section>
 
-    <!-- Block 02: Regulars Roster -->
+    <!-- Block 02: Regulars Roster + /tourney Export -->
     <section class="block" data-cat="roster">
       <div class="block-head">
-        <span class="block-title">02 // Heritage Park Roster</span>
-        <span class="block-stamp">ROOM REGULARS</span>
+        <span class="block-title">02 // Heritage Pool Players</span>
+        <span class="block-stamp">CHECK PLAYERS FOR /TOURNEY</span>
       </div>
-      <table class="roster-table">
+
+      <div class="roster-bar">
+        <span class="roster-count" id="selCount">0 SELECTED</span>
+        <div class="roster-actions">
+          <button type="button" class="action-btn" id="btnAll">SELECT ALL</button>
+          <button type="button" class="action-btn" id="btnClear">CLEAR</button>
+          <button type="button" class="action-btn primary" id="btnCopyTourney">COPY FOR /TOURNEY</button>
+          <button type="button" class="action-btn" id="btnOpenTourney">OPEN /TOURNEY &rarr;</button>
+        </div>
+      </div>
+
+      <table class="roster-table" id="rosterTable">
         <thead>
           <tr>
+            <th style="width: 34px;">In</th>
+            <th style="width: 42px;">#</th>
             <th>Player</th>
-            <th>Notes / Background</th>
-            <th>Status</th>
+            <th>Notes / Cue / Rating</th>
           </tr>
         </thead>
         <tbody>
           <tr>
+            <td><input type="checkbox" class="player-cb" value="Barstow Bill" /></td>
+            <td>01</td>
             <td><strong>Barstow Bill</strong></td>
-            <td>Author of <em>The Calculus of Pool</em>; Viking cue</td>
-            <td>Active</td>
+            <td class="note-muted">Viking cue &bull; <em>Calculus of Pool</em></td>
           </tr>
           <tr>
-            <td><strong>Rick</strong></td>
-            <td>Fargo-rated player originally from West Virginia</td>
-            <td>Regular</td>
+            <td><input type="checkbox" class="player-cb" value="Vince" /></td>
+            <td>02</td>
+            <td><strong>Vince</strong></td>
+            <td class="note-muted">Heritage regular</td>
           </tr>
           <tr>
+            <td><input type="checkbox" class="player-cb" value="Art" /></td>
+            <td>03</td>
             <td><strong>Art</strong></td>
-            <td>Heritage Park billiards room regular</td>
-            <td>Regular</td>
+            <td class="note-muted">Heritage regular</td>
           </tr>
           <tr>
+            <td><input type="checkbox" class="player-cb" value="Dave 1" /></td>
+            <td>04</td>
+            <td><strong>Dave 1</strong></td>
+            <td class="note-muted">Heritage regular</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Dave 2" /></td>
+            <td>05</td>
+            <td><strong>Dave 2</strong></td>
+            <td class="note-muted">Heritage regular</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Dave 3" /></td>
+            <td>06</td>
+            <td><strong>Dave 3 ("Little Davey")</strong></td>
+            <td class="note-muted">Heritage regular</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Ron" /></td>
+            <td>07</td>
+            <td><strong>Ron</strong></td>
+            <td class="note-muted">Heritage regular</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Dennis" /></td>
+            <td>08</td>
+            <td><strong>Dennis</strong></td>
+            <td class="note-muted">Heritage regular</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Doug" /></td>
+            <td>09</td>
+            <td><strong>Doug</strong></td>
+            <td class="note-muted">Heritage regular</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Gene" /></td>
+            <td>10</td>
+            <td><strong>Gene</strong></td>
+            <td class="note-muted">Heritage regular</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Chuck" /></td>
+            <td>11</td>
+            <td><strong>Chuck</strong></td>
+            <td class="note-muted">Heritage regular</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Orlando" /></td>
+            <td>12</td>
+            <td><strong>Orlando</strong></td>
+            <td class="note-muted">Heritage regular</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Louie" /></td>
+            <td>13</td>
+            <td><strong>Louie</strong></td>
+            <td class="note-muted">Heritage regular</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Vern" /></td>
+            <td>14</td>
+            <td><strong>Vern</strong></td>
+            <td class="note-muted">Heritage regular</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Jerry" /></td>
+            <td>15</td>
+            <td><strong>Jerry</strong></td>
+            <td class="note-muted">Heritage regular</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Rick" /></td>
+            <td>16</td>
+            <td><strong>Rick</strong></td>
+            <td class="note-muted">Fargo-rated &bull; West Virginia</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" class="player-cb" value="Ken" /></td>
+            <td>17</td>
             <td><strong>Ken</strong></td>
-            <td>Heritage Park billiards room regular</td>
-            <td>Regular</td>
+            <td class="note-muted">Heritage regular</td>
           </tr>
           <tr>
-            <td><strong>Dave ("Little Davey")</strong></td>
-            <td>Heritage Park billiards room regular</td>
-            <td>Regular</td>
+            <td><input type="checkbox" class="player-cb" value="Bob" /></td>
+            <td>18</td>
+            <td><strong>Bob</strong></td>
+            <td class="note-muted">Tournament director</td>
           </tr>
           <tr>
+            <td><input type="checkbox" class="player-cb" value="Alvin Oga" /></td>
+            <td>19</td>
             <td><strong>Alvin Oga</strong></td>
-            <td>Longtime Heritage acquaintance (Las Vegas / LA)</td>
-            <td>Alumni</td>
+            <td class="note-muted">Heritage alumni (Las Vegas / LA)</td>
           </tr>
         </tbody>
       </table>
@@ -364,21 +525,21 @@
       </div>
       <ul class="entry-list">
         <li>
-          <div class="entry-date">DISPATCH 01 &bull; FALL 2026 RETURN TO SOUTHERN NEVADA</div>
+          <div class="entry-date">DISPATCH 01 &bull; NOV 13, 2026 &bull; 8-BALL TOURNAMENT</div>
+          <p>
+            9:00 AM 8-ball tournament at Heritage Park Senior Facility—field-testing <code>/tourney</code> bracket exports alongside Bob's final paper-bracket director event.
+          </p>
+        </li>
+        <li>
+          <div class="entry-date">DISPATCH 02 &bull; FALL 2026 RETURN TO SOUTHERN NEVADA</div>
           <p>
             Back in the Las Vegas / Henderson valley following the summer Oregon and Mojave Desert loop. Resuming morning and afternoon table sessions at Heritage Park Senior Facility alongside competitive senior circuit play.
           </p>
         </li>
         <li>
-          <div class="entry-date">DISPATCH 02 &bull; TABLE GEOMETRY &amp; SHOT NOTES</div>
+          <div class="entry-date">DISPATCH 03 &bull; TABLE GEOMETRY &amp; SHOT NOTES</div>
           <p>
             Field-testing tangent-line cue ball control, bank-angle symmetry, and speed-adjusted throw tables documented in <em>The Calculus of Pool</em> on the Heritage room tables.
-          </p>
-        </li>
-        <li>
-          <div class="entry-date">DISPATCH 03 &bull; OPEN LOG SLOT</div>
-          <p>
-            Append new rack counts, tournament brackets, or table notes as additional <code>&lt;li&gt;</code> items here.
           </p>
         </li>
       </ul>
@@ -395,6 +556,7 @@
       </p>
       <div class="link-row">
         <a class="pill-link" href="/cofp">/cofp (Calculus of Pool)</a>
+        <a class="pill-link" href="/cofp_dod">/cofp_dod (Vector Visualizer)</a>
         <a class="pill-link" href="/billiards2">/billiards2 (EN/ES Portal)</a>
         <a class="pill-link" href="/shots">/shots (Shot Visualizer)</a>
         <a class="pill-link" href="/tourney">/tourney (Bracket Tool)</a>
@@ -410,6 +572,7 @@
 
   <script>
     (function () {
+      // Section filter buttons
       const buttons = document.querySelectorAll('.nav-btn');
       const blocks = document.querySelectorAll('.block');
 
@@ -427,6 +590,64 @@
             }
           });
         });
+      });
+
+      // Roster selection & /tourney export
+      const checkboxes = Array.from(document.querySelectorAll('.player-cb'));
+      const selCount = document.getElementById('selCount');
+      const btnAll = document.getElementById('btnAll');
+      const btnClear = document.getElementById('btnClear');
+      const btnCopy = document.getElementById('btnCopyTourney');
+      const btnOpen = document.getElementById('btnOpenTourney');
+
+      function getSelected() {
+        return checkboxes.filter((cb) => cb.checked).map((cb) => cb.value);
+      }
+
+      function updateUI() {
+        checkboxes.forEach((cb) => {
+          const row = cb.closest('tr');
+          if (row) row.classList.toggle('is-checked', cb.checked);
+        });
+        const count = getSelected().length;
+        selCount.textContent = count + ' SELECTED';
+      }
+
+      checkboxes.forEach((cb) => cb.addEventListener('change', updateUI));
+
+      btnAll.addEventListener('click', () => {
+        checkboxes.forEach((cb) => (cb.checked = true));
+        updateUI();
+      });
+
+      btnClear.addEventListener('click', () => {
+        checkboxes.forEach((cb) => (cb.checked = false));
+        updateUI();
+      });
+
+      btnCopy.addEventListener('click', async () => {
+        const list = getSelected();
+        if (!list.length) {
+          selCount.textContent = 'SELECT PLAYERS FIRST';
+          return;
+        }
+        const payload = list.join('\n');
+        try {
+          await navigator.clipboard.writeText(payload);
+          const orig = btnCopy.textContent;
+          btnCopy.textContent = 'COPIED (' + list.length + ')';
+          setTimeout(() => (btnCopy.textContent = orig), 1600);
+        } catch (err) {
+          prompt('Copy roster for /tourney:', payload);
+        }
+      });
+
+      btnOpen.addEventListener('click', () => {
+        const list = getSelected();
+        const url = list.length
+          ? '/tourney?players=' + encodeURIComponent(list.join(','))
+          : '/tourney';
+        window.location.href = url;
       });
     })();
   </script>
