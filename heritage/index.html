@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HERITAGE | WallyCAD /heritage</title>
+  <style>
+    :root {
+      --bg: #f4f4f1;
+      --paper: #ffffff;
+      --ink: #1a1d20;
+      --muted: #57606a;
+      --rule: #d0d7de;
+      --bar: #161b22;
+      --accent: #0f766e;
+      --accent-soft: #f0fdfa;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.55;
+      padding-bottom: 3rem;
+    }
+
+    /* Top Masthead (/rtwo pattern) */
+    .masthead {
+      background: var(--bar);
+      color: #f8fafc;
+      border-bottom: 3px solid var(--accent);
+      padding: 1.25rem 1rem;
+    }
+
+    .masthead-inner {
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .masthead h1 {
+      font-family: var(--mono);
+      font-size: 1.35rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .masthead .route-tag {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: #5eead4;
+    }
+
+    /* Metadata Strip */
+    .meta-strip {
+      background: #e9ecef;
+      border-bottom: 1px solid var(--rule);
+      padding: 0.55rem 1rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .meta-inner {
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem 1.25rem;
+    }
+
+    /* Container */
+    .wrap {
+      max-width: 820px;
+      margin: 1.25rem auto 0;
+      padding: 0 1rem;
+    }
+
+    /* Filter Bar */
+    .nav-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .nav-btn {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      padding: 0.35rem 0.7rem;
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      background: var(--bar);
+      color: #ffffff;
+      border-color: var(--bar);
+    }
+
+    /* Dispatch / Module Blocks */
+    .block {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-left: 4px solid var(--bar);
+      border-radius: 4px;
+      padding: 1.15rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .block.highlight {
+      border-left-color: var(--accent);
+    }
+
+    .block-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 0.45rem;
+      margin-bottom: 0.75rem;
+      gap: 0.5rem;
+    }
+
+    .block-title {
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .block-stamp {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* Spec Grid */
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.65rem 1rem;
+      font-size: 0.92rem;
+    }
+
+    .spec-item strong {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Roster / Table */
+    .roster-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .roster-table th,
+    .roster-table td {
+      text-align: left;
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .roster-table th {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: #f8fafc;
+    }
+
+    /* Dispatch Log Entries */
+    .entry-list {
+      list-style: none;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .entry-list li {
+      padding-left: 0.75rem;
+      border-left: 2px solid var(--rule);
+    }
+
+    .entry-date {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Quick Links */
+    .link-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .pill-link {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      padding: 0.3rem 0.65rem;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .pill-link:hover {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    footer {
+      max-width: 820px;
+      margin: 1.5rem auto 0;
+      padding: 0 1rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    footer a {
+      color: var(--ink);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <div class="masthead-inner">
+      <h1>HERITAGE // BILLIARDS &amp; DISPATCH</h1>
+      <span class="route-tag">wallycad.com/heritage</span>
+    </div>
+  </header>
+
+  <div class="meta-strip">
+    <div class="meta-inner">
+      <span>VENUE: HERITAGE PARK SENIOR FACILITY</span>
+      <span>CITY: HENDERSON, NV</span>
+      <span>SERIES: ROUTE 2 / COFP</span>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <!-- Filter Tabs -->
+    <nav class="nav-bar" aria-label="Section filter">
+      <button class="nav-btn active" data-filter="all">ALL BLOCKS</button>
+      <button class="nav-btn" data-filter="venue">FACILITY</button>
+      <button class="nav-btn" data-filter="roster">PLAYERS</button>
+      <button class="nav-btn" data-filter="log">MATCH LOGS</button>
+      <button class="nav-btn" data-filter="tools">COFP TOOLS</button>
+    </nav>
+
+    <!-- Block 01: Venue Spec -->
+    <section class="block highlight" data-cat="venue">
+      <div class="block-head">
+        <span class="block-title">01 // Venue &amp; Room Spec</span>
+        <span class="block-stamp">HENDERSON, NEVADA</span>
+      </div>
+      <div class="spec-grid">
+        <div class="spec-item">
+          <strong>Facility</strong>
+          Heritage Park Senior Facility
+        </div>
+        <div class="spec-item">
+          <strong>Address</strong>
+          300 S. Racetrack Rd, Henderson, NV
+        </div>
+        <div class="spec-item">
+          <strong>Formats</strong>
+          8-Ball &amp; 9-Ball Rotation / Open Table Play
+        </div>
+        <div class="spec-item">
+          <strong>House Cue / Kit</strong>
+          Viking Cue &bull; Barstow Bill Notes
+        </div>
+      </div>
+    </section>
+
+    <!-- Block 02: Regulars Roster -->
+    <section class="block" data-cat="roster">
+      <div class="block-head">
+        <span class="block-title">02 // Heritage Park Roster</span>
+        <span class="block-stamp">ROOM REGULARS</span>
+      </div>
+      <table class="roster-table">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Notes / Background</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Barstow Bill</strong></td>
+            <td>Author of <em>The Calculus of Pool</em>; Viking cue</td>
+            <td>Active</td>
+          </tr>
+          <tr>
+            <td><strong>Rick</strong></td>
+            <td>Fargo-rated player originally from West Virginia</td>
+            <td>Regular</td>
+          </tr>
+          <tr>
+            <td><strong>Art</strong></td>
+            <td>Heritage Park billiards room regular</td>
+            <td>Regular</td>
+          </tr>
+          <tr>
+            <td><strong>Ken</strong></td>
+            <td>Heritage Park billiards room regular</td>
+            <td>Regular</td>
+          </tr>
+          <tr>
+            <td><strong>Dave ("Little Davey")</strong></td>
+            <td>Heritage Park billiards room regular</td>
+            <td>Regular</td>
+          </tr>
+          <tr>
+            <td><strong>Alvin Oga</strong></td>
+            <td>Longtime Heritage acquaintance (Las Vegas / LA)</td>
+            <td>Alumni</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Block 03: Session & Match Dispatches -->
+    <section class="block" data-cat="log">
+      <div class="block-head">
+        <span class="block-title">03 // Session &amp; Match Dispatches</span>
+        <span class="block-stamp">CHRONOLOGICAL</span>
+      </div>
+      <ul class="entry-list">
+        <li>
+          <div class="entry-date">DISPATCH 01 &bull; FALL 2026 RETURN TO SOUTHERN NEVADA</div>
+          <p>
+            Back in the Las Vegas / Henderson valley following the summer Oregon and Mojave Desert loop. Resuming morning and afternoon table sessions at Heritage Park Senior Facility alongside competitive senior circuit play.
+          </p>
+        </li>
+        <li>
+          <div class="entry-date">DISPATCH 02 &bull; TABLE GEOMETRY &amp; SHOT NOTES</div>
+          <p>
+            Field-testing tangent-line cue ball control, bank-angle symmetry, and speed-adjusted throw tables documented in <em>The Calculus of Pool</em> on the Heritage room tables.
+          </p>
+        </li>
+        <li>
+          <div class="entry-date">DISPATCH 03 &bull; OPEN LOG SLOT</div>
+          <p>
+            Append new rack counts, tournament brackets, or table notes as additional <code>&lt;li&gt;</code> items here.
+          </p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Block 04: Connected WallyCAD Modules -->
+    <section class="block" data-cat="tools">
+      <div class="block-head">
+        <span class="block-title">04 // Connected Billiards &amp; Transit Modules</span>
+        <span class="block-stamp">WALLYCAD SUITE</span>
+      </div>
+      <p>
+        Direct links to companion shot calculators, tournament brackets, and Route 2 dispatches:
+      </p>
+      <div class="link-row">
+        <a class="pill-link" href="/cofp">/cofp (Calculus of Pool)</a>
+        <a class="pill-link" href="/billiards2">/billiards2 (EN/ES Portal)</a>
+        <a class="pill-link" href="/shots">/shots (Shot Visualizer)</a>
+        <a class="pill-link" href="/tourney">/tourney (Bracket Tool)</a>
+        <a class="pill-link" href="/transit">/transit (RTC Route Notes)</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>WALLYCAD // /HERITAGE</span>
+    <span><a href="/routetwo">&larr; ROUTE 2 INDEX</a></span>
+  </footer>
+
+  <script>
+    (function () {
+      const buttons = document.querySelectorAll('.nav-btn');
+      const blocks = document.querySelectorAll('.block');
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          buttons.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const filter = btn.getAttribute('data-filter');
+          blocks.forEach((block) => {
+            if (filter === 'all' || block.getAttribute('data-cat') === filter) {
+              block.style.display = 'block';
+            } else {
+              block.style.display = 'none';
+            }
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
