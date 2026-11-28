@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOMAD APEX 24 | TerraCraft Overland Expedition Trailers</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Space Grotesk & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        overland: {
+                            slate: '#14171a',      // Deep charcoal slate
+                            surface: '#1d2226',    // Elevated panel slate
+                            border: '#2c3339',     // Subtle tactical border
+                            sand: '#e8e2d5',       // Warm desert sand
+                            sandDark: '#c5bca9',   // Muted stone sand
+                            pine: '#233d32',       // Deep forest pine
+                            pineLight: '#2f5243',  // Highlight forest pine
+                            amber: '#d97724',      // Burnt amber accent
+                            amberHover: '#eb8834', // Hover burnt amber
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-overland-slate text-overland-sand font-sans antialiased selection:bg-overland-amber selection:text-white overflow-x-hidden">
+
+    <!-- 1. Sticky Glassmorphic Navigation Bar -->
+    <header id="navbar" class="fixed top-0 left-0 right-0 z-40 transition-all duration-300 bg-overland-slate/75 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3.5 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#" class="flex items-center space-x-3 group">
+                <div class="w-10 h-10 rounded-xl bg-overland-pine border border-overland-amber/40 flex items-center justify-center shadow-inner group-hover:border-overland-amber transition-colors">
+                    <i class="fa-solid fa-compass text-overland-amber text-lg group-hover:rotate-45 transition-transform duration-500"></i>
+                </div>
+                <div class="leading-tight">
+                    <span class="font-display font-bold text-white tracking-wider text-base sm:text-lg block">TERRACRAFT</span>
+                    <span class="text-[10px] font-semibold tracking-[0.25em] text-overland-sandDark uppercase block">Overland Systems</span>
+                </div>
+            </a>
+
+            <!-- Desktop Section Links -->
+            <nav class="hidden lg:flex items-center space-x-8 text-xs font-bold uppercase tracking-widest text-overland-sandDark">
+                <a href="#overview" class="hover:text-overland-amber transition-colors">Overview</a>
+                <a href="#floorplan" class="hover:text-overland-amber transition-colors">Floorplan</a>
+                <a href="#engineering" class="hover:text-overland-amber transition-colors">Engineering</a>
+                <a href="#specs" class="hover:text-overland-amber transition-colors">Specs</a>
+                <a href="#gallery" class="hover:text-overland-amber transition-colors">Gallery</a>
+            </nav>
+
+            <!-- Build & Price CTA + Mobile Menu Button -->
+            <div class="flex items-center space-x-3">
+                <button onclick="openConfiguratorModal()" class="px-5 py-2.5 rounded-xl bg-overland-amber hover:bg-overland-amberHover text-white font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-overland-amber/20 cursor-pointer flex items-center space-x-2">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Build & Price</span>
+                </button>
+                <button onclick="toggleMobileMenu()" aria-label="Toggle Menu" class="lg:hidden w-10 h-10 rounded-xl bg-overland-surface border border-overland-border text-overland-sand flex items-center justify-center cursor-pointer">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobileMenu" class="hidden lg:hidden bg-overland-surface border-t border-overland-border px-6 py-4 space-y-3 text-sm font-semibold">
+            <a href="#overview" onclick="toggleMobileMenu()" class="block py-1.5 text-overland-sand hover:text-overland-amber">Overview</a>
+            <a href="#floorplan" onclick="toggleMobileMenu()" class="block py-1.5 text-overland-sand hover:text-overland-amber">Interactive Floorplan</a>
+            <a href="#engineering" onclick="toggleMobileMenu()" class="block py-1.5 text-overland-sand hover:text-overland-amber">Off-Grid Engineering</a>
+            <a href="#specs" onclick="toggleMobileMenu()" class="block py-1.5 text-overland-sand hover:text-overland-amber">Technical Specs</a>
+            <a href="#gallery" onclick="toggleMobileMenu()" class="block py-1.5 text-overland-sand hover:text-overland-amber">Field Gallery</a>
+        </div>
+    </header>
+
+    <!-- 2. Full-Bleed Scenic Hero Section -->
+    <section id="overview" class="relative min-h-screen flex items-end pt-28 pb-14 sm:pb-20 px-4 sm:px-8 lg:px-12 overflow-hidden">
+        <!-- Wilderness Mountain Campsite Backdrop -->
+        <div class="absolute inset-0 z-0">
+            <img 
+                src="https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=2070&q=80" 
+                onerror="this.onerror=null; this.src='https://placehold.co/1920x1080/14171a/d97724?text=NOMAD+APEX+24+EXPEDITION+TRAILER';"
+                alt="Nomad Apex 24 Overland Travel Trailer in Alpine Wilderness" 
+                class="w-full h-full object-cover object-center"
+            />
+            <!-- Multi-stop earthy slate & pine gradient overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-overland-slate via-overland-slate/65 to-black/35"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-overland-slate/90 via-overland-slate/40 to-transparent"></div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="relative z-10 max-w-7xl mx-auto w-full">
+            <div class="max-w-3xl space-y-6">
+                <!-- Expedition Series Badge -->
+                <div class="inline-flex items-center space-x-2.5 px-3.5 py-1.5 rounded-full bg-overland-pine/90 border border-overland-pineLight text-overland-sand text-xs font-bold uppercase tracking-widest backdrop-blur-sm">
+                    <span class="w-2 h-2 rounded-full bg-overland-amber animate-pulse"></span>
+                    <span>2026 Model Year • 4-Season Extreme Terrain Rated</span>
+                </div>
+
+                <!-- Bold Display Headline -->
+                <div class="space-y-2">
+                    <h1 class="font-display text-5xl sm:text-7xl lg:text-8xl font-bold text-white tracking-tight leading-none">
+                        NOMAD <span class="text-overland-amber">APEX 24</span>
+                    </h1>
+                    <p class="text-lg sm:text-2xl font-medium text-overland-sand/90 max-w-2xl leading-relaxed">
+                        Engineered with aerospace composite armor, dual-axle trailing-arm suspension, and 800W solar autonomy to take luxury basecamp far beyond paved roads.
+                    </p>
+                </div>
+
+                <!-- Key Quick-Stat Pills -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                    <div class="px-4 py-3 rounded-2xl bg-overland-surface/85 backdrop-blur-md border border-white/10">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-overland-sandDark block">Overall Length</span>
+                        <span class="font-display text-xl sm:text-2xl font-bold text-white mt-0.5 block">24' 6"</span>
+                    </div>
+                    <div class="px-4 py-3 rounded-2xl bg-overland-surface/85 backdrop-blur-md border border-white/10">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-overland-sandDark block">Dry Weight</span>
+                        <span class="font-display text-xl sm:text-2xl font-bold text-white mt-0.5 block">4,850 lbs</span>
+                    </div>
+                    <div class="px-4 py-3 rounded-2xl bg-overland-surface/85 backdrop-blur-md border border-white/10">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-overland-sandDark block">Capacity</span>
+                        <span class="font-display text-xl sm:text-2xl font-bold text-white mt-0.5 block">Sleeps 4–5</span>
+                    </div>
+                    <div class="px-4 py-3 rounded-2xl bg-overland-surface/85 backdrop-blur-md border border-white/10">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-overland-sandDark block">Off-Grid Solar</span>
+                        <span class="font-display text-xl sm:text-2xl font-bold text-overland-amber mt-0.5 block">800W Array</span>
+                    </div>
+                </div>
+
+                <!-- Primary Action Buttons -->
+                <div class="flex flex-wrap items-center gap-4 pt-3">
+                    <a href="#floorplan" class="px-7 py-4 rounded-xl bg-overland-amber hover:bg-overland-amberHover text-white font-display font-bold text-sm uppercase tracking-wider transition-all shadow-xl shadow-overland-amber/25 flex items-center space-x-2.5">
+                        <i class="fa-solid fa-vector-square"></i>
+                        <span>Explore Floorplan</span>
+                    </a>
+                    <button onclick="openConfiguratorModal()" class="px-7 py-4 rounded-xl bg-overland-surface/90 hover:bg-overland-pine border border-white/15 text-white font-display font-bold text-sm uppercase tracking-wider transition-all backdrop-blur-md cursor-pointer flex items-center space-x-2.5">
+                        <span>Configure Yours — From $74,900</span>
+                        <i class="fa-solid fa-arrow-right text-overland-amber"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Interactive Floorplan & Living Zones Explorer -->
+    <section id="floorplan" class="py-20 sm:py-24 px-4 sm:px-8 lg:px-12 bg-overland-slate border-t border-overland-border">
+        <div class="max-w-7xl mx-auto">
+            <!-- Section Heading -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+                <div>
+                    <span class="text-overland-amber text-xs font-bold uppercase tracking-[0.25em]">Architectural Layout</span>
+                    <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mt-1.5">Interactive Floorplan & Living Zones</h2>
+                </div>
+                <p class="text-sm sm:text-base text-overland-sandDark max-w-md">
+                    Tap any numbered zone on the blueprint below to inspect interior dimensions, storage capacity, and overland hardware.
+                </p>
+            </div>
+
+            <!-- Interactive Explorer Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Left Column: Interactive Top-Down SVG Floorplan Blueprint -->
+                <div class="lg:col-span-7 rounded-3xl bg-overland-surface border border-overland-border p-5 sm:p-8 shadow-2xl">
+                    <div class="flex items-center justify-between mb-4 text-xs text-overland-sandDark font-semibold uppercase tracking-wider">
+                        <span><i class="fa-solid fa-ruler-combined text-overland-amber mr-1.5"></i> Top-Down CAD Blueprint (24'6" × 8'0")</span>
+                        <span class="hidden sm:inline text-overland-amber">Click Hotspots 1–6</span>
+                    </div>
+
+                    <!-- Responsive SVG Blueprint Container -->
+                    <div class="relative w-full bg-[#111518] rounded-2xl border border-white/10 p-3 sm:p-5 overflow-hidden">
+                        <svg viewBox="0 0 820 330" class="w-full h-auto select-none" role="img" aria-label="Interactive Floorplan of Nomad Apex 24 Travel Trailer">
+                            <!-- Subtle Blueprint Grid Pattern -->
+                            <defs>
+                                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                                </pattern>
+                            </defs>
+                            <rect width="820" height="330" fill="url(#grid)" />
+
+                            <!-- A-Frame Articulating Tongue & Hitch (Left) -->
+                            <polygon points="20,165 115,115 115,215" fill="none" stroke="#64748b" stroke-width="3" />
+                            <rect x="75" y="138" width="28" height="54" rx="4" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5" />
+                            <text x="58" y="242" fill="#94a3b8" font-size="10" font-family="Space Grotesk" font-weight="bold">LOCK-N-ROLL HITCH</text>
+
+                            <!-- Main Trailer Body Shell -->
+                            <rect x="115" y="45" width="665" height="240" rx="22" fill="#1a2126" stroke="#e8e2d5" stroke-width="3.5" />
+                            <!-- Inner Composite Wall Thickness -->
+                            <rect x="124" y="54" width="647" height="222" rx="16" fill="#161b20" stroke="#2f5243" stroke-width="1.5" />
+
+                            <!-- ZONE 1: Front Queen Master Bed (Left Interior) -->
+                            <g onclick="selectZone('master')" class="cursor-pointer group">
+                                <rect id="zone-rect-master" x="132" y="62" width="175" height="206" rx="10" fill="#233d32" fill-opacity="0.45" stroke="#2f5243" stroke-width="2" class="transition-all duration-300" />
+                                <!-- Pillows -->
+                                <rect x="142" y="82" width="32" height="72" rx="6" fill="#2c353d" stroke="#94a3b8" stroke-width="1" />
+                                <rect x="142" y="174" width="32" height="72" rx="6" fill="#2c353d" stroke="#94a3b8" stroke-width="1" />
+                                <!-- Mattress Stitch Lines -->
+                                <line x1="185" y1="64" x2="185" y2="266" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 4" />
+                                <text x="218" y="170" fill="#e8e2d5" font-size="12" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">QUEEN BED</text>
+                                <text x="218" y="186" fill="#94a3b8" font-size="10" font-family="Plus Jakarta Sans" text-anchor="middle">60" × 80"</text>
+                            </g>
+
+                            <!-- ZONE 2: Galley Kitchen (Top Center) -->
+                            <g onclick="selectZone('galley')" class="cursor-pointer group">
+                                <rect id="zone-rect-galley" x="315" y="62" width="185" height="72" rx="8" fill="#1e293b" fill-opacity="0.6" stroke="#475569" stroke-width="1.5" class="transition-all duration-300" />
+                                <!-- Induction Cooktop -->
+                                <rect x="330" y="74" width="44" height="46" rx="4" fill="#0f172a" stroke="#94a3b8" stroke-width="1.2" />
+                                <circle cx="352" cy="87" r="7" fill="none" stroke="#d97724" stroke-width="1.5" />
+                                <circle cx="352" cy="107" r="7" fill="none" stroke="#d97724" stroke-width="1.5" />
+                                <!-- Deep Stainless Sink -->
+                                <rect x="388" y="74" width="48" height="46" rx="4" fill="#0f172a" stroke="#94a3b8" stroke-width="1.2" />
+                                <circle cx="412" cy="97" r="4" fill="#94a3b8" />
+                                <!-- 12V Fridge/Freezer -->
+                                <rect x="448" y="70" width="44" height="56" rx="4" fill="#26313d" stroke="#94a3b8" stroke-width="1.2" />
+                                <text x="410" y="150" fill="#e8e2d5" font-size="11" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">GALLEY KITCHEN</text>
+                            </g>
+
+                            <!-- ZONE 3: Wet Bath & Composting Toilet (Bottom Center-Left) -->
+                            <g onclick="selectZone('bath')" class="cursor-pointer group">
+                                <rect id="zone-rect-bath" x="315" y="186" width="115" height="82" rx="8" fill="#1e293b" fill-opacity="0.6" stroke="#475569" stroke-width="1.5" class="transition-all duration-300" />
+                                <!-- Shower Pan Drain -->
+                                <circle cx="350" cy="227" r="14" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="3 3" />
+                                <circle cx="350" cy="227" r="3" fill="#94a3b8" />
+                                <!-- Toilet Fixture -->
+                                <ellipse cx="402" cy="242" rx="14" ry="18" fill="#0f172a" stroke="#94a3b8" stroke-width="1.2" />
+                                <text x="372" y="178" fill="#e8e2d5" font-size="11" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">WET BATH</text>
+                            </g>
+
+                            <!-- ZONE 4: Convertible U-Dinette & Lounge (Right-Center) -->
+                            <g onclick="selectZone('dinette')" class="cursor-pointer group">
+                                <rect id="zone-rect-dinette" x="508" y="62" width="145" height="125" rx="8" fill="#1e293b" fill-opacity="0.6" stroke="#475569" stroke-width="1.5" class="transition-all duration-300" />
+                                <!-- U-Shaped Cushions -->
+                                <path d="M518,70 L643,70 L643,178 L615,178 L615,98 L546,98 L546,178 L518,178 Z" fill="#2b3642" stroke="#94a3b8" stroke-width="1.2" />
+                                <!-- Lagun Swivel Table -->
+                                <rect x="556" y="110" width="50" height="64" rx="4" fill="#3b2f26" stroke="#d97724" stroke-width="1.2" />
+                                <text x="580" y="203" fill="#e8e2d5" font-size="11" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">U-DINETTE / BED</text>
+                            </g>
+
+                            <!-- ZONE 5: Rear Gear Garage & Bunks (Far Right) -->
+                            <g onclick="selectZone('garage')" class="cursor-pointer group">
+                                <rect id="zone-rect-garage" x="662" y="62" width="102" height="206" rx="8" fill="#1e293b" fill-opacity="0.6" stroke="#475569" stroke-width="1.5" class="transition-all duration-300" />
+                                <!-- L-Track Tie Down Rails -->
+                                <line x1="685" y1="74" x2="685" y2="256" stroke="#d97724" stroke-width="1.5" stroke-dasharray="6 4" />
+                                <line x1="740" y1="74" x2="740" y2="256" stroke="#d97724" stroke-width="1.5" stroke-dasharray="6 4" />
+                                <text x="713" y="165" fill="#e8e2d5" font-size="11" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">GEAR</text>
+                                <text x="713" y="180" fill="#e8e2d5" font-size="11" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">GARAGE</text>
+                            </g>
+
+                            <!-- ZONE 6: Exterior Power Awning & Roof Solar Array (Bottom Exterior Strip) -->
+                            <g onclick="selectZone('awning')" class="cursor-pointer group">
+                                <rect id="zone-rect-awning" x="260" y="294" width="380" height="22" rx="6" fill="#233d32" stroke="#d97724" stroke-width="1.5" />
+                                <text x="450" y="309" fill="#e8e2d5" font-size="10" font-family="Space Grotesk" font-weight="bold" text-anchor="middle" letter-spacing="1.5">16' POWER AWNING & 800W ROOF SOLAR ARRAY</text>
+                            </g>
+
+                            <!-- Entry Door Indicator -->
+                            <path d="M 455 285 L 455 315 A 30 30 0 0 0 485 285" fill="none" stroke="#d97724" stroke-width="1.5" stroke-dasharray="3 2" />
+
+                            <!-- INTERACTIVE NUMBERED HOTSPOT PINS -->
+                            <!-- Pin 1: Master Bed -->
+                            <g onclick="selectZone('master')" class="cursor-pointer">
+                                <circle cx="218" cy="118" r="15" fill="#d97724" stroke="#ffffff" stroke-width="2" />
+                                <text x="218" y="123" fill="#ffffff" font-size="12" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">1</text>
+                            </g>
+                            <!-- Pin 2: Galley -->
+                            <g onclick="selectZone('galley')" class="cursor-pointer">
+                                <circle cx="410" cy="97" r="15" fill="#d97724" stroke="#ffffff" stroke-width="2" />
+                                <text x="410" y="102" fill="#ffffff" font-size="12" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">2</text>
+                            </g>
+                            <!-- Pin 3: Wet Bath -->
+                            <g onclick="selectZone('bath')" class="cursor-pointer">
+                                <circle cx="372" cy="227" r="15" fill="#d97724" stroke="#ffffff" stroke-width="2" />
+                                <text x="372" y="232" fill="#ffffff" font-size="12" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">3</text>
+                            </g>
+                            <!-- Pin 4: Dinette -->
+                            <g onclick="selectZone('dinette')" class="cursor-pointer">
+                                <circle cx="580" cy="142" r="15" fill="#d97724" stroke="#ffffff" stroke-width="2" />
+                                <text x="580" y="147" fill="#ffffff" font-size="12" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">4</text>
+                            </g>
+                            <!-- Pin 5: Gear Garage -->
+                            <g onclick="selectZone('garage')" class="cursor-pointer">
+                                <circle cx="713" cy="120" r="15" fill="#d97724" stroke="#ffffff" stroke-width="2" />
+                                <text x="713" y="125" fill="#ffffff" font-size="12" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">5</text>
+                            </g>
+                            <!-- Pin 6: Roof Solar & Awning -->
+                            <g onclick="selectZone('awning')" class="cursor-pointer">
+                                <circle cx="242" cy="305" r="14" fill="#d97724" stroke="#ffffff" stroke-width="2" />
+                                <text x="242" y="310" fill="#ffffff" font-size="12" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">6</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Quick Zone Selector Pills Below SVG -->
+                    <div class="flex flex-wrap gap-2 mt-5">
+                        <button onclick="selectZone('master')" id="pill-master" class="zone-pill px-3.5 py-2 rounded-xl text-xs font-bold bg-overland-amber text-white transition-all cursor-pointer">1. Queen Master</button>
+                        <button onclick="selectZone('galley')" id="pill-galley" class="zone-pill px-3.5 py-2 rounded-xl text-xs font-bold bg-overland-slate text-overland-sandDark hover:text-white border border-overland-border transition-all cursor-pointer">2. Galley Kitchen</button>
+                        <button onclick="selectZone('bath')" id="pill-bath" class="zone-pill px-3.5 py-2 rounded-xl text-xs font-bold bg-overland-slate text-overland-sandDark hover:text-white border border-overland-border transition-all cursor-pointer">3. Wet Bath</button>
+                        <button onclick="selectZone('dinette')" id="pill-dinette" class="zone-pill px-3.5 py-2 rounded-xl text-xs font-bold bg-overland-slate text-overland-sandDark hover:text-white border border-overland-border transition-all cursor-pointer">4. U-Dinette</button>
+                        <button onclick="selectZone('garage')" id="pill-garage" class="zone-pill px-3.5 py-2 rounded-xl text-xs font-bold bg-overland-slate text-overland-sandDark hover:text-white border border-overland-border transition-all cursor-pointer">5. Gear Garage</button>
+                        <button onclick="selectZone('awning')" id="pill-awning" class="zone-pill px-3.5 py-2 rounded-xl text-xs font-bold bg-overland-slate text-overland-sandDark hover:text-white border border-overland-border transition-all cursor-pointer">6. Solar & Awning</button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Dynamic Zone Detail Panel -->
+                <div class="lg:col-span-5 rounded-3xl bg-overland-surface border border-overland-border overflow-hidden shadow-2xl">
+                    <!-- Zone Preview Image -->
+                    <div class="relative aspect-[16/10] bg-overland-slate overflow-hidden">
+                        <img 
+                            id="zoneImage" 
+                            src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=80" 
+                            onerror="this.onerror=null; this.src='https://placehold.co/800x500/1d2226/e8e2d5?text=INTERIOR+ZONE+VIEW';"
+                            alt="Selected Trailer Zone Preview" 
+                            class="w-full h-full object-cover transition-all duration-500"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-overland-surface via-transparent to-black/30"></div>
+                        <span id="zoneBadge" class="absolute top-4 left-4 px-3 py-1 rounded-lg bg-overland-amber text-white text-xs font-bold uppercase tracking-wider shadow">
+                            Zone 01 • Forward Cabin
+                        </span>
+                    </div>
+
+                    <!-- Zone Details Body -->
+                    <div class="p-6 sm:p-8 space-y-5">
+                        <div class="flex items-start justify-between gap-4">
+                            <h3 id="zoneTitle" class="font-display text-2xl sm:text-3xl font-bold text-white">
+                                Queen Master Bedroom
+                            </h3>
+                            <span id="zoneDimensions" class="px-3 py-1 rounded-lg bg-overland-pine text-overland-sand text-xs font-bold whitespace-nowrap border border-overland-pineLight">
+                                60" × 80"
+                            </span>
+                        </div>
+
+                        <p id="zoneDescription" class="text-sm sm:text-base text-overland-sandDark leading-relaxed">
+                            North-south walk-around residential queen mattress with Froli modular sleep springs, dual panoramic stargazer windows with blackout thermal shades, and under-bed pass-through gear lockers.
+                        </p>
+
+                        <!-- Zone Feature Bullet Points -->
+                        <div class="pt-2 border-t border-overland-border">
+                            <p class="text-xs font-bold uppercase tracking-wider text-overland-amber mb-3">Included Hardware & Amenities</p>
+                            <ul id="zoneFeatures" class="space-y-2.5 text-sm text-overland-sand">
+                                <li class="flex items-center space-x-2.5">
+                                    <i class="fa-solid fa-check text-overland-amber text-xs"></i>
+                                    <span>6-inch organic memory foam mattress with anti-condensation mat</span>
+                                </li>
+                                <li class="flex items-center space-x-2.5">
+                                    <i class="fa-solid fa-check text-overland-amber text-xs"></i>
+                                    <span>Dual 12V USB-C PD fast-charging ports & reading sconces</span>
+                                </li>
+                                <li class="flex items-center space-x-2.5">
+                                    <i class="fa-solid fa-check text-overland-amber text-xs"></i>
+                                    <span>Cedar-lined overhead aviation cabinetry with positive-latch locks</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Off-Grid Engineering & Key Features Grid -->
+    <section id="engineering" class="py-20 sm:py-24 px-4 sm:px-8 lg:px-12 bg-overland-pine/25 border-t border-overland-border">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-3">
+                <span class="text-overland-amber text-xs font-bold uppercase tracking-[0.25em]">Expedition DNA</span>
+                <h2 class="font-display text-3xl sm:text-5xl font-bold text-white">Built Where Pavement Ends</h2>
+                <p class="text-overland-sandDark text-sm sm:text-base">
+                    Every TerraCraft chassis is hand-welded in Bend, Oregon, and stress-tested across washboard desert trails and sub-zero alpine passes.
+                </p>
+            </div>
+
+            <!-- 4 Feature Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Card 1: 4-Season Insulation -->
+                <div class="rounded-3xl bg-overland-surface border border-overland-border p-7 hover:border-overland-amber/50 transition-all group flex flex-col justify-between space-y-6">
+                    <div class="space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-overland-pine border border-overland-pineLight flex items-center justify-center text-overland-amber text-xl group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-snowflake"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-white">4-Season Thermal Armor</h3>
+                        <p class="text-sm text-overland-sandDark leading-relaxed">
+                            R-16 closed-cell structural composite walls, dual-pane acrylic windows, and an enclosed heated underbelly rated down to -20°F (-29°C).
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-overland-border flex items-center justify-between text-xs font-bold text-overland-amber">
+                        <span>TRUMA COMBI ECO PLUS</span>
+                        <span>-20°F RATED</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: Off-Road Suspension -->
+                <div class="rounded-3xl bg-overland-surface border border-overland-border p-7 hover:border-overland-amber/50 transition-all group flex flex-col justify-between space-y-6">
+                    <div class="space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-overland-pine border border-overland-pineLight flex items-center justify-center text-overland-amber text-xl group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-mountain"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-white">Trailing-Arm Suspension</h3>
+                        <p class="text-sm text-overland-sandDark leading-relaxed">
+                            Independent heavy-duty coil-over trailing arms with twin remote-reservoir shocks, 33" BFGoodrich KO3 tires, and 17" ground clearance.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-overland-border flex items-center justify-between text-xs font-bold text-overland-amber">
+                        <span>17" CLEARANCE</span>
+                        <span>360° ARTICULATION</span>
+                    </div>
+                </div>
+
+                <!-- Card 3: Lithium & Solar Package -->
+                <div class="rounded-3xl bg-overland-surface border border-overland-border p-7 hover:border-overland-amber/50 transition-all group flex flex-col justify-between space-y-6">
+                    <div class="space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-overland-pine border border-overland-pineLight flex items-center justify-center text-overland-amber text-xl group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-solar-panel"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-white">800W Solar & LiFePO4</h3>
+                        <p class="text-sm text-overland-sandDark leading-relaxed">
+                            Rooftop monocrystalline solar paired with 400Ah self-heating lithium batteries and a 3,000W pure sine inverter to run A/C off-grid.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-overland-border flex items-center justify-between text-xs font-bold text-overland-amber">
+                        <span>VICTRON ENERGY</span>
+                        <span>400AH STANDARD</span>
+                    </div>
+                </div>
+
+                <!-- Card 4: Smart Interior Controls -->
+                <div class="rounded-3xl bg-overland-surface border border-overland-border p-7 hover:border-overland-amber/50 transition-all group flex flex-col justify-between space-y-6">
+                    <div class="space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-overland-pine border border-overland-pineLight flex items-center justify-center text-overland-amber text-xl group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-satellite-dish"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-white">Smart Telemetry & Starlink</h3>
+                        <p class="text-sm text-overland-sandDark leading-relaxed">
+                            7-inch touchscreen command center and mobile app for tank levels, auto-leveling air bags, climate zones, and pre-wired roof Starlink mount.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-overland-border flex items-center justify-between text-xs font-bold text-overland-amber">
+                        <span>STARLINK READY</span>
+                        <span>AUTO-LEVELING</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Technical Specifications Table/Tabs with Imperial / Metric Toggle -->
+    <section id="specs" class="py-20 sm:py-24 px-4 sm:px-8 lg:px-12 bg-overland-slate border-t border-overland-border">
+        <div class="max-w-5xl mx-auto">
+            <!-- Header + Unit Switcher -->
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-6">
+                <div>
+                    <span class="text-overland-amber text-xs font-bold uppercase tracking-[0.25em]">Data Sheet</span>
+                    <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mt-1.5">Technical Specifications</h2>
+                </div>
+
+                <!-- Imperial / Metric Toggle -->
+                <div class="inline-flex p-1 rounded-xl bg-overland-surface border border-overland-border self-start sm:self-auto">
+                    <button id="unitImperialBtn" onclick="setUnitSystem('imperial')" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-overland-amber text-white transition-all cursor-pointer">
+                        Imperial (ft / lbs / gal)
+                    </button>
+                    <button id="unitMetricBtn" onclick="setUnitSystem('metric')" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-overland-sandDark hover:text-white transition-all cursor-pointer">
+                        Metric (m / kg / L)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="flex overflow-x-auto gap-2 pb-3 mb-6 border-b border-overland-border">
+                <button onclick="selectSpecTab('dimensions')" id="spec-tab-dimensions" class="spec-tab px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-overland-pine text-white border border-overland-pineLight transition-all cursor-pointer">
+                    Dimensions & Weights
+                </button>
+                <button onclick="selectSpecTab('tanks')" id="spec-tab-tanks" class="spec-tab px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-overland-surface text-overland-sandDark hover:text-white border border-overland-border transition-all cursor-pointer">
+                    Tanks & Utilities
+                </button>
+                <button onclick="selectSpecTab('chassis')" id="spec-tab-chassis" class="spec-tab px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-overland-surface text-overland-sandDark hover:text-white border border-overland-border transition-all cursor-pointer">
+                    Chassis & Suspension
+                </button>
+                <button onclick="selectSpecTab('interior')" id="spec-tab-interior" class="spec-tab px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-overland-surface text-overland-sandDark hover:text-white border border-overland-border transition-all cursor-pointer">
+                    Interior & Appliances
+                </button>
+            </div>
+
+            <!-- Spec Table Card -->
+            <div class="rounded-3xl bg-overland-surface border border-overland-border overflow-hidden shadow-xl">
+                <div id="specRowsContainer" class="divide-y divide-overland-border">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Field Gallery Section -->
+    <section id="gallery" class="py-20 sm:py-24 px-4 sm:px-8 lg:px-12 bg-overland-surface/40 border-t border-overland-border">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+                <div>
+                    <span class="text-overland-amber text-xs font-bold uppercase tracking-[0.25em]">In The Wild</span>
+                    <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mt-1.5">Expedition Field Gallery</h2>
+                </div>
+                <button onclick="openConfiguratorModal()" class="text-sm font-bold text-overland-amber hover:text-overland-amberHover flex items-center space-x-2 cursor-pointer">
+                    <span>Customize Exterior Colors</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <!-- Large Feature Photo -->
+                <div class="md:col-span-7 rounded-3xl overflow-hidden border border-overland-border relative group aspect-[16/10]">
+                    <img 
+                        src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1400&q=80" 
+                        onerror="this.onerror=null; this.src='https://placehold.co/1000x625/1d2226/d97724?text=MOAB+RED+ROCK+EXPEDITION';"
+                        alt="Overland Camp at Dusk" 
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-overland-amber">Moab, Utah</span>
+                            <h3 class="font-display text-xl font-bold text-white">High-Clearance Departure Angle on Slickrock</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Stacked Photos -->
+                <div class="md:col-span-5 grid grid-cols-1 gap-6">
+                    <div class="rounded-3xl overflow-hidden border border-overland-border relative group aspect-[16/9]">
+                        <img 
+                            src="https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=1000&q=80" 
+                            onerror="this.onerror=null; this.src='https://placehold.co/800x450/1d2226/e8e2d5?text=ALPINE+BASECAMP';"
+                            alt="Alpine Forest Basecamp" 
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-5">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-overland-amber">Deschutes National Forest</span>
+                                <h3 class="font-display text-lg font-bold text-white">Zero-Hookup Off-Grid Autonomy</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl overflow-hidden border border-overland-border relative group aspect-[16/9]">
+                        <img 
+                            src="https://images.unsplash.com/photo-1533873984035-25970ab07461?auto=format&fit=crop&w=1000&q=80" 
+                            onerror="this.onerror=null; this.src='https://placehold.co/800x450/1d2226/e8e2d5?text=SLIDE+OUT+GALLEY';"
+                            alt="Outdoor Camp Cooking Setup" 
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-5">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-overland-amber">Exterior Slide-Out Kitchen</span>
+                                <h3 class="font-display text-lg font-bold text-white">Stainless Dual-Burner & 75L Fridge</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. Responsive Footer with Warranty Info, Dealer Locator & Newsletter -->
+    <footer class="bg-[#0e1113] border-t border-overland-border pt-16 pb-12 px-4 sm:px-8 lg:px-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-14 border-b border-overland-border">
+                
+                <!-- Brand & Structural Warranty Column -->
+                <div class="lg:col-span-4 space-y-5">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-overland-pine border border-overland-amber/40 flex items-center justify-center">
+                            <i class="fa-solid fa-compass text-overland-amber text-lg"></i>
+                        </div>
+                        <span class="font-display font-bold text-white tracking-wider text-lg">TERRACRAFT OVERLAND</span>
+                    </div>
+                    <p class="text-sm text-overland-sandDark leading-relaxed">
+                        Handcrafted expedition travel trailers built in Bend, Oregon for explorers who refuse to turn around when the pavement ends.
+                    </p>
+                    <!-- Warranty Badge -->
+                    <div class="p-4 rounded-2xl bg-overland-surface border border-overland-border flex items-start space-x-3.5">
+                        <i class="fa-solid fa-shield-halved text-overland-amber text-xl mt-0.5"></i>
+                        <div>
+                            <h4 class="font-display font-bold text-white text-sm">10-Year Structural & Chassis Warranty</h4>
+                            <p class="text-xs text-overland-sandDark mt-1">Transferable coverage on our hot-dip galvanized frame, trailing arms, and composite shell.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dealer Locator Search Preview -->
+                <div class="lg:col-span-4 space-y-4">
+                    <h4 class="font-display font-bold text-white uppercase tracking-wider text-sm">Factory Showrooms & Dealers</h4>
+                    <p class="text-xs text-overland-sandDark">Search certified TerraCraft expedition outfitters for walkthroughs and tow tests.</p>
+                    
+                    <div class="flex gap-2">
+                        <input id="dealerSearchInput" type="text" placeholder="Enter ZIP or State (e.g. CO, UT, OR)" class="w-full px-3.5 py-2.5 rounded-xl bg-overland-surface border border-overland-border text-sm text-white placeholder-overland-sandDark/60 focus:outline-none focus:border-overland-amber">
+                        <button onclick="searchDealers()" class="px-4 py-2.5 rounded-xl bg-overland-pine hover:bg-overland-pineLight text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                            Find
+                        </button>
+                    </div>
+
+                    <!-- Dealer Preview Results -->
+                    <div id="dealerResults" class="space-y-2 text-xs">
+                        <div class="p-3 rounded-xl bg-overland-surface/70 border border-overland-border flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-white">Bend Factory HQ & Showroom</p>
+                                <p class="text-overland-sandDark">Bend, OR • Demo Units Available</p>
+                            </div>
+                            <button onclick="openConfiguratorModal()" class="text-overland-amber font-bold hover:underline cursor-pointer">Book Tour</button>
+                        </div>
+                        <div class="p-3 rounded-xl bg-overland-surface/70 border border-overland-border flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-white">Front Range Overland Outfitters</p>
+                                <p class="text-overland-sandDark">Denver, CO • Certified Service</p>
+                            </div>
+                            <button onclick="openConfiguratorModal()" class="text-overland-amber font-bold hover:underline cursor-pointer">Book Tour</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expedition Newsletter Signup -->
+                <div class="lg:col-span-4 space-y-4">
+                    <h4 class="font-display font-bold text-white uppercase tracking-wider text-sm">Expedition Dispatch</h4>
+                    <p class="text-xs text-overland-sandDark leading-relaxed">
+                        Receive build slot availability alerts, overland trail guides, and invitations to regional TerraCraft owner rallies.
+                    </p>
+                    <form onsubmit="handleNewsletterSubmit(event)" class="space-y-2.5">
+                        <input id="newsletterEmail" type="email" required placeholder="you@adventure.com" class="w-full px-4 py-3 rounded-xl bg-overland-surface border border-overland-border text-sm text-white placeholder-overland-sandDark/60 focus:outline-none focus:border-overland-amber">
+                        <button type="submit" class="w-full py-3 rounded-xl bg-overland-amber hover:bg-overland-amberHover text-white font-display font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer">
+                            Join The Dispatch
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Bottom Legal & Socials -->
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-overland-sandDark">
+                <p>© 2026 TerraCraft Overland Systems Inc. All rights reserved.</p>
+                <div class="flex items-center space-x-5">
+                    <a href="#overview" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#specs" class="hover:text-white transition-colors">Tow Vehicle Guide</a>
+                    <a href="#engineering" class="hover:text-white transition-colors">Owner Portal</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================== -->
+    <!-- 6. INTERACTIVE 'BUILD & PRICE' CONFIGURATOR & INQUIRY MODAL -->
+    <!-- ========================================================== -->
+    <div id="configuratorModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-6 overflow-y-auto">
+        <div class="relative w-full max-w-4xl bg-overland-surface rounded-3xl border border-overland-border shadow-2xl overflow-hidden my-auto">
+            
+            <!-- Modal Top Header -->
+            <div class="px-6 py-4 bg-overland-slate border-b border-overland-border flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] font-bold uppercase tracking-widest text-overland-amber">2026 Production Build Slot</span>
+                    <h3 class="font-display text-xl sm:text-2xl font-bold text-white">Configure Your NOMAD APEX 24</h3>
+                </div>
+                <button onclick="closeConfiguratorModal()" aria-label="Close Configurator" class="w-10 h-10 rounded-xl bg-overland-surface hover:bg-overland-amber text-white flex items-center justify-center transition-colors cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Configurator Two-Column Body -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 max-h-[82vh] overflow-y-auto">
+                
+                <!-- Left Configuration Options -->
+                <div class="lg:col-span-7 p-6 sm:p-8 space-y-7 border-b lg:border-b-0 lg:border-r border-overland-border">
+                    
+                    <!-- Step 1: Exterior Armor Finish -->
+                    <div class="space-y-3">
+                        <label class="block font-display font-bold text-sm uppercase tracking-wider text-white">
+                            1. Exterior Composite Armor Finish
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <button type="button" onclick="selectFinish('Mojave Sand', 0, '#d6c7ae')" id="finish-Mojave Sand" class="finish-btn p-3 rounded-xl bg-overland-slate border-2 border-overland-amber text-left transition-all cursor-pointer">
+                                <span class="w-6 h-6 rounded-full bg-[#d6c7ae] border border-white/30 block mb-2"></span>
+                                <span class="text-xs font-bold text-white block">Mojave Sand</span>
+                                <span class="text-[11px] text-overland-sandDark">Included</span>
+                            </button>
+                            <button type="button" onclick="selectFinish('Forest Pine Matte', 1450, '#233d32')" id="finish-Forest Pine Matte" class="finish-btn p-3 rounded-xl bg-overland-slate border border-overland-border hover:border-white/30 text-left transition-all cursor-pointer">
+                                <span class="w-6 h-6 rounded-full bg-[#233d32] border border-white/30 block mb-2"></span>
+                                <span class="text-xs font-bold text-white block">Forest Pine</span>
+                                <span class="text-[11px] text-overland-amber">+$1,450</span>
+                            </button>
+                            <button type="button" onclick="selectFinish('Obsidian Slate', 1450, '#1e242b')" id="finish-Obsidian Slate" class="finish-btn p-3 rounded-xl bg-overland-slate border border-overland-border hover:border-white/30 text-left transition-all cursor-pointer">
+                                <span class="w-6 h-6 rounded-full bg-[#1e242b] border border-white/30 block mb-2"></span>
+                                <span class="text-xs font-bold text-white block">Obsidian Slate</span>
+                                <span class="text-[11px] text-overland-amber">+$1,450</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Off-Grid Lithium & Solar Package -->
+                    <div class="space-y-3">
+                        <label class="block font-display font-bold text-sm uppercase tracking-wider text-white">
+                            2. Off-Grid Power Architecture
+                        </label>
+                        <div class="space-y-2.5">
+                            <button type="button" onclick="selectPower('Basecamp 400Ah LiFePO4 + 800W Solar', 0)" id="power-base" class="power-btn w-full p-4 rounded-xl bg-overland-slate border-2 border-overland-amber flex items-center justify-between text-left transition-all cursor-pointer">
+                                <div>
+                                    <span class="text-sm font-bold text-white block">Basecamp 400Ah LiFePO4 + 800W Solar</span>
+                                    <span class="text-xs text-overland-sandDark">3,000W Victron Inverter • Standard Expedition Pack</span>
+                                </div>
+                                <span class="text-xs font-bold text-overland-sandDark">Included</span>
+                            </button>
+                            <button type="button" onclick="selectPower('Expedition Pro 800Ah LiFePO4 + 1,200W Solar', 4800)" id="power-pro" class="power-btn w-full p-4 rounded-xl bg-overland-slate border border-overland-border hover:border-white/30 flex items-center justify-between text-left transition-all cursor-pointer">
+                                <div>
+                                    <span class="text-sm font-bold text-white block">Expedition Pro 800Ah LiFePO4 + 1,200W Solar</span>
+                                    <span class="text-xs text-overland-sandDark">Dual 3,000W Inverters • Multi-Day Off-Grid A/C Runtime</span>
+                                </div>
+                                <span class="text-xs font-bold text-overland-amber">+$4,800</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Overland Adventure Add-Ons -->
+                    <div class="space-y-3">
+                        <label class="block font-display font-bold text-sm uppercase tracking-wider text-white">
+                            3. Expedition Add-Ons
+                        </label>
+                        <div class="space-y-2.5">
+                            <label class="flex items-center justify-between p-3.5 rounded-xl bg-overland-slate border border-overland-border cursor-pointer hover:border-white/25">
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" value="2200" data-name="Exterior Slide-Out Kitchen & 75L Dual-Zone Fridge" onchange="recalculateTotal()" class="addon-checkbox w-4 h-4 accent-[#d97724] rounded">
+                                    <div>
+                                        <span class="text-xs sm:text-sm font-bold text-white block">Exterior Slide-Out Kitchen & 75L Fridge</span>
+                                        <span class="text-[11px] text-overland-sandDark">Stainless dual-burner stove & prep sink</span>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-bold text-overland-amber">+$2,200</span>
+                            </label>
+
+                            <label class="flex items-center justify-between p-3.5 rounded-xl bg-overland-slate border border-overland-border cursor-pointer hover:border-white/25">
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" value="1650" data-name="Starlink Flat High-Performance Roof Kit" onchange="recalculateTotal()" class="addon-checkbox w-4 h-4 accent-[#d97724] rounded">
+                                    <div>
+                                        <span class="text-xs sm:text-sm font-bold text-white block">Starlink In-Motion Roof Mount & 12V DC Conversion</span>
+                                        <span class="text-[11px] text-overland-sandDark">Hardwired low-draw satellite internet</span>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-bold text-overland-amber">+$1,650</span>
+                            </label>
+
+                            <label class="flex items-center justify-between p-3.5 rounded-xl bg-overland-slate border border-overland-border cursor-pointer hover:border-white/25">
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" value="1850" data-name="Rear Swing-Away Dual Spare & Bike Rack" onchange="recalculateTotal()" class="addon-checkbox w-4 h-4 accent-[#d97724] rounded">
+                                    <div>
+                                        <span class="text-xs sm:text-sm font-bold text-white block">Rear Swing-Away Dual Spare & 1UP Bike Carrier</span>
+                                        <span class="text-[11px] text-overland-sandDark">Heavy-duty steel bumper integration</span>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-bold text-overland-amber">+$1,850</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Live Price Summary & Reservation / Brochure Form -->
+                <div class="lg:col-span-5 p-6 sm:p-8 bg-overland-slate/70 flex flex-col justify-between space-y-6">
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-2xl bg-overland-surface border border-overland-border space-y-3">
+                            <div class="flex items-center justify-between text-xs text-overland-sandDark">
+                                <span>Base MSRP (NOMAD APEX 24)</span>
+                                <span class="font-semibold text-white">$74,900</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs text-overland-sandDark">
+                                <span>Selected Finish & Power</span>
+                                <span id="summaryPackagesPrice" class="font-semibold text-white">$0</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs text-overland-sandDark">
+                                <span>Expedition Add-Ons</span>
+                                <span id="summaryAddonsPrice" class="font-semibold text-white">$0</span>
+                            </div>
+                            <div class="pt-3 border-t border-overland-border flex items-baseline justify-between">
+                                <span class="font-display font-bold text-sm text-white uppercase">Estimated Build Total</span>
+                                <span id="liveTotalPrice" class="font-display text-3xl font-bold text-overland-amber">$74,900</span>
+                            </div>
+                            <p class="text-[11px] text-overland-sandDark">
+                                Est. <span id="monthlyEstimate" class="text-white font-semibold">$618/mo</span> with 20% down (144 mos @ 6.99% APR)
+                            </p>
+                        </div>
+
+                        <!-- Dealer Inquiry / Build Sheet Form -->
+                        <form onsubmit="submitBuildInquiry(event)" class="space-y-3">
+                            <p class="font-display font-bold text-xs uppercase tracking-wider text-white">Request Build Sheet & Dealer Quote</p>
+                            <input type="text" required placeholder="Full Name" class="w-full px-3.5 py-2.5 rounded-xl bg-overland-surface border border-overland-border text-sm text-white placeholder-overland-sandDark/60 focus:outline-none focus:border-overland-amber">
+                            <input type="email" required placeholder="Email Address" class="w-full px-3.5 py-2.5 rounded-xl bg-overland-surface border border-overland-border text-sm text-white placeholder-overland-sandDark/60 focus:outline-none focus:border-overland-amber">
+                            <input type="text" required placeholder="ZIP / Postal Code" class="w-full px-3.5 py-2.5 rounded-xl bg-overland-surface border border-overland-border text-sm text-white placeholder-overland-sandDark/60 focus:outline-none focus:border-overland-amber">
+                            
+                            <button type="submit" class="w-full py-3.5 rounded-xl bg-overland-amber hover:bg-overland-amberHover text-white font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-overland-amber/20 cursor-pointer">
+                                Lock Build & Download PDF Brochure
+                            </button>
+                        </form>
+                    </div>
+
+                    <p class="text-[11px] text-overland-sandDark text-center">
+                        No deposit required today. A TerraCraft build specialist will email your itemized spec sheet.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Non-Blocking Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="flex items-center space-x-3 px-5 py-3.5 rounded-2xl bg-overland-pine border border-overland-amber shadow-2xl text-white text-sm font-medium">
+            <i class="fa-solid fa-circle-check text-overland-amber text-base"></i>
+            <span id="toastText">Action confirmed</span>
+        </div>
+    </div>
+
+    <!-- Interactive Application Logic -->
+    <script>
+        // ==========================================
+        // 1. MOBILE NAVIGATION TOGGLE
+        // ==========================================
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // ==========================================
+        // 2. INTERACTIVE FLOORPLAN ZONE EXPLORER
+        // ==========================================
+        const floorplanZones = {
+            master: {
+                badge: 'Zone 01 • Forward Cabin',
+                title: 'Queen Master Bedroom',
+                dimensions: '60" × 80"',
+                description: 'North-south walk-around residential queen mattress with Froli modular sleep springs, dual panoramic stargazer windows with blackout thermal shades, and under-bed pass-through gear lockers.',
+                image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=80',
+                features: [
+                    '6-inch organic memory foam mattress with anti-condensation mat',
+                    'Dual 12V USB-C PD fast-charging ports & reading sconces',
+                    'Cedar-lined overhead aviation cabinetry with positive-latch locks'
+                ]
+            },
+            galley: {
+                badge: 'Zone 02 • Mid-Ship Culinary',
+                title: 'Expedition Galley Kitchen',
+                dimensions: '74" Counter',
+                description: 'Designed for high-altitude meal prep with marine-grade bamboo countertops, a flush dual-zone induction cooktop, deep stainless workstation sink, and a 130L 12V compressor refrigerator.',
+                image: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1000&q=80',
+                features: [
+                    '2-burner high-efficiency induction range + convection microwave',
+                    '3-stage UV-LED drinking water filtration tap',
+                    'Soft-close dovetail drawers with custom dish & spice organizers'
+                ]
+            },
+            bath: {
+                badge: 'Zone 03 • Full Dry/Wet Suite',
+                title: 'All-Weather Wet Bath',
+                dimensions: '34" × 46"',
+                description: 'One-piece molded fiberglass shower enclosure with teak floor grate, high-pressure oxygenics showerhead, and a waterless separating composting toilet for extended boondocking.',
+                image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1000&q=80',
+                features: [
+                    'Truma AquaGo continuous instant hot water system',
+                    'Separett waterless composting toilet (zero black tank dumping)',
+                    'Heated gear drying vent for wet waders, jackets, and ski boots'
+                ]
+            },
+            dinette: {
+                badge: 'Zone 04 • Social & Workspace',
+                title: 'Convertible U-Dinette',
+                dimensions: '48" × 76" Bed',
+                description: 'Panoramic wraparound lounge with water-resistant Cordura upholstery and a 360° Lagun swivel table that drops effortlessly into a second queen-width sleeping berth for guests.',
+                image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=80',
+                features: [
+                    'Seats up to 5 adults comfortably with oversized picture windows',
+                    'Converts in 30 seconds into a secondary 48" × 76" sleeping area',
+                    'Dedicated Starlink router cubby & 110V inverter workstation outlets'
+                ]
+            },
+            garage: {
+                badge: 'Zone 05 • Aft Utility Bay',
+                title: 'Rear Gear Garage & Bunks',
+                dimensions: '36" × 82"',
+                description: 'Accessible from both interior and a full-height watertight rear hatch, featuring aircraft L-track tie-downs for mountain bikes, kayaks, or optional fold-down expedition bunks.',
+                image: 'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?auto=format&fit=crop&w=1000&q=80',
+                features: [
+                    'Heavy-duty extruded aluminum L-track floor & wall rails',
+                    'Washdown sprayer port & waterproof textured composite flooring',
+                    'Optional modular aluminum bunk system for 5th sleeper'
+                ]
+            },
+            awning: {
+                badge: 'Zone 06 • Roof & Exterior',
+                title: '16\' Power Awning & 800W Solar',
+                dimensions: '16\' × 8\' Shade',
+                description: 'Wind-sensing armless electric patio awning with dimmable amber bug-free LED perimeter lighting, topped by a walk-on aluminum roof rack and 800W solar array.',
+                image: 'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=1000&q=80',
+                features: [
+                    'Automatic wind-retraction sensor for sudden mountain gusts',
+                    '800W walkable monocrystalline solar panels (expandable to 1,200W)',
+                    'Integrated kayak/SUP crossbars & 360° perimeter floodlights'
+                ]
+            }
+        };
+
+        function selectZone(zoneKey) {
+            const data = floorplanZones[zoneKey];
+            if (!data) return;
+
+            // Update Detail Card Content
+            document.getElementById('zoneBadge').textContent = data.badge;
+            document.getElementById('zoneTitle').textContent = data.title;
+            document.getElementById('zoneDimensions').textContent = data.dimensions;
+            document.getElementById('zoneDescription').textContent = data.description;
+            document.getElementById('zoneImage').src = data.image;
+
+            const featuresList = document.getElementById('zoneFeatures');
+            featuresList.innerHTML = data.features.map(item => `
+                <li class="flex items-center space-x-2.5">
+                    <i class="fa-solid fa-check text-overland-amber text-xs"></i>
+                    <span>${item}</span>
+                </li>
+            `).join('');
+
+            // Highlight Active Pill Button
+            document.querySelectorAll('.zone-pill').forEach(btn => {
+                btn.classList.remove('bg-overland-amber', 'text-white');
+                btn.classList.add('bg-overland-slate', 'text-overland-sandDark', 'border', 'border-overland-border');
+            });
+            const activePill = document.getElementById(`pill-${zoneKey}`);
+            if (activePill) {
+                activePill.classList.remove('bg-overland-slate', 'text-overland-sandDark', 'border', 'border-overland-border');
+                activePill.classList.add('bg-overland-amber', 'text-white');
+            }
+
+            // Highlight SVG Zone Rectangle
+            ['master', 'galley', 'bath', 'dinette', 'garage', 'awning'].forEach(key => {
+                const rect = document.getElementById(`zone-rect-${key}`);
+                if (rect) {
+                    rect.setAttribute('stroke', key === zoneKey ? '#d97724' : '#475569');
+                    rect.setAttribute('stroke-width', key === zoneKey ? '3' : '1.5');
+                }
+            });
+        }
+
+        // ==========================================
+        // 3. TECHNICAL SPECIFICATIONS TABS & UNITS
+        // ==========================================
+        let currentUnitSystem = 'imperial';
+        let currentSpecCategory = 'dimensions';
+
+        const specDatabase = {
+            dimensions: [
+                { label: 'Exterior Overall Length (Hitch to Bumper)', imperial: '24 ft 6 in', metric: '7.47 m' },
+                { label: 'Exterior Body Width', imperial: '8 ft 0 in', metric: '2.44 m' },
+                { label: 'Exterior Overall Height (Incl. A/C)', imperial: '10 ft 4 in', metric: '3.15 m' },
+                { label: 'Interior Standing Headroom', imperial: '6 ft 8 in', metric: '2.03 m' },
+                { label: 'Unloaded Dry Weight (UVW)', imperial: '4,850 lbs', metric: '2,200 kg' },
+                { label: 'Gross Vehicle Weight Rating (GVWR)', imperial: '7,000 lbs', metric: '3,175 kg' },
+                { label: 'Hitch Tongue Weight (Dry)', imperial: '510 lbs', metric: '231 kg' }
+            ],
+            tanks: [
+                { label: 'Fresh Water Tank (Heated & Enclosed)', imperial: '65 gal', metric: '246 L' },
+                { label: 'Grey Water Tank (Heated & Enclosed)', imperial: '45 gal', metric: '170 L' },
+                { label: 'Black Water Tank', imperial: '0 gal (Composting Toilet)', metric: '0 L (Composting Toilet)' },
+                { label: 'Standard Lithium Battery Bank', imperial: '400Ah @ 12.8V (5.12 kWh)', metric: '400Ah @ 12.8V (5.12 kWh)' },
+                { label: 'Rooftop Monocrystalline Solar', imperial: '800W Standard / 1,200W Max', metric: '800W Standard / 1,200W Max' },
+                { label: 'Propane Capacity (Dual Cylinders)', imperial: '2 × 20 lb Cylinders', metric: '2 × 9.1 kg Cylinders' }
+            ],
+            chassis: [
+                { label: 'Main Frame Construction', imperial: '6" × 2" Hot-Dip Galvanized Steel', metric: '152 × 51 mm Galvanized Steel' },
+                { label: 'Suspension Architecture', imperial: 'Dual Independent Trailing-Arm Coil', metric: 'Dual Independent Trailing-Arm Coil' },
+                { label: 'Shock Absorbers', imperial: 'Quad Remote-Reservoir Off-Road Shocks', metric: 'Quad Remote-Reservoir Off-Road Shocks' },
+                { label: 'Minimum Ground Clearance', imperial: '17.0 in', metric: '432 mm' },
+                { label: 'Tires & Wheels', imperial: 'LT285/70R17 BFGoodrich KO3 (33")', metric: 'LT285/70R17 BFGoodrich KO3 (838 mm)' },
+                { label: 'Coupler System', imperial: 'Lock-N-Roll 3-Axis Articulating Hitch', metric: 'Lock-N-Roll 3-Axis Articulating Hitch' }
+            ],
+            interior: [
+                { label: 'Primary Sleeping Berth', imperial: 'True Queen (60" × 80")', metric: 'True Queen (152 × 203 cm)' },
+                { label: 'Secondary Convertible Berth', imperial: 'U-Dinette Bed (48" × 76")', metric: 'U-Dinette Bed (122 × 193 cm)' },
+                { label: 'Cabin Furnace & Water Heater', imperial: 'Truma Combi Eco Plus (14,300 BTU)', metric: 'Truma Combi Eco Plus (4.2 kW)' },
+                { label: 'Air Conditioning Unit', imperial: '13,500 BTU High-Efficiency Soft-Start', metric: '3.95 kW High-Efficiency Soft-Start' },
+                { label: 'Refrigeration', imperial: '130L (4.6 cu ft) 12V Dual-Zone', metric: '130 L 12V Dual-Zone Compressor' },
+                { label: 'Wall & Roof Insulation', imperial: 'R-16 Closed-Cell Composite Core', metric: 'RSI-2.82 Closed-Cell Composite Core' }
+            ]
+        };
+
+        function renderSpecs() {
+            const container = document.getElementById('specRowsContainer');
+            const rows = specDatabase[currentSpecCategory] || [];
+            container.innerHTML = rows.map(row => `
+                <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1 hover:bg-white/[0.02] transition-colors">
+                    <span class="text-sm text-overland-sandDark font-medium">${row.label}</span>
+                    <span class="font-display text-sm sm:text-base font-bold text-white">${row[currentUnitSystem]}</span>
+                </div>
+            `).join('');
+        }
+
+        function selectSpecTab(category) {
+            currentSpecCategory = category;
+            document.querySelectorAll('.spec-tab').forEach(tab => {
+                tab.classList.remove('bg-overland-pine', 'text-white', 'border-overland-pineLight');
+                tab.classList.add('bg-overland-surface', 'text-overland-sandDark', 'border-overland-border');
+            });
+            const activeTab = document.getElementById(`spec-tab-${category}`);
+            if (activeTab) {
+                activeTab.classList.remove('bg-overland-surface', 'text-overland-sandDark', 'border-overland-border');
+                activeTab.classList.add('bg-overland-pine', 'text-white', 'border-overland-pineLight');
+            }
+            renderSpecs();
+        }
+
+        function setUnitSystem(unit) {
+            currentUnitSystem = unit;
+            const impBtn = document.getElementById('unitImperialBtn');
+            const metBtn = document.getElementById('unitMetricBtn');
+
+            if (unit === 'imperial') {
+                impBtn.classList.add('bg-overland-amber', 'text-white');
+                impBtn.classList.remove('text-overland-sandDark');
+                metBtn.classList.remove('bg-overland-amber', 'text-white');
+                metBtn.classList.add('text-overland-sandDark');
+            } else {
+                metBtn.classList.add('bg-overland-amber', 'text-white');
+                metBtn.classList.remove('text-overland-sandDark');
+                impBtn.classList.remove('bg-overland-amber', 'text-white');
+                impBtn.classList.add('text-overland-sandDark');
+            }
+            renderSpecs();
+        }
+
+        // ==========================================
+        // 4. BUILD & PRICE CONFIGURATOR MODAL
+        // ==========================================
+        const baseMSRP = 74900;
+        let selectedFinishPrice = 0;
+        let selectedPowerPrice = 0;
+
+        function openConfiguratorModal() {
+            const modal = document.getElementById('configuratorModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            recalculateTotal();
+        }
+
+        function closeConfiguratorModal() {
+            const modal = document.getElementById('configuratorModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        function selectFinish(name, price) {
+            selectedFinishPrice = price;
+            document.querySelectorAll('.finish-btn').forEach(btn => {
+                btn.classList.remove('border-2', 'border-overland-amber');
+                btn.classList.add('border', 'border-overland-border');
+            });
+            const activeBtn = document.getElementById(`finish-${name}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border', 'border-overland-border');
+                activeBtn.classList.add('border-2', 'border-overland-amber');
+            }
+            recalculateTotal();
+        }
+
+        function selectPower(name, price) {
+            selectedPowerPrice = price;
+            const baseBtn = document.getElementById('power-base');
+            const proBtn = document.getElementById('power-pro');
+
+            [baseBtn, proBtn].forEach(btn => {
+                btn.classList.remove('border-2', 'border-overland-amber');
+                btn.classList.add('border', 'border-overland-border');
+            });
+
+            const activeBtn = price === 0 ? baseBtn : proBtn;
+            activeBtn.classList.remove('border', 'border-overland-border');
+            activeBtn.classList.add('border-2', 'border-overland-amber');
+            recalculateTotal();
+        }
+
+        function recalculateTotal() {
+            let addonsTotal = 0;
+            document.querySelectorAll('.addon-checkbox:checked').forEach(cb => {
+                addonsTotal += parseInt(cb.value, 10) || 0;
+            });
+
+            const packagesTotal = selectedFinishPrice + selectedPowerPrice;
+            const grandTotal = baseMSRP + packagesTotal + addonsTotal;
+
+            // Simple 144-month RV loan estimate with 20% down @ 6.99% APR
+            const financedAmount = grandTotal * 0.80;
+            const monthlyRate = 0.0699 / 12;
+            const months = 144;
+            const monthlyPayment = Math.round((financedAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months)));
+
+            document.getElementById('summaryPackagesPrice').textContent = `$${packagesTotal.toLocaleString()}`;
+            document.getElementById('summaryAddonsPrice').textContent = `$${addonsTotal.toLocaleString()}`;
+            document.getElementById('liveTotalPrice').textContent = `$${grandTotal.toLocaleString()}`;
+            document.getElementById('monthlyEstimate').textContent = `$${monthlyPayment.toLocaleString()}/mo`;
+        }
+
+        function submitBuildInquiry(event) {
+            event.preventDefault();
+            const total = document.getElementById('liveTotalPrice').textContent;
+            closeConfiguratorModal();
+            showToast(`Build sheet (${total}) sent! Check your inbox for your PDF brochure.`);
+        }
+
+        // ==========================================
+        // 5. DEALER LOCATOR & NEWSLETTER HANDLERS
+        // ==========================================
+        function searchDealers() {
+            const query = document.getElementById('dealerSearchInput').value.trim();
+            if (!query) {
+                showToast('Enter a ZIP code or state abbreviation to search dealers.');
+                return;
+            }
+            const resultsDiv = document.getElementById('dealerResults');
+            resultsDiv.innerHTML = `
+                <div class="p-3 rounded-xl bg-overland-surface/70 border border-overland-amber/40 flex items-center justify-between">
+                    <div>
+                        <p class="font-bold text-white">TerraCraft Certified Outfitter (${query.toUpperCase()})</p>
+                        <p class="text-overland-sandDark">18 miles away • 2026 NOMAD APEX 24 on display</p>
+                    </div>
+                    <button onclick="openConfiguratorModal()" class="text-overland-amber font-bold hover:underline cursor-pointer">Schedule</button>
+                </div>
+            `;
+            showToast(`Showing authorized dealers near ${query.toUpperCase()}`);
+        }
+
+        function handleNewsletterSubmit(event) {
+            event.preventDefault();
+            const emailInput = document.getElementById('newsletterEmail');
+            showToast(`Welcome to the Expedition Dispatch, ${emailInput.value}!`);
+            emailInput.value = '';
+        }
+
+        // ==========================================
+        // 6. TOAST NOTIFICATION & KEYBOARD SHORTCUTS
+        // ==========================================
+        let toastTimer;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastText').textContent = message;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3800);
+        }
+
+        document.getElementById('configuratorModal').addEventListener('click', (e) => {
+            if (e.target.id === 'configuratorModal') closeConfiguratorModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeConfiguratorModal();
+        });
+
+        // Initialize default specs table on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSpecs();
+        });
+    </script>
+</body>
+</html>
