@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TODO List Formatter — WallyCAD Utility</title>
+<style>
+  :root {
+    --bg: #121417;
+    --panel: #1b1f24;
+    --border: #2e343d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #388bfd;
+    --accent-hover: #58a6ff;
+    --success: #2ea043;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 20px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.45;
+  }
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+  h1 {
+    font-size: 1.2rem;
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+  .meta {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .pane {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pane-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  textarea {
+    width: 100%;
+    height: 360px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    resize: vertical;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  button.secondary:hover { border-color: var(--muted); }
+  button.copied { background: var(--success); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>[TODO] String → Priority Markdown Converter</h1>
+    <span class="meta">Zero-dependency • Client-side • P:1 / P:0</span>
+  </header>
+
+  <div class="grid">
+    <div class="pane">
+      <div class="pane-header">
+        <span>Raw [TODO] Input</span>
+        <div class="controls">
+          <button class="secondary" id="sampleBtn" type="button">Load Sample</button>
+          <button class="secondary" id="clearBtn" type="button">Clear</button>
+        </div>
+      </div>
+      <textarea id="inputBox" placeholder='Paste [TODO] CATEGORY "Title" "Description" P:1 S:0 string here...'></textarea>
+    </div>
+
+    <div class="pane">
+      <div class="pane-header">
+        <span>Formatted Markdown (<span id="countLabel">0 items</span>)</span>
+        <div class="controls">
+          <button id="copyBtn" type="button">Copy Output</button>
+        </div>
+      </div>
+      <textarea id="outputBox" readonly placeholder="Output updates automatically..."></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const inputBox = document.getElementById('inputBox');
+  const outputBox = document.getElementById('outputBox');
+  const copyBtn = document.getElementById('copyBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const sampleBtn = document.getElementById('sampleBtn');
+  const countLabel = document.getElementById('countLabel');
+
+  const SAMPLE_DATA = `[TODO] PAYDAY "Rent — $875" "Carson Suites Apt 219 monthly rent allocation (2026.11.30)" P:1 S:0 [TODO] PAYDAY "Cue" "Playing cue budget allocation (17–18 oz McDermott / shaft setup)" P:0 S:0 [TODO] LOCAL "Library" "East Las Vegas / West Charleston / Sahara West — study table, printing, coding" P:1 S:0 [TODO] WALLY "Wally (WallyCAD)" "Standardize & test modules (/s2, /trans-rot, /qc, SquareFont) on wallycad.com" P:1 S:0 [TODO] TRAVEL "PDX (Portland)" "December reconnaissance trip transit, lodging & local logistics" P:0 S:0`;
+
+  function parseAndFormat(raw) {
+    const text = raw.trim();
+    if (!text) {
+      countLabel.textContent = '0 items';
+      return '';
+    }
+
+    // Match each [TODO] token up to the next [TODO] or end of string
+    const pattern = /\[TODO\]\s+[A-Z0-9_-]+\s+"([^"]+)"\s+"([^"]*)"\s+(P:\d+\s+S:\d+)/g;
+    const priorityList = [];
+    const standardList = [];
+    let match;
+
+    while ((match = pattern.exec(text)) !== null) {
+      const title = match[1].trim();
+      const desc = match[2].trim();
+      const tags = match[3].trim();
+      const line = `* **${title}** ${desc} ${tags}`;
+
+      if (/^P:1\b/.test(tags)) {
+        priorityList.push(line);
+      } else {
+        standardList.push(line);
+      }
+    }
+
+    const total = priorityList.length + standardList.length;
+    countLabel.textContent = `${total} item${total === 1 ? '' : 's'}`;
+
+    const sections = [];
+    if (priorityList.length) {
+      sections.push(`**Priority (\`P:1\`)**\n${priorityList.join('\n')}`);
+    }
+    if (standardList.length) {
+      sections.push(`**Standard (\`P:0\`)**\n${standardList.join('\n')}`);
+    }
+
+    return sections.join('\n\n');
+  }
+
+  function update() {
+    outputBox.value = parseAndFormat(inputBox.value);
+  }
+
+  inputBox.addEventListener('input', update);
+
+  copyBtn.addEventListener('click', async () => {
+    if (!outputBox.value) return;
+    try {
+      await navigator.clipboard.writeText(outputBox.value);
+      copyBtn.textContent = 'Copied!';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy Output';
+        copyBtn.classList.remove('copied');
+      }, 1500);
+    } catch {
+      outputBox.select();
+      document.execCommand('copy');
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    inputBox.value = '';
+    update();
+    inputBox.focus();
+  });
+
+  sampleBtn.addEventListener('click', () => {
+    inputBox.value = SAMPLE_DATA;
+    update();
+  });
+})();
+</script>
+</body>
+</html>
