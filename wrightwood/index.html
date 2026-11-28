@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wrightwood Photo Log & Notes | Route Two</title>
 <style>
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
@@ -33,6 +36,12 @@
   }
   .nav-bar a:hover {
     background: #3498db;
+  }
+  .nav-bar a.anchor-pill {
+    background: #1e8449;
+  }
+  .nav-bar a.anchor-pill:hover {
+    background: #27ae60;
   }
   h1 {
     text-align: center;
@@ -93,6 +102,60 @@
     margin-top: 0;
     border-bottom: 1px solid #ecf0f1;
     padding-bottom: 6px;
+  }
+  /* Anchored 2-WEEK Touring Sub-Section */
+  .sub-section-2week {
+    margin-top: 18px;
+    padding: 16px 18px;
+    background: #f0f9f4;
+    border: 1px solid #a9dfbf;
+    border-left: 5px solid #1e8449;
+    border-radius: 6px;
+    scroll-margin-top: 20px;
+  }
+  .sub-section-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .sub-section-2week h3 {
+    margin: 0;
+    color: #145a32;
+    font-size: 1.15em;
+    letter-spacing: 0.3px;
+  }
+  .anchor-badge {
+    font-family: monospace;
+    font-size: 0.82em;
+    background: #1e8449;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-decoration: none;
+  }
+  .sub-section-2week p {
+    margin: 0 0 12px 0;
+    color: #2c3e50;
+  }
+  .two-week-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .two-week-item {
+    background: #fff;
+    padding: 10px 12px;
+    border-radius: 5px;
+    border: 1px solid #d4efdf;
+    font-size: 0.92em;
+  }
+  .two-week-item strong {
+    display: block;
+    color: #1e8449;
+    margin-bottom: 3px;
   }
   .photo-grid {
     display: grid;
@@ -170,6 +233,7 @@
     <a href="https://wallycad.com/wib">Where Is Bill (WIB)</a>
     <a href="https://wallycad.com/trailer">The Cub Trailer</a>
     <a href="https://wallycad.com">WallyCAD</a>
+    <a href="#2-WEEK" class="anchor-pill">#2-WEEK</a>
   </nav>
 
   <h1>Wrightwood, CA (92397)</h1>
@@ -194,6 +258,35 @@
   <div class="section">
     <h2>Route Two &amp; 1/4Dome Log</h2>
     <p>Notes and photo logs from the Wrightwood stop along the San Gabriel Mountains / Angeles Crest Highway (SR-2) corridor, including the stay inside the modified 1/4Dome micro-camper tent near Sheep Creek on August 31, 2026.</p>
+
+    <!-- Anchored Sub-Section: 2-WEEK -->
+    <div id="2-WEEK" class="sub-section-2week">
+      <div class="sub-section-header">
+        <h3>2-WEEK &mdash; Touring Facilitator &amp; Field Resource</h3>
+        <a href="#2-WEEK" class="anchor-badge" title="Direct Anchor Link">#2-WEEK</a>
+      </div>
+      <p>
+        <strong>Operational Distinction:</strong> <strong>2-WEEK</strong> functions as a mobile, 14-day touring facilitator and field logistics resource—intentionally decoupled from the permanent/semi-permanent home base at <strong>Carson Suites in Downtown Las Vegas, NV</strong>. Designed for self-contained multi-modal transit circuits (bus, rail, air, and foot) across high-desert and mountain corridors such as Wrightwood (WWD), Victor Valley, Southern California, and Oregon.
+      </p>
+      <div class="two-week-grid">
+        <div class="two-week-item">
+          <strong>Base vs. Field Mode</strong>
+          Home Base: Carson Suites (Las Vegas, NV) &bull; Field Window: Rolling 14-day self-contained transit &amp; camp legs.
+        </div>
+        <div class="two-week-item">
+          <strong>Shelter &amp; Pack Kit</strong>
+          1/4Dome tent rain fly, 15&deg; NEMO sleeping bag, air pad, Timex Expedition, and single-bag carry profile.
+        </div>
+        <div class="two-week-item">
+          <strong>Mobile Workstation</strong>
+          Dell Plus Inspiron 14&quot; (LDB04255) &amp; JLab GO Keys deployed at regional public libraries (e.g., Wrightwood Branch Library).
+        </div>
+        <div class="two-week-item">
+          <strong>Transit &amp; Node Routing</strong>
+          VVTA, Amtrak, FlixBus, Metrolink, RTC, and regional air hops linking WIB gameboard nodes without a personal vehicle.
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="section">
@@ -267,7 +360,7 @@
   </div>
 
   <footer>
-    Last Known Address (LKA) &bull; Route Two Waypoint: WWD (92397) &bull; wallycad.com
+    Last Known Address (LKA) &bull; Route Two Waypoint: WWD (92397) &bull; <a href="#2-WEEK" style="color:#1e8449;text-decoration:none;font-weight:bold;">#2-WEEK</a> &bull; wallycad.com
   </footer>
 
 </body>
