@@ -61,7 +61,9 @@ window.Wally.parseWallyText = function(rawText, options = {}) {
     let tokens = [];
 
     // Normalize optional grouping wrappers like (0,0) or [10,20] without touching [TAG] headers
-    const cleanedText = rawText.replace(/\(([^)]+)\)/g, " $1 ");
+const cleanedText = rawText
+    .replace(/\(([^)]+)\)/g, " $1 ")
+    .replace(/;/g, " ");
 
     if (delimiterMode === "whitespace") {
         // Strict SDJ whitespace mode: strip commas cleanly and split only on whitespace
