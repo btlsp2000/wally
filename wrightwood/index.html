@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wrightwood Photo Log & Notes | Route Two</title>
+<meta name="robots" content="noindex, nofollow">
+<title>Wrightwood Photo Log & Notes | Route Two (Private)</title>
 <style>
   html {
     scroll-behavior: smooth;
@@ -17,6 +18,77 @@
     padding: 0 20px;
     background-color: #f4f7f6;
   }
+  /* Passcode Gate Screen */
+  .gate-overlay {
+    max-width: 400px;
+    margin: 90px auto;
+    background: #fff;
+    padding: 28px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-top: 4px solid #2c3e50;
+    text-align: center;
+  }
+  .gate-badge {
+    display: inline-block;
+    background: #ebedef;
+    color: #2c3e50;
+    font-size: 0.78em;
+    font-weight: bold;
+    letter-spacing: 0.8px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .gate-overlay h2 {
+    margin: 0 0 8px;
+    color: #2c3e50;
+    font-size: 1.35em;
+  }
+  .gate-overlay p {
+    margin: 0 0 18px;
+    font-size: 0.92em;
+    color: #566573;
+  }
+  .gate-form {
+    display: flex;
+    gap: 8px;
+  }
+  .gate-form input {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    outline: none;
+  }
+  .gate-form input:focus {
+    border-color: #3498db;
+  }
+  .gate-form button {
+    background: #2c3e50;
+    color: #fff;
+    border: 0;
+    padding: 10px 16px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .gate-form button:hover {
+    background: #3498db;
+  }
+  .gate-error {
+    color: #c0392b;
+    font-size: 0.86em;
+    margin-top: 10px;
+    min-height: 1.2em;
+  }
+  /* Protected Content */
+  #protected-content {
+    display: none;
+  }
   .nav-bar {
     display: flex;
     flex-wrap: wrap;
@@ -24,7 +96,8 @@
     justify-content: center;
     margin-bottom: 20px;
   }
-  .nav-bar a {
+  .nav-bar a,
+  .nav-bar button.lock-btn {
     text-decoration: none;
     background: #2c3e50;
     color: #fff;
@@ -32,6 +105,9 @@
     border-radius: 4px;
     font-size: 0.9em;
     font-weight: bold;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
     transition: background 0.2s ease;
   }
   .nav-bar a:hover {
@@ -43,12 +119,31 @@
   .nav-bar a.anchor-pill:hover {
     background: #27ae60;
   }
+  .nav-bar button.lock-btn {
+    background: #7f8c8d;
+  }
+  .nav-bar button.lock-btn:hover {
+    background: #c0392b;
+  }
   h1 {
     text-align: center;
     color: #2c3e50;
     border-bottom: 2px solid #3498db;
     padding-bottom: 10px;
     margin-top: 0;
+  }
+  .private-tag {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 0.45em;
+    background: #ebedef;
+    color: #566573;
+    border: 1px solid #d5dbdb;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    margin-left: 8px;
   }
   .lead-photo-card {
     background: #fff;
@@ -228,140 +323,224 @@
 </head>
 <body>
 
-  <nav class="nav-bar" aria-label="Primary Navigation">
-    <a href="https://wallycad.com/rtwo">Route Two</a>
-    <a href="https://wallycad.com/wib">Where Is Bill (WIB)</a>
-    <a href="https://wallycad.com/trailer">The Cub Trailer</a>
-    <a href="https://wallycad.com">WallyCAD</a>
-    <a href="#2-WEEK" class="anchor-pill">#2-WEEK</a>
-  </nav>
-
-  <h1>Wrightwood, CA (92397)</h1>
-
-  <!-- Lead Wrightwood Photo / Live Town View -->
-  <div class="lead-photo-card">
-    <div class="lead-photo-frame">
-      <iframe
-        src="https://camera-mtx-rtc.tt2468.net/hwy2_mtnhardware/"
-        title="Hwy 2 Mountain Hardware Live Cam — Wrightwood, CA"
-        loading="lazy"
-        allowfullscreen>
-      </iframe>
-    </div>
-    <div class="lead-caption">
-      <strong>Lead View:</strong> Highway 2 &amp; Mountain Hardware Live Cam (1390 Hwy 2, Wrightwood, CA 92397) &mdash;
-      <a href="https://camera-mtx-rtc.tt2468.net/hwy2_mtnhardware/" target="_blank" rel="noopener">Open Direct Feed</a> |
-      <a href="https://www.wrightwoodcalif.com/townlive.htm" target="_blank" rel="noopener">Wrightwood Solar Cam</a>
-    </div>
+  <!-- Clean Passcode Gate Screen -->
+  <div id="gate-screen" class="gate-overlay" role="dialog" aria-labelledby="gateTitle">
+    <div class="gate-badge">Private Route &bull; /wrightwood</div>
+    <h2 id="gateTitle">Wrightwood Log Access</h2>
+    <p>Enter the route passcode to view the LKA Wrightwood photo log and #2-WEEK field notes.</p>
+    <form class="gate-form" id="gateForm">
+      <input type="password" id="passcodeInput" placeholder="Passcode" autocomplete="off" required aria-label="Access passcode">
+      <button type="submit">Unlock</button>
+    </form>
+    <div id="gateError" class="gate-error" role="alert"></div>
   </div>
 
-  <div class="section">
-    <h2>Route Two &amp; 1/4Dome Log</h2>
-    <p>Notes and photo logs from the Wrightwood stop along the San Gabriel Mountains / Angeles Crest Highway (SR-2) corridor, including the stay inside the modified 1/4Dome micro-camper tent near Sheep Creek on August 31, 2026.</p>
+  <!-- Protected Page Content -->
+  <div id="protected-content">
+    <nav class="nav-bar" aria-label="Primary Navigation">
+      <a href="https://wallycad.com/rtwo">Route Two</a>
+      <a href="https://wallycad.com/wib">Where Is Bill (WIB)</a>
+      <a href="https://wallycad.com/trailer">The Cub Trailer</a>
+      <a href="https://wallycad.com">WallyCAD</a>
+      <a href="#2-WEEK" class="anchor-pill">#2-WEEK</a>
+      <button type="button" id="lockBtn" class="lock-btn" title="Re-lock page">Lock</button>
+    </nav>
 
-    <!-- Anchored Sub-Section: 2-WEEK -->
-    <div id="2-WEEK" class="sub-section-2week">
-      <div class="sub-section-header">
-        <h3>2-WEEK &mdash; Touring Facilitator &amp; Field Resource</h3>
-        <a href="#2-WEEK" class="anchor-badge" title="Direct Anchor Link">#2-WEEK</a>
+    <h1>Wrightwood, CA (92397) <span class="private-tag">Private</span></h1>
+
+    <!-- Lead Wrightwood Photo / Live Town View -->
+    <div class="lead-photo-card">
+      <div class="lead-photo-frame">
+        <iframe
+          src="https://camera-mtx-rtc.tt2468.net/hwy2_mtnhardware/"
+          title="Hwy 2 Mountain Hardware Live Cam — Wrightwood, CA"
+          loading="lazy"
+          allowfullscreen>
+        </iframe>
       </div>
-      <p>
-        <strong>Operational Distinction:</strong> <strong>2-WEEK</strong> functions as a mobile, 14-day touring facilitator and field logistics resource—intentionally decoupled from the permanent/semi-permanent home base at <strong>Carson Suites in Downtown Las Vegas, NV</strong>. Designed for self-contained multi-modal transit circuits (bus, rail, air, and foot) across high-desert and mountain corridors such as Wrightwood (WWD), Victor Valley, Southern California, and Oregon.
-      </p>
-      <div class="two-week-grid">
-        <div class="two-week-item">
-          <strong>Base vs. Field Mode</strong>
-          Home Base: Carson Suites (Las Vegas, NV) &bull; Field Window: Rolling 14-day self-contained transit &amp; camp legs.
+      <div class="lead-caption">
+        <strong>Lead View:</strong> Highway 2 &amp; Mountain Hardware Live Cam (1390 Hwy 2, Wrightwood, CA 92397) &mdash;
+        <a href="https://camera-mtx-rtc.tt2468.net/hwy2_mtnhardware/" target="_blank" rel="noopener">Open Direct Feed</a> |
+        <a href="https://www.wrightwoodcalif.com/townlive.htm" target="_blank" rel="noopener">Wrightwood Solar Cam</a>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Route Two &amp; 1/4Dome Log</h2>
+      <p>Notes and photo logs from the Wrightwood stop along the San Gabriel Mountains / Angeles Crest Highway (SR-2) corridor, including the stay inside the modified 1/4Dome micro-camper tent near Sheep Creek on August 31, 2026.</p>
+
+      <!-- Anchored Sub-Section: 2-WEEK -->
+      <div id="2-WEEK" class="sub-section-2week">
+        <div class="sub-section-header">
+          <h3>2-WEEK &mdash; Touring Facilitator &amp; Field Resource</h3>
+          <a href="#2-WEEK" class="anchor-badge" title="Direct Anchor Link">#2-WEEK</a>
         </div>
-        <div class="two-week-item">
-          <strong>Shelter &amp; Pack Kit</strong>
-          1/4Dome tent rain fly, 15&deg; NEMO sleeping bag, air pad, Timex Expedition, and single-bag carry profile.
-        </div>
-        <div class="two-week-item">
-          <strong>Mobile Workstation</strong>
-          Dell Plus Inspiron 14&quot; (LDB04255) &amp; JLab GO Keys deployed at regional public libraries (e.g., Wrightwood Branch Library).
-        </div>
-        <div class="two-week-item">
-          <strong>Transit &amp; Node Routing</strong>
-          VVTA, Amtrak, FlixBus, Metrolink, RTC, and regional air hops linking WIB gameboard nodes without a personal vehicle.
+        <p>
+          <strong>Operational Distinction:</strong> <strong>2-WEEK</strong> functions as a mobile, 14-day touring facilitator and field logistics resource—intentionally decoupled from the permanent/semi-permanent home base at <strong>Carson Suites in Downtown Las Vegas, NV</strong>. Designed for self-contained multi-modal transit circuits (bus, rail, air, and foot) across high-desert and mountain corridors such as Wrightwood (WWD), Victor Valley, Southern California, and Oregon.
+        </p>
+        <div class="two-week-grid">
+          <div class="two-week-item">
+            <strong>Base vs. Field Mode</strong>
+            Home Base: Carson Suites (Las Vegas, NV) &bull; Field Window: Rolling 14-day self-contained transit &amp; camp legs.
+          </div>
+          <div class="two-week-item">
+            <strong>Shelter &amp; Pack Kit</strong>
+            1/4Dome tent rain fly, 15&deg; NEMO sleeping bag, air pad, Timex Expedition, and single-bag carry profile.
+          </div>
+          <div class="two-week-item">
+            <strong>Mobile Workstation</strong>
+            Dell Plus Inspiron 14&quot; (LDB04255) &amp; JLab GO Keys deployed at regional public libraries (e.g., Wrightwood Branch Library).
+          </div>
+          <div class="two-week-item">
+            <strong>Transit &amp; Node Routing</strong>
+            VVTA, Amtrak, FlixBus, Metrolink, RTC, and regional air hops linking WIB gameboard nodes without a personal vehicle.
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="section">
-    <h2>Key Locations</h2>
-    <ul class="location-list">
-      <li>
-        <strong>Wrightwood Branch Library:</strong> 6011 Pine St. (at Park Dr.) &mdash;
-        <a href="https://library.sbcounty.gov/venue/wrightwood-branch-library/" target="_blank" rel="noopener">San Bernardino County Library Info</a>
-      </li>
-      <li>
-        <strong>Wrightwood Market:</strong>
-        <a href="https://www.google.com/maps/search/?api=1&query=Wrightwood+Market+Wrightwood+CA+92397" target="_blank" rel="noopener">Map &amp; Directions</a>
-      </li>
-      <li>
-        <strong>Wrightwood Post Office &amp; Village Shops:</strong>
-        <a href="https://www.google.com/maps/search/?api=1&query=Wrightwood+Post+Office+92397" target="_blank" rel="noopener">Town Center Map</a>
-      </li>
-      <li>
-        <strong>Sheep Creek / Swarthout Canyon Corridor:</strong>
-        <a href="https://www.google.com/maps/search/?api=1&query=Sheep+Creek+Wrightwood+CA+92397" target="_blank" rel="noopener">Trail &amp; Camp Area</a>
-      </li>
-    </ul>
-  </div>
+    <div class="section">
+      <h2>Key Locations</h2>
+      <ul class="location-list">
+        <li>
+          <strong>Wrightwood Branch Library:</strong> 6011 Pine St. (at Park Dr.) &mdash;
+          <a href="https://library.sbcounty.gov/venue/wrightwood-branch-library/" target="_blank" rel="noopener">San Bernardino County Library Info</a>
+        </li>
+        <li>
+          <strong>Wrightwood Market:</strong>
+          <a href="https://www.google.com/maps/search/?api=1&query=Wrightwood+Market+Wrightwood+CA+92397" target="_blank" rel="noopener">Map &amp; Directions</a>
+        </li>
+        <li>
+          <strong>Wrightwood Post Office &amp; Village Shops:</strong>
+          <a href="https://www.google.com/maps/search/?api=1&query=Wrightwood+Post+Office+92397" target="_blank" rel="noopener">Town Center Map</a>
+        </li>
+        <li>
+          <strong>Sheep Creek / Swarthout Canyon Corridor:</strong>
+          <a href="https://www.google.com/maps/search/?api=1&query=Sheep+Creek+Wrightwood+CA+92397" target="_blank" rel="noopener">Trail &amp; Camp Area</a>
+        </li>
+      </ul>
+    </div>
 
-  <div class="section">
-    <h2>Photo Library Summary</h2>
-    <div class="photo-grid">
-      <div class="photo-item">
-        <div class="photo-date">August 31, 2026</div>
-        <div>LKA photo log taken inside the 1/4Dome micro-camper tent in Wrightwood.</div>
-      </div>
-      <div class="photo-item">
-        <div class="photo-date">2026</div>
-        <div>Photos of the Wrightwood Market and a portrait inside the "Wrightwood Mountaineer Days 2026" photo booth cutout.</div>
-      </div>
-      <div class="photo-item">
-        <div class="photo-date">November 2021</div>
-        <div>Photos featuring various village shops and the Wrightwood Post Office.</div>
+    <div class="section">
+      <h2>Photo Library Summary</h2>
+      <div class="photo-grid">
+        <div class="photo-item">
+          <div class="photo-date">August 31, 2026</div>
+          <div>LKA photo log taken inside the 1/4Dome micro-camper tent in Wrightwood.</div>
+        </div>
+        <div class="photo-item">
+          <div class="photo-date">2026</div>
+          <div>Photos of the Wrightwood Market and a portrait inside the "Wrightwood Mountaineer Days 2026" photo booth cutout.</div>
+        </div>
+        <div class="photo-item">
+          <div class="photo-date">November 2021</div>
+          <div>Photos featuring various village shops and the Wrightwood Post Office.</div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="section">
-    <h2>Wrightwood Links Set</h2>
-    <div class="links-grid">
-      <a class="link-tile" href="https://camera-mtx-rtc.tt2468.net/hwy2_mtnhardware/" target="_blank" rel="noopener">
-        <strong>Hwy 2 Mountain Hardware Cam</strong>
-        <span>Live RTC stream overlooking downtown Highway 2</span>
-      </a>
-      <a class="link-tile" href="https://www.wrightwoodcalif.com/" target="_blank" rel="noopener">
-        <strong>WrightwoodCalif.com</strong>
-        <span>Local weather, live cams, road status &amp; village calendar</span>
-      </a>
-      <a class="link-tile" href="https://library.sbcounty.gov/venue/wrightwood-branch-library/" target="_blank" rel="noopener">
-        <strong>Wrightwood Branch Library</strong>
-        <span>Hours, Wi-Fi workstation access &amp; branch events</span>
-      </a>
-      <a class="link-tile" href="https://www.wrightwoodfriendsofthelibrary.org/location" target="_blank" rel="noopener">
-        <strong>Friends of the Library</strong>
-        <span>Community book sales &amp; local branch support</span>
-      </a>
-      <a class="link-tile" href="https://www.onthesnow.com/california/mountain-high/webcams" target="_blank" rel="noopener">
-        <strong>Mountain High Webcams</strong>
-        <span>Upper elevation snow &amp; ridge conditions on SR-2</span>
-      </a>
-      <a class="link-tile" href="https://wallycad.com/rtwo" target="_blank" rel="noopener">
-        <strong>Route Two Dispatch Archive</strong>
-        <span>Full LKA passage ledger &amp; waypoint notes</span>
-      </a>
+    <div class="section">
+      <h2>Wrightwood Links Set</h2>
+      <div class="links-grid">
+        <a class="link-tile" href="https://camera-mtx-rtc.tt2468.net/hwy2_mtnhardware/" target="_blank" rel="noopener">
+          <strong>Hwy 2 Mountain Hardware Cam</strong>
+          <span>Live RTC stream overlooking downtown Highway 2</span>
+        </a>
+        <a class="link-tile" href="https://www.wrightwoodcalif.com/" target="_blank" rel="noopener">
+          <strong>WrightwoodCalif.com</strong>
+          <span>Local weather, live cams, road status &amp; village calendar</span>
+        </a>
+        <a class="link-tile" href="https://library.sbcounty.gov/venue/wrightwood-branch-library/" target="_blank" rel="noopener">
+          <strong>Wrightwood Branch Library</strong>
+          <span>Hours, Wi-Fi workstation access &amp; branch events</span>
+        </a>
+        <a class="link-tile" href="https://www.wrightwoodfriendsofthelibrary.org/location" target="_blank" rel="noopener">
+          <strong>Friends of the Library</strong>
+          <span>Community book sales &amp; local branch support</span>
+        </a>
+        <a class="link-tile" href="https://www.onthesnow.com/california/mountain-high/webcams" target="_blank" rel="noopener">
+          <strong>Mountain High Webcams</strong>
+          <span>Upper elevation snow &amp; ridge conditions on SR-2</span>
+        </a>
+        <a class="link-tile" href="https://wallycad.com/rtwo" target="_blank" rel="noopener">
+          <strong>Route Two Dispatch Archive</strong>
+          <span>Full LKA passage ledger &amp; waypoint notes</span>
+        </a>
+      </div>
     </div>
+
+    <footer>
+      Last Known Address (LKA) &bull; Route Two Waypoint: WWD (92397) &bull; <a href="#2-WEEK" style="color:#1e8449;text-decoration:none;font-weight:bold;">#2-WEEK</a> &bull; wallycad.com
+    </footer>
   </div>
 
-  <footer>
-    Last Known Address (LKA) &bull; Route Two Waypoint: WWD (92397) &bull; <a href="#2-WEEK" style="color:#1e8449;text-decoration:none;font-weight:bold;">#2-WEEK</a> &bull; wallycad.com
-  </footer>
+<script>
+  (function () {
+    // Change PASSCODE to your preferred private access key
+    const PASSCODE = "2WEEK";
+    const STORAGE_KEY = "wallycad_wwd_auth";
+
+    const gateScreen = document.getElementById("gate-screen");
+    const protectedContent = document.getElementById("protected-content");
+    const gateForm = document.getElementById("gateForm");
+    const passcodeInput = document.getElementById("passcodeInput");
+    const gateError = document.getElementById("gateError");
+    const lockBtn = document.getElementById("lockBtn");
+
+    function unlockPage() {
+      gateScreen.style.display = "none";
+      protectedContent.style.display = "block";
+      if (window.location.hash) {
+        const target = document.querySelector(window.location.hash);
+        if (target) target.scrollIntoView();
+      }
+    }
+
+    function lockPage() {
+      sessionStorage.removeItem(STORAGE_KEY);
+      protectedContent.style.display = "none";
+      gateScreen.style.display = "block";
+      passcodeInput.value = "";
+      gateError.textContent = "";
+      passcodeInput.focus();
+    }
+
+    // Check URL query parameter (?key=2WEEK) and clean address bar on match
+    const params = new URLSearchParams(window.location.search);
+    const urlKey = params.get("key");
+
+    if (urlKey === PASSCODE) {
+      sessionStorage.setItem(STORAGE_KEY, PASSCODE);
+      params.delete("key");
+      const remainingQuery = params.toString();
+      const cleanUrl =
+        window.location.pathname +
+        (remainingQuery ? "?" + remainingQuery : "") +
+        window.location.hash;
+      window.history.replaceState({}, document.title, cleanUrl);
+      unlockPage();
+    } else if (sessionStorage.getItem(STORAGE_KEY) === PASSCODE) {
+      unlockPage();
+    } else {
+      passcodeInput.focus();
+    }
+
+    gateForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (passcodeInput.value.trim() === PASSCODE) {
+        sessionStorage.setItem(STORAGE_KEY, PASSCODE);
+        gateError.textContent = "";
+        unlockPage();
+      } else {
+        gateError.textContent = "Invalid passcode. Please try again.";
+        passcodeInput.value = "";
+        passcodeInput.focus();
+      }
+    });
+
+    lockBtn.addEventListener("click", lockPage);
+  })();
+</script>
 
 </body>
 </html>
