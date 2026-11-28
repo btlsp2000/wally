@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WallyCAD &amp; Developer Utilities Directory</title>
+<style>
+  :root {
+    --bg: #f4f7f6;
+    --card-bg: #ffffff;
+    --primary: #2c3e50;
+    --accent: #3498db;
+    --accent-hover: #217dbb;
+    --text: #333333;
+    --muted: #6c7a89;
+    --border: #dce4ec;
+    --badge-bg: #eaf4fc;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    color: var(--text);
+    background-color: var(--bg);
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 25px 20px 50px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 16px;
+  }
+  header h1 {
+    margin: 0 0 6px;
+    color: var(--primary);
+    font-size: 1.85rem;
+  }
+  header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 14px 18px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-bottom: 22px;
+  }
+  .search-box {
+    flex: 1 1 280px;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    outline: none;
+  }
+  .search-box input:focus {
+    border-color: var(--accent);
+  }
+  .filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .filter-btn {
+    background: #eef2f5;
+    border: 1px solid var(--border);
+    color: var(--primary);
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .filter-btn:hover,
+  .filter-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .stats-bar {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 14px;
+    text-align: right;
+  }
+  .category-section {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  .category-section.hidden {
+    display: none;
+  }
+  .category-section h2 {
+    margin: 0 0 14px;
+    font-size: 1.15rem;
+    color: var(--primary);
+    border-left: 4px solid var(--accent);
+    padding-left: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .category-count {
+    font-size: 0.8rem;
+    font-weight: normal;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 10px;
+  }
+  .util-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px 13px;
+    background: #fafcfc;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--primary);
+    transition: border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+  }
+  .util-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(52, 152, 219, 0.12);
+  }
+  .util-card.hidden {
+    display: none;
+  }
+  .util-title {
+    font-weight: bold;
+    font-size: 0.94rem;
+    color: var(--accent-hover);
+    word-break: break-word;
+  }
+  .util-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+    font-size: 0.76rem;
+    color: var(--muted);
+  }
+  .badge {
+    background: var(--badge-bg);
+    color: var(--accent-hover);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  footer {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 30px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>CAD, Math, Code &amp; Web Utilities</h1>
+  <p>Indexed Directory &bull; 66 Quick-Launch Tools &amp; References</p>
+</header>
+
+<div class="controls">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Filter utilities by name (e.g. conics, PDF, canvas, vector, stair)..." aria-label="Filter utilities">
+  </div>
+  <div class="filter-buttons" id="filterButtons">
+    <button class="filter-btn active" data-cat="all">All (66)</button>
+    <button class="filter-btn" data-cat="cad">CAD &amp; Geometry</button>
+    <button class="filter-btn" data-cat="math">Math &amp; Calculators</button>
+    <button class="filter-btn" data-cat="code">Code &amp; HTML/JS</button>
+    <button class="filter-btn" data-cat="text">Text, Tables &amp; Data</button>
+    <button class="filter-btn" data-cat="media">PDF, Image &amp; Video</button>
+    <button class="filter-btn" data-cat="design">Design, Fonts &amp; Misc</button>
+  </div>
+</div>
+
+<div class="stats-bar" id="statsBar">Showing 66 of 66 utilities</div>
+
+<main id="directoryContainer"></main>
+
+<footer>
+  WallyCAD Utility Index &bull; Edit <code>href</code> attributes in the <code>UTILITIES</code> array to point to local files or custom URLs.
+</footer>
+
+<script>
+const UTILITIES = [
+  // CAD, Vector & Geometry
+  { name: "CAD Viewer", cat: "cad", url: "https://sharecad.org/", note: "Online DWG/DXF viewer" },
+  { name: "sharecad", cat: "cad", url: "https://sharecad.org/", note: "Free online CAD viewer" },
+  { name: "conics", cat: "cad", url: "https://www.desmos.com/calculator/w9j215364a", note: "Conic sections visualizer" },
+  { name: "ellipse", cat: "cad", url: "https://www.mathsisfun.com/geometry/ellipse.html", note: "Ellipse geometry & calculator" },
+  { name: "Superellipse", cat: "cad", url: "https://www.desmos.com/calculator", note: "Lamé curve / superellipse plotter" },
+  { name: "sphere derivation", cat: "cad", url: "https://www.mathsisfun.com/geometry/sphere.html", note: "Sphere volume & surface area" },
+  { name: "Right triangle", cat: "cad", url: "https://www.calculator.net/right-triangle-calculator.html", note: "Right triangle solver" },
+  { name: "angle math", cat: "cad", url: "https://www.calculator.net/angle-calculator.html", note: "Degrees, DMS & radians" },
+  { name: "transform", cat: "cad", url: "https://developer.mozilla.org/en-US/docs/Web/CSS/transform", note: "2D/3D matrix & coordinate transforms" },
+  { name: "Vector Calculator", cat: "cad", url: "https://www.symbolab.com/solver/vector-calculator", note: "Dot/cross product & magnitude" },
+  { name: "vector functions", cat: "cad", url: "https://tutorial.math.lamar.edu/Classes/CalcIII/VectorFunctions.aspx", note: "Parametric vector calculus" },
+  { name: "between points L/L", cat: "cad", url: "https://www.movable-type.co.uk/scripts/latlong.html", note: "Lat/Long distance & bearing" },
+  { name: "lattitude to miles", cat: "cad", url: "https://www.sco.wisc.edu/2022/01/21/how-big-is-a-degree/", note: "Degree-to-miles conversion" },
+  { name: "mycarpentry.com/stair-calculator.html", cat: "cad", url: "https://www.mycarpentry.com/stair-calculator.html", note: "Stair stringer & riser calculator" },
+
+  // Math & Calculators
+  { name: "equation calculator", cat: "math", url: "https://www.symbolab.com/solver/equation-calculator", note: "Algebraic equation solver" },
+  { name: "Quadratic Equation", cat: "math", url: "https://www.calculator.net/quadratic-formula-calculator.html", note: "Quadratic roots solver" },
+  { name: "Golden Ratio", cat: "math", url: "https://www.omnicalculator.com/math/golden-ratio", note: "Phi proportion calculator" },
+  { name: "graph generator", cat: "math", url: "https://www.desmos.com/calculator", note: "Interactive graphing calculator" },
+  { name: "grapher", cat: "math", url: "https://www.geogebra.org/graphing", note: "GeoGebra function grapher" },
+  { name: "handycalc", cat: "math", url: "https://www.desmos.com/scientific", note: "Scientific quick calculator" },
+  { name: "Running-total", cat: "math", url: "https://www.calculator.net/big-number-calculator.html", note: "Cumulative sum & tape calculator" },
+  { name: "Squarefree", cat: "math", url: "https://oeis.org/A005117", note: "Squarefree integers & factorization" },
+  { name: "Convert Pixel Inch", cat: "math", url: "https://www.unitconverters.net/typography/pixel-x-to-inch.htm", note: "PX to IN / DPI converter" },
+
+  // Code, Canvas & HTML/JS
+  { name: "1-tutorialspoint", cat: "code", url: "https://www.tutorialspoint.com/index.htm", note: "Programming & web tutorials" },
+  { name: "onecompiler.com/js", cat: "code", url: "https://onecompiler.com/javascript", note: "Online JS compiler & sandbox" },
+  { name: "js code", cat: "code", url: "https://jsfiddle.net/", note: "JavaScript scratchpad & runner" },
+  { name: "HTML onlineviewer", cat: "code", url: "https://html.onlineviewer.net/", note: "Live HTML/CSS previewer" },
+  { name: "code convert", cat: "code", url: "https://www.freeformatter.com/", note: "Code format & syntax converter" },
+  { name: "Arrays", cat: "code", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array", note: "JS Array methods reference" },
+  { name: "Canvas dot", cat: "code", url: "https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API", note: "HTML5 Canvas pixel & dot plotting" },
+  { name: "Canvas tutorial", cat: "code", url: "https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial", note: "MDN HTML5 Canvas 2D guide" },
+  { name: "Responsive", cat: "code", url: "https://responsivedesignchecker.com/", note: "Viewport & layout tester" },
+  { name: "Mobirise website builder", cat: "code", url: "https://mobirise.com/", note: "Offline bootstrap site builder" },
+  { name: "Jenny's Lectures", cat: "code", url: "https://www.youtube.com/@JennyslecturesCSIT", note: "CS, Data Structures & C++ lectures" },
+  { name: "version", cat: "code", url: "https://semver.org/", note: "Semantic versioning reference" },
+
+  // Text, Tables & Data
+  { name: "alpha_order", cat: "text", url: "https://alphabetizer.flap.tv/", note: "Alphabetical line sorter" },
+  { name: "Case Change", cat: "text", url: "https://convertcase.net/", note: "UPPER / lower / Title case tool" },
+  { name: "Reverse Text", cat: "text", url: "https://www.textreverse.com/", note: "Flip & reverse string order" },
+  { name: "white space", cat: "text", url: "https://www.textfixer.com/tools/remove-white-spaces.php", note: "Strip extra spaces & line breaks" },
+  { name: "word html strip", cat: "text", url: "https://wordhtml.com/", note: "Clean Word/rich-text HTML tags" },
+  { name: "markdowntohtml", cat: "text", url: "https://markdowntohtml.com/", note: "Convert Markdown to clean HTML" },
+  { name: "Excel", cat: "text", url: "https://www.office.com/launch/excel", note: "Spreadsheet formulas & sheets" },
+  { name: "Excel Tables", cat: "text", url: "https://support.microsoft.com/en-us/excel", note: "Structured tables & lookups" },
+  { name: "Table", cat: "text", url: "https://www.tablesgenerator.com/html_tables", note: "HTML table markup editor" },
+  { name: "table generator", cat: "text", url: "https://www.tablesgenerator.com/", note: "HTML / Markdown / LaTeX tables" },
+  { name: "Tables", cat: "text", url: "https://divtable.com/generator/", note: "Responsive CSS/HTML table builder" },
+  { name: "flowchart", cat: "text", url: "https://app.diagrams.net/", note: "Draw.io diagram & flowchart editor" },
+  { name: "flowchart 2", cat: "text", url: "https://mermaid.live/", note: "Mermaid text-to-flowchart live editor" },
+
+  // PDF, Image & Video
+  { name: "PDF conversion", cat: "media", url: "https://www.ilovepdf.com/", note: "All-in-one PDF tools" },
+  { name: "PDF converter 2", cat: "media", url: "https://smallpdf.com/pdf-converter", note: "Document to PDF converter" },
+  { name: "pdf converter 3", cat: "media", url: "https://www.freepdfconvert.com/", note: "Multi-format PDF utility" },
+  { name: "PDF to jpeg", cat: "media", url: "https://www.ilovepdf.com/pdf_to_jpg", note: "Extract PDF pages as JPEG" },
+  { name: "PDF to jpg", cat: "media", url: "https://pdf2jpg.net/", note: "Batch PDF to JPG converter" },
+  { name: "pdfguru.com/", cat: "media", url: "https://pdfguru.com/", note: "Edit, sign & convert PDFs" },
+  { name: "croppola.com/", cat: "media", url: "https://croppola.com/", note: "Auto-aspect ratio photo cropper" },
+  { name: "invert-image-colors", cat: "media", url: "https://pinetools.com/invert-image-colors", note: "PineTools negative color inverter" },
+  { name: "Mp4 Converter", cat: "media", url: "https://cloudconvert.com/mp4-converter", note: "Video format converter" },
+  { name: "rotatevideo", cat: "media", url: "https://rotatemyvideo.net/", note: "90° / 180° online video rotator" },
+  { name: "youcompress", cat: "media", url: "https://www.youcompress.com/", note: "Compress MP4, PDF, JPG & PNG" },
+  { name: "text to sound", cat: "media", url: "https://ttsmp3.com/", note: "Text-to-speech audio generator" },
+
+  // Design, Fonts, Time & Misc
+  { name: "coolors.co/", cat: "design", url: "https://coolors.co/", note: "Color palette generator" },
+  { name: "color", cat: "design", url: "https://htmlcolorcodes.com/", note: "HEX, RGB & HSL color picker" },
+  { name: "fonts", cat: "design", url: "https://fonts.google.com/", note: "Google Fonts web typography" },
+  { name: "arched text", cat: "design", url: "https://www.mockofun.com/tutorials/curved-text-generator/", note: "Curved & circular SVG text" },
+  { name: "symbols", cat: "design", url: "https://www.alt-codes.net/", note: "ASCII, math & drafting symbols" },
+  { name: "symbols-2", cat: "design", url: "https://unicode-table.com/en/", note: "Unicode character lookup" },
+  { name: "Timeline", cat: "design", url: "https://time.graphics/", note: "Chronological timeline builder" },
+  { name: "countdown", cat: "design", url: "https://www.timeanddate.com/countdown/create", note: "Custom event countdown clock" },
+  { name: "timer", cat: "design", url: "https://www.online-stopwatch.com/", note: "Online timer & stopwatch" },
+  { name: "draw", cat: "design", url: "https://excalidraw.com/", note: "Quick hand-drawn vector sketchpad" },
+  { name: "goodies", cat: "design", url: "https://www.htmlgoodies.com/", note: "Classic web dev scripts & goodies" }
+];
+
+const CATEGORIES = {
+  cad: "CAD, Vector & Geometry",
+  math: "Math & Calculators",
+  code: "Code, Canvas & HTML/JS",
+  text: "Text, Tables & Flowcharts",
+  media: "PDF, Image, Audio & Video",
+  design: "Design, Fonts, Symbols & Timers"
+};
+
+const container = document.getElementById("directoryContainer");
+const searchInput = document.getElementById("searchInput");
+const filterButtons = document.querySelectorAll(".filter-btn");
+const statsBar = document.getElementById("statsBar");
+
+let activeCategory = "all";
+
+function renderDirectory() {
+  container.innerHTML = "";
+  const query = searchInput.value.trim().toLowerCase();
+  let visibleTotal = 0;
+
+  Object.keys(CATEGORIES).forEach(catKey => {
+    if (activeCategory !== "all" && activeCategory !== catKey) return;
+
+    const items = UTILITIES.filter(u =>
+      u.cat === catKey &&
+      (u.name.toLowerCase().includes(query) || u.note.toLowerCase().includes(query))
+    );
+
+    if (items.length === 0) return;
+    visibleTotal += items.length;
+
+    const section = document.createElement("section");
+    section.className = "category-section";
+
+    const heading = document.createElement("h2");
+    heading.innerHTML = `${CATEGORIES[catKey]} <span class="category-count">${items.length}</span>`;
+    section.appendChild(heading);
+
+    const grid = document.createElement("div");
+    grid.className = "links-grid";
+
+    items.forEach(item => {
+      const card = document.createElement("a");
+      card.className = "util-card";
+      card.href = item.url;
+      card.target = "_blank";
+      card.rel = "noopener noreferrer";
+
+      card.innerHTML = `
+        <div class="util-title">${item.name}</div>
+        <div class="util-meta">
+          <span>${item.note}</span>
+          <span class="badge">OPEN ↗</span>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+
+  statsBar.textContent = `Showing ${visibleTotal} of ${UTILITIES.length} utilities`;
+}
+
+searchInput.addEventListener("input", renderDirectory);
+
+filterButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    filterButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeCategory = btn.dataset.cat;
+    renderDirectory();
+  });
+});
+
+// Update total count in "All" button dynamically
+document.querySelector('[data-cat="all"]').textContent = `All (${UTILITIES.length})`;
+
+renderDirectory();
+</script>
+
+</body>
+</html>
