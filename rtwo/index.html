@@ -34,7 +34,7 @@
   }
 
   /* =========================================================
-1. BROADSHEET MASTHEAD (MERGED RTWO + RTWO2)
+     1. BROADSHEET MASTHEAD (MERGED RTWO + RTWO2)
      ========================================================= */
   header.masthead {
     background: var(--paper-broadsheet);
@@ -120,7 +120,7 @@
   }
 
   /* =========================================================
-2. MASTER SHELL CONTAINER & CONTROL BAR
+     2. MASTER SHELL CONTAINER & CONTROL BAR
      ========================================================= */
   .shell-wrap {
     max-width: 1160px;
@@ -200,7 +200,7 @@
   }
 
   /* =========================================================
-3. FRONT PAGE BROADSHEET STAGE (RTWO2 FLEXBOX GEOMETRY)
+     3. FRONT PAGE BROADSHEET STAGE (RTWO2 FLEXBOX GEOMETRY)
      ========================================================= */
   .frontpage-stage {
     background: var(--paper-broadsheet);
@@ -314,7 +314,7 @@
   }
 
   /* =========================================================
-4. DISPATCH FUNNEL CARDS (/RTWO ENGINE)
+     4. DISPATCH FUNNEL CARDS (/RTWO ENGINE)
      ========================================================= */
   .dispatch-grid {
     display: flex;
@@ -478,7 +478,7 @@
   }
 
   /* =========================================================
-5. TIMELINE & INDEX VIEWS
+     5. TIMELINE & INDEX VIEWS
      ========================================================= */
   .panel-box {
     background: var(--paper);
@@ -515,7 +515,7 @@
   }
 
   /* =========================================================
-6. COLOPHON / BROADSHEET CREDITS (FROM RTWO2)
+     6. COLOPHON / BROADSHEET CREDITS (FROM RTWO2)
      ========================================================= */
   footer.broadsheet-credits {
     max-width: 1160px;
@@ -615,7 +615,7 @@
 
     <div class="filter-row">
       <div class="btn-group">
-        <input type="text" id="searchInput" placeholder="Search names, towns, IDs (e.g. Victorville, Ruthann, Escondido, COB2)...">
+        <input type="text" id="searchInput" placeholder="Search names, towns, IDs (e.g. Colorado, Escondido, Vivian, COB2)...">
         <button class="tab-btn" onclick="resetFilters()">[RESET]</button>
       </div>
       <div class="btn-group">
@@ -625,7 +625,7 @@
     </div>
 
     <div class="stats-strip">
-      <span id="resultCount">SHOWING 7 MERGED ENTRIES</span>
+      <span id="resultCount">SHOWING 8 MERGED ENTRIES</span>
       <span>ENDPOINTS: /RTWO · /RTWO2 · /ROUTETWO · /ARMIKE · /MASTER-BOOK</span>
     </div>
   </section>
@@ -962,28 +962,89 @@
     },
     {
       domain: "WHERE IS BILL",
-      id: "WIB_ARC10",
-      label: "WIB_ARC10 • Passage Ledger — Eleven Civilian Waypoints (1956–2026)",
+      id: "WIB_WEST",
+      label: "WIB_WEST • Bill's The West — Four-Corner Geographic Envelope",
       sortYear: 2026,
-      date: "1956 – Nov 27, 2026",
-      place: "El Monte → Lennox → Colton → Westminster → Victorville/Apple Valley → Carson City → Fallon → Redding → Las Vegas → Portland",
+      date: "Nov 27, 2026",
+      place: "Canada (N) × Pacific (W) × Mexico (S) × Colorado Meridian (E)",
       quadrant: "Q1–Q4: Full Western Traverse",
       terms: [
-        "Vivian", "Jeanie", "Pamela Bills", "Debbie", "Maryann", "Ruthann", "Ruthann Fatino",
-        "Lorraine", "Sylvia", "Holly", "Hanna", "Aubrey", "Aubrie", "Sandra",
-        "Valley Lindo", "Firmona Avenue", "Hal Kelly's", "CONRAC", "Victorville", "Apple Valley", "SMI-Joist", "Talk of the Town", "Holiday Inn Express"
+        "Bill's The West", "WIB_WEST", "Canada", "Pacific", "Mexico",
+        "Colorado", "Four-Corner Envelope", "Western Traverse", "WIB"
       ],
-      title: "Passage Ledger — Civilian Waypoints (1956–2026)",
-      deck: "Eleven civilian waypoints anchoring seventy years of Western geography—from first grade in El Monte through Victorville/Apple Valley to Portland and Las Vegas.",
+      title: "Bill's The West — Four-Corner Geographic Envelope",
+      deck: "The master bounding geometry of Where Is Bill: bounded north by Canada, west by the Pacific coastline, south by Mexico, and east by the Colorado meridian.",
       essay: [
-        "Mapped across seventy years from 1956 to 2026, eleven civilian waypoints anchor the geographic backbone of Where Is Bill—each pinned to an exact town, year, and turning point outside family politics and institutional scripts."
+        "Every transit ledger needs a clean bounding box before individual stations are plotted. Bill's The West defines the exact four-node geographic envelope of the seventy-year traverse.",
+        "Anchored by two northern datum points along the Canadian border, a curved Pacific coastal profile on the west, two southern datum points along the Mexican border, and a straight eastern meridian bracketed at Colorado, the diagram reduces half a continent to four orange control vertices and four clean boundary vectors."
+      ],
+      intake: [
+        "Top horizontal datum bounded by CANADA between the northwest and northeast orange control nodes.",
+        "Curved western coastal arc bounded by the PACIFIC sweeping from the northwest node down to the southwest node.",
+        "Bottom horizontal datum bounded by MEXICO between the southwest and southeast orange control nodes.",
+        "Straight eastern vertical meridian bracketed along the mid-eastern section at COLORADO."
+      ],
+      interpretation: [
+        "Establishes the macro coordinate frame for all Q1–Q4 waypoints in Where Is Bill (WIB).",
+        "Translates a hand-drawn four-vertex envelope into an exact vector schematic for Route 2 and the WIB board."
+      ],
+      blurbs: [
+        "Bounded north by Canada, west by the Pacific, south by Mexico, and east by the Colorado meridian."
+      ],
+      visuals: [
+        {
+          caption: "FIG. WIB_WEST — Bill's The West (Four-Node Bounding Geometry)",
+          svg: `<svg viewBox="0 0 600 175" width="100%" style="display:block;">
+                  <rect x="16" y="10" width="568" height="155" fill="#fffdf9" stroke="#2b2925" stroke-width="1.5"/>
+                  <line x1="125" y1="36" x2="255" y2="36" stroke="#1a1917" stroke-width="2"/>
+                  <text x="182" y="27" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#1a1917">CANADA</text>
+                  <line x1="105" y1="136" x2="265" y2="136" stroke="#1a1917" stroke-width="2"/>
+                  <text x="195" y="150" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#1a1917">MEXICO</text>
+                  <path d="M 138 36 C 132 76, 152 112, 174 136" fill="none" stroke="#3E363F" stroke-width="2.2"/>
+                  <text x="104" y="92" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#3E363F">PACIFIC</text>
+                  <line x1="238" y1="26" x2="238" y2="146" stroke="#1a1917" stroke-width="2"/>
+                  <line x1="238" y1="68" x2="256" y2="68" stroke="#9C2A20" stroke-width="1.5"/>
+                  <line x1="238" y1="104" x2="256" y2="104" stroke="#9C2A20" stroke-width="1.5"/>
+                  <path d="M 262 64 Q 254 86 262 108" fill="none" stroke="#9C2A20" stroke-width="1.8"/>
+                  <path d="M 254 124 Q 226 112 236 88" fill="none" stroke="#9C2A20" stroke-width="1.5"/>
+                  <polygon points="232,91 237,84 240,92" fill="#9C2A20"/>
+                  <text x="262" y="128" font-family="monospace" font-size="10" font-weight="bold" fill="#9C2A20">COLORADO</text>
+                  <circle cx="138" cy="36" r="4.5" fill="#e06d1b"/>
+                  <circle cx="238" cy="36" r="4.5" fill="#e06d1b"/>
+                  <circle cx="174" cy="136" r="4.5" fill="#e06d1b"/>
+                  <circle cx="238" cy="136" r="4.5" fill="#e06d1b"/>
+                  <line x1="315" y1="40" x2="535" y2="40" stroke="#1a1917" stroke-width="1.8"/>
+                  <text x="425" y="68" text-anchor="middle" font-family="monospace" font-size="16" font-weight="bold" fill="#1a1917">BILL'S</text>
+                  <text x="425" y="92" text-anchor="middle" font-family="monospace" font-size="16" font-weight="bold" fill="#9C2A20">THE WEST</text>
+                  <line x1="315" y1="104" x2="535" y2="104" stroke="#1a1917" stroke-width="1.8"/>
+                  <text x="425" y="148" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#5a554c">WIB_WEST // BOUNDING ENVELOPE // WALLYCAD.COM/RTWO</text>
+                </svg>`
+        }
+      ]
+    },
+    {
+      domain: "WHERE IS BILL",
+      id: "WIB_ARC10",
+      label: "WIB_ARC10 • Ten-Node Passage Ledger (1956–2026)",
+      sortYear: 2026,
+      date: "1956 – Nov 27, 2026",
+      place: "El Monte → Lennox → Colton → Westminster → Carson City → Fallon → Redding → Las Vegas → Portland",
+      quadrant: "Q1–Q4: Full Western Traverse",
+      terms: [
+        "Vivian", "Jeanie", "Pamela Bills", "Debbie", "Maryann",
+        "Lorraine", "Sylvia", "Holly", "Hanna", "Aubrey", "Aubrie", "Sandra",
+        "Valley Lindo", "Firmona Avenue", "Hal Kelly's", "CONRAC", "SMI-Joist", "Talk of the Town", "Holiday Inn Express"
+      ],
+      title: "Ten-Node Passage Ledger (1956–2026)",
+      deck: "Ten civilian waypoints anchoring seventy years of Western geography—from first grade in El Monte to Portland and Las Vegas.",
+      essay: [
+        "Mapped across seventy years from 1956 to 2026, ten civilian waypoints anchor the geographic backbone of Where Is Bill—each pinned to an exact town, year, and turning point outside family politics and institutional scripts."
       ],
       intake: [
         "1956 — VIVIAN (El Monte, CA): Valley Lindo Elementary School, 1st Grade—the opening coordinate on the map, later echoed in Colton and the Vivian Creek Trail up San Gorgonio.",
         "1960 — JEANIE / Pamela Bills (Lennox, CA): Next-door neighbor on Firmona Avenue, 7th-grade student government peer, and early exit from the institutional perimeter.",
         "1972 — DEBBIE (Colton, CA): Hal Kelly's Grain & Milling dock, VW Bug rides, and the pre-Lydia inflection point leading back into engineering.",
         "1979–1984 — MARYANN (Westminster, CA): Orange County machine-tool drafting chapter at CONRAC prior to the San Diego North County move.",
-        "1997–1998 — RUTHANN / Ruthann Fatino (Victorville & Apple Valley, CA): High-desert Mojave hinge immediately following the November 1997 Escondido departure, before turning north toward Mammoth Lakes and Nevada.",
         "1999 — LORRAINE (Carson City, NV): Fifth-wheel park neighbor whose Ford Ranger drives across three counties to SMI-Joist in Fallon launched the Great Basin run.",
         "2006 — SYLVIA (Fallon, NV): Afternoon DVDs, Tuesday night NCIS dinners, and the San Diego wedding trip during the Fallon detailing years.",
         "2013 — HOLLY (Portland, OR / Seattle / Vancouver BC): Multnomah Village Senior Center connection anchoring the northern Pacific Northwest arc.",
@@ -992,32 +1053,31 @@
         "2015+ — SANDRA / Lissette Figueroa (Portland, OR): Holiday Inn Express (PDX) coworker and long-running civilian correspondence."
       ],
       interpretation: [
-        "Every node in the eleven-point traverse marks a real human waypoint outside family politics and institutional scripts.",
-        "Mapped chronologically from 1956 to 2026, the eleven coordinates verify the complete geographic backbone of Where Is Bill (Q1 through Q4)."
+        "Every node in the ten-point traverse marks a real human waypoint outside family politics and institutional scripts.",
+        "Mapped chronologically from 1956 to 2026, the ten coordinates verify the complete geographic backbone of Where Is Bill (Q1 through Q4)."
       ],
       blurbs: [
-        "Eleven coordinates across seventy years—each pinned to an exact town, year, and turning point.",
-        "From Valley Lindo Elementary in 1956 through Victorville & Apple Valley in 1997–1998 to Apartment 219 in 2026, the line holds."
+        "Ten coordinates across seventy years—each pinned to an exact town, year, and turning point.",
+        "From Valley Lindo Elementary in 1956 to Apartment 219 in 2026, the line holds."
       ],
       visuals: [
         {
-          caption: "FIG. WIB_ARC10 — Seventy-Year Eleven-Node Passage Vector (1956–2026)",
+          caption: "FIG. WIB_ARC10 — Seventy-Year Ten-Node Passage Vector (1956–2026)",
           svg: `<svg viewBox="0 0 600 136" width="100%" style="display:block;">
                   <rect x="16" y="12" width="568" height="112" fill="#fffdf9" stroke="#2b2925" stroke-width="1.5"/>
                   <line x1="42" y1="54" x2="558" y2="54" stroke="#9C2A20" stroke-width="2"/>
                   <line x1="42" y1="92" x2="558" y2="92" stroke="#3E363F" stroke-width="2"/>
-                  <circle cx="55"  cy="54" r="5" fill="#697A21"/><text x="55"  y="42" text-anchor="middle" font-family="monospace" font-size="7.5" font-weight="bold" fill="#1a1917">56:VIVIAN</text>
-                  <circle cx="152" cy="54" r="5" fill="#3E363F"/><text x="152" y="42" text-anchor="middle" font-family="monospace" font-size="7.5" font-weight="bold" fill="#1a1917">60:JEANIE</text>
-                  <circle cx="248" cy="54" r="5" fill="#3E363F"/><text x="248" y="42" text-anchor="middle" font-family="monospace" font-size="7.5" font-weight="bold" fill="#1a1917">72:DEBBIE</text>
-                  <circle cx="346" cy="54" r="5" fill="#3E363F"/><text x="346" y="42" text-anchor="middle" font-family="monospace" font-size="7.5" font-weight="bold" fill="#1a1917">79:MARYANN</text>
-                  <circle cx="445" cy="54" r="6" fill="#9C2A20"/><text x="445" y="42" text-anchor="middle" font-family="monospace" font-size="7.5" font-weight="bold" fill="#9C2A20">97:RUTHANN</text>
-                  <circle cx="542" cy="54" r="5" fill="#9C2A20"/><text x="542" y="42" text-anchor="middle" font-family="monospace" font-size="7.5" font-weight="bold" fill="#1a1917">99:LORRAINE</text>
+                  <circle cx="65"  cy="54" r="5" fill="#697A21"/><text x="65"  y="42" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">56:VIVIAN</text>
+                  <circle cx="180" cy="54" r="5" fill="#3E363F"/><text x="180" y="42" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">60:JEANIE</text>
+                  <circle cx="300" cy="54" r="5" fill="#3E363F"/><text x="300" y="42" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">72:DEBBIE</text>
+                  <circle cx="420" cy="54" r="5" fill="#3E363F"/><text x="420" y="42" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">79:MARYANN</text>
+                  <circle cx="535" cy="54" r="5" fill="#9C2A20"/><text x="535" y="42" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">99:LORRAINE</text>
                   <circle cx="65"  cy="92" r="5" fill="#3E363F"/><text x="65"  y="80" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">06:SYLVIA</text>
                   <circle cx="180" cy="92" r="5" fill="#3E363F"/><text x="180" y="80" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">13:HOLLY</text>
                   <circle cx="300" cy="92" r="5" fill="#3E363F"/><text x="300" y="80" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">14:HANNA</text>
                   <circle cx="420" cy="92" r="5" fill="#9C2A20"/><text x="420" y="80" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">15:AUBREY</text>
                   <circle cx="535" cy="92" r="6" fill="#697A21"/><text x="535" y="80" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#697A21">15+:SANDRA</text>
-                  <text x="300" y="115" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">WIB_ARC10 // ELEVEN CIVILIAN WAYPOINTS (1956–2026) // WALLYCAD.COM/RTWO</text>
+                  <text x="300" y="115" text-anchor="middle" font-family="monospace" font-size="8" font-weight="bold" fill="#1a1917">WIB_ARC10 // TEN CIVILIAN WAYPOINTS (1956–2026) // WALLYCAD.COM/RTWO</text>
                 </svg>`
         }
       ]
